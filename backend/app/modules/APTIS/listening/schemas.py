@@ -1,0 +1,261 @@
+from pydantic import BaseModel, field_validator, Field
+from typing import List, Optional, Dict, Any, Union
+from datetime import datetime
+from enum import Enum
+import json
+
+class AptisListeningQuestionType(str, Enum):
+    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"     # Trắc nghiệm 3 đáp án (A, B, C) - Dùng nhiều nhất
+    MATCHING = "MATCHING"                   # Nghe 4 người và nối quan điểm (Part 3)
+    SHORT_ANSWER = "SHORT_ANSWER"           # Trả lời ngắn
+
+# =======================================================
+# 1. BASE SCHEMAS
+# =======================================================
+
+# --- QUESTION ---
+class QuestionBase(BaseModel):
+    question_number: int
+    question_text: Optional[str] = None
+    question_type: AptisListeningQuestionType  
+    options: Optional[Union[Dict[str, str], List[str], str]] = None 
+    audio_url: Optional[str] = None
+
+    @field_validator('options', mode='before')
+    @classmethod
+    def parse_options(cls, v):
+        import json
+        if v is None: return {}
+        if isinstance(v, str):
+            try:
+                parsed = json.loads(v)
+                if isinstance(parsed, (dict, list)): return parsed
+            except ValueError: pass
+            return v
+        return v 
+
+# --- GROUP (🔥 Đã chuyển Audio và Transcript xuống đây) ---
+class GroupBase(BaseModel):
+    instruction: Optional[str] = None
+    image_url: Optional[str] = None
+    audio_url: Optional[str] = None 
+    transcript: Optional[str] = None # Transcript nằm cùng audio
+    order: int = 1
+
+# --- PART (Bây giờ chỉ còn mỗi part_number) ---
+class PartBase(BaseModel):
+    part_number: int
+    title: Optional[str] = None  # Thêm title cho Part để dễ quản lý, có thể dùng để hiển thị trên UI
+
+# --- TEST ---
+class TestBase(BaseModel):
+    title: str
+    description: Optional[str] = None # 🔥 ĐÃ THÊM: Mô tả chung cho đề thi Listening
+    time_limit: int = 40
+    is_published: bool = False 
+    is_full_test_only: bool = False
+
+# =======================================================
+# 2. INPUT SCHEMAS (Create/Update)
+# =======================================================
+
+# Question
+class QuestionCreate(QuestionBase):
+    correct_answer: str
+    explanation: Optional[str] = None
+
+# Group (Chứa Questions)
+class GroupCreate(GroupBase):
+    questions: List[QuestionCreate] = []
+
+# Part (Chứa Groups)
+class PartCreate(PartBase):
+    groups: List[GroupCreate] = []
+
+# Test (Chứa Parts)
+class ListeningTestCreate(TestBase):
+    parts: List[PartCreate] = []
+
+
+class QuestionUpdate(BaseModel):
+    id: Optional[int] = None 
+    question_number: Optional[int] = None
+    question_text: Optional[str] = None
+    question_type: Optional[AptisListeningQuestionType] = None
+    options: Optional[Union[Dict[str, str], List[str], str]] = None
+    correct_answer: Optional[str] = None
+    explanation: Optional[str] = None
+    audio_url: Optional[str] = None
+
+    @field_validator('options', mode='before')
+    @classmethod
+    def parse_options(cls, v):
+        return QuestionBase.parse_options(v)
+
+class GroupUpdate(BaseModel):
+    id: Optional[int] = None
+    instruction: Optional[str] = None
+    image_url: Optional[str] = None
+    audio_url: Optional[str] = None   # Cho phép update audio mới
+    transcript: Optional[str] = None  # Cho phép update transcript
+    order: Optional[int] = None
+    questions: Optional[List[QuestionUpdate]] = None
+
+class PartUpdate(BaseModel):
+    id: Optional[int] = None 
+    title: Optional[str] = None
+    part_number: Optional[int] = None
+    groups: Optional[List[GroupUpdate]] = None
+
+class ListeningTestUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None # 🔥 ĐÃ THÊM: Cho phép cập nhật description
+    time_limit: Optional[int] = None
+    is_published: Optional[bool] = None
+    is_full_test_only: Optional[bool] = None
+    parts: Optional[List[PartUpdate]] = None
+
+
+# =======================================================
+# 3. OUTPUT SCHEMAS - STUDENT (Public / Đang làm bài)
+# =======================================================
+
+class QuestionStudent(QuestionBase):
+    id: int
+    # 🚨 Không trả correct_answer và explanation
+    class Config: from_attributes = True
+
+class GroupStudent(BaseModel): # Dùng BaseModel mới thay vì kế thừa GroupBase để che giấu Transcript
+    id: int
+    instruction: Optional[str] = None
+    image_url: Optional[str] = None
+    audio_url: Optional[str] = None 
+    order: int
+    questions: List[QuestionStudent]
+    # 🚨 Không trả transcript khi đang thi
+    class Config: from_attributes = True
+
+class PartStudent(PartBase):
+    id: int
+    groups: List[GroupStudent]
+    class Config: from_attributes = True
+
+class ListeningTestStudent(TestBase):
+    id: int
+    parts: List[PartStudent]
+    class Config: from_attributes = True
+
+class ListeningTestListItem(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None # 🔥 ĐÃ THÊM: Để hiển thị mô tả ngắn ngoài màn hình danh sách Lobby
+    time_limit: int
+    is_published: bool
+    is_full_test_only: bool
+    created_at: datetime
+    status: Optional[str] = "NOT_STARTED"
+    class Config: from_attributes = True
+
+
+# =======================================================
+# 4. SUBMISSION & SCORING (Thay đổi điểm số)
+# =======================================================
+
+class SubmitAnswer(BaseModel):
+    test_id: int
+    answers: Dict[str, str] = Field(default_factory=dict)
+    is_full_test_only: bool = False
+
+class ResultDetailItem(BaseModel):
+    id: int                  
+    question_number: int
+    question_text: Optional[str]
+    user_answer: Optional[str] = ""
+    correct_answer: str       
+    is_correct: bool
+    explanation: Optional[str] = None
+
+class TestTitleOnly(BaseModel):
+    id: int
+    title: str
+    description: Optional[str] = None # 🔥 ĐÃ THÊM: Để màn hình lịch sử hiển thị được description nếu cần
+    class Config: from_attributes = True
+
+class SubmissionSummary(BaseModel):
+    id: int
+    test_id: int
+    test: Optional[TestTitleOnly] = None 
+    is_full_test_only: bool
+    status: str
+    
+    # 🔥 Aptis Scoring
+    correct_count: int
+    score: int
+    cefr_level: Optional[str] = None
+    
+    submitted_at: datetime
+    class Config: from_attributes = True
+
+class SubmissionDetail(BaseModel):
+    id: int
+    test_id: int
+    user_id: int
+    
+    # 🔥 Aptis Scoring
+    correct_count: int
+    score: int
+    cefr_level: Optional[str] = None
+    total_questions: int 
+    
+    submitted_at: datetime
+    test: Optional[TestTitleOnly] = None 
+    user_answers: Optional[Dict[str, str]] = None 
+    results: List[ResultDetailItem]
+    
+    class Config: from_attributes = True
+
+
+# =======================================================
+# 5. ADMIN SCHEMAS (Full Data)
+# =======================================================
+
+class QuestionResponseFull(QuestionCreate):
+    id: int
+    group_id: int 
+    class Config: from_attributes = True
+
+class GroupResponse(GroupCreate):
+    id: int
+    questions: List[QuestionResponseFull]
+    class Config: from_attributes = True
+
+class PartResponse(PartBase):
+    id: int
+    test_id: int
+    groups: List[GroupResponse] 
+    class Config: from_attributes = True
+
+class ListeningTestResponse(TestBase):
+    id: int
+    parts: List[PartResponse]
+    class Config: from_attributes = True
+
+
+# =======================================================
+# 6. ADMIN MANAGEMENT SCHEMAS (NEW)
+# =======================================================
+
+class UserBasicInfo(BaseModel):
+    id: int
+    email: str
+    full_name: Optional[str] = None
+    class Config: from_attributes = True
+
+class AdminListeningSubmissionResponse(SubmissionDetail):
+    user: Optional[UserBasicInfo] = None
+
+class ListeningScoreOverrideRequest(BaseModel):
+    # 🔥 Đổi theo Aptis
+    score: int
+    correct_count: Optional[int] = None
+    cefr_level: Optional[str] = None

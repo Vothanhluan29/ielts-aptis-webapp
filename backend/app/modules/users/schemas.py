@@ -1,0 +1,49 @@
+from pydantic import BaseModel, EmailStr, Field
+from typing import Optional, List
+from datetime import datetime
+
+# --- Base ---
+class UserBase(BaseModel):
+    email: EmailStr
+    full_name: Optional[str] = None
+
+# --- Input ---
+class UserCreate(UserBase):
+    password: str
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+class UserUpdateAdmin(BaseModel):
+    full_name: Optional[str] = None
+    avatar_url: Optional[str] = None
+    role: Optional[str] = None   #Admin only
+    is_active: Optional[bool] = None # Admin only
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: str
+
+# --- Output ---
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    full_name: Optional[str]
+    avatar_url: Optional[str]
+    is_active: bool
+    role: str
+    target_band: float  
+    
+    class Config:
+        from_attributes = True
+
+class UpdateTargetBand(BaseModel):
+    target_band: float = Field(..., ge=0, le=9.0)
+
+# Thêm vào file schemas.py
+class UserPaginationResponse(BaseModel):
+    items: List[UserResponse] # Danh sách user trên trang hiện tại
+    total: int                # Tổng số user trong Database
+    page: int                 # Trang hiện tại
+    size: int                 # Số lượng bản ghi mỗi trang
