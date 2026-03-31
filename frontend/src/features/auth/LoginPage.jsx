@@ -61,7 +61,7 @@ export default function LoginPage() {
       
       {/* ── LEFT PANEL (BRANDING) ── */}
       {/* Ẩn trên màn hình nhỏ (w-0), hiện và chiếm 45% chiều rộng trên màn hình lớn (lg:w-[45%]) */}
-      <div className="hidden lg:flex w-[45%] bg-gradient-to-br from-indigo-900 via-indigo-800 to-violet-900 p-12 flex-col justify-between relative overflow-hidden">
+      <div className="hidden lg:flex w-[45%] bg-linear-to-br from-indigo-900 via-indigo-800 to-violet-900 p-12 flex-col justify-between relative overflow-hidden">
         
         {/* Lớp lưới mờ trang trí (Background Pattern) */}
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
