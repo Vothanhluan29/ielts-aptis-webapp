@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { readingStudentApi } from '../../api/readingStudentApi'; // Đảm bảo đúng đường dẫn của bạn
+import { readingStudentApi } from '../../api/IELTS/reading/readingStudentApi'; // Đảm bảo đúng đường dẫn của bạn
 import { toast } from 'react-toastify';
 
 export const useReadingExam = (propsTestId, propsOnFinish) => {
