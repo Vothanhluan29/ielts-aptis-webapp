@@ -1,4 +1,4 @@
-import axiosClient from '../../../services/axiosClient'; // Đảm bảo đường dẫn chuẩn với project
+import axiosClient from '../../../../../services/axiosClient'; // Đảm bảo đường dẫn chuẩn với project
 
 const BASE_URL = '/writing';
 
