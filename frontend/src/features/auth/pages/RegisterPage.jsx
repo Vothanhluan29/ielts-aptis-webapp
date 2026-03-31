@@ -73,7 +73,7 @@ export default function RegisterPage() {
               <GraduationCap className="text-white" size={28} />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">EduPro</h1>
+              <h1 className="text-2xl font-black text-white tracking-tight">English Master</h1>
               <p className="text-indigo-200 text-xs font-medium">English Proficiency Platform</p>
             </div>
           </div>

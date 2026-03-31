@@ -122,7 +122,7 @@ export default function LoginPage() {
             <div className="bg-indigo-600 p-3 rounded-2xl mb-3 shadow-lg shadow-indigo-200">
               <GraduationCap className="text-white" size={32} />
             </div>
-            <h1 className="text-3xl font-black text-slate-800">EduPro</h1>
+            <h1 className="text-3xl font-black text-slate-800">English Master</h1>
           </div>
 
           {/* Form Container */}

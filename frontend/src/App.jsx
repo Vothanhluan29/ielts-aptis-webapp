@@ -7,8 +7,8 @@ import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
 
 /* --- AUTH --- */
-import LoginPage from './features/auth/LoginPage';
-import RegisterPage from './features/auth/RegisterPage';
+import LoginPage from './features/auth/pages/LoginPage';
+import RegisterPage from './features/auth/pages/RegisterPage';
 import StudentProfile from './features/auth/StudentProfile';
 
 /* --- CHOOSE MODE PAGE (TRANG CỔNG CHÀO) --- */
