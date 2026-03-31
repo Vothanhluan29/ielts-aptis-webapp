@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSpeakingResult } from '../../hooks/speaking/useSpeakingResult';
+import { useSpeakingResult } from '../../../hooks/IELTS/speaking/useSpeakingResult';
 import {
   Trophy,
   PlayCircle,
@@ -222,7 +222,7 @@ const SpeakingResultPage = () => {
                 {/* 1. Lời dẫn & Cue Card của Part (Nếu có) */}
                 {activePartData.partInfo?.instruction && (
                   <div className="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm fu2 flex gap-4 items-start">
-                    <Info size={24} className="text-indigo-400 flex-shrink-0 mt-1" />
+                    <Info size={24} className="text-indigo-400 shrink-0 mt-1" />
                     <div>
                       <h4 className="text-sm font-bold text-slate-800 mb-1">Part Instruction</h4>
                       <p className="text-slate-600 text-sm">{activePartData.partInfo.instruction}</p>
@@ -257,7 +257,7 @@ const SpeakingResultPage = () => {
                         {/* Khu vực Câu hỏi */}
                         <div className="bg-slate-50 p-6 md:p-8 border-b border-slate-100">
                           <div className="flex gap-3">
-                            <HelpCircle className="text-violet-400 flex-shrink-0 mt-1" size={20} />
+                            <HelpCircle className="text-violet-400 shrink-0 mt-1" size={20} />
                             <h3 className="serif text-xl md:text-2xl text-slate-800 leading-snug">
                               {questionInfo.question_text}
                             </h3>
@@ -272,7 +272,7 @@ const SpeakingResultPage = () => {
                             <>
                               {/* Audio */}
                               <div className="bg-slate-50 rounded-2xl p-3 border border-slate-100 flex items-center gap-4">
-                                <div className="w-8 h-8 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-8 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center shrink-0">
                                   <PlayCircle size={14} className="text-violet-500" />
                                 </div>
                                 <audio src={answerDetail.audio_url} controls className="w-full h-10 accent-violet-600" />
@@ -396,7 +396,7 @@ const TranscriptHighlighter = ({ transcript, corrections }) => {
         if (match) {
           const theme = getCorrectionTheme(match.type);
           return (
-            <span key={i} className="relative group cursor-help mx-[2px] inline-block">
+            <span key={i} className="relative group cursor-help mx-0.5 inline-block">
               <span className={`border-b-2 border-dotted px-1 py-0.5 rounded-sm transition-all duration-150 ${theme.highlighter}`}>
                 {part}
               </span>
