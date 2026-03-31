@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import { Link } from "react-router-dom";
-import useUserUsage from "../../hooks/MainLayout/useUserUsage";
+import useUserUsage from "../../../hooks/MainLayout/useUserUsage";
 
 /* ================================
    QUOTA CARD

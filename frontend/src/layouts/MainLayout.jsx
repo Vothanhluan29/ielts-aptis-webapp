@@ -2,12 +2,12 @@ import React, { useState} from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 // Import IELTS Components (Mặc định)
-import Sidebar from '../components/MainLayout/Sidebar';
-import Header from '../components/MainLayout/Header';
+import Sidebar from '../components/MainLayout/IELTS/Sidebar';
+import Header from '../components/MainLayout/IELTS/Header';
 
 // Import APTIS Components (Bạn hãy check lại đường dẫn cho đúng nhé)
-import AptisSidebar from '../components/MainLayout/AptisSidebar';
-import AptisHeader from '../components/MainLayout/AptisHeader';
+import AptisSidebar from '../components/MainLayout/APTIS/AptisSidebar';
+import AptisHeader from '../components/MainLayout/APTIS/AptisHeader';
 
 import { useMainLayout } from '../hooks/MainLayout/useMainLayout';
 
