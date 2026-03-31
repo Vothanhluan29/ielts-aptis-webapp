@@ -14,8 +14,8 @@ import { useExamTaking } from '../../../hooks/IELTS/exam/useExamTaking';
 
 import ListeningExamPage from '../../IELTS/listening/ListeningExamPage';
 import ReadingExamPage from '../../IELTS/reading/ReadingExamPage';
-import WritingExamPage from '../../writing/WritingExamPage';
-import SpeakingExamPage from '../../speaking/SpeakingExamPage';
+import WritingExamPage from '../../IELTS/writing/WritingExamPage';
+import SpeakingExamPage from '../../IELTS/speaking/SpeakingExamPage';
 
 const { Title, Text } = Typography;
 
