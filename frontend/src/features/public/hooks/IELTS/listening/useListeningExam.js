@@ -19,8 +19,6 @@ export const useListeningExam = (propsTestId, propsOnFinish) => {
   const [answers, setAnswers] = useState({});
   const [currentPartIndex, setCurrentPartIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(null);
-
-  // 🔥 TỐI ƯU 1: Dùng Ref để lưu answers, tránh re-render hàm Submit gây reset đồng hồ
   const answersRef = useRef(answers);
 
   /* =========================
@@ -165,8 +163,8 @@ export const useListeningExam = (propsTestId, propsOnFinish) => {
         setTest(data);
         
         // Init time (Chỉ set 1 lần)
-        if (data.time_limit && timeLeft === null) {
-          setTimeLeft(data.time_limit * 60);
+        if (data.time_limit) {
+          setTimeLeft(prev => prev === null ? data.time_limit * 60 : prev);
         }
       } catch (err) {
         console.error('Fetch test error:', err);
