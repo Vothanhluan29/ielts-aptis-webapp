@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { writingStudentApi } from '../../api/writingStudentApi';
+import { writingStudentApi } from '../../../api/IELTS/writing/writingStudentApi';
 import toast from 'react-hot-toast';
 
 export const useWritingHistory = () => {
