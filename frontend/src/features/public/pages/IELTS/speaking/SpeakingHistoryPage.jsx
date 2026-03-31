@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSpeakingHistory } from '../../hooks/speaking/useSpeakingHistory';
+import { useSpeakingHistory } from '../../../hooks/IELTS/speaking/useSpeakingHistory';
 import {
   ArrowLeft,
   Calendar,
