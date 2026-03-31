@@ -103,7 +103,7 @@ export default function LoginPage() {
           <div className="flex gap-4">
             <div className="bg-white/10 border border-white/20 px-4 py-2 rounded-xl backdrop-blur-sm">
               <p className="text-white font-bold">IELTS</p>
-              <p className="text-indigo-200 text-xs">Academic & General</p>
+              <p className="text-indigo-200 text-xs">British Council</p>
             </div>
             <div className="bg-white/10 border border-white/20 px-4 py-2 rounded-xl backdrop-blur-sm">
               <p className="text-white font-bold">APTIS</p>

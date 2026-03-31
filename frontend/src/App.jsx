@@ -12,7 +12,7 @@ import RegisterPage from './features/auth/RegisterPage';
 import StudentProfile from './features/auth/StudentProfile';
 
 /* --- CHOOSE MODE PAGE (TRANG CỔNG CHÀO) --- */
-import ModeSelectionPage from './features/auth/ModeSelectionPage'; 
+import ModeSelectionPage from './features/auth/pages/ModeSelectionPage'; 
 
 /* --- STUDENT PAGES --- */
 import DashboardPage from './features/public/pages/IELTS/dashboard/DashBoardPage';
