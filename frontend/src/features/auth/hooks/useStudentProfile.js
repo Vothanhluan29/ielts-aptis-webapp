@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import authApi from '../api/authApi';
+import authApi from '../api/authApi'; // Đảm bảo đường dẫn này đúng với dự án của bạn
 
 export const useStudentProfile = () => {
   // 1. Lấy context từ MainLayout (nơi chứa state user gốc)
@@ -10,23 +10,16 @@ export const useStudentProfile = () => {
   const refreshUser = context?.refreshUser;
 
   // 2. Các states xử lý hiệu ứng loading
-  const [submittingPwd, setSubmittingPwd] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [isUpdatingTarget, setIsUpdatingTarget] = useState(false);
 
   const fileInputRef = useRef(null);
 
-  const [pwdData, setPwdData] = useState({
-    current_password: '',
-    new_password: '',
-    confirm_password: ''
-  });
-
   // 3. Xử lý URL Avatar với cache busting
   // useMemo giúp URL chỉ tính toán lại khi user.avatar_url thay đổi
   const avatarUrl = useMemo(() => {
     if (!user?.avatar_url) return null;
-    // Thêm timestamp để ép trình duyệt tải ảnh mới nhất từ server
+    // Thêm timestamp để ép trình duyệt tải ảnh mới nhất từ server (không dùng ảnh cũ trong cache)
     return `${user.avatar_url}?t=${new Date().getTime()}`;
   }, [user?.avatar_url]);
 
@@ -67,7 +60,7 @@ export const useStudentProfile = () => {
     try {
       await authApi.uploadAvatar(file);
       
-      // Đồng bộ lại toàn bộ ứng dụng
+      // Đồng bộ lại toàn bộ ứng dụng để Avatar mới hiện lên ở cả Header
       if (refreshUser) {
         await refreshUser(); 
       }
@@ -78,51 +71,18 @@ export const useStudentProfile = () => {
       toast.error('Lỗi khi upload ảnh', { id: loadingToast });
     } finally {
       setUploadingAvatar(false);
-      // Reset input file để có thể chọn lại cùng 1 file nếu muốn
+      // Reset input file để có thể chọn lại cùng 1 file nếu user muốn
       if (fileInputRef.current) fileInputRef.current.value = '';
-    }
-  };
-
-  // Đổi mật khẩu
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-
-    if (pwdData.new_password !== pwdData.confirm_password) {
-      return toast.error('Mật khẩu xác nhận không khớp');
-    }
-
-    setSubmittingPwd(true);
-    try {
-      await authApi.changePassword({
-        current_password: pwdData.current_password,
-        new_password: pwdData.new_password
-      });
-
-      toast.success('Đã đổi mật khẩu thành công!');
-      setPwdData({
-        current_password: '',
-        new_password: '',
-        confirm_password: ''
-      });
-    } catch (error) {
-      const msg = error.response?.data?.detail || 'Mật khẩu hiện tại không đúng';
-      toast.error(msg);
-    } finally {
-      setSubmittingPwd(false);
     }
   };
 
   return {
     user,
     avatarUrl, // Trả về URL đã được xử lý cache
-    pwdData,
-    setPwdData,
     isUpdatingTarget,
     uploadingAvatar,
-    submittingPwd,
     fileInputRef,
     handleUpdateTarget,
-    handleAvatarChange,
-    handleChangePassword
+    handleAvatarChange
   };
 };
