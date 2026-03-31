@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { writingStudentApi } from '../../../api/IELTS/writing/writingStudentApi'; 
-import useUserUsage from '../../../../hooks/MainLayout/useUserUsage'; 
+import useUserUsage from '../../../../../hooks/MainLayout/useUserUsage'; 
 import toast from 'react-hot-toast';
 
 const MIN_WORDS_TASK_1 = 150;
