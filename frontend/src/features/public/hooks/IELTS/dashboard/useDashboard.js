@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { message } from 'antd';
-import { dashboardStudentApi } from '../../api/dashboardStudentApi'; // Điều chỉnh lại đường dẫn API của bạn cho đúng
+import { dashboardStudentApi } from '../../../api/IELTS/Dashboard/dashboardStudentApi'; // Điều chỉnh lại đường dẫn API của bạn cho đúng
 
 export const useDashboard = (activityLimit = 5) => {
   // --- STATES ---
@@ -53,4 +53,4 @@ export const useDashboard = (activityLimit = 5) => {
     loading,        // Trạng thái loading để hiển thị Skeleton/Spin
     refresh: fetchDashboardData // Hàm gọi lại data (Dùng cho nút "Làm mới" nếu có)
   };
-};
+}; 

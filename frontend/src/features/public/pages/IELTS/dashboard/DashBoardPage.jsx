@@ -1,7 +1,7 @@
 import React from 'react';
 import { Row, Col, Spin, Typography, Space } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { useDashboard } from '../../../hooks/dashboard/useDashboard';
+import { useDashboard } from '../../../hooks/IELTS/dashboard/useDashboard';
 
 // Import các sub-components
 import DashboardHeader from '../../../components/IELTS/dashboard/DashboardHeader';
