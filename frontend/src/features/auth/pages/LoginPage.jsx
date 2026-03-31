@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { GoogleLogin } from '@react-oauth/google';
-import authApi from './api/authApi';
+import authApi from '../api/authApi';
 import { CheckCircle2, GraduationCap, ArrowRight } from 'lucide-react'; // Thêm icon cho đẹp
 
 const FEATURES = [
