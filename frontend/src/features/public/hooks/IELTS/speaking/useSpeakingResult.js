@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { speakingStudentApi } from '../../api/speakingStudentApi'; // Đã sửa lại đường dẫn cho chuẩn
+import { speakingStudentApi } from '../../../api/IELTS/speaking/speakingStudentApi'; // Đã sửa lại đường dẫn cho chuẩn
 import toast from 'react-hot-toast';
 
 export const useSpeakingResult = () => {
