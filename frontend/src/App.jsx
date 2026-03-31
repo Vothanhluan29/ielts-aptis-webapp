@@ -38,10 +38,10 @@ import ListeningResultPage from './features/public/pages/IELTS/listening/Listeni
 import ListeningHistoryPage from './features/public/pages/IELTS/listening/ListeningHistoryPage';
 
 // Writing
-import WritingListPage from './features/public/pages/writing/WritingListPage';
-import WritingExamPage from './features/public/pages/writing/WritingExamPage';
-import WritingResultPage from './features/public/pages/writing/WritingResultPage';
-import WritingHistoryPage from './features/public/pages/writing/WritingHistoryPage';
+import WritingListPage from './features/public/pages/IELTS/writing/WritingListPage';
+import WritingExamPage from './features/public/pages/IELTS/writing/WritingExamPage';
+import WritingResultPage from './features/public/pages/IELTS/writing/WritingResultPage';
+import WritingHistoryPage from './features/public/pages/IELTS/writing/WritingHistoryPage';
 
 // Speaking
 import SpeakingListPage from './features/public/pages/IELTS/speaking/SpeakingListPage';
