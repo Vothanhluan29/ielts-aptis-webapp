@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { subscriptionApi } from '../../features/subscriptions/api/subscriptionApi';
+import { subscriptionApi } from '../../features/public/api/IELTS/subscriptions/subscriptionApi';
 
 const useUserUsage = () => {
   // 1. Khởi tạo state với đầy đủ các trường (Exam, Writing, Speaking)
