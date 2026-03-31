@@ -12,7 +12,7 @@ import {
   LoadingOutlined
 } from '@ant-design/icons';
 
-import { useExamResult } from '../../hooks/exam/useExamResult';
+import { useExamResult } from '../../../hooks/IELTS/exam/useExamResult';
 
 const { Title, Text } = Typography;
 
@@ -88,7 +88,7 @@ const ExamResultPage = () => {
         </Button>
 
         {/* ================= HERO CARD (OVERALL SCORE) ================= */}
-        <div className="relative bg-gradient-to-br from-indigo-700 via-indigo-600 to-violet-800 rounded-3xl shadow-xl border border-indigo-500 p-8 md:p-12 overflow-hidden text-white">
+        <div className="relative bg-linear-to-br from-indigo-700 via-indigo-600 to-violet-800 rounded-3xl shadow-xl border border-indigo-500 p-8 md:p-12 overflow-hidden text-white">
           
           {/* Background Decorations */}
           <div className="absolute -top-20 -right-20 w-80 h-80 bg-white rounded-full blur-3xl opacity-10 pointer-events-none" />
@@ -101,7 +101,7 @@ const ExamResultPage = () => {
                 <span>{dateStr}</span>
               </div>
 
-              <Title level={1} className="!text-white !font-black !mb-4 !text-4xl md:!text-5xl line-clamp-2">
+              <Title level={1} className="text-white! font-black! mb-4! text-4xl! md:text-5xl! line-clamp-2">
                 {full_test?.title || "IELTS Mock Test"}
               </Title>
 
@@ -126,12 +126,12 @@ const ExamResultPage = () => {
 
         {/* ================= SKILL CARDS ================= */}
         <div>
-          <Title level={4} className="!text-slate-700 !mb-6 !font-bold">Detailed Results</Title>
+          <Title level={4} className="text-slate-700! mb-6! font-bold!">Detailed Results</Title>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <SkillCard
               title="Listening"
               score={listening_score}
-              icon={CustomerServiceOutlined}
+              icon={<CustomerServiceOutlined />}
               colorClass="text-blue-600 bg-blue-50"
               hoverClass="hover:border-blue-300"
               onClick={() => handleReviewSkill('listening', listening_submission_id)}
@@ -139,7 +139,7 @@ const ExamResultPage = () => {
             <SkillCard
               title="Reading"
               score={reading_score}
-              icon={ReadOutlined}
+              icon={<ReadOutlined />}
               colorClass="text-purple-600 bg-purple-50"
               hoverClass="hover:border-purple-300"
               onClick={() => handleReviewSkill('reading', reading_submission_id)}
@@ -147,7 +147,7 @@ const ExamResultPage = () => {
             <SkillCard
               title="Writing"
               score={writing_score}
-              icon={EditOutlined}
+              icon={<EditOutlined />}
               colorClass="text-rose-600 bg-rose-50"
               hoverClass="hover:border-rose-300"
               onClick={() => handleReviewSkill('writing', writing_submission_id)}
@@ -155,7 +155,7 @@ const ExamResultPage = () => {
             <SkillCard
               title="Speaking"
               score={speaking_score}
-              icon={AudioOutlined}
+              icon={<AudioOutlined />}
               colorClass="text-orange-600 bg-orange-50"
               hoverClass="hover:border-orange-300"
               onClick={() => handleReviewSkill('speaking', speaking_submission_id)}
@@ -171,9 +171,9 @@ const ExamResultPage = () => {
 // ============================
 // SUB-COMPONENT: SKILL CARD
 // ============================
-const SkillCard = ({ title, score, icon: Icon, colorClass, hoverClass, onClick }) => {
+const SkillCard = ({ title, score, icon, colorClass, hoverClass, onClick }) => {
   // Cho phép nhận điểm 0 (score >= 0)
-  // Chỉ khi score thực sự là null hoặc undefined mới rơi vào trạng thái Grading
+
   const hasScore = score !== null && score !== undefined && score >= 0;
 
   return (
@@ -184,7 +184,7 @@ const SkillCard = ({ title, score, icon: Icon, colorClass, hoverClass, onClick }
     >
       <div className="flex justify-between items-start mb-6">
         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-sm transition-transform group-hover:scale-110 ${colorClass}`}>
-          <Icon />
+          {icon}
         </div>
         
         {hasScore && (

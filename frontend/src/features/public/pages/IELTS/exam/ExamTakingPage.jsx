@@ -1,6 +1,3 @@
-// ============================
-// IMPORTS
-// ============================
 import React, { useState, useEffect } from 'react';
 import { Spin, Steps, Typography, Result, Modal } from 'antd';
 import {
@@ -13,12 +10,12 @@ import {
   ExclamationCircleOutlined
 } from '@ant-design/icons';
 
-import { useExamTaking } from '../../hooks/exam/useExamTaking';
+import { useExamTaking } from '../../../hooks/IELTS/exam/useExamTaking';
 
-import ListeningExamPage from '../listening/ListeningExamPage';
-import ReadingExamPage from '../reading/ReadingExamPage';
-import WritingExamPage from '../writing/WritingExamPage';
-import SpeakingExamPage from '../speaking/SpeakingExamPage';
+import ListeningExamPage from '../../listening/ListeningExamPage';
+import ReadingExamPage from '../../reading/ReadingExamPage';
+import WritingExamPage from '../../writing/WritingExamPage';
+import SpeakingExamPage from '../../speaking/SpeakingExamPage';
 
 const { Title, Text } = Typography;
 
@@ -32,9 +29,6 @@ const STEPS = [
   { key: 'SPEAKING', label: 'Speaking', icon: <AudioOutlined />, standardTime: 15 },   // 15 phút
 ];
 
-// ============================
-// SUB-COMPONENT: TIMER
-// ============================
 // ============================
 // SUB-COMPONENT: TIMER
 // ============================
@@ -188,7 +182,7 @@ const ExamTakingPage = () => {
             IELTS
           </div>
           <div className="hidden sm:block">
-            <Title level={5} className="!m-0 text-slate-800 line-clamp-1" title={full_test.title}>
+            <Title level={5} className="m-0! text-slate-800 line-clamp-1" title={full_test.title}>
               {full_test.title}
             </Title>
           </div>
@@ -237,7 +231,7 @@ const ExamTakingPage = () => {
           <div className="absolute inset-0 z-50 bg-white/70 backdrop-blur-sm flex items-center justify-center transition-all duration-300">
             <div className="bg-white p-8 rounded-2xl shadow-2xl flex flex-col items-center max-w-sm text-center border border-slate-100">
               <Spin indicator={<LoadingOutlined style={{ fontSize: 44, color: '#4f46e5' }} spin />} />
-              <Title level={4} className="!mt-6 !mb-2 text-slate-800 font-bold">
+              <Title level={4} className="mt-6! mb-2! text-slate-800 font-bold">
                 Saving your progress...
               </Title>
               <Text type="secondary">

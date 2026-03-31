@@ -120,7 +120,7 @@ const useExamLobby = () => {
     }
 
     proceedToStart();
-  }, [isAudioTested, isMicTested, proceedToStart]); // 🔥 FIX: Thêm proceedToStart vào đây (xóa id và navigate vì đã nằm trong proceedToStart)
+  }, [isAudioTested, isMicTested, proceedToStart]); 
 
   return {
     audioRef,
