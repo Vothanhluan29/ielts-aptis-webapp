@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWritingResult } from '../../hooks/writing/useWritingResult';
+import { useWritingResult } from '../../../hooks/IELTS/writing/useWritingResult';
 import { 
   ArrowLeft, CheckCircle, Lightbulb, 
   BookOpen, Star, MessageSquare, 
@@ -249,7 +249,7 @@ const WritingResultPage = () => {
             </div>
 
             {/* Feedback */}
-            <div className="fu3 rounded-3xl p-6 md:p-8 border border-indigo-100 overflow-hidden relative bg-gradient-to-br from-indigo-50 to-blue-50">
+            <div className="fu3 rounded-3xl p-6 md:p-8 border border-indigo-100 overflow-hidden relative bg-linear-to-br from-indigo-50 to-blue-50">
               <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full bg-indigo-200/40 blur-2xl pointer-events-none"></div>
               <div className="flex items-center gap-2 mb-4">
                 <MessageSquare size={13} className="text-indigo-500" />
@@ -288,14 +288,14 @@ const WritingResultPage = () => {
                   <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Task Overall</div>
                   <div className="text-[10px] font-medium text-slate-300">Average of criteria</div>
                 </div>
-                <div className="font-serif text-5xl text-transparent bg-clip-text bg-gradient-to-br from-rose-500 to-pink-500">
+                <div className="font-serif text-5xl text-transparent bg-clip-text bg-linear-to-br from-rose-500 to-pink-500">
                   {scoreOverall || 0}
                 </div>
               </div>
             </div>
 
             {/* Review List */}
-            <div className="fu3 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col max-h-[560px]">
+            <div className="fu3 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col max-h-140">
               <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100 shrink-0">
                 <div className="w-8 h-8 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center">
                   <Lightbulb size={15} className="text-violet-500" />
@@ -324,7 +324,7 @@ const WritingResultPage = () => {
                       <div key={idx} className={`p-4 rounded-2xl border transition-all duration-200 ${theme.card}`}>
                         <div className="flex justify-between items-start gap-2 mb-2.5">
                           <span className={`${theme.textOriginal} text-sm leading-snug`}>{err.text}</span>
-                          <span className={`text-[9px] font-bold uppercase tracking-[0.1em] shrink-0 inline-flex items-center px-2 py-0.5 rounded-md border ${theme.badge}`}>
+                          <span className={`text-[9px] font-bold uppercase tracking-widest shrink-0 inline-flex items-center px-2 py-0.5 rounded-md border ${theme.badge}`}>
                             {theme.type}
                           </span>
                         </div>
@@ -366,7 +366,7 @@ const CorrectionHighlighter = ({ content, corrections }) => {
         if (match) {
           const theme = getCorrectionTheme(match.type);
           return (
-            <span key={i} className="relative group cursor-help mx-[2px] inline-block">
+            <span key={i} className="relative group cursor-help mx-0.5 inline-block">
               <span className={`border-b-2 border-dotted px-1 py-0.5 rounded transition-all duration-150 font-medium ${theme.highlighter}`}>
                 {part}
               </span>
