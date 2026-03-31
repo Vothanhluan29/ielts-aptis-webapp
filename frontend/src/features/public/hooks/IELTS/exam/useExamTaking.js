@@ -60,7 +60,6 @@ export const useExamTaking = () => {
       message.success(responseData.message || "Progress saved. Moving to the next section...");
       
       if (responseData.next_step === 'FINISHED') {
-         // 🔥 Dùng replace để chặn học viên bấm "Back" quay lại phòng thi
          navigate(`/exam/result/${id}`, { replace: true });
       } else {
          // Cập nhật step mới cho UI render component khác

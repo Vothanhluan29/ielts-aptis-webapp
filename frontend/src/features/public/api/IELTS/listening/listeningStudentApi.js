@@ -1,5 +1,5 @@
 // ⚠️ LƯU Ý: Kiểm tra lại đường dẫn import axiosClient tùy vào cấu trúc folder của bạn
-import axiosClient from '../../../services/axiosClient';
+import axiosClient from '../../../../../services/axiosClient';
 
 const BASE_URL = '/listening';
 
@@ -18,7 +18,6 @@ export const listeningStudentApi = {
   },
 
   // 3. Nộp bài thi
-  // 🔥 LƯU Ý PAYLOAD CHUẨN: 
   // { 
   //    test_id: int, 
   //    user_answers: { "1": "apple", "2": ["A", "C"] }, // Dùng Question_Number, KHÔNG dùng ID

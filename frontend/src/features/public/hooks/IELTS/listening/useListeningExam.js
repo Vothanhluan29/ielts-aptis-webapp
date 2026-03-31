@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-// ✅ Import API chuẩn dành cho Student
-import { listeningStudentApi } from '../../api/listeningStudentApi'; // Check lại đường dẫn
+import { listeningStudentApi } from '../../../api/IELTS/listening/listeningStudentApi'; 
 import toast from 'react-hot-toast';
 
 export const useListeningExam = (propsTestId, propsOnFinish) => {

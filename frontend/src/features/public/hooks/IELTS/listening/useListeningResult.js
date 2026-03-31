@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { listeningStudentApi } from '../../api/listeningStudentApi'; // Đảm bảo đường dẫn này đúng
+import { listeningStudentApi } from '../../../api/IELTS/listening/listeningStudentApi'; 
 
 export const useListeningResult = () => {
   const { id } = useParams();
