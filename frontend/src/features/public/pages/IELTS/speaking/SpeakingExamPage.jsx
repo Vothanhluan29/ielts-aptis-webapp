@@ -9,7 +9,7 @@ import {
   PlayCircleOutlined, StopOutlined, ExclamationCircleOutlined,
   CheckCircleOutlined, LoadingOutlined 
 } from '@ant-design/icons';
-import { useSpeakingExam } from '../../hooks/speaking/useSpeakingExam'; // Đường dẫn tới hook của bạn
+import { useSpeakingExam } from '../../../hooks/IELTS/speaking/useSpeakingExam'; // Đường dẫn tới hook của bạn
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -68,7 +68,7 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
       <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-3 md:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
-            <Title level={5} className="!m-0 !text-slate-800">
+            <Title level={5} className="m-0! text-slate-800!">
               {testDetail.title}
             </Title>
             <Text type="secondary" className="flex items-center gap-1 mt-1 text-xs font-semibold uppercase tracking-wider">
@@ -125,17 +125,17 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
           {/* Cue Card (Dành riêng cho Part 2) */}
           {currentPart.part_number === 2 && currentPart.cue_card && (
             <div className="bg-amber-50/50 border border-amber-200 rounded-xl p-6 mb-6">
-              <Text className="text-amber-800 font-bold block mb-3 uppercase text-xs tracking-widest flex items-center gap-2">
+              <Text className="text-amber-800 font-bold flex mb-3 uppercase text-xs tracking-widest flex items-center gap-2">
                 <ReadOutlined /> Candidate Task Card
               </Text>
-              <Paragraph className="text-slate-800 text-base whitespace-pre-wrap !mb-0 font-medium leading-relaxed">
+              <Paragraph className="text-slate-800 text-base whitespace-pre-wrap mb-0! font-medium leading-relaxed">
                 {currentPart.cue_card}
               </Paragraph>
             </div>
           )}
 
           {/* Text Câu hỏi hiện tại */}
-          <Title level={3} className="!text-slate-800 !leading-snug !mt-0 !mb-6">
+          <Title level={3} className="text-slate-800! leading-snug! mt-0! mb-6!">
             {currentQuestion.question_text}
           </Title>
 
