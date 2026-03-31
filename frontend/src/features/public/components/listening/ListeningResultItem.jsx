@@ -1,4 +1,3 @@
-// 🔥 IMPORTANT: Must include { useState } here
 import React, { useState } from 'react'; 
 import { Check, X, ChevronDown, BookOpen, AlertCircle, Headphones } from 'lucide-react';
 
@@ -11,10 +10,9 @@ const ListeningResultItem = ({ item, index }) => {
   const qText = item.question_text || item.question?.question_text || "Listening audio prompt...";
   const explanation = item.explanation || item.question?.explanation;
   
-  // 🔥 FIX 1: Xử lý correct_answers dạng mảng (Array)
   const correctAnswersList = item.correct_answers || item.question?.correct_answers || [];
   const correctAnswerText = correctAnswersList.length > 0 
-    ? correctAnswersList.join(' or ') // Ngăn cách các đáp án đúng bằng dấu gạch chéo
+    ? correctAnswersList.join(' or ')
     : "N/A";
   
   // 🔥 FIX 2: Xử lý user_answer nếu nó là mảng (Multiple Answer)
@@ -58,9 +56,9 @@ const ListeningResultItem = ({ item, index }) => {
         <td className="py-4 px-4 align-middle hidden md:table-cell">
             <div className="flex items-center gap-2">
                  {/* Small Headphones icon to distinguish Listening */}
-                <Headphones size={14} className="text-gray-400 flex-shrink-0"/>
+                <Headphones size={14} className="text-gray-400 shrink-0"/>
                 <p 
-                  className="text-sm text-gray-700 font-medium truncate max-w-[250px] lg:max-w-[400px]" 
+                  className="text-sm text-gray-700 font-medium truncate max-w-62.5 lg:max-w-100" 
                   title={qText}
                 >
                     {qText}
@@ -83,7 +81,7 @@ const ListeningResultItem = ({ item, index }) => {
 
         {/* Column 4: Correct answer */}
         <td className="py-4 px-4 align-middle w-48">
-            <div className="text-sm font-bold text-green-700 bg-green-50 px-2 py-1 rounded w-fit border border-green-100 break-words max-w-full">
+            <div className="text-sm font-bold text-green-700 bg-green-50 px-2 py-1 rounded w-fit border border-green-100 wrap-break-word max-w-full">
                 {correctAnswerText}
             </div>
         </td>
