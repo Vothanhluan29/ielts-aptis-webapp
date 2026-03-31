@@ -1,7 +1,7 @@
-import { useState, useRef, useMemo } from 'react';
+import { useState, useRef, useMemo, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import authApi from '../api/authApi'; // Đảm bảo đường dẫn này đúng với dự án của bạn
+import authApi from '../api/authApi'; 
 
 export const useStudentProfile = () => {
   // 1. Lấy context từ MainLayout (nơi chứa state user gốc)
@@ -9,17 +9,25 @@ export const useStudentProfile = () => {
   const user = context?.user;
   const refreshUser = context?.refreshUser;
 
-  // 2. Các states xử lý hiệu ứng loading
+  // 2. Các states xử lý hiệu ứng loading và form
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [isUpdatingTarget, setIsUpdatingTarget] = useState(false);
+  const [submittingProfile, setSubmittingProfile] = useState(false);
+  
+  const [profileData, setProfileData] = useState({ full_name: '' });
 
   const fileInputRef = useRef(null);
 
+  // Đồng bộ tên từ user context vào form khi trang vừa load xong
+  useEffect(() => {
+    if (user?.full_name) {
+      setProfileData({ full_name: user.full_name });
+    }
+  }, [user]);
+
   // 3. Xử lý URL Avatar với cache busting
-  // useMemo giúp URL chỉ tính toán lại khi user.avatar_url thay đổi
   const avatarUrl = useMemo(() => {
     if (!user?.avatar_url) return null;
-    // Thêm timestamp để ép trình duyệt tải ảnh mới nhất từ server (không dùng ảnh cũ trong cache)
     return `${user.avatar_url}?t=${new Date().getTime()}`;
   }, [user?.avatar_url]);
 
@@ -32,7 +40,6 @@ export const useStudentProfile = () => {
     try {
       await authApi.updateTargetBand(Number(newBand));
       
-      // Quan trọng: Phải await refreshUser để đảm bảo data mới đã về tới Context
       if (refreshUser) {
         await refreshUser();
       }
@@ -50,7 +57,6 @@ export const useStudentProfile = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Kiểm tra kích thước file (ví dụ < 2MB)
     if (file.size > 2 * 1024 * 1024) {
       return toast.error('Kích thước ảnh phải nhỏ hơn 2MB');
     }
@@ -60,7 +66,6 @@ export const useStudentProfile = () => {
     try {
       await authApi.uploadAvatar(file);
       
-      // Đồng bộ lại toàn bộ ứng dụng để Avatar mới hiện lên ở cả Header
       if (refreshUser) {
         await refreshUser(); 
       }
@@ -71,18 +76,51 @@ export const useStudentProfile = () => {
       toast.error('Lỗi khi upload ảnh', { id: loadingToast });
     } finally {
       setUploadingAvatar(false);
-      // Reset input file để có thể chọn lại cùng 1 file nếu user muốn
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  // Cập nhật Thông tin cá nhân (Full Name)
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    
+    // Tránh gửi request nếu người dùng không thay đổi gì
+    if (profileData.full_name === user?.full_name) {
+      return toast.success('Đã lưu thông tin cá nhân!');
+    }
+
+    setSubmittingProfile(true);
+    const loadingToast = toast.loading('Đang lưu thay đổi...');
+    
+    try {
+      // Nhớ đảm bảo bạn đã tạo hàm updateProfile trong authApi
+      await authApi.updateProfile({ full_name: profileData.full_name });
+      
+      if (refreshUser) {
+        await refreshUser();
+      }
+      
+      toast.success('Cập nhật thông tin thành công!', { id: loadingToast });
+    } catch (error) {
+      console.error('Update profile error:', error);
+      const errorMsg = error.response?.data?.detail || 'Lỗi khi lưu thông tin';
+      toast.error(errorMsg, { id: loadingToast });
+    } finally {
+      setSubmittingProfile(false);
     }
   };
 
   return {
     user,
-    avatarUrl, // Trả về URL đã được xử lý cache
+    avatarUrl,
     isUpdatingTarget,
     uploadingAvatar,
+    submittingProfile,
+    profileData,
     fileInputRef,
+    setProfileData,
     handleUpdateTarget,
-    handleAvatarChange
+    handleAvatarChange,
+    handleUpdateProfile
   };
 };
