@@ -46,7 +46,7 @@ const StudentProfilePage = () => {
             
             {/* Avatar Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-              <div className="h-24 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+              <div className="h-24 bg-linear-to-r from-blue-600 to-indigo-600"></div>
               
               <div className="px-6 pb-6 -mt-12 flex-1 flex flex-col items-center">
                 <div
@@ -59,7 +59,7 @@ const StudentProfilePage = () => {
                     ) : avatarUrl ? (
                       <img src={avatarUrl} className="w-full h-full object-cover" alt="avatar" crossOrigin="anonymous" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 text-white text-3xl font-bold">
+                      <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-blue-600 to-indigo-600 text-white text-3xl font-bold">
                         {user?.full_name?.[0]?.toUpperCase() || 'U'}
                       </div>
                     )}
@@ -78,7 +78,7 @@ const StudentProfilePage = () => {
 
                 <div className="text-center mt-4">
                   <h2 className="text-lg font-bold text-slate-900">{user?.full_name || "Student"}</h2>
-                  <p className="text-sm text-slate-500">IELTS Learner</p>
+                  <p className="text-sm text-slate-500">IELTS Student Account</p>
                 </div>
               </div>
             </div>
@@ -86,7 +86,7 @@ const StudentProfilePage = () => {
             {/* Target Band Card */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
               <div className="flex items-start gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center flex-shrink-0 shadow-sm shadow-teal-200">
+                <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center shrink-0 shadow-sm shadow-teal-200">
                   <TargetIcon className="text-white" size={20} />
                 </div>
                 <div className="flex-1 mt-0.5">
@@ -142,7 +142,7 @@ const StudentProfilePage = () => {
               
               {/* Header */}
               <div className="flex items-center gap-4 mb-8 pb-6 border-b border-slate-100">
-                <div className="w-12 h-12 rounded-xl bg-[#028ee6] flex items-center justify-center flex-shrink-0 shadow-md shadow-sky-200">
+                <div className="w-12 h-12 rounded-xl bg-[#028ee6] flex items-center justify-center shrink-0 shadow-md shadow-sky-200">
                   <User className="text-white" size={24} />
                 </div>
                 <div>
