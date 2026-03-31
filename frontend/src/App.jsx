@@ -9,7 +9,7 @@ import AdminLayout from './layouts/AdminLayout';
 /* --- AUTH --- */
 import LoginPage from './features/auth/pages/LoginPage';
 import RegisterPage from './features/auth/pages/RegisterPage';
-import StudentProfile from './features/auth/StudentProfile';
+import StudentProfile from './features/auth/pages/StudentProfile';
 
 /* --- CHOOSE MODE PAGE (TRANG CỔNG CHÀO) --- */
 import ModeSelectionPage from './features/auth/pages/ModeSelectionPage'; 
