@@ -1,4 +1,4 @@
-import axiosClient from '../../../services/axiosClient'; // Đảm bảo đường dẫn này khớp với project của bạn
+import axiosClient from '../../../../../services/axiosClient'; // Đảm bảo đường dẫn này khớp với project của bạn
 
 const BASE_URL = '/stats';
 
