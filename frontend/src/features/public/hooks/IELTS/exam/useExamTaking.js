@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { message } from 'antd'; // 🔥 Đổi sang antd message
-import { examStudentApi } from '../../api/examStudentApi'; // Kiểm tra lại đường dẫn API
+import { examStudentApi } from '../../../api/IELTS/exam/examStudentApi';
 
 export const useExamTaking = () => {
   const { id } = useParams(); // examSubmissionId

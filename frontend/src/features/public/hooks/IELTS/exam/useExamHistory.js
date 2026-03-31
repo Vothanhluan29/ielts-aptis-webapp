@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { examStudentApi } from '../../api/examStudentApi';
+import { examStudentApi } from '../../../api/IELTS/exam/examStudentApi';
 
 export const useExamHistory = () => {
   const [history, setHistory] = useState([]);

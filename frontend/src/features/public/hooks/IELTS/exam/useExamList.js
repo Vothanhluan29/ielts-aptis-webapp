@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { message } from 'antd'; 
-import { examStudentApi } from '../../api/examStudentApi';
+import { examStudentApi } from '../../../api/IELTS/exam/examStudentApi';
 
 export const useExamList = () => {
   const navigate = useNavigate();
