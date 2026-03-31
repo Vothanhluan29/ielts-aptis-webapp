@@ -32,10 +32,10 @@ import ReadingResultPage from './features/public/pages/reading/ReadingResultPage
 import ReadingHistoryPage from './features/public/pages/reading/ReadingHistoryPage';
 
 // Listening
-import ListeningListPage from './features/public/pages/listening/ListeningListPage';
-import ListeningExamPage from './features/public/pages/listening/ListeningExamPage';
-import ListeningResultPage from './features/public/pages/listening/ListeningResultPage';
-import ListeningHistoryPage from './features/public/pages/listening/ListeningHistoryPage';
+import ListeningListPage from './features/public/pages/IELTS/listening/ListeningListPage';
+import ListeningExamPage from './features/public/pages/IELTS/listening/ListeningExamPage';
+import ListeningResultPage from './features/public/pages/IELTS/listening/ListeningResultPage';
+import ListeningHistoryPage from './features/public/pages/IELTS/listening/ListeningHistoryPage';
 
 // Writing
 import WritingListPage from './features/public/pages/writing/WritingListPage';

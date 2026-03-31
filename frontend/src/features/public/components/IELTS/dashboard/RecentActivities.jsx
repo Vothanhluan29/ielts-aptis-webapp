@@ -22,7 +22,7 @@ const RecentActivities = ({ activities }) => {
             
             return (
               <div 
-                key={item.id || index} 
+                key={`${item.type}-${item.id}-${index}`}
                 className="flex items-center justify-between border-b border-slate-100 last:border-0 py-3 hover:bg-slate-50 px-2 rounded-xl transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-3">

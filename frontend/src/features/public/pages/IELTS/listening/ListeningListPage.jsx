@@ -5,7 +5,7 @@ import {
   Headphones, Clock, CheckCircle,
   AlertCircle, ArrowRight, History, Search, RotateCcw
 } from 'lucide-react';
-import { useListeningList } from '../../hooks/listening/useListeningList';
+import { useListeningList } from '../../../hooks/IELTS/listening/useListeningList';
 
 const { Title, Paragraph, Text } = Typography;
 

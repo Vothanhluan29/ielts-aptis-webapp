@@ -1,8 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, XCircle, Target, BarChart2, Clock, PlayCircle, Headphones } from 'lucide-react';
-import { useListeningResult } from '../../hooks/listening/useListeningResult';
-import ListeningResultItem from '../../components/listening/ListeningResultItem';
+import { useListeningResult } from '../../../hooks/IELTS/listening/useListeningResult';
+import ListeningResultItem from '../../../components/listening/ListeningResultItem';
 
 const ListeningResultPage = () => {
   const navigate = useNavigate();
