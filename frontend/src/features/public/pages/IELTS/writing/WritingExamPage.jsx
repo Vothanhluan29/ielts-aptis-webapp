@@ -1,4 +1,4 @@
-import { useWritingExam } from '../../hooks/writing/useWritingExam';
+import { useWritingExam } from '../../../hooks/IELTS/writing/useWritingExam';
 import {
   Layout, Button, Typography, Space, Tag, Spin, Alert
 } from 'antd';
@@ -107,7 +107,7 @@ const WritingExamPage = ({ testId, onFinish }) => {
                   {activeTask === 'TASK_1' ? '1' : '2'}
                 </div>
                 <div>
-                  <Title level={3} className="!m-0 !font-serif text-slate-800">
+                  <Title level={3} className="m-0! font-serif! text-slate-800">
                     Writing Task {activeTask === 'TASK_1' ? '1' : '2'}
                   </Title>
                   <Text type="secondary" className="uppercase font-bold tracking-wide text-xs">
@@ -127,7 +127,7 @@ const WritingExamPage = ({ testId, onFinish }) => {
                 <img
                   src={currentTaskData.image_url}
                   alt="Task Chart"
-                  className="max-w-full h-auto max-h-[450px] object-contain rounded-md"
+                  className="max-w-full h-auto max-h-112.5 object-contain rounded-md"
                 />
               </div>
             )}
@@ -150,7 +150,7 @@ const WritingExamPage = ({ testId, onFinish }) => {
         {/* RESIZER DRAG BAR */}
         <div 
           onMouseDown={() => setIsDragging(true)}
-          className="w-[8px] rounded-full bg-slate-300/50 hover:bg-blue-400 cursor-col-resize flex-shrink-0 transition-colors z-10 my-auto h-24 flex items-center justify-center group"
+          className="w-2 rounded-full bg-slate-300/50 hover:bg-blue-400 cursor-col-resize shrink-0 transition-colors z-10 my-auto h-24 flex items-center justify-center group"
           title="Drag to resize"
         >
           <div className="w-0.5 h-8 bg-slate-400 group-hover:bg-white rounded-full"></div>
