@@ -124,7 +124,7 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
           {/* Cue Card (Dành riêng cho Part 2) */}
           {currentPart.part_number === 2 && currentPart.cue_card && (
             <div className="bg-amber-50/50 border border-amber-200 rounded-xl p-6 mb-6">
-              <Text className="text-amber-800 font-bold flex mb-3 uppercase text-xs tracking-widest flex items-center gap-2">
+              <Text className="text-amber-800 font-bold mb-3 uppercase text-xs tracking-widest flex items-center gap-2">
                 <ReadOutlined /> Candidate Task Card
               </Text>
               <Paragraph className="text-slate-800 text-base whitespace-pre-wrap mb-0! font-medium leading-relaxed">
