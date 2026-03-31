@@ -6,7 +6,7 @@ import {
   Target as TargetIcon,
   User,
 } from "lucide-react";
-import { useStudentProfile } from "./hooks/useStudentProfile";
+import { useStudentProfile } from "../hooks/useStudentProfile";
 
 const StudentProfilePage = () => {
   // Đã lược bỏ toàn bộ các biến liên quan đến Password
