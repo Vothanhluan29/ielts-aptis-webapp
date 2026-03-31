@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { message } from 'antd'; // 🔥 Dùng Ant Design message thay vì toast
-import { speakingStudentApi } from '../../api/speakingStudentApi'; // Kiểm tra lại đường dẫn API
+import { speakingStudentApi } from '../../../api/IELTS/speaking/speakingStudentApi'; // Kiểm tra lại đường dẫn API
 
 // 🔥 Bổ sung propTestId và onFinish để phục vụ Full Test
 export const useSpeakingExam = (propTestId = null, onFinish = null) => {
