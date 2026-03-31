@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { message, Modal } from "antd"; // 🔥 Đổi sang dùng Ant Design
+import { message, Modal } from "antd"; 
 import { examStudentApi } from '../../../api/IELTS/exam/examStudentApi';
 
 const { confirm } = Modal;
@@ -23,13 +23,12 @@ const useExamLobby = () => {
     const fetchTestDetail = async () => {
       try {
         const response = await examStudentApi.getTestDetailPublic(id);
-        // 🔥 Lấy đúng data từ Axios
         const data = response?.data || response;
         setTest(data);
       } catch (error) {
         console.error("Fetch exam detail error:", error);
         message.error("Test not found or unavailable.");
-        navigate("/exam/library"); // Điều hướng về thư viện đề nếu lỗi
+        navigate("/exam/library"); 
       } finally {
         setLoading(false);
       }
@@ -76,7 +75,8 @@ const useExamLobby = () => {
   }, []);
 
   /* ================= START EXAM ================= */
-const proceedToStart = async () => {
+  // 🔥 FIX: Bọc proceedToStart vào useCallback
+  const proceedToStart = useCallback(async () => {
     setStarting(true);
     try {
       const response = await examStudentApi.startExam(parseInt(id));
@@ -87,15 +87,12 @@ const proceedToStart = async () => {
     } catch (error) {
       console.error("Start exam error:", error);
       
-      // 🔥 BẮT CHÍNH XÁC THÔNG BÁO TỪ BACKEND
       if (error.response) {
-        // Lấy lý do lỗi từ backend (ví dụ: "This exam is not available yet")
         const errorMessage = error.response.data?.detail || error.response.data?.message;
         
         if (error.response.status === 402) {
           message.warning("Daily full test limit reached. Please upgrade your plan or try again tomorrow.");
         } else if (error.response.status === 403) {
-          // Hiện thẳng lý do lỗi 403 cho Học viên biết
           message.error(errorMessage || "You don't have permission to take this test.");
         } else {
           message.error(errorMessage || "Failed to start exam. Please try again.");
@@ -105,13 +102,12 @@ const proceedToStart = async () => {
       }
       setStarting(false);
     }
-  };
+  }, [id, navigate]); // Khai báo id và navigate vào mảng dependency
+
   const handleStartExam = useCallback(() => {
-    // 1. Nếu chưa test thiết bị, hiện Modal confirm của Ant Design
     if (!isAudioTested || !isMicTested) {
       confirm({
         title: 'System Check Incomplete',
-        // icon: <ExclamationCircleFilled />,
         content: "You haven't completed the Audio and Microphone check. Are you sure you want to continue?",
         okText: 'Continue Anyway',
         cancelText: 'Cancel',
@@ -123,9 +119,8 @@ const proceedToStart = async () => {
       return;
     }
 
-    // 2. Nếu đã test đầy đủ thì cho vào luôn
     proceedToStart();
-  }, [isAudioTested, isMicTested, id, navigate]);
+  }, [isAudioTested, isMicTested, proceedToStart]); // 🔥 FIX: Thêm proceedToStart vào đây (xóa id và navigate vì đã nằm trong proceedToStart)
 
   return {
     audioRef,
