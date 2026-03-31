@@ -13,7 +13,7 @@ import {
 import { useExamTaking } from '../../../hooks/IELTS/exam/useExamTaking';
 
 import ListeningExamPage from '../../IELTS/listening/ListeningExamPage';
-import ReadingExamPage from '../../reading/ReadingExamPage';
+import ReadingExamPage from '../reading/ReadingExamPage';
 import WritingExamPage from '../../writing/WritingExamPage';
 import SpeakingExamPage from '../../speaking/SpeakingExamPage';
 

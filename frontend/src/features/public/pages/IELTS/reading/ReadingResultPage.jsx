@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useReadingResult } from '../../hooks/reading/useReadingResult';
+import { useReadingResult } from '../../../hooks/IELTS/reading/useReadingResult';
 import { ArrowLeft, CheckCircle, XCircle, Target, BarChart2, Clock } from 'lucide-react';
 
 import ReadingResultItem from '../../../components/reading/ReadingResultItem';

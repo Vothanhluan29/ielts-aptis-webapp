@@ -5,7 +5,7 @@ import {
   BookOpen, Clock, CheckCircle,
   AlertCircle, ArrowRight, History, Search, RotateCcw
 } from 'lucide-react';
-import { useReadingList } from '../../hooks/reading/useReadingList';
+import { useReadingList } from '../../../hooks/IELTS/reading/useReadingList';
 
 const { Title, Paragraph, Text } = Typography;
 

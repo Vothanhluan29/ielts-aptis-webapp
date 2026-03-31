@@ -26,10 +26,10 @@ import ExamResultPage from './features/public/pages/IELTS/exam/ExamResultPage';
 import ExamHistoryPage from './features/public/pages/IELTS/exam/ExamHistoryPage';
 
 // Reading
-import ReadingListPageStudent from './features/public/pages/reading/ReadingListPage';
-import ReadingExamPage from './features/public/pages/reading/ReadingExamPage';
-import ReadingResultPage from './features/public/pages/reading/ReadingResultPage';
-import ReadingHistoryPage from './features/public/pages/reading/ReadingHistoryPage';
+import ReadingListPageStudent from './features/public/pages/IELTS/reading/ReadingListPage';
+import ReadingExamPage from './features/public/pages/IELTS/reading/ReadingExamPage';
+import ReadingResultPage from './features/public/pages/IELTS/reading/ReadingResultPage';
+import ReadingHistoryPage from './features/public/pages/IELTS/reading/ReadingHistoryPage';
 
 // Listening
 import ListeningListPage from './features/public/pages/IELTS/listening/ListeningListPage';
