@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useWritingHistory } from '../../hooks/writing/useWritingHistory';
+import { useWritingHistory } from '../../../hooks/IELTS/writing/useWritingHistory';
 import {
   ArrowLeft,
   Calendar,
