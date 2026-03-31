@@ -13,7 +13,6 @@ import { useSpeakingExam } from '../../../hooks/IELTS/speaking/useSpeakingExam';
 
 const { Title, Text, Paragraph } = Typography;
 
-// 🔥 CẬP NHẬT PROPS: Nhận testId và onFinish từ ExamTakingPage
 const SpeakingExamPage = ({ testId, onFinish }) => {
   const {
     testDetail, loading, saving,

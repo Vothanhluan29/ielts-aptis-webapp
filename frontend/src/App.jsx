@@ -44,10 +44,10 @@ import WritingResultPage from './features/public/pages/writing/WritingResultPage
 import WritingHistoryPage from './features/public/pages/writing/WritingHistoryPage';
 
 // Speaking
-import SpeakingListPage from './features/public/pages/speaking/SpeakingListPage';
-import SpeakingExamPage from './features/public/pages/speaking/SpeakingExamPage';
-import SpeakingResultPage from './features/public/pages/speaking/SpeakingResultPage';
-import SpeakingHistoryPage from './features/public/pages/speaking/SpeakingHistoryPage';
+import SpeakingListPage from './features/public/pages/IELTS/speaking/SpeakingListPage';
+import SpeakingExamPage from './features/public/pages/IELTS/speaking/SpeakingExamPage';
+import SpeakingResultPage from './features/public/pages/IELTS/speaking/SpeakingResultPage';
+import SpeakingHistoryPage from './features/public/pages/IELTS/speaking/SpeakingHistoryPage';
 
 
 //APTIS 
