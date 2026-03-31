@@ -5,7 +5,7 @@ import {
   PenTool, Clock, CheckCircle,
   AlertCircle, ArrowRight, History, Search, RotateCcw
 } from 'lucide-react';
-import { useWritingList } from '../../hooks/writing/useWritingList';
+import { useWritingList } from '../../../hooks/IELTS/writing/useWritingList';
 
 const { Title, Paragraph, Text } = Typography;
 
