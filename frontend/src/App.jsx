@@ -19,11 +19,11 @@ import DashboardPage from './features/public/pages/IELTS/dashboard/DashBoardPage
 import DashboardAptisStudentPage from './features/public/pages/APTIS/dashboard/DashboardAptisStudentPage';
 
 // Exam (Full Mock Test)
-import ExamListPage from './features/public/pages/exam/ExamListPage';
-import ExamLobbyPage from './features/public/pages/exam/ExamLobbyPage';
-import ExamTakingPage from './features/public/pages/exam/ExamTakingPage';
-import ExamResultPage from './features/public/pages/exam/ExamResultPage';
-import ExamHistoryPage from './features/public/pages/exam/ExamHistoryPage';
+import ExamListPage from './features/public/pages/IELTS/exam/ExamListPage';
+import ExamLobbyPage from './features/public/pages/IELTS/exam/ExamLobbyPage';
+import ExamTakingPage from './features/public/pages/IELTS/exam/ExamTakingPage';
+import ExamResultPage from './features/public/pages/IELTS/exam/ExamResultPage';
+import ExamHistoryPage from './features/public/pages/IELTS/exam/ExamHistoryPage';
 
 // Reading
 import ReadingListPageStudent from './features/public/pages/reading/ReadingListPage';

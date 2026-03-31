@@ -10,7 +10,7 @@ import {
   PlayCircleOutlined, ArrowRightOutlined
 } from "@ant-design/icons";
 
-import useExamLobby from "../../hooks/exam/useExamLobby";
+import useExamLobby from "../../../hooks/IELTS/exam/useExamLobby";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -56,7 +56,7 @@ const ExamLobbyPage = () => {
           <div className="bg-indigo-100 p-2 rounded-lg text-indigo-600 flex items-center justify-center">
             <DesktopOutlined className="text-xl" />
           </div>
-          <Title level={3} className="!m-0 text-slate-800">
+          <Title level={3} className="m-0! text-slate-800">
             Exam System Check
           </Title>
         </Space>
@@ -72,7 +72,7 @@ const ExamLobbyPage = () => {
                 Official Mode
               </Tag>
               
-              <Title level={2} className="!mt-0 !mb-4 text-slate-800">
+              <Title level={2} className="mt-0! mb-4! text-slate-800">
                 {test.title}
               </Title>
               

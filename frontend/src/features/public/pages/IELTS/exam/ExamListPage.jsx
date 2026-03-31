@@ -6,7 +6,7 @@ import {
   ExclamationCircleOutlined, ArrowRightOutlined, HistoryOutlined, 
   SearchOutlined, ReloadOutlined
 } from '@ant-design/icons';
-import { useExamList } from '../../hooks/exam/useExamList';
+import { useExamList } from '../../../hooks/IELTS/exam/useExamList';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -19,7 +19,7 @@ const ExamListPage = () => {
     setSearchTerm,
     filterStatus,
     setFilterStatus,
-    handleAction // 🔥 ĐÃ THÊM: Lấy hàm xịn từ Hook ra
+    handleAction 
   } = useExamList();
 
   const getStatusConfig = (userStatus, exam) => {
@@ -180,7 +180,7 @@ const ExamListPage = () => {
 
                   {/* Title + description */}
                   <div className="flex-1 mb-6">
-                    <Title level={4} className="line-clamp-1 !mt-0 !mb-2 !font-bold text-slate-800">
+                    <Title level={4} className="line-clamp-1 mt-0! mb-2! font-bold! text-slate-800">
                       {exam.title}
                     </Title>
                     <Paragraph className="text-slate-600 line-clamp-2 m-0 text-sm font-medium">
