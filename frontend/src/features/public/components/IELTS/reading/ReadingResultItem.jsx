@@ -47,7 +47,7 @@ const ReadingResultItem = ({ item, index }) => {
         {/* Column 2: Question content (hidden on mobile) */}
         <td className="py-4 px-4 align-middle hidden md:table-cell">
           <p 
-            className="text-sm text-slate-700 font-medium truncate max-w-[250px] lg:max-w-[400px] m-0" 
+            className="text-sm text-slate-700 font-medium truncate max-w-62.5 lg:max-w-100 m-0" 
             title={qText}
           >
             {qText}
@@ -70,7 +70,7 @@ const ReadingResultItem = ({ item, index }) => {
         </td>
 
         {/* Column 4: Correct answer */}
-        <td className="py-4 px-4 align-middle min-w-[160px]">
+        <td className="py-4 px-4 align-middle min-w-40">
           <div className="text-[13px] font-bold text-green-700 bg-green-50 px-2 py-1.5 rounded-lg w-fit border border-green-200 shadow-sm">
             {correctAnswerDisplay}
           </div>
