@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { writingStudentApi } from '../../api/writingStudentApi'; // Đã sửa đường dẫn chuẩn
+import { writingStudentApi } from '../../../api/IELTS/writing/writingStudentApi'; // Đã sửa đường dẫn chuẩn
 import toast from 'react-hot-toast'; // Thêm toast để báo lỗi mượt mà
 
 export const useWritingResult = () => {
