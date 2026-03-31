@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { readingStudentApi } from '../../api/IELTS/reading/readingStudentApi';
+import { readingStudentApi } from '../../../api/IELTS/reading/readingStudentApi';
 import toast from 'react-hot-toast';
 
 export const useReadingResult = () => {
