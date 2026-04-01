@@ -44,7 +44,6 @@ const SkillCard = ({ theme, score, maxScore, isPending }) => {
       onMouseEnter={e => e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,0,0,0.11)'}
       onMouseLeave={e => e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)'}
     >
-      {/* Ring */}
       <div style={{ position: 'relative', flexShrink: 0 }}>
         <Ring percent={pct} color={isPending ? '#e2e8f0' : theme.color} size={68} stroke={6} />
         <div style={{
@@ -55,7 +54,6 @@ const SkillCard = ({ theme, score, maxScore, isPending }) => {
         </div>
       </div>
 
-      {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>
           {theme.label}
@@ -70,7 +68,6 @@ const SkillCard = ({ theme, score, maxScore, isPending }) => {
             <span style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 700 }}>/ {maxScore}</span>
           </div>
         )}
-        {/* Bar */}
         <div style={{ height: 4, background: '#f1f5f9', borderRadius: 4, marginTop: 8, overflow: 'hidden' }}>
           <div style={{
             height: '100%', borderRadius: 4, width: `${pct}%`,
@@ -80,7 +77,6 @@ const SkillCard = ({ theme, score, maxScore, isPending }) => {
         </div>
       </div>
 
-      {/* Percent badge */}
       <div style={{
         fontSize: 13, fontWeight: 800, color: isPending ? '#cbd5e1' : theme.color,
         background: isPending ? '#f8fafc' : theme.bg,
@@ -124,44 +120,48 @@ const ExamAptisResultPage = () => {
 
   if (!resultData) return null;
 
-  // 🔥 LOGIC MỚI: Kiểm tra pending dựa trên từng kỹ năng nhỏ thay vì dựa vào điểm tổng
-  const isWritingPending = !resultData.writing_submission || resultData.writing_submission.status !== 'GRADED';
-  const isSpeakingPending = !resultData.speaking_submission || resultData.speaking_submission.status !== 'GRADED';
+  // 🔥 FIX 1: Trạng thái tổng thể
+  const isFullyGraded = ['GRADED', 'COMPLETED', 'FINISHED'].includes(resultData.status?.toUpperCase());
+
+  // 🔥 FIX 2: Logic Pending
+  // Vì API không trả status riêng lẻ cho từng phần, ta sẽ dựa vào isFullyGraded
+  // Nếu chưa Graded toàn bộ bài, mà writing/speaking score bị null/undefined -> coi như Pending
+  const isWritingPending = !isFullyGraded && (resultData.writing_score === null || resultData.writing_score === undefined);
+  const isSpeakingPending = !isFullyGraded && (resultData.speaking_score === null || resultData.speaking_score === undefined);
   
-  const isFullyGraded = ['GRADED','COMPLETED','FINISHED'].includes(resultData.status);
   const hasPendingSkills = isWritingPending || isSpeakingPending;
-  const showFinal = isFullyGraded && !hasPendingSkills;
+  const showFinal = isFullyGraded || !hasPendingSkills;
   const cefrColor = CEFR_COLORS[resultData.overall_cefr_level?.toUpperCase()] || '#6366f1';
 
-  // 🔥 LOGIC MỚI: Trỏ thẳng vào relationship object để lấy điểm gốc
+  // 🔥 FIX 3: Ánh xạ lại chính xác 100% key name theo log API của bạn
   const skills = [
     { 
       key: 'GRAMMAR',   
-      score: resultData.grammar_vocab_submission?.total_score || 0, 
-      max: 50, 
-      pending: false 
-    },
-    { 
-      key: 'LISTENING', 
-      score: resultData.listening_submission?.score || 0,     
+      score: resultData.grammar_vocab_score || 0, 
       max: 50, 
       pending: false 
     },
     { 
       key: 'READING',   
-      score: resultData.reading_submission?.score || 0,       
+      score: resultData.reading_score || 0,       
+      max: 50, 
+      pending: false 
+    },
+    { 
+      key: 'LISTENING', 
+      score: resultData.listening_score || 0,     
       max: 50, 
       pending: false 
     },
     { 
       key: 'WRITING',   
-      score: resultData.writing_submission?.score || 0,       
+      score: resultData.writing_score || 0,       
       max: 50, 
       pending: isWritingPending 
     },
     { 
       key: 'SPEAKING',  
-      score: resultData.speaking_submission?.total_score || 0,
+      score: resultData.speaking_score || 0,
       max: 50, 
       pending: isSpeakingPending 
     },
@@ -207,10 +207,10 @@ const ExamAptisResultPage = () => {
           <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
           <div style={{ position: 'absolute', bottom: -30, left: 180, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
 
-          {/* Certification (left) + Score (right) */}
           <div style={{ display: 'flex', flexWrap: 'wrap' }}>
             <div style={{ flex: '1 1 200px', padding: '22px 32px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 10 }}>
               <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.1em', color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase' }}>Certification</div>
+              
               {showFinal ? (
                 <>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 10, background: cefrColor, borderRadius: 14, padding: '10px 20px', width: 'fit-content' }}>
