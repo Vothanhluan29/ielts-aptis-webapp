@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Typography, Button, Spin, message, Progress, Image, Tag } from 'antd';
 import { Mic, StopCircle, CheckCircle2, Loader2, Send, Clock, PlayCircle } from 'lucide-react';
 import { AudioOutlined } from '@ant-design/icons';
-
 import speakingAptisStudentApi from '../../../api/APTIS/speaking/speakingAptisStudentApi';
 
 const { Title, Text } = Typography;
@@ -218,9 +217,9 @@ const SpeakingAptisExamPage = ({
     if (submitting) return;
     try {
       setSubmitting(true);
-      message.loading({ content: isFullTest ? 'Đang hoàn tất bài thi tổng hợp...' : 'Đang nộp bài...', key: 'finish' });
-      await speakingAptisStudentApi.finishTest(submissionId);
-      message.success({ content: 'Nộp bài thành công!', key: 'finish' });
+        message.loading({ content: isFullTest ? 'Finalizing full test submission...' : 'Submitting test...', key: 'finish' });
+        await speakingAptisStudentApi.finishTest(submissionId);
+        message.success({ content: 'Test submitted successfully!', key: 'finish' });
       
       if (isFullTest && onSkillFinish) onSkillFinish(submissionId);
       else navigate(`/aptis/speaking/result/${submissionId}`);
@@ -253,7 +252,7 @@ const SpeakingAptisExamPage = ({
           <div className="w-20 h-20 bg-green-50 text-green-500 flex items-center justify-center rounded-full mx-auto mb-6">
             <CheckCircle2 size={40} />
           </div>
-          <Title level={3} className="!text-slate-800 mb-2">Đã ghi âm xong!</Title>
+          <Title level={3} className="text-slate-800! mb-2">Đã ghi âm xong!</Title>
           <Text className="text-slate-500 block mb-8">
             {isFullTest ? "Tuyệt vời! Bạn đã hoàn thành toàn bộ phần thi Speaking và đây cũng là kỹ năng cuối cùng." : "Bạn đã hoàn thành tất cả các câu hỏi ghi âm. Vui lòng bấm Nộp bài."}
           </Text>
@@ -336,18 +335,18 @@ const SpeakingAptisExamPage = ({
               )}
               
               <Text className="text-purple-600 block mb-3 uppercase tracking-widest text-xs font-bold">Question</Text>
-              <Title level={3} className="!text-slate-800 !m-0 leading-relaxed font-semibold whitespace-pre-wrap">
+              <Title level={3} className="text-slate-800! m-0! leading-relaxed font-semibold whitespace-pre-wrap">
                 {currentQuestion.question_text}
               </Title>
             </div>
 
             {/* RIGHT COLUMN: CONTROLS */}
-            <div className="lg:col-span-5 bg-white border border-slate-200 p-8 md:p-10 rounded-3xl shadow-sm flex flex-col items-center justify-center min-h-[400px]">
+            <div className="lg:col-span-5 bg-white border border-slate-200 p-8 md:p-10 rounded-3xl shadow-sm flex flex-col items-center justify-center min-h-100">
               
               {step === EXAM_STEPS.INTRO && (
                 <div className="text-center w-full">
                   <div className="w-20 h-20 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-100"><Mic className="w-10 h-10" /></div>
-                  <Title level={4} className="!text-slate-700 !mb-8">Are you ready to answer this question?</Title>
+                  <Title level={4} className="text-slate-700! mb-8!">Are you ready to answer this question?</Title>
                   <Button type="primary" size="large" onClick={startPrep} className="bg-purple-600 hover:bg-purple-500 border-none font-bold h-14 px-10 rounded-xl shadow-md shadow-purple-200 text-lg w-full">
                     Start ({PREP_TIME}s Preparation)
                   </Button>
@@ -390,7 +389,7 @@ const SpeakingAptisExamPage = ({
               {step === EXAM_STEPS.UPLOADING && (
                 <div className="text-center w-full py-8">
                   <Loader2 className="text-purple-600 w-16 h-16 mx-auto mb-6 animate-spin" />
-                  <Title level={4} className="!text-slate-700 !m-0">Saving audio...</Title>
+                  <Title level={4} className="text-slate-700! m-0!">Saving audio...</Title>
                   <Text className="text-slate-500 mt-3 block text-base">Please do not leave this page</Text>
                 </div>
               )}
