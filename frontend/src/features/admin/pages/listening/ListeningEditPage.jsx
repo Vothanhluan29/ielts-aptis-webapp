@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, Button, Card, Space, Typography, InputNumber, Switch, Divider, Tabs, message, Tooltip, Upload } from 'antd'; 
 import { 
   ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, 
-  SortAscendingOutlined, AudioOutlined, CloudUploadOutlined, FileTextOutlined 
+  SortAscendingOutlined, AudioOutlined, CloudUploadOutlined, FileTextOutlined, PictureOutlined
 } from '@ant-design/icons';
 
 import { useListeningEdit } from '../../hooks/listening/useListeningEdit';
@@ -20,7 +20,7 @@ const ListeningEditPage = () => {
   
   const [activeTabKey, setActiveTabKey] = useState(null);
 
-  // 🔥 BƯỚC 1: THEO DÕI REALTIME SỐ LƯỢNG CÂU HỎI TRONG MẢNG 'parts'
+  // THEO DÕI REALTIME SỐ LƯỢNG CÂU HỎI
   const watchedParts = Form.useWatch('parts', form) || [];
   
   const totalQuestions = watchedParts.reduce((sum, part) => {
@@ -32,7 +32,6 @@ const ListeningEditPage = () => {
   const isMaxQuestions = totalQuestions >= 40;
 
   const onFinish = (values) => {
-    // Clone payload để không làm thay đổi trực tiếp State của Form
     const payload = JSON.parse(JSON.stringify(values));
 
     if (payload.parts) {
@@ -45,11 +44,9 @@ const ListeningEditPage = () => {
                   q.question_text = "";
                 }
                 
-                // Đảm bảo options LUÔN LUÔN là Object {}
                 if (!q.options) {
                   q.options = {};
                 } else if (Array.isArray(q.options)) {
-                  // Ép mảng về Object/Dict để FastAPI không báo lỗi 422
                   const dict = {};
                   const labels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
                   q.options.forEach((opt, i) => {
@@ -64,7 +61,6 @@ const ListeningEditPage = () => {
       });
     }
     
-    // console.log("🚀 PAYLOAD TO BACKEND:", payload);
     handleSave(payload);
   };
 
@@ -87,7 +83,6 @@ const ListeningEditPage = () => {
         </div>
         
         <Space>
-          {/* 🔥 BƯỚC 2: HIỂN THỊ BỘ ĐẾM TRÊN HEADER */}
           <div className={`px-4 py-2 rounded-lg font-bold text-sm border-2 mr-2 transition-colors ${isMaxQuestions ? 'bg-green-50 text-green-600 border-green-200' : 'bg-blue-50 text-blue-600 border-blue-200'}`}>
             Questions: {totalQuestions} / 40
           </div>
@@ -185,7 +180,6 @@ const ListeningEditPage = () => {
 
             const onEditTab = (targetKey, action) => {
               if (action === 'add') {
-                // 🔥 BƯỚC 3: NGĂN CHẶN THÊM PART NẾU ĐÃ MAX 40 CÂU
                 if (isMaxQuestions) {
                   message.warning('You have reached the maximum limit of 40 questions!');
                   return;
@@ -209,7 +203,6 @@ const ListeningEditPage = () => {
                   }]
                 });
 
-                // Tự động focus vào Tab mới mở
                 setTimeout(() => {
                   const newKeys = form.getFieldValue('parts');
                   if (newKeys && newKeys.length > 0) {
@@ -221,7 +214,6 @@ const ListeningEditPage = () => {
                 const idx = partFields.findIndex(f => f.key.toString() === targetKey);
                 if (idx !== -1) {
                   removePart(partFields[idx].name);
-                  // Rút về tab đầu tiên nếu xóa tab đang mở
                   if (targetKey === activeTabKey) setActiveTabKey("0");
                 }
               }
@@ -348,11 +340,46 @@ const ListeningEditPage = () => {
                                   <TextArea rows={2} placeholder="E.g: Questions 1-5. Write NO MORE THAN TWO WORDS AND/OR A NUMBER." className="bg-slate-50" />
                                 </Form.Item>
 
+                                {/* 🔥 ĐÃ CẬP NHẬT: Thêm nút Upload cho Image URL */}
                                 <Form.Item
                                   name={[gField.name, 'image_url']}
                                   label={<Text strong className="text-slate-600">Image URL (For Map/Diagram Labeling)</Text>}
                                 >
-                                  <Input placeholder="https://your-domain.com/images/map.png" className="bg-slate-50" />
+                                  <Input 
+                                    placeholder="https://your-domain.com/images/map.png" 
+                                    className="bg-slate-50"
+                                    addonAfter={
+                                      <Upload
+                                        accept="image/*"
+                                        showUploadList={false}
+                                        customRequest={async ({ file, onSuccess, onError }) => {
+                                          const hideLoading = message.loading('Uploading image...', 0);
+                                          try {
+                                            const res = await listeningAdminApi.uploadImage(file);
+                                            const uploadedUrl = res.data?.url || res.url;
+                                            
+                                            // Cập nhật giá trị vào form
+                                            const currentParts = form.getFieldValue('parts');
+                                            currentParts[pField.name].groups[gField.name].image_url = uploadedUrl;
+                                            form.setFieldsValue({ parts: currentParts });
+                                            
+                                            hideLoading();
+                                            message.success('Image uploaded successfully!');
+                                            onSuccess("ok");
+                                          } catch (error) {
+                                            hideLoading();
+                                            console.error("Upload error:", error);
+                                            message.error('Failed to upload image. Please check your server.');
+                                            onError(error);
+                                          }
+                                        }}
+                                      >
+                                        <Tooltip title="Upload Map/Diagram Image">
+                                          <Button type="text" icon={<PictureOutlined className="text-indigo-600" />} size="small" />
+                                        </Tooltip>
+                                      </Upload>
+                                    }
+                                  />
                                 </Form.Item>
 
                                 <Divider className="my-4 border-slate-100" />
@@ -371,7 +398,6 @@ const ListeningEditPage = () => {
                                         />
                                       ))}
 
-                                      {/* 🔥 BƯỚC 4: KHÓA NÚT THÊM CÂU HỎI KHI ĐÃ ĐẠT 40 CÂU */}
                                       <Button
                                         type="dashed"
                                         disabled={isMaxQuestions}
@@ -399,7 +425,6 @@ const ListeningEditPage = () => {
                               </Card>
                             ))}
 
-                            {/* 🔥 BƯỚC 5: KHÓA NÚT THÊM GROUP KHI ĐÃ ĐẠT 40 CÂU */}
                             <Button
                               type="dashed"
                               disabled={isMaxQuestions}
@@ -443,7 +468,7 @@ const ListeningEditPage = () => {
                 items={tabItems}
                 className="custom-admin-tabs"
                 size="large"
-                hideAdd={isMaxQuestions} // 🔥 BƯỚC 6: ẨN DẤU CỘNG TẠO TAB NẾU ĐÃ ĐẠT 40 CÂU
+                hideAdd={isMaxQuestions} 
               />
             );
           }}
