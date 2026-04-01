@@ -46,6 +46,14 @@ export const listeningAdminApi = {
     });
   },
 
+  uploadImage: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return axiosClient.post(`${BASE_URL}/upload-image`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+  },
+
   // ====================================================
   // 3. QUẢN LÝ BÀI NỘP (SUBMISSION MANAGEMENT) - 🔥 MỚI BỔ SUNG
   // ====================================================
