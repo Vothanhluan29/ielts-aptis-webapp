@@ -131,7 +131,7 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
 
 /* ─── Main Page ──────────────────────────── */
 const ListeningAptisResultPage = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // id này là submission_id
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -139,39 +139,36 @@ const ListeningAptisResultPage = () => {
   const [testDetail, setTestDetail] = useState(null);
   const [activePartId, setActivePartId] = useState(null);
 
-  /* ── fetch logic ── */
+  /* ── fetch logic (Đã Fix 404) ── */
   useEffect(() => {
     const fetchResult = async () => {
       try {
         setLoading(true);
 
-        const testRes = await listeningAptisStudentApi.getTestDetail(id);
-        const testData = testRes.data || testRes;
-        setTestDetail(testData);
+        // 1. Lấy chi tiết bài nộp (dùng submission_id từ URL)
+        const detailsRes = await listeningAptisStudentApi.getSubmissionDetail(id);
+        const subData = detailsRes.data || detailsRes;
+        setSubmission(subData);
 
-        if (testData.parts?.length > 0) {
-          setActivePartId(testData.parts[0].id);
-        }
+        // 2. Có bài nộp rồi thì mới lấy test_id để tải đề thi
+        if (subData?.test_id) {
+          const testRes = await listeningAptisStudentApi.getTestDetail(subData.test_id);
+          const testData = testRes.data || testRes;
+          setTestDetail(testData);
 
-        const historyRes = await listeningAptisStudentApi.getMyHistory();
-        const historyList = historyRes.data || historyRes || [];
-        const testSubmissions = historyList.filter(item => item.test_id === parseInt(id));
-
-        if (testSubmissions.length > 0) {
-          const latestSub = testSubmissions.sort((a, b) => b.id - a.id)[0];
-          const detailsRes = await listeningAptisStudentApi.getSubmissionDetail(latestSub.id);
-          const subData = detailsRes.data || detailsRes;
-          setSubmission(subData);
-        } else {
-          setSubmission(null);
+          if (testData.parts?.length > 0) {
+            setActivePartId(testData.parts[0].id);
+          }
         }
 
       } catch (err) {
         console.error('Error fetching result:', err);
+        // Có thể thêm message.error ở đây nếu muốn
       } finally {
         setLoading(false);
       }
     };
+
     if (id) fetchResult();
   }, [id]);
 
@@ -185,7 +182,7 @@ const ListeningAptisResultPage = () => {
     </div>
   );
 
-  if (!submission) return (
+  if (!submission || !testDetail) return (
     <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <Result
         status="404"
@@ -403,7 +400,7 @@ const ListeningAptisResultPage = () => {
                         <Text className="font-bold text-blue-800 text-sm flex items-center gap-2">
                           <CustomerServiceOutlined /> Audio Recording:
                         </Text>
-                        <audio controls src={src} className="w-full h-12 outline-none review-audio" controlsList="nodownload" />
+                        <audio controls src={src.startsWith('http') ? src : `http://localhost:8000${src}`} className="w-full h-12 outline-none review-audio" controlsList="nodownload" />
                       </div>
                     ) : (
                       <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">

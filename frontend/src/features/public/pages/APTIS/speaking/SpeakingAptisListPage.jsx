@@ -23,7 +23,7 @@ const SpeakingAptisListPage = () => {
   const fetchTests = async () => {
     try {
       setLoading(true);
-      const response = await speakingAptisStudentApi.getAllTests({ skip: 0, limit: 100 });
+      const response = await speakingAptisStudentApi.getListTests({ skip: 0, limit: 100 });
       setTests(response.data || response || []);
     } catch (error) {
       console.error("Error fetching test list:", error);

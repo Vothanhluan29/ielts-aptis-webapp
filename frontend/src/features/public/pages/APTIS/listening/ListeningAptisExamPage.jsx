@@ -62,7 +62,7 @@ const AptisAudioPlayer = ({ src }) => {
     <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-5 mb-6 flex items-center gap-5 transition-all shadow-sm">
       <audio 
         ref={audioRef} 
-        src={src} 
+        src={src.startsWith('http') ? src : `http://localhost:8000${src}`} 
         onEnded={handleEnded} 
         onTimeUpdate={handleTimeUpdate} 
         preload="metadata"
@@ -124,6 +124,26 @@ const ListeningAptisExamPage = ({
   const answersRef = useRef(answers);
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
+  // 🔥 1. HÀM XỬ LÝ ĐÁP ÁN ĐÃ ĐƯỢC BỌC THÉP
+  const handleAnswerChange = (qId, arg1, arg2) => {
+    let finalValue = arg1;
+    
+    // Trường hợp 1: Component con truyền (questionId, value) -> arg2 sẽ là đáp án
+    if (arg2 !== undefined) {
+      finalValue = arg2;
+    } 
+    // Trường hợp 2: Component con truyền React Event (e.target.value)
+    else if (arg1 && arg1.target !== undefined) {
+      finalValue = arg1.target.value;
+    }
+
+    setAnswers(prev => {
+      const next = { ...prev, [qId]: String(finalValue) };
+      answersRef.current = next; // Đồng bộ lập tức
+      return next;
+    });
+  };
+
   useEffect(() => {
     const fetchTest = async () => {
       try {
@@ -165,10 +185,18 @@ const ListeningAptisExamPage = ({
         message.loading({ content: 'Submitting Listening test...', key: 'submit' });
       }
 
+      // 🔥 2. MÀNG LỌC RÁC: Chỉ đẩy các câu có đáp án chuẩn lên server
+      const cleanedAnswers = {};
+      Object.entries(answersRef.current).forEach(([key, val]) => {
+        if (val !== undefined && val !== null && String(val).trim() !== '') {
+          cleanedAnswers[key] = String(val).trim();
+        }
+      });
+
       const payload = {
         test_id: parseInt(testId),
         is_full_test_only: isFullTest,
-        user_answers: answersRef.current 
+        user_answers: cleanedAnswers 
       };
 
       const res = await listeningAptisStudentApi.submitTest(payload);
@@ -199,16 +227,12 @@ const ListeningAptisExamPage = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timeLeft, loading, submitting, testDetail]);
 
-  const handleAnswerChange = (questionId, value) => {
-    setAnswers(prev => ({ ...prev, [questionId]: String(value) }));
-  };
-
   const confirmSubmit = () => {
     Modal.confirm({
       title: 'Confirm Submission',
       icon: <ExclamationCircleOutlined className="text-red-500" />,
       content: isFullTest 
-        ? 'After submitting, the system will automatically move to the Writing section. You will not be able to listen or change your answers for this section. Continue?' 
+        ? 'After submitting, the system will automatically move to the next section. You will not be able to change your answers. Continue?' 
         : 'Are you sure you want to submit? The system will end your test immediately.',
       okText: 'Submit',
       cancelText: 'Cancel',
@@ -333,7 +357,8 @@ const ListeningAptisExamPage = ({
                           questionText={q.question_text}
                           options={q.options}
                           selectedValue={answers[q.id]}
-                          onChange={handleAnswerChange}
+                          // 🔥 3. TRUYỀN HÀM XỬ LÝ AN TOÀN
+                          onChange={(a, b) => handleAnswerChange(q.id, a, b)}
                         />
                       );
                     } else {
@@ -345,7 +370,8 @@ const ListeningAptisExamPage = ({
                           questionText={q.question_text}
                           options={q.options}
                           selectedValue={answers[q.id]}
-                          onChange={handleAnswerChange}
+                          // 🔥 3. TRUYỀN HÀM XỬ LÝ AN TOÀN
+                          onChange={(a, b) => handleAnswerChange(q.id, a, b)}
                         />
                       );
                     }
@@ -388,7 +414,7 @@ const ListeningAptisExamPage = ({
             loading={submitting}
             icon={<SendOutlined />}
           >
-            {isFullTest ? 'Submit & Continue to Writing' : 'Submit Test'}
+            {isFullTest ? 'Submit & Continue' : 'Submit Test'}
           </Button>
         )}
       </Footer>
