@@ -99,7 +99,7 @@ const ListeningExamPage = ({ testId, onFinish }) => {
       {/* MAIN BODY - Split View */}
       <div className="flex-1 overflow-hidden relative">
         {currentPart && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 h-full divide-x-2 divide-indigo-200">
+          <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] h-full divide-x-2 divide-indigo-200">
 
             {/* LEFT PANEL: Audio & Navigation */}
             <div className="bg-white h-full overflow-y-auto scroll-smooth" style={{ scrollbarWidth: 'thin', scrollbarColor: '#818cf8 #f1f5f9' }}>

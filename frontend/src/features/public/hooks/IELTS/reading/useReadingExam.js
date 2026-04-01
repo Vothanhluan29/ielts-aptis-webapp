@@ -1,98 +1,110 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { readingStudentApi } from '../../../api/IELTS/reading/readingStudentApi'; // Đảm bảo đúng đường dẫn của bạn
-import { toast } from 'react-toastify';
+import { readingStudentApi } from '../../../api/IELTS/reading/readingStudentApi'; 
+import toast from 'react-hot-toast';
 
 export const useReadingExam = (propsTestId, propsOnFinish) => {
   const { id: paramId } = useParams();
   const navigate = useNavigate();
 
-  // Xác định mode: Full Test (từ Props) hay Single Test (từ URL)
   const testId = propsTestId || paramId;
   const isFullTestMode = !!propsTestId;
 
-  // --- STATE ---
+  // STATE
   const [test, setTest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [answers, setAnswers] = useState({}); 
   const [timeLeft, setTimeLeft] = useState(null);
 
-  // Dùng Ref để lưu giá trị mới nhất của answers mà không gây re-render cho hàm submit
   const answersRef = useRef(answers);
 
-  // --- HANDLERS ---
-  
+  // COMPUTED
+  const totalQuestions = useMemo(() => {
+    if (!test?.passages) return 0;
+    return test.passages.reduce((total, passage) => {
+        const passageQuestions = passage.groups?.reduce((groupTotal, group) => {
+            return groupTotal + (group.questions?.length || 0);
+        }, 0) || 0;
+        return total + passageQuestions;
+    }, 0);
+  }, [test]);
+
+  const answeredCount = useMemo(() => {
+    return Object.values(answers).filter(val => {
+      if (Array.isArray(val)) return val.length > 0;
+      return typeof val === 'string' && val.trim() !== '';
+    }).length;
+  }, [answers]);
+
+  // HANDLERS
   const handleAnswerChange = useCallback((questionId, value) => {
     setAnswers(prev => {
-      // Lưu dưới dạng chuỗi (nếu là mảng thì nối bằng dấu phẩy để Backend dễ xử lý hoặc tùy logic Backend của bạn)
-      // Tạm thời giữ nguyên value gốc (có thể là String hoặc Array)
       const newAnswers = { ...prev, [String(questionId)]: value };
-      answersRef.current = newAnswers; // Sync ref
+      answersRef.current = newAnswers; 
       return newAnswers;
     });
   }, []);
 
   const handleSubmit = useCallback(async (isAutoSubmit = false) => {
-    if (submitting) return; // Prevent double submit
+    if (submitting) return;
 
-    if (!isAutoSubmit && !window.confirm('Bạn có chắc chắn muốn nộp bài?')) return;
-
-    // Lấy answers mới nhất từ Ref
-    const currentAnswers = answersRef.current;
-
-    // 1. Dọn dẹp payload (Lọc bỏ các câu có đáp án rỗng hoặc null)
-    const cleanedAnswers = {};
-    Object.entries(currentAnswers).forEach(([qid, val]) => {
-      // Hỗ trợ cả mảng (cho câu hỏi nhiều đáp án) và chuỗi
-      if (val !== undefined && val !== null) {
-        if (Array.isArray(val) && val.length > 0) {
-          cleanedAnswers[qid] = val; // Trả về mảng
-        } else if (typeof val === 'string' && val.trim() !== '') {
-          cleanedAnswers[qid] = val.trim(); // Trả về chuỗi
-        }
-      }
-    });
+    if (!isAutoSubmit) {
+      const isConfirmed = window.confirm('Are you sure you want to submit your test?');
+      if (!isConfirmed) return;
+    }
 
     try {
       setSubmitting(true);
-      if (isAutoSubmit) toast.info('Hết giờ! Đang tự động nộp bài...', { autoClose: 2000 });
 
-      // 🔥 FIX LỖI PAYLOAD: Đổi `answers` thành `user_answers` để khớp với Pydantic Backend
+      if (isAutoSubmit) {
+        toast('Time is up! The system is automatically submitting your test...', { icon: '⏰' });
+      }
+
+      const currentAnswers = answersRef.current;
+
+      const cleanedAnswers = {};
+      Object.entries(currentAnswers).forEach(([qid, val]) => {
+        if (val !== undefined && val !== null) {
+          if (Array.isArray(val) && val.length > 0) {
+            cleanedAnswers[qid] = val; 
+          } else if (typeof val === 'string' && val.trim() !== '') {
+            cleanedAnswers[qid] = val.trim(); 
+          }
+        }
+      });
+
       const payload = {
         test_id: Number(testId),
         user_answers: cleanedAnswers, 
         is_full_test_only: isFullTestMode 
       };
 
-      // 2. Gọi API
-      const result = await readingStudentApi.submitTest(payload);
+      const response = await readingStudentApi.submitTest(payload);
       
-      // Axios interceptor thường trả về res.data thẳng luôn, nếu không thì tự lấy .data
-      const data = result.data || result; 
-      const submissionId = data?.id;
+      const submissionId = response?.data?.id || response?.id;
 
-      if (!submissionId) throw new Error("Không nhận được ID bài nộp từ Server");
+      if (!submissionId) {
+        throw new Error("Submission ID was not returned from the server");
+      }
 
-      // 3. Chuyển hướng
       if (isFullTestMode && propsOnFinish) {
         propsOnFinish(submissionId);
       } else {
-        toast.success("Nộp bài thành công!");
+        toast.success("Submission successful!");
         navigate(`/reading/result/${submissionId}`, { replace: true });
       }
 
     } catch (error) {
       console.error('Submit error:', error);
-      toast.error('Có lỗi xảy ra khi nộp bài. Vui lòng thử lại.');
+      toast.error('An error occurred while submitting the test. Please try again.');
+    } finally {
       setSubmitting(false);
     }
   }, [testId, submitting, navigate, isFullTestMode, propsOnFinish]);
 
+  // EFFECTS
 
-  // --- EFFECTS ---
-
-  // 1. Fetch Test Data
   useEffect(() => {
     if (!testId) return;
     let mounted = true;
@@ -104,8 +116,8 @@ export const useReadingExam = (propsTestId, propsOnFinish) => {
         const data = res.data || res;
         
         if (!mounted) return;
+        if (!data) throw new Error("No data found");
 
-        // Chuẩn hóa dữ liệu (Sắp xếp Passage -> Group -> Question)
         if (data.passages) {
           data.passages.sort((a, b) => a.order - b.order);
           data.passages.forEach(p => {
@@ -120,14 +132,13 @@ export const useReadingExam = (propsTestId, propsOnFinish) => {
 
         setTest(data);
         
-        // Thiết lập thời gian (Chỉ set 1 lần)
-        if (data.time_limit && timeLeft === null) {
-          setTimeLeft(data.time_limit * 60);
+        if (data.time_limit) {
+          setTimeLeft(prev => prev === null ? data.time_limit * 60 : prev);
         }
       } catch (err) {
         console.error("Fetch error:", err);
-        toast.error('Không thể tải dữ liệu đề thi.');
-        if (!isFullTestMode) navigate('/reading/tests'); // Đảm bảo navigate đúng link danh sách
+        toast.error('Unable to load the test data.');
+        if (!isFullTestMode && mounted) navigate('/reading');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -137,12 +148,13 @@ export const useReadingExam = (propsTestId, propsOnFinish) => {
     return () => { mounted = false; };
   }, [testId, isFullTestMode, navigate]); 
 
-  // 2. Timer Logic (Đồng hồ đếm ngược)
   useEffect(() => {
     if (timeLeft === null || submitting) return;
 
     if (timeLeft <= 0) {
-      handleSubmit(true); // Gọi auto submit khi hết giờ
+      if (!submitting) {
+         handleSubmit(true); 
+      }
       return;
     }
 
@@ -152,27 +164,6 @@ export const useReadingExam = (propsTestId, propsOnFinish) => {
 
     return () => clearInterval(timer);
   }, [timeLeft, submitting, handleSubmit]);
-
-  // --- COMPUTED ---
-  // Tính tổng số câu hỏi
-  const totalQuestions = useMemo(() => {
-    if (!test?.passages) return 0;
-    let count = 0;
-    test.passages.forEach(p => {
-      p.groups?.forEach(g => {
-        count += g.questions?.length || 0;
-      });
-    });
-    return count;
-  }, [test]);
-
-  // Đếm số câu đã trả lời (Chỉ đếm các câu có dữ liệu không rỗng)
-  const answeredCount = useMemo(() => {
-    return Object.values(answers).filter(val => {
-      if (Array.isArray(val)) return val.length > 0;
-      return typeof val === 'string' && val.trim() !== '';
-    }).length;
-  }, [answers]);
 
   return {
     test,

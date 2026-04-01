@@ -79,7 +79,7 @@ const ReadingExamPage = ({ testId, onFinish }) => {
       {/* MAIN BODY - Split View */}
       <div className="flex-1 overflow-hidden relative">
         {currentPassage && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 h-full divide-x-2 divide-indigo-200">
+          <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] h-full divide-x-2 divide-indigo-200">
             
             {/* LEFT PANEL: Reading Passage */}
             <div id="reading-text-wrapper" className="bg-white h-full overflow-y-auto scroll-smooth" style={{scrollbarWidth: 'thin', scrollbarColor: '#818cf8 #f1f5f9'}}>
@@ -95,8 +95,7 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                       </h2>
                     </div>
                   </div>
-                  
-                  {/* 🔥 ĐÃ XÓA HIGHLIGHTER: Dùng div với dangerouslySetInnerHTML mặc định */}
+
                   <div 
                     className="prose prose-slate prose-lg max-w-none text-justify font-serif leading-relaxed text-slate-800 whitespace-pre-wrap"
                     dangerouslySetInnerHTML={{ __html: currentPassage.content }}
@@ -206,7 +205,6 @@ const ReadingExamPage = ({ testId, onFinish }) => {
             ))}
           </div>
 
-          {/* RIGHT: PHÂN TÁCH LOGIC SUBMIT & NEXT RÕ RÀNG */}
           <div>
             {isLastPassage ? (
               // NẾU LÀ PASSAGE CUỐI CÙNG
