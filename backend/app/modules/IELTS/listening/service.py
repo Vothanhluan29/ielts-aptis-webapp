@@ -12,6 +12,34 @@ from app.modules.IELTS.listening import schemas
 
 class ListeningService:
 
+    @staticmethod
+    def save_image_file(file: UploadFile) -> str:
+        """Lưu file hình ảnh vào thư mục local và trả về đường dẫn URL"""
+        try:
+            # 1. Kiểm tra định dạng (Chỉ cho phép file ảnh)
+            allowed_extensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"]
+            ext = os.path.splitext(file.filename)[1].lower()
+            if ext not in allowed_extensions:
+                raise ValueError(f"Định dạng ảnh không hợp lệ. Chỉ hỗ trợ: {', '.join(allowed_extensions)}")
+
+            # 2. Tạo thư mục lưu trữ (Phân biệt với audio)
+            upload_dir = "static/images" 
+            os.makedirs(upload_dir, exist_ok=True)
+
+            # 3. Tạo tên file độc nhất
+            new_filename = f"{uuid.uuid4().hex}{ext}"
+            file_path = os.path.join(upload_dir, new_filename)
+
+            # 4. Lưu file vào ổ cứng
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+
+            # 5. Trả về URL tương đối
+            return f"/{upload_dir}/{new_filename}"
+
+        except Exception as e:
+            raise ValueError(f"Lỗi khi lưu ảnh: {str(e)}")
+
     # =======================================================
     # 🎧 UPLOAD AUDIO LOGIC (HÀM BỊ THIẾU GÂY LỖI 400)
     # =======================================================
