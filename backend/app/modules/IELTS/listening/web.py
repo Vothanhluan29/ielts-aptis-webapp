@@ -31,6 +31,24 @@ def upload_audio(
         raise he
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Upload failed: {str(e)}")
+    
+@router.post("/upload-image", status_code=status.HTTP_201_CREATED)
+def upload_image(
+    file: UploadFile = File(...), 
+    admin = Depends(get_admin_user)
+):
+    """
+    [ADMIN] Upload file Hình ảnh (JPG, PNG, SVG...) cho dạng Map/Diagram Labeling.
+    Trả về: {"url": "/static/images/filename.png"}
+    """
+    try:
+        url = ListeningService.save_image_file(file)
+        return {"url": url}
+    except ValueError as ve:
+        # Bắt lỗi ValueError từ Service (Ví dụ: Sai định dạng file)
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Image upload failed: {str(e)}")
 
 # ====================================================
 # 2. QUẢN LÝ TEST (ADMIN) - CRUD
