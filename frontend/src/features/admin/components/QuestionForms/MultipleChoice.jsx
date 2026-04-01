@@ -82,25 +82,13 @@ const MultipleChoice = ({ field, namePath }) => {
     forceUpdate(); // Force UI to remove the deleted slot
   };
 
-const handleSelectCorrect = (key) => {
+  const handleSelectCorrect = (key) => {
     const currCorrect = form.getFieldValue(correctPath) || [];
-    
-    // Lấy loại câu hỏi từ form (Tên field 'question_type' tùy thuộc vào DB của bạn)
-    const qType = form.getFieldValue([...namePath, field.name, 'question_type']);
-    const isMultipleAnswer = qType === 'MULTIPLE_ANSWER'; 
-
     if (currCorrect.includes(key)) {
-      form.setFieldValue(correctPath, currCorrect.filter(k => k !== key));
+      form.setFieldValue(correctPath, []); // Deselect
     } else {
-      if (isMultipleAnswer) {
-        // Cho phép chọn nhiều
-        form.setFieldValue(correctPath, [...currCorrect, key].sort()); 
-      } else {
-        // Bắt buộc chọn 1 (Ghi đè cái cũ)
-        form.setFieldValue(correctPath, [key]); 
-      }
+      form.setFieldValue(correctPath, [key]); // Select
     }
-    
     form.validateFields([correctPath]).catch(() => {});
     forceUpdate();
   };
