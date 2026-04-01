@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useReadingExam } from '../../../hooks/IELTS/reading/useReadingExam';
-import { Clock, Send, BookOpen, ChevronRight, ChevronLeft, Check, Info, Highlighter, Eraser } from 'lucide-react'; // 🔥 Import thêm Highlighter và Eraser
+import { Clock, Send, BookOpen, ChevronRight, ChevronLeft, Check, Info, Highlighter, Eraser } from 'lucide-react'; 
 
 import StudentQuestionDisplay from '../../../components/IELTS/Question Display/StudentQuestionDisplay'; 
-import TextHighlighter from '../../../components/common/TextHighlighter'; // 🔥 Import TextHighlighter
+import TextHighlighter from '../../../components/common/TextHighlighter'; 
 
 const ReadingExamPage = ({ testId, onFinish }) => {
   const { test, loading, submitting, answers, timeLeft, handleAnswerChange, handleSubmit, isFullTestMode } = useReadingExam(testId, onFinish);
