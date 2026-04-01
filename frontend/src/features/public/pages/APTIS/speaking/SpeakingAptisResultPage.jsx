@@ -151,7 +151,7 @@ const SpeakingAptisResultPage = () => {
             <div className="p-2 bg-purple-100 rounded-xl text-purple-600">
               <UserCheck size={24} />
             </div>
-            <Title level={4} className="!m-0 text-purple-800">Overall Teacher Feedback</Title>
+            <Title level={4} className="m-0! text-purple-800">Overall Teacher Feedback</Title>
           </div>
           <Paragraph className="text-purple-900 text-base leading-relaxed whitespace-pre-wrap m-0">
             {submission.overall_feedback}
@@ -200,7 +200,7 @@ const SpeakingAptisResultPage = () => {
 
           <div className="bg-slate-50/50 border border-slate-200 rounded-2xl p-5 shadow-sm">
             <div className="mb-4">
-              <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 block flex items-center gap-1">
+              <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2  flex items-center gap-1">
                 <PlayCircle size={14}/> Recording for this part
               </Text>
               {audioUrl ? (
