@@ -1,25 +1,11 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Card, Space, Typography, InputNumber, Switch, Divider, Tabs, message } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, SortAscendingOutlined } from '@ant-design/icons';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css'; // Import CSS giao diện của Quill
-
 import { useReadingEdit } from '../../hooks/reading/useReadingEdit';
 import QuestionCard from '../../components/QuestionForms/QuestionCard';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
-
-// 🔥 CẤU HÌNH THANH CÔNG CỤ CHO TRÌNH SOẠN THẢO VĂN BẢN (RICH TEXT EDITOR)
-const quillModules = {
-  toolbar: [
-    [{ 'header': [1, 2, 3, false] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-    [{ 'align': [] }],
-    ['clean'] // Nút xóa định dạng
-  ],
-};
 
 const ReadingEditPage = () => {
   const { 
@@ -46,6 +32,19 @@ const ReadingEditPage = () => {
 
     if (payload.passages) {
       payload.passages.forEach(p => {
+        
+        // 🔥 CÁCH 1: TỰ ĐỘNG PARSE TEXT THÀNH HTML PARAGRAPHS
+        // Biến các dấu Enter (\n) khi copy từ Word thành các đoạn văn <p> tách biệt
+        if (p.content) {
+          const formattedContent = p.content
+            .split('\n')
+            .filter(line => line.trim() !== '') // Bỏ qua các dòng trống vô nghĩa
+            .map(line => `<p style="margin-bottom: 1em;">${line}</p>`) // Chèn thẻ <p>
+            .join('');
+          
+          p.content = formattedContent; // Ghi đè lại nội dung đã chuẩn hóa
+        }
+
         if (p?.groups) {
           p.groups.forEach(g => {
             if (g?.questions) {
@@ -268,13 +267,11 @@ const ReadingEditPage = () => {
                           rules={[{ required: true, message: 'Passage content cannot be empty!' }]}
                           className="mb-0"
                         >
-                          {/* 🔥 ĐÃ NÂNG CẤP LÊN REACT QUILL (SOẠN THẢO VĂN BẢN XỊN) */}
-                          <ReactQuill 
-                            theme="snow"
-                            modules={quillModules}
-                            placeholder="Paste your reading passage here. Paragraphs and bold text will be preserved..."
-                            className="bg-white"
-                            style={{ height: '400px', marginBottom: '45px' }} // Chiều cao vừa vặn cho bài đọc
+                          {/* SỬ DỤNG LẠI TEXTAREA THÔNG THƯỜNG, DỮ LIỆU SẼ ĐƯỢC PARSE LÚC ONFINISH */}
+                          <TextArea
+                            placeholder="Paste your reading passage here. Paragraph spacing will be automatically preserved when saved..."
+                            className="font-serif text-[16px] leading-[1.8] custom-scrollbar bg-slate-50 focus:bg-white"
+                            autoSize={{ minRows: 15 }}
                           />
                         </Form.Item>
 
