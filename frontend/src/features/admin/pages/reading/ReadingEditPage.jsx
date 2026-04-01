@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, Space, Typography, InputNumber, Switch, Divider, Tabs, message, Tag } from 'antd';
+import { Form, Input, Button, Card, Space, Typography, InputNumber, Switch, Divider, Tabs, message } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, SortAscendingOutlined } from '@ant-design/icons';
 import { useReadingEdit } from '../../hooks/reading/useReadingEdit';
 import QuestionCard from '../../components/QuestionForms/QuestionCard';
@@ -16,14 +16,31 @@ const ReadingEditPage = () => {
   const [activeTabKey, setActiveTabKey] = useState(null);
 
   const onFinish = (values) => {
-    if (values.passages) {
-      values.passages.forEach(p => {
+    // Clone payload để không làm thay đổi trực tiếp State của Form
+    const payload = JSON.parse(JSON.stringify(values));
+
+    if (payload.passages) {
+      payload.passages.forEach(p => {
         if (p?.groups) {
           p.groups.forEach(g => {
             if (g?.questions) {
               g.questions.forEach(q => {
-                if (q.question_text === undefined || q.question_text === null) q.question_text = "";
-                if (!q.options) q.options = [];
+                if (q.question_text === undefined || q.question_text === null) {
+                  q.question_text = "";
+                }
+                
+                // 🔥 ĐÃ FIX LỖI 422 FASTAPI: Đảm bảo options LUÔN LUÔN là Object {}
+                if (!q.options) {
+                  q.options = {};
+                } else if (Array.isArray(q.options)) {
+                  // Nếu xui rủi component con trả ra Array, ép nó về Dict {} ngay lập tức
+                  const dict = {};
+                  const labels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+                  q.options.forEach((opt, i) => {
+                    if (opt && opt.trim() !== '') dict[labels[i]] = opt.trim();
+                  });
+                  q.options = dict;
+                }
               });
             }
           });
@@ -31,8 +48,8 @@ const ReadingEditPage = () => {
       });
     }
     
-    // console.log("🚀 PAYLOAD TO BACKEND:", values);
-    handleSave(values);
+    // console.log("🚀 PAYLOAD TO BACKEND:", payload);
+    handleSave(payload);
   };
 
   const onFinishFailed = () => {
@@ -40,7 +57,7 @@ const ReadingEditPage = () => {
   };
 
   return (
-    <div className="max-w-400 mx-auto p-4 md:p-6 bg-slate-50 min-h-screen font-sans pb-24">
+    <div className="max-w-7xl mx-auto p-4 md:p-6 bg-slate-50 min-h-screen font-sans pb-24">
       
       {/* ================= HEADER ================= */}
       <Space className="mb-6 w-full justify-between items-center">

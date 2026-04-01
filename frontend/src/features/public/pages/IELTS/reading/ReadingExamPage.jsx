@@ -8,7 +8,7 @@ import TextHighlighter from '../../../components/common/TextHighlighter';
 const ReadingExamPage = ({ testId, onFinish }) => {
   const { test, loading, submitting, answers, timeLeft, handleAnswerChange, handleSubmit, isFullTestMode } = useReadingExam(testId, onFinish);
   const [activeTab, setActiveTab] = useState(0);
-  const [activeTool, setActiveTool] = useState(null); // 🔥 State quản lý màu bút highlight
+  const [activeTool, setActiveTool] = useState(null);
 
   useEffect(() => {
     const questionContainer = document.getElementById('reading-question-container');
@@ -53,7 +53,8 @@ const ReadingExamPage = ({ testId, onFinish }) => {
       {/* HEADER */}
       {!isFullTestMode && (
         <header className="bg-white border-b-2 border-indigo-200 shadow-sm h-14 shrink-0 z-30">
-          <div className="h-full max-w-400 mx-auto px-6 flex items-center justify-between">
+          {/* Đã fix max-w-400 thành max-w-7xl */}
+          <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
             {/* Left: Title */}
             <div className="flex items-center gap-3">
               <div className="w-1 h-9 bg-linear-to-b from-indigo-600 to-blue-600 rounded-full"></div>
@@ -63,7 +64,8 @@ const ReadingExamPage = ({ testId, onFinish }) => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 bg-linear-to-r from-indigo-50/50 to-blue-50/50 px-4 py-2 rounded-lg border border-indigo-200 md:flex">
+            {/* Center: Highlight Tools */}
+            <div className=" items-center gap-3 bg-linear-to-r from-indigo-50/50 to-blue-50/50 px-4 py-2 rounded-lg border border-indigo-200 hidden md:flex">
               <span className="text-[11px] font-bold text-indigo-600 uppercase flex items-center gap-1.5">
                 <Highlighter size={14}/> Highlight:
               </span>
@@ -120,11 +122,12 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                     </div>
                   </div>
                   
-                  {/* 🔥 NHÚNG COMPONENT TEXT HIGHLIGHTER VÀO ĐÂY */}
+                  {/* 🔥 ĐÃ FIX: Thêm customClass có "whitespace-pre-wrap" để giữ nguyên dấu Enter từ Admin */}
                   <TextHighlighter 
                     content={currentPassage.content} 
                     storageKey={`ielts_reading_${testId}_passage_${activeTab}`} 
                     activeTool={activeTool} 
+                    customClass="prose prose-slate prose-lg max-w-none text-justify font-serif leading-relaxed text-slate-800 whitespace-pre-wrap"
                   />
 
                 </div>
@@ -150,7 +153,7 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                       <div key={group.id || gIndex} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         {group.instruction && (
                           <div className="bg-linear-to-r from-indigo-50 via-blue-50 to-indigo-50 border-l-4 border-indigo-600 p-5 rounded-r-lg mb-6 shadow-sm">
-                            <p className="font-semibold text-slate-800 text-sm flex gap-2 items-start leading-relaxed">
+                            <p className="font-semibold text-slate-800 text-sm flex gap-2 items-start leading-relaxed whitespace-pre-wrap">
                               <Info size={18} className="text-indigo-600 mt-0.5 shrink-0"/>
                               <span>{group.instruction}</span>
                             </p>
@@ -202,7 +205,8 @@ const ReadingExamPage = ({ testId, onFinish }) => {
 
       {/* FOOTER - Passage Navigation */}
       <footer className="bg-white border-t-2 border-indigo-200 h-16 shrink-0 z-30 shadow-sm">
-        <div className="h-full max-w-400  mx-auto px-6 flex items-center justify-between">
+        {/* Đã fix max-w-400 thành max-w-7xl */}
+        <div className="h-full max-w-7xl  mx-auto px-6 flex items-center justify-between">
 
           {/* Left: Previous */}
           <button 
