@@ -24,7 +24,7 @@ const ListeningResultItem = ({ item, index }) => {
   }
 
   const isCorrect = item.is_correct;
-  const hasAnswer = userAnswerText !== "--(Skipped)--";
+  const hasAnswer = userAnswerText !== "--";
 
   return (
     <>
@@ -70,7 +70,7 @@ const ListeningResultItem = ({ item, index }) => {
         <td className="py-4 px-4 align-middle w-48">
             <div className={`text-sm font-bold flex items-center gap-2 ${isCorrect ? 'text-green-700' : 'text-red-600'}`}>
                 {hasAnswer ? userAnswerText : (
-                  <span className="text-gray-400 font-normal italic">--</span>
+                  <span className="text-gray-400 font-normal italic">--(Skipped)--</span>
                 )}
                 {/* Mobile check / x icon */}
                 <div className="md:hidden">
