@@ -17,17 +17,14 @@ import readingAptisStudentApi from '../../../api/APTIS/reading/readingAptisStude
 const { Header, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
 
-// 🔥 NHẬN PROPS TỪ LAYOUT MẸ (ExamAptisExamPage)
 const ReadingAptisExamPage = ({ 
   isFullTest = false, 
-  fullTestSubmissionId = null, 
   testIdFromProps = null,
   onSkillFinish = null 
 }) => {
   const { id: urlId } = useParams();
   const navigate = useNavigate();
 
-  // 🔥 LẤY ID ĐỘNG TÙY THUỘC VÀO CHẾ ĐỘ THI
   const testId = isFullTest ? testIdFromProps : urlId;
 
   const [loading, setLoading] = useState(true);
@@ -41,14 +38,12 @@ const ReadingAptisExamPage = ({
   const answersRef = useRef(answers);
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
-  // 1. FETCH API
   useEffect(() => {
     const fetchTest = async () => {
       try {
         setLoading(true);
-        if (!testId) throw new Error("Không tìm thấy ID bài thi Reading!");
+        if (!testId) throw new Error("Reading test ID not found!");
 
-        // 🔥 Đã đổi `id` thành `testId`
         const response = await readingAptisStudentApi.getTestDetail(testId);
         const data = response.data || response;
         
@@ -72,13 +67,11 @@ const ReadingAptisExamPage = ({
   const activePart = parts.find(p => p.id === currentPartId);
   const currentTabIndex = parts.findIndex(p => p.id === currentPartId);
 
-  // CHECK FOR READING PASSAGE AT PART OR GROUP LEVEL
   const hasReadingPassage = !!(
     activePart?.content || 
     activePart?.groups?.some(g => g.transcript || g.content || g.text || g.image_url)
   );
 
-  // 2. SUBMIT TEST
   const handleSubmit = async (isAutoSubmit = false) => {
     if (submitting) return;
     try {
@@ -90,8 +83,8 @@ const ReadingAptisExamPage = ({
       }
 
       const payload = {
-        test_id: parseInt(testId), // 🔥 Đã đổi `id` thành `testId`
-        is_full_test_only: isFullTest, // 🔥 Khai báo chế độ thi
+        test_id: parseInt(testId),
+        is_full_test_only: isFullTest,
         answers: answersRef.current
       };
 
@@ -100,7 +93,6 @@ const ReadingAptisExamPage = ({
       
       message.success({ content: 'Test submitted successfully!', key: 'submit' });
       
-      // 🔥 RẼ NHÁNH ĐIỀU HƯỚNG
       if (isFullTest && onSkillFinish) {
         onSkillFinish(submissionData.id);
       } else {
@@ -113,7 +105,6 @@ const ReadingAptisExamPage = ({
     }
   };
 
-  // 3. COUNTDOWN TIMER
   useEffect(() => {
     if (loading || submitting || timeLeft <= 0) {
       if (timeLeft <= 0 && !loading && !submitting && testDetail) handleSubmit(true);
@@ -149,7 +140,6 @@ const ReadingAptisExamPage = ({
     return `${m}:${s}`;
   };
 
-  // --- RENDER QUESTIONS ---
   const renderQuestionsList = (groups) => {
     return groups?.map((group) => (
       <div key={group.id} className="mb-10 last:mb-0">
@@ -254,7 +244,6 @@ const ReadingAptisExamPage = ({
   return (
     <Layout style={{ height: isFullTest ? 'calc(100vh - 64px)' : '100vh', overflow: 'hidden', backgroundColor: '#f8fafc' }}>
       
-      {/* HEADER GỐC: Ẩn nếu thi Full Test */}
       {!isFullTest && (
         <Header style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', zIndex: 10 }}>
           <div className="flex items-center gap-3">
@@ -270,27 +259,24 @@ const ReadingAptisExamPage = ({
         </Header>
       )}
 
-      {/* HEADER PHỤ CHO FULL TEST: Chứa đồng hồ đếm ngược nội bộ */}
       {isFullTest && (
         <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center z-10 shadow-sm shrink-0">
-          <Text strong className="text-lg text-slate-700">Phần thi: Reading</Text>
+          <Text strong className="text-lg text-slate-700">Section: Reading</Text>
           <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-lg transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-orange-50 border-orange-200 text-orange-600'}`}>
-            <ClockCircleOutlined /> Thời gian còn lại: {formatTime(timeLeft)}
+            <ClockCircleOutlined /> Time remaining: {formatTime(timeLeft)}
           </div>
         </div>
       )}
 
-      {/* MAIN BODY */}
-      <div className="flex flex-col flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-6 overflow-hidden">
+      <div className="flex flex-col flex-1 w-full max-w-400 mx-auto p-4 sm:p-6 overflow-hidden">
         
-        {/* TABS (PARTS) */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-2 custom-scrollbar shrink-0">
           {parts.map((p, idx) => (
             <Button 
               key={p.id} 
               type={currentPartId === p.id ? 'primary' : 'default'} 
               onClick={() => setCurrentPartId(p.id)} 
-              className={`flex-1 min-w-[140px] h-12 font-bold rounded-xl transition-all ${
+              className={`flex-1 min-w-35 h-12 font-bold rounded-xl transition-all ${
                 currentPartId === p.id 
                   ? 'bg-orange-500 hover:bg-orange-400 border-none shadow-md shadow-orange-200 text-white' 
                   : 'text-slate-500 border-slate-200 hover:text-orange-500 hover:border-orange-300 bg-white'
@@ -302,9 +288,7 @@ const ReadingAptisExamPage = ({
         </div>
         
         {hasReadingPassage ? (
-          /* 📌 2-COLUMN LAYOUT (SPLIT-PANE) */
           <div className="flex flex-col lg:flex-row gap-6 flex-1 overflow-hidden animation-fade-in">
-            {/* LEFT COLUMN: PASSAGE */}
             <div className="w-full lg:w-1/2 bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
               <div className="bg-slate-50 border-b border-slate-200 p-4 shrink-0 flex items-center gap-2">
                 <FileTextOutlined className="text-orange-500 text-lg" />
@@ -338,7 +322,6 @@ const ReadingAptisExamPage = ({
               </div>
             </div>
 
-            {/* RIGHT COLUMN: QUESTIONS */}
             <div className="w-full lg:w-1/2 bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
               <div className="bg-slate-50 border-b border-slate-200 p-4 shrink-0 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -355,30 +338,25 @@ const ReadingAptisExamPage = ({
             </div>
           </div>
         ) : (
-
-          /* 📌 1-COLUMN LAYOUT (FULL WIDTH) */
           <div className="flex-1 overflow-y-auto custom-scrollbar bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-10 animation-fade-in">
-             <div className="max-w-4xl mx-auto">
-               <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-8">
-                  <div className="flex items-center gap-2">
-                    <ReadOutlined className="text-orange-500 text-2xl" />
-                    <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Question List</Title>
-                  </div>
-                  <Tag className="rounded-full bg-orange-50 text-orange-600 font-bold border-orange-200 px-3 py-1 m-0 text-sm">
-                    {activePart?.groups?.reduce((acc, g) => acc + (g.questions?.length || 0), 0) || 0} questions
-                  </Tag>
-               </div>
-               
-               {renderQuestionsList(activePart.groups)}
-               
-             </div>
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-8">
+                <div className="flex items-center gap-2">
+                  <ReadOutlined className="text-orange-500 text-2xl" />
+                  <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Question List</Title>
+                </div>
+                <Tag className="rounded-full bg-orange-50 text-orange-600 font-bold border-orange-200 px-3 py-1 m-0 text-sm">
+                  {activePart?.groups?.reduce((acc, g) => acc + (g.questions?.length || 0), 0) || 0} questions
+                </Tag>
+              </div>
+              
+              {renderQuestionsList(activePart.groups)}
+            </div>
           </div>
-
         )}
 
       </div>
 
-      {/* NAVIGATION FOOTER */}
       <Footer style={{ backgroundColor: '#fff', borderTop: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10, shrink: 0 }}>
         <Button
           size="large"
