@@ -58,6 +58,7 @@ const ReadingEditPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 bg-slate-50 min-h-screen font-sans pb-24">
+      {/* 🔥 ĐÃ FIX: Đưa dòng comment này vào bên TRONG thẻ div để tránh lỗi sập React */}
       
       {/* ================= HEADER ================= */}
       <Space className="mb-6 w-full justify-between items-center">
