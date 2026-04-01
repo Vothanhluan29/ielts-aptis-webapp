@@ -134,7 +134,6 @@ const ListeningExamPage = ({ testId, onFinish }) => {
       {/* HEADER */}
       {!isFullTestMode && (
         <header className="bg-white border-b-2 border-indigo-200 shadow-sm h-14 shrink-0 z-30">
-          {/* 🔥 FIX MAX-W-7XL ĐỂ ĐỒNG BỘ READING */}
           <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
             {/* Left: Title */}
             <div className="flex items-center gap-3">
@@ -218,7 +217,7 @@ const ListeningExamPage = ({ testId, onFinish }) => {
                     </p>
                   </div>
 
-                  {/* 🔥 CUSTOM AUDIO PLAYER KHÔNG THỂ TUA */}
+                  {/* CUSTOM AUDIO PLAYER KHÔNG THỂ TUA */}
                   <div className="bg-linear-to-r from-indigo-50 to-blue-50 border-l-4 border-indigo-600 p-5 rounded-r-lg mb-2">
                     <div className="flex items-center gap-2 mb-4">
                       <Headphones size={18} className="text-indigo-600" />
@@ -240,12 +239,11 @@ const ListeningExamPage = ({ testId, onFinish }) => {
                           {currentAudioStatus === 'ended' && <><Lock size={24} /> AUDIO ENDED</>}
                         </button>
                         
-                        {/* Audio ẩn (Hidden) để học viên không thể nhìn thấy thanh tiến trình */}
                         <audio
                           ref={audioRef}
                           key={currentPart.id}
                           onEnded={handleAudioEnded}
-                          onPause={handleAudioPause} // Chống pause gian lận
+                          onPause={handleAudioPause}
                           className="hidden"
                           src={currentPart.audio_url.startsWith('http')
                             ? currentPart.audio_url
@@ -316,7 +314,6 @@ const ListeningExamPage = ({ testId, onFinish }) => {
 
               <div className="flex-1 overflow-y-auto scroll-smooth bg-white" style={{ scrollbarWidth: 'thin', scrollbarColor: '#818cf8 #f1f5f9' }}>
                 <div className="p-6 md:p-8 max-w-3xl mx-auto">
-                  {/* 🔥 KHUNG ÁP DỤNG HIGHLIGHTER */}
                   <div className="space-y-8 pb-10" ref={questionsContainerRef}>
                     
                     {currentPart.groups?.map((group, gIndex) => (
@@ -324,6 +321,7 @@ const ListeningExamPage = ({ testId, onFinish }) => {
 
                         {group.instruction && (
                           <div className="bg-linear-to-r from-indigo-50 via-blue-50 to-indigo-50 border-l-4 border-indigo-600 p-5 rounded-r-lg mb-6 shadow-sm">
+                            {/* 🔥 FIX 1: Thêm whitespace-pre-wrap cho phần Instruction */}
                             <p className="font-semibold text-slate-800 text-sm flex gap-2 items-start leading-relaxed whitespace-pre-wrap">
                               <Info size={18} className="text-indigo-600 mt-0.5 shrink-0" />
                               <span>{group.instruction}</span>
@@ -331,7 +329,8 @@ const ListeningExamPage = ({ testId, onFinish }) => {
                           </div>
                         )}
 
-                        <div className="space-y-6">
+                        {/* 🔥 FIX 2: Thêm whitespace-pre-wrap cho danh sách câu hỏi */}
+                        <div className="space-y-6 whitespace-pre-wrap">
                           {group.questions?.map((q) => (
                             <div key={q.id || q.question_number} id={`question-${q.question_number}`}>
                               <StudentQuestionDisplay
@@ -375,7 +374,6 @@ const ListeningExamPage = ({ testId, onFinish }) => {
 
       {/* FOOTER - Part Navigation */}
       <footer className="bg-white border-t-2 border-indigo-200 h-16 shrink-0 z-30 shadow-sm">
-        {/* 🔥 FIX MAX-W-7XL ĐỂ ĐỒNG BỘ READING */}
         <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
 
           <button
