@@ -40,7 +40,7 @@ const SpeakingAptisExamPage = ({
   // --- STATE: EXAM ROOM ---
   const [step, setStep] = useState(EXAM_STEPS.INTRO);
   const [timer, setTimer] = useState(0);
-  const [audioBlocked, setAudioBlocked] = useState(false); // State kiểm tra xem Autoplay có bị chặn không
+  const [audioBlocked, setAudioBlocked] = useState(false); // State to check whether Autoplay is blocked
 
   // --- REFS ---
   const mediaRecorderRef = useRef(null);
@@ -58,7 +58,7 @@ const SpeakingAptisExamPage = ({
     const fetchTest = async () => {
       try {
         setLoading(true);
-        if (!testId) throw new Error("Không tìm thấy ID bài thi Speaking!");
+        if (!testId) throw new Error("Speaking test ID not found!");
 
         const response = await speakingAptisStudentApi.getTestDetail(testId);
         const data = response.data || response;
@@ -101,7 +101,7 @@ const SpeakingAptisExamPage = ({
       
       if (playPromise !== undefined) {
         playPromise.catch(() => {
-          // Nếu trình duyệt chặn Autoplay -> Hiển thị nút bấm thủ công
+          // If browser blocks Autoplay -> Show manual play button
           setAudioBlocked(true);
         });
       }
@@ -252,15 +252,15 @@ const SpeakingAptisExamPage = ({
           <div className="w-20 h-20 bg-green-50 text-green-500 flex items-center justify-center rounded-full mx-auto mb-6">
             <CheckCircle2 size={40} />
           </div>
-          <Title level={3} className="text-slate-800! mb-2">Đã ghi âm xong!</Title>
+          <Title level={3} className="text-slate-800! mb-2">Recording complete!</Title>
           <Text className="text-slate-500 block mb-8">
-            {isFullTest ? "Tuyệt vời! Bạn đã hoàn thành toàn bộ phần thi Speaking và đây cũng là kỹ năng cuối cùng." : "Bạn đã hoàn thành tất cả các câu hỏi ghi âm. Vui lòng bấm Nộp bài."}
+            {isFullTest ? "Great job! You have completed the entire Speaking section, which is also the final skill." : "You have completed all recorded questions. Please click Submit to finish."}
           </Text>
           <Button 
             type="primary" size="large" block icon={<Send size={20} />} loading={submitting} onClick={handleFinishTest}
             className="flex items-center justify-center gap-2 h-14 bg-purple-600 hover:bg-purple-500 border-none font-bold text-lg rounded-xl shadow-md shadow-purple-200"
           >
-            {isFullTest ? "Hoàn tất Full Test" : "Nộp bài"}
+            {isFullTest ? "Finish Full Test" : "Submit Test"}
           </Button>
         </div>
       </div>
@@ -288,7 +288,7 @@ const SpeakingAptisExamPage = ({
         <div className="flex items-center gap-3">
           {isFullTest ? <AudioOutlined className="text-purple-600 text-lg" /> : <div className="px-3 py-1 rounded-lg bg-purple-50 text-purple-600 font-bold border border-purple-100 text-sm">Part {currentPart.part_number}</div>}
           <Text strong={isFullTest} className={isFullTest ? "text-lg text-slate-700" : "text-slate-700 font-bold hidden sm:block"}>
-            {isFullTest ? `Phần thi: Speaking - Part ${currentPart.part_number}` : testDetail.title}
+            {isFullTest ? `Skill: Speaking - Part ${currentPart.part_number}` : testDetail.title}
           </Text>
         </div>
         <div className="px-3 py-1 bg-slate-100 rounded-lg text-slate-600 text-sm font-bold border border-slate-200">
@@ -327,7 +327,7 @@ const SpeakingAptisExamPage = ({
                         onClick={() => { examinerAudioRef.current?.play(); setAudioBlocked(false); }}
                         className="bg-indigo-600 hover:bg-indigo-500 font-bold h-10 px-6 rounded-lg shadow-md flex items-center gap-2"
                       >
-                        Phát âm thanh câu hỏi
+                        Play question audio
                       </Button>
                     </div>
                   )}

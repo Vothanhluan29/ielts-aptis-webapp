@@ -15,17 +15,16 @@ const { Header, Content, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 
-// 🔥 NHẬN PROPS TỪ LAYOUT MẸ (ExamAptisExamPage)
+// 🔥 RECEIVE PROPS FROM PARENT LAYOUT (ExamAptisExamPage)
 const WritingAptisExamPage = ({ 
   isFullTest = false, 
-  fullTestSubmissionId = null, 
   testIdFromProps = null,
   onSkillFinish = null 
 }) => {
   const { id: urlId } = useParams();
   const navigate = useNavigate();
 
-  // 🔥 LẤY ID ĐỘNG TÙY THUỘC VÀO CHẾ ĐỘ THI
+  // 🔥 GET ID DYNAMICALLY BASED ON EXAM MODE
   const testId = isFullTest ? testIdFromProps : urlId;
 
   const [loading, setLoading] = useState(true);
@@ -54,14 +53,14 @@ const WritingAptisExamPage = ({
     const fetchTest = async () => {
       try {
         setLoading(true);
-        if (!testId) throw new Error("Không tìm thấy ID bài thi Writing!");
+        if (!testId) throw new Error("Test ID not found!");
 
-        // 🔥 Đã đổi `id` thành `testId`
+        // 🔥 Changed `id` to `testId`
         const data = await writingAptisStudentApi.getTestDetail(testId);
         setTestDetail(data);
         setTimeLeft((data?.time_limit || 50) * 60); 
       } catch (error) {
-        message.error(`Không thể tải đề thi: ${error.message || "Vui lòng thử lại!"}`);
+        message.error(`Unable to load the test: ${error.message || "Please try again!"}`);
         console.error(error);
       } finally {
         setLoading(false);
@@ -75,16 +74,16 @@ const WritingAptisExamPage = ({
     try {
       setSubmitting(true);
       if (isAutoSubmit) {
-        message.warning({ content: "Đã hết thời gian! Hệ thống tự động nộp bài.", duration: 5 });
+        message.warning({ content: "Time's up! The system has automatically submitted your test.", duration: 5 });
       } else {
-        message.loading({ content: 'Đang nộp bài...', key: 'submit' });
+        message.loading({ content: 'Submitting test...', key: 'submit' });
       }
 
       const currentAnswers = answersRef.current;
       
       const payload = {
-        test_id: parseInt(testId), // 🔥 Đã đổi `id` thành `testId`
-        is_full_test_only: isFullTest, // 🔥 Khai báo chế độ thi
+        test_id: parseInt(testId), // 🔥 Changed `id` to `testId`
+        is_full_test_only: isFullTest, // 🔥 Declare exam mode
         user_answers: {
           part_1: JSON.stringify(currentAnswers.part_1), 
           part_2: String(currentAnswers.part_2 || ""),   
@@ -96,20 +95,20 @@ const WritingAptisExamPage = ({
       const res = await writingAptisStudentApi.submitTest(payload);
       const submissionData = res.data || res;
       
-      message.success({ content: 'Nộp bài thành công!', key: 'submit' });
+      message.success({ content: 'Test submitted successfully!', key: 'submit' });
       
-      // 🔥 RẼ NHÁNH ĐIỀU HƯỚNG
+      // 🔥 BRANCH NAVIGATION
       if (isFullTest && onSkillFinish) {
-        // Gọi Layout mẹ để chuyển sang kỹ năng tiếp theo (Speaking)
+        // Call parent layout to move to next skill (Speaking)
         onSkillFinish(submissionData.id);
       } else {
-        // Đổi về điều hướng sang Result thay vì History để nhất quán
+        // Navigate to Result instead of History for consistency
         navigate(`/aptis/writing/result/${submissionData.id}`); 
       }
 
     } catch (error) {
       console.error("submission error:", error?.response?.data || error);
-      message.error({ content: 'Lỗi nộp bài. Vui lòng kiểm tra lại!', key: 'submit' });
+      message.error({ content: 'Submission failed. Please check and try again!', key: 'submit' });
       setSubmitting(false);
     }
   };
@@ -161,14 +160,14 @@ const WritingAptisExamPage = ({
 
   const confirmSubmit = () => {
     Modal.confirm({
-      title: 'Xác nhận nộp bài',
+      title: 'Confirm Submission',
       icon: <ExclamationCircleOutlined />,
-      // 🔥 Đổi thông báo tùy thuộc chế độ thi
+      // 🔥 Change message depending on exam mode
       content: isFullTest 
-        ? 'Sau khi nộp, hệ thống sẽ tự động chuyển sang phần Speaking. Bạn sẽ không thể sửa lại đáp án phần này. Tiếp tục?' 
-        : 'Bạn có chắc chắn muốn nộp bài? Bạn không thể thay đổi câu trả lời sau khi nộp.',
-      okText: 'Nộp bài',
-      cancelText: 'Hủy',
+        ? 'After submitting, the system will automatically move to the Speaking section. You will not be able to edit your answers for this section. Continue?' 
+        : 'Are you sure you want to submit? You cannot change your answers after submission.',
+      okText: 'Submit',
+      cancelText: 'Cancel',
       okButtonProps: { danger: true },
       onOk: () => handleSubmit(false)
     });
@@ -192,14 +191,14 @@ const WritingAptisExamPage = ({
       <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f2f5' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
           <Spin size="large" />
-          <Text type="secondary">Đang tải đề thi...</Text>
+          <Text type="secondary">Loading test...</Text>
         </div>
       </div>
     );
   }
 
   // ========================================================
-  // 🔥 BÓC TÁCH DỮ LIỆU TỪ DATABASE
+  // 🔥 EXTRACT DATA FROM DATABASE
   // ========================================================
   const partsList = testDetail?.parts || [];
   const getPart = (num) => partsList.find(p => p.part_number === num) || { instruction: "", questions: [] };
@@ -221,7 +220,7 @@ const WritingAptisExamPage = ({
   return (
     <Layout style={{ minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh', backgroundColor: '#f0f2f5', overflow: 'hidden' }}>
       
-      {/* HEADER GỐC: Ẩn nếu đang ở Full Test */}
+      {/* ORIGINAL HEADER: Hidden if in Full Test mode */}
       {!isFullTest && (
         <Header style={{ backgroundColor: '#fff', borderBottom: '1px solid #d9d9d9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', zIndex: 10 }}>
           <Space>
@@ -241,14 +240,14 @@ const WritingAptisExamPage = ({
         </Header>
       )}
 
-      {/* HEADER PHỤ CHO FULL TEST */}
+      {/* SECONDARY HEADER FOR FULL TEST */}
       {isFullTest && (
         <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center z-10 shadow-sm shrink-0">
-          <Text strong className="text-lg text-slate-700">Phần thi: Writing</Text>
+          <Text strong className="text-lg text-slate-700">Skill: Writing</Text>
           <div style={{ backgroundColor: isTimeRunningOut ? '#fff1f0' : '#f6ffed', border: `1px solid ${isTimeRunningOut ? '#ffa39e' : '#b7eb8f'}`, padding: '4px 16px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
             <ClockCircleOutlined style={{ color: isTimeRunningOut ? '#f5222d' : '#52c41a', fontSize: 16 }} />
             <Text strong style={{ color: isTimeRunningOut ? '#f5222d' : '#52c41a', fontSize: 16 }}>
-              Thời gian còn lại: {formatTime(timeLeft)}
+              Time remaining: {formatTime(timeLeft)}
             </Text>
           </div>
         </div>
@@ -386,7 +385,7 @@ const WritingAptisExamPage = ({
           </Button>
         ) : (
           <Button type="primary" danger size="large" onClick={confirmSubmit} loading={submitting} icon={<SendOutlined />}>
-            {isFullTest ? 'Nộp & Sang phần Speaking' : 'Submit Test'}
+            {isFullTest ? 'Submit & Continue to Speaking' : 'Submit Test'}
           </Button>
         )}
       </Footer>
