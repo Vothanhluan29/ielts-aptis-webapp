@@ -104,7 +104,7 @@ const ListeningExamPage = ({ testId, onFinish }) => {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-50">
         <div className="flex flex-col items-center gap-4">
           <div className="w-14 h-14 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
           <div className="text-center">
