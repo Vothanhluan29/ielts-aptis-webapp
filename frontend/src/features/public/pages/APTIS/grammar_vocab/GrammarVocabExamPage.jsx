@@ -48,7 +48,7 @@ const GrammarVocabExamPage = ({
       try {
         setLoading(true);
         if (!testId) {
-          throw new Error("Không tìm thấy ID bài thi Grammar & Vocab!");
+          throw new Error("Grammar & Vocab test ID not found!");
         }
         
         // 🔥 Đã đổi `id` thành `testId`
@@ -56,7 +56,7 @@ const GrammarVocabExamPage = ({
         setTestDetail(data);
         setTimeLeft((data?.time_limit || 25) * 60); 
       } catch (error) {
-        message.error(`Không thể tải đề thi: ${error.message}`);
+        message.error(`Unable to load test: ${error.message}`);
       } finally {
         setLoading(false);
       }
@@ -70,9 +70,9 @@ const GrammarVocabExamPage = ({
     try {
       setSubmitting(true);
       if (isAutoSubmit) {
-        message.warning({ content: "Đã hết giờ! Hệ thống đang tự động nộp bài...", duration: 5 });
+         message.warning({ content: "Time is up! The system is automatically submitting your test...", duration: 5 });
       } else {
-        message.loading({ content: 'Đang chấm điểm bài thi của bạn...', key: 'submit' });
+        message.loading({ content: 'Grading your test...', key: 'submit' });
       }
 
       const payload = {
@@ -84,7 +84,7 @@ const GrammarVocabExamPage = ({
       const res = await grammarVocabAptisStudentApi.submitTest(payload);
       const submissionData = res.data || res;
       
-      message.success({ content: 'Nộp bài và chấm điểm thành công!', key: 'submit' });
+      message.success({ content: 'Test submitted and graded successfully!', key: 'submit' });
       
       // 🔥 RẼ NHÁNH ĐIỀU HƯỚNG DỰA THEO CHẾ ĐỘ THI
       if (isFullTest && onSkillFinish) {
@@ -122,10 +122,10 @@ const GrammarVocabExamPage = ({
       title: 'Xác nhận nộp bài',
       icon: <ExclamationCircleOutlined />,
       content: isFullTest 
-        ? 'Sau khi nộp bài, hệ thống sẽ tự động chuyển sang kỹ năng Reading. Bạn không thể sửa lại đáp án phần này. Tiếp tục?' 
-        : 'Hệ thống sẽ chấm điểm ngay lập tức. Bạn có chắc chắn muốn nộp bài?',
-      okText: 'Nộp bài',
-      cancelText: 'Hủy',
+       ? 'After submission, the system will automatically move to the Reading section. You cannot modify your answers for this part. Continue?' 
+        : 'The system will grade your test immediately. Are you sure you want to submit?',
+      okText: 'Submit',
+      cancelText: 'Cancel',
       okButtonProps: { danger: true },
       onOk: () => handleSubmit(false)
     });
@@ -182,9 +182,9 @@ const GrammarVocabExamPage = ({
       {/* Nếu ĐANG LÀ FULL TEST thì vẫn phải hiện đồng hồ đếm ngược nội bộ của kỹ năng này ở đây cho học viên thấy */}
       {isFullTest && (
         <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-          <Text strong className="text-lg text-slate-700">Phần thi: Grammar & Vocabulary</Text>
+          <Text strong className="text-lg text-slate-700">Section: Grammar & Vocabulary</Text>
           <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-lg transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-emerald-50 border-emerald-200 text-emerald-600'}`}>
-            <ClockCircleOutlined /> Thời gian còn lại: {formatTime(timeLeft)}
+             <ClockCircleOutlined /> Time remaining: {formatTime(timeLeft)}
           </div>
         </div>
       )}
@@ -197,7 +197,7 @@ const GrammarVocabExamPage = ({
               key={tab} 
               type={currentTab === tab ? 'primary' : 'default'} 
               onClick={() => setCurrentTab(tab)} 
-              className={`flex-1 min-w-[140px] h-12 font-bold rounded-xl ${
+              className={`flex-1 min-w-[35 h-12 font-bold rounded-xl ${
                 currentTab === tab 
                   ? 'bg-emerald-600 hover:bg-emerald-500 border-none' 
                   : 'text-slate-500'
@@ -262,7 +262,7 @@ const GrammarVocabExamPage = ({
             loading={submitting}
             icon={<SendOutlined />}
           >
-            {isFullTest ? 'Nộp và chuyển sang Reading' : 'Submit & Grade'}
+             {isFullTest ? 'Submit and move to Reading' : 'Submit & Grade'}
           </Button>
         )}
       </Footer>
