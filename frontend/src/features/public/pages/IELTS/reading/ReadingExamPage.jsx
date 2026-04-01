@@ -63,7 +63,7 @@ const ReadingExamPage = ({ testId, onFinish }) => {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 bg-linear-to-r from-indigo-50/50 to-blue-50/50 px-4 py-2 rounded-lg border border-indigo-200 hidden md:flex">
+            <div className="flex items-center gap-3 bg-linear-to-r from-indigo-50/50 to-blue-50/50 px-4 py-2 rounded-lg border border-indigo-200 md:flex">
               <span className="text-[11px] font-bold text-indigo-600 uppercase flex items-center gap-1.5">
                 <Highlighter size={14}/> Highlight:
               </span>
