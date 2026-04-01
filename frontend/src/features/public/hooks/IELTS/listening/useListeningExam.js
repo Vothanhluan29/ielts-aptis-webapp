@@ -35,7 +35,6 @@ export const useListeningExam = (propsTestId, propsOnFinish) => {
     }, 0);
   }, [test]);
 
-  // 🔥 TỐI ƯU 2: Đếm đúng cho cả Array (Multiple Answer) và String
   const answeredCount = useMemo(() => {
     return Object.values(answers).filter(val => {
       if (Array.isArray(val)) return val.length > 0;
@@ -54,7 +53,7 @@ export const useListeningExam = (propsTestId, propsOnFinish) => {
   const handleAnswerChange = useCallback((questionNumber, value) => {
     setAnswers((prev) => {
       const newAnswers = { ...prev, [String(questionNumber)]: value };
-      answersRef.current = newAnswers; // Đồng bộ với Ref
+      answersRef.current = newAnswers; // Sync with Ref to get the latest value when submitting
       return newAnswers;
     });
   }, []);
@@ -75,60 +74,63 @@ export const useListeningExam = (propsTestId, propsOnFinish) => {
     async (isAutoSubmit = false) => {
       if (submitting) return;
 
+      // Skip confirm dialog if it is auto submission due to time running out
       if (!isAutoSubmit) {
-        if (!window.confirm('Bạn có chắc chắn muốn nộp bài?')) return;
+        const isConfirmed = window.confirm('Are you sure you want to submit your answers?');
+        if (!isConfirmed) return;
       }
 
       try {
         setSubmitting(true);
         if (isAutoSubmit) {
-          toast('Hết giờ! Hệ thống đang tự động thu bài...', { icon: '⏰' });
+          toast('Time is up! The system is automatically submitting your test...', { icon: '⏰' });
         }
 
         const currentAnswers = answersRef.current;
 
-        // 🔥 FIX BUGS: Lọc và giữ nguyên định dạng Array/String
+        // Filter and clean answers before sending
         const cleanedAnswers = {};
         Object.entries(currentAnswers).forEach(([qid, val]) => {
           if (val !== undefined && val !== null) {
             if (Array.isArray(val) && val.length > 0) {
-              cleanedAnswers[qid] = val; // Trả về mảng
+              cleanedAnswers[qid] = val; 
             } else if (typeof val === 'string' && val.trim() !== '') {
-              cleanedAnswers[qid] = val.trim(); // Trả về chuỗi
+              cleanedAnswers[qid] = val.trim(); 
             }
           }
         });
 
         const payload = {
           test_id: Number(testId),
-          user_answers: cleanedAnswers, // 🔥 FIX BUGS: Đã đổi answers thành user_answers
+          user_answers: cleanedAnswers, 
           is_full_test_only: isFullTestMode
         };
 
-        // Gọi API Submit
-        const result = await listeningStudentApi.submitTest(payload);
+        // Ensure await to capture the result
+        const response = await listeningStudentApi.submitTest(payload);
         
-        // Axios interceptor thường trả thẳng res.data, backup lấy res.data.id
-        const submissionId = result?.id || result?.data?.id;
+        // Flexibly extract ID in case Axios interceptor changes the response structure
+        const submissionId = response?.data?.id || response?.id;
 
         if (!submissionId) {
-            throw new Error("Không nhận được ID kết quả từ hệ thống");
+            throw new Error("Result ID was not returned from the system");
         }
 
         if (isFullTestMode && propsOnFinish) {
             propsOnFinish(submissionId);
         } else {
-            toast.success('Nộp bài thành công!');
+            toast.success('Submission successful!');
             navigate(`/listening/result/${submissionId}`, { replace: true });
         }
 
       } catch (error) {
         console.error('Submit error:', error);
-        toast.error('Nộp bài thất bại. Vui lòng thử lại.');
-        setSubmitting(false);
+        toast.error('Submission failed. Please try again.');
+      } finally {
+        setSubmitting(false); // 🔥 ALWAYS unlock the button whether success or failure
       }
     },
-    [testId, submitting, navigate, isFullTestMode, propsOnFinish] // Đã bỏ `answers` và `test` ra khỏi dependency
+    [testId, submitting, navigate, isFullTestMode, propsOnFinish]
   );
 
   /* =========================
@@ -147,7 +149,6 @@ export const useListeningExam = (propsTestId, propsOnFinish) => {
         if (!mounted) return;
         if (!data) throw new Error("No data found");
 
-        // (Tùy chọn) Sort lại data cho chắc ăn nếu Backend quên
         if (data.parts) {
           data.parts.sort((a, b) => a.part_number - b.part_number);
           data.parts.forEach(p => {
@@ -162,14 +163,13 @@ export const useListeningExam = (propsTestId, propsOnFinish) => {
 
         setTest(data);
         
-        // Init time (Chỉ set 1 lần)
         if (data.time_limit) {
           setTimeLeft(prev => prev === null ? data.time_limit * 60 : prev);
         }
       } catch (err) {
         console.error('Fetch test error:', err);
-        toast.error('Không tải được đề thi!');
-        if (!isFullTestMode) navigate('/listening');
+        toast.error('Unable to load the test!');
+        if (!isFullTestMode && mounted) navigate('/listening');
       } finally {
         if (mounted) setLoading(false);
       }
@@ -177,17 +177,22 @@ export const useListeningExam = (propsTestId, propsOnFinish) => {
 
     fetchTest();
     return () => { mounted = false; };
-  }, [testId, isFullTestMode, navigate]); // Bỏ timeLeft ra khỏi dependency array
+  }, [testId, isFullTestMode, navigate]);
 
   /* =========================
      TIMER & AUTO SUBMIT
   ========================= */
   useEffect(() => {
     if (timeLeft === null || submitting) return;
+    
+    // 🔥 FIXED CONDITION TO AVOID LOOP CALLING SUBMIT CONTINUOUSLY
     if (timeLeft <= 0) {
-      handleSubmit(true); 
+      if (!submitting) {
+        handleSubmit(true); 
+      }
       return;
     }
+    
     const timer = setInterval(() => setTimeLeft((p) => p - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft, submitting, handleSubmit]);
