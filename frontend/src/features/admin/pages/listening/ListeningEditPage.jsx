@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, Space, Typography, InputNumber, Switch, Divider, Tabs, message, Tooltip, Upload } from 'antd'; // ✅ Đã thêm Upload
+import { Form, Input, Button, Card, Space, Typography, InputNumber, Switch, Divider, Tabs, message, Tooltip, Upload } from 'antd'; 
 import { 
   ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, 
   SortAscendingOutlined, AudioOutlined, CloudUploadOutlined, FileTextOutlined 
@@ -7,7 +7,6 @@ import {
 
 import { useListeningEdit } from '../../hooks/listening/useListeningEdit';
 import QuestionCard from '../../components/QuestionForms/QuestionCard';
-// ✅ QUAN TRỌNG: Import API để gọi hàm upload
 import { listeningAdminApi } from '../../api/IELTS/listening/listeningAdminApi'; 
 
 const { Title, Text } = Typography;
@@ -21,16 +20,32 @@ const ListeningEditPage = () => {
   
   const [activeTabKey, setActiveTabKey] = useState(null);
 
-  // Xử lý dọn dẹp dữ liệu trước khi gửi lên Backend
   const onFinish = (values) => {
-    if (values.parts) {
-      values.parts.forEach(p => {
+    // Clone payload để không làm thay đổi trực tiếp State của Form
+    const payload = JSON.parse(JSON.stringify(values));
+
+    if (payload.parts) {
+      payload.parts.forEach(p => {
         if (p?.groups) {
           p.groups.forEach(g => {
             if (g?.questions) {
               g.questions.forEach(q => {
-                if (q.question_text === undefined || q.question_text === null) q.question_text = "";
-                if (!q.options) q.options = [];
+                if (q.question_text === undefined || q.question_text === null) {
+                  q.question_text = "";
+                }
+                
+                // 🔥 ĐÃ FIX LỖI 422 FASTAPI: Đảm bảo options LUÔN LUÔN là Object {}
+                if (!q.options) {
+                  q.options = {};
+                } else if (Array.isArray(q.options)) {
+                  // Ép mảng về Object/Dict để FastAPI không báo lỗi 422
+                  const dict = {};
+                  const labels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+                  q.options.forEach((opt, i) => {
+                    if (opt && opt.trim() !== '') dict[labels[i]] = opt.trim();
+                  });
+                  q.options = dict;
+                }
               });
             }
           });
@@ -38,8 +53,8 @@ const ListeningEditPage = () => {
       });
     }
     
-    console.log("🚀 PAYLOAD TO BACKEND:", values);
-    handleSave(values);
+    // console.log("🚀 PAYLOAD TO BACKEND:", payload);
+    handleSave(payload);
   };
 
   const onFinishFailed = () => {
@@ -47,7 +62,7 @@ const ListeningEditPage = () => {
   };
 
   return (
-    <div className="max-w-400 mx-auto p-4 md:p-6 bg-slate-50 min-h-screen font-sans pb-24">
+    <div className="max-w-7xl mx-auto p-4 md:p-6 bg-slate-50 min-h-screen font-sans pb-24">
       
       {/* ================= HEADER ================= */}
       <Space className="mb-6 w-full justify-between items-center">
@@ -89,6 +104,7 @@ const ListeningEditPage = () => {
         onFinish={onFinish} 
         onFinishFailed={onFinishFailed}
         autoComplete="off"
+        preserve={true} // 🔥 ĐÃ FIX: Giữ lại toàn bộ dữ liệu Form kể cả khi Tab chưa được mở
       >
         
         {/* ================= TEST INFO ================= */}
@@ -171,9 +187,21 @@ const ListeningEditPage = () => {
                   }]
                 });
 
+                // Tự động focus vào Tab mới mở
+                setTimeout(() => {
+                  const newKeys = form.getFieldValue('parts');
+                  if (newKeys && newKeys.length > 0) {
+                    setActiveTabKey((newKeys.length - 1).toString());
+                  }
+                }, 50);
+
               } else if (action === 'remove') {
                 const idx = partFields.findIndex(f => f.key.toString() === targetKey);
-                if (idx !== -1) removePart(partFields[idx].name);
+                if (idx !== -1) {
+                  removePart(partFields[idx].name);
+                  // Rút về tab đầu tiên nếu xóa tab đang mở
+                  if (targetKey === activeTabKey) setActiveTabKey("0");
+                }
               }
             };
 
@@ -183,6 +211,7 @@ const ListeningEditPage = () => {
               key: pField.key.toString(),
               label: <Text strong className="text-base px-4 py-1">Part {pIndex + 1}</Text>,
               closable: true,
+              forceRender: true, // 🔥 ĐÃ FIX: Bắt buộc render ngầm tất cả các Tab, tránh bị null mất dữ liệu
               children: (
                 <div className="pt-4 animate-fade-in">
 
@@ -204,7 +233,6 @@ const ListeningEditPage = () => {
                         }
                       >
                         
-                        {/* 🔥 ĐÃ CẬP NHẬT: Tích hợp Upload logic vào Audio URL */}
                         <Form.Item
                           name={[pField.name, 'audio_url']}
                           label={<Text strong>Audio URL (MP3/WAV)</Text>}
@@ -222,13 +250,9 @@ const ListeningEditPage = () => {
                                 customRequest={async ({ file, onSuccess, onError }) => {
                                   const hideLoading = message.loading('Uploading audio file...', 0);
                                   try {
-                                    // Gọi API Upload
                                     const res = await listeningAdminApi.uploadAudio(file);
-                                    
-                                    // Lấy URL trả về từ server
                                     const uploadedUrl = res.data?.url || res.url;
                                     
-                                    // Tự động điền URL vào ô Input của Part hiện tại
                                     const currentParts = form.getFieldValue('parts');
                                     currentParts[pField.name].audio_url = uploadedUrl;
                                     form.setFieldsValue({ parts: currentParts });
@@ -321,7 +345,7 @@ const ListeningEditPage = () => {
                                           field={qField}
                                           remove={removeQuestion}
                                           namePath={['parts', pField.name, 'groups', gField.name, 'questions']}
-                                          module = "listening"
+                                          module="listening"
                                         />
                                       ))}
 
