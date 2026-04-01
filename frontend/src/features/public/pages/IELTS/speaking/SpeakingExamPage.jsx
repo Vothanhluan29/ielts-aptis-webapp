@@ -1,36 +1,40 @@
 import React, { useMemo } from 'react';
 import { 
-  Card, Button, Typography, Progress, Space, 
+  Card, Button, Typography, Progress, 
   Spin, Tag, Alert 
 } from 'antd';
 import { 
   AudioOutlined, SendOutlined, 
   RightOutlined, SyncOutlined, SoundOutlined,
   PlayCircleOutlined, StopOutlined, ExclamationCircleOutlined,
-  CheckCircleOutlined, LoadingOutlined 
+  CheckCircleOutlined, LoadingOutlined, ReadOutlined, ClockCircleOutlined,
+  StepForwardOutlined
 } from '@ant-design/icons';
-import { useSpeakingExam } from '../../../hooks/IELTS/speaking/useSpeakingExam'; // Đường dẫn tới hook của bạn
+import { useSpeakingExam } from '../../../hooks/IELTS/speaking/useSpeakingExam'; 
 
 const { Title, Text, Paragraph } = Typography;
 
 const SpeakingExamPage = ({ testId, onFinish }) => {
+  // 🔥 LẤY TOÀN BỘ STATE VÀ LOGIC TỪ HOOK (Đã bao gồm cả Part 2 Prep)
   const {
     testDetail, loading, saving,
     currentPart, currentQuestion,
     currentPartIdx, currentQuestionIdx,
     isLastQuestionOfTest,
     isRecording, audioBlob, audioUrl, recordingTime,
-    startRecording, stopRecording, discardRecording, handleNextOrSubmit
-  } = useSpeakingExam(testId, onFinish); // 🔥 Truyền vào Hook
+    startRecording, stopRecording, discardRecording, handleNextOrSubmit,
+    isPreparing, prepTimeLeft, handleSkipPreparation
+  } = useSpeakingExam(testId, onFinish); 
 
-  // 1. Format bộ đếm giờ (giây -> mm:ss)
+  // ==========================================
+  // HELPER FUNCTIONS (Chỉ phục vụ hiển thị)
+  // ==========================================
   const formatTime = (totalSeconds) => {
     const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
     const s = (totalSeconds % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
   };
 
-  // 2. Tính toán tổng số câu hỏi & thanh tiến độ
   const { totalQuestions, currentOverallIndex } = useMemo(() => {
     if (!testDetail?.parts) return { totalQuestions: 0, currentOverallIndex: 0 };
     
@@ -42,14 +46,17 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
       if (pIdx < currentPartIdx) {
         currentIndex += part.questions?.length || 0;
       } else if (pIdx === currentPartIdx) {
-        currentIndex += currentQuestionIdx + 1; // +1 vì index bắt đầu từ 0
+        currentIndex += currentQuestionIdx + 1; 
       }
     });
 
     return { totalQuestions: total, currentOverallIndex: currentIndex };
   }, [testDetail, currentPartIdx, currentQuestionIdx]);
 
-  // --- RENDERING LOADING STATE ---
+
+  // ==========================================
+  // RENDER LOADING
+  // ==========================================
   if (loading || !testDetail || !currentQuestion) {
     return (
       <div className="flex flex-col items-center justify-center h-full bg-slate-50 gap-4 py-20">
@@ -60,10 +67,9 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
   }
 
   return (
-    // 🔥 Đổi min-h-screen thành h-full để khớp với khung cuộn của ExamTakingPage
     <div className="h-full bg-slate-50 font-sans flex flex-col relative">
       
-      {/* ================= HEADER TIẾN ĐỘ SPEAKING ================= */}
+      {/* ================= HEADER ================= */}
       <div className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-3 md:px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div>
@@ -91,10 +97,10 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
         </div>
       </div>
 
-      {/* ================= NỘI DUNG CHÍNH ================= */}
+      {/* ================= MAIN CONTENT ================= */}
       <div className="flex-1 max-w-3xl w-full mx-auto px-4 py-8 flex flex-col gap-6">
         
-        {/* --- KHU VỰC CÂU HỎI --- */}
+        {/* --- QUESTION CARD --- */}
         <Card 
           className="rounded-2xl shadow-sm border-slate-200"
           styles={{ body: { padding: '32px' } }}
@@ -110,7 +116,7 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
             )}
           </div>
 
-          {/* Lời dẫn (Instruction) */}
+          {/* Instruction */}
           {currentPart.instruction && (
             <Alert
               message={<span className="font-semibold">{currentPart.instruction}</span>}
@@ -121,9 +127,12 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
             />
           )}
 
-          {/* Cue Card (Dành riêng cho Part 2) */}
+          {/* Cue Card (Dành riêng Part 2) */}
           {currentPart.part_number === 2 && currentPart.cue_card && (
-            <div className="bg-amber-50/50 border border-amber-200 rounded-xl p-6 mb-6">
+            <div className="bg-amber-50/50 border border-amber-200 rounded-xl p-6 mb-6 relative overflow-hidden">
+              {/* Highlight bar bên trái */}
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-400"></div>
+              
               <Text className="text-amber-800 font-bold mb-3 uppercase text-xs tracking-widest flex items-center gap-2">
                 <ReadOutlined /> Candidate Task Card
               </Text>
@@ -133,41 +142,71 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
             </div>
           )}
 
-          {/* Text Câu hỏi hiện tại */}
+          {/* Current Question */}
           <Title level={3} className="text-slate-800! leading-snug! mt-0! mb-6!">
             {currentQuestion.question_text}
           </Title>
 
-          {/* Audio câu hỏi (Nếu có) */}
+          {/* Audio Question (Nếu Admin có cấu hình câu hỏi bằng giọng đọc) */}
           {currentQuestion.audio_question_url && (
             <div className="bg-slate-50 rounded-xl p-3 border border-slate-100 flex items-center gap-3 w-fit">
               <SoundOutlined className="text-slate-400 text-lg ml-2" />
               <audio controls className="h-10 outline-none">
-                <source src={currentQuestion.audio_question_url} type="audio/mpeg" />
+                <source src={currentQuestion.audio_question_url.startsWith('http') ? currentQuestion.audio_question_url : `http://localhost:8000${currentQuestion.audio_question_url}`} type="audio/mpeg" />
               </audio>
             </div>
           )}
         </Card>
 
-        {/* --- KHU VỰC GHI ÂM (RECORDING ZONE) --- */}
+        {/* --- RECORDING ZONE --- */}
         <Card 
           className="rounded-2xl shadow-sm border-slate-200 text-center"
           styles={{ body: { padding: '40px 24px' } }}
         >
           {!audioBlob ? (
+            
             // TRẠNG THÁI 1: CHƯA CÓ FILE GHI ÂM
             <div className="flex flex-col items-center gap-4">
+              
+              {/* Vòng tròn Icon (Xoay/Nhấp nháy tùy trạng thái) */}
               <div 
                 className={`w-24 h-24 rounded-full flex items-center justify-center shadow-md transition-all duration-300 ${
                   isRecording 
                     ? 'bg-red-50 text-red-500 border-4 border-red-200 animate-pulse' 
-                    : 'bg-indigo-50 text-indigo-500 border-4 border-indigo-100'
+                    : isPreparing
+                      ? 'bg-amber-50 text-amber-500 border-4 border-amber-200'
+                      : 'bg-indigo-50 text-indigo-500 border-4 border-indigo-100'
                 }`}
               >
-                <AudioOutlined style={{ fontSize: '40px' }} />
+                {isPreparing ? <ClockCircleOutlined style={{ fontSize: '40px' }} /> : <AudioOutlined style={{ fontSize: '40px' }} />}
               </div>
 
-              {isRecording ? (
+              {/* KHỐI HIỂN THỊ NÚT BẤM (TÙY THEO TRẠNG THÁI) */}
+              {isPreparing ? (
+                // 1A. ĐANG CHUẨN BỊ (PART 2)
+                <div className="flex flex-col items-center gap-3 mt-2 animate-in fade-in slide-in-from-bottom-2">
+                  <Text className="text-amber-600 font-bold text-sm uppercase tracking-wider">
+                    Preparation Time
+                  </Text>
+                  <Text className="text-slate-800 font-bold text-4xl tracking-widest font-mono">
+                    00:{prepTimeLeft.toString().padStart(2, '0')}
+                  </Text>
+                  <Text className="text-slate-500 font-medium text-sm max-w-sm mb-2">
+                    You have 1 minute to prepare. Recording will start automatically when time is up.
+                  </Text>
+                  <Button 
+                    type="dashed" 
+                    shape="round"
+                    icon={<StepForwardOutlined />}
+                    onClick={handleSkipPreparation}
+                    className="text-amber-600 hover:text-amber-700 hover:border-amber-400 font-semibold"
+                  >
+                    Skip & Start Recording
+                  </Button>
+                </div>
+
+              ) : isRecording ? (
+                // 1B. ĐANG GHI ÂM
                 <div className="flex flex-col items-center gap-4 mt-2">
                   <Text className="text-red-500 font-bold text-2xl tracking-widest font-mono">
                     {formatTime(recordingTime)}
@@ -185,6 +224,7 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
                   </Button>
                 </div>
               ) : (
+                // 1C. TRƯỚC KHI GHI ÂM (PART 1, 3 HOẶC ĐÃ DISCARD TRONG PART 2)
                 <div className="flex flex-col items-center gap-2 mt-2">
                   <Text className="text-slate-500 font-medium">
                     Ready? Click the button below to start answering.
@@ -202,6 +242,7 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
                 </div>
               )}
             </div>
+
           ) : (
             // TRẠNG THÁI 2: ĐÃ GHI ÂM XONG -> CHO NGHE LẠI
             <div className="flex flex-col items-center gap-6 animate-in fade-in zoom-in-95 duration-300">
@@ -230,7 +271,6 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
       </div>
 
       {/* ================= FOOTER / ACTION BAR ================= */}
-      {/* 🔥 Đổi sang sticky bottom-0 và mt-auto để nó luôn bám đáy card nhưng không lấn ra ngoài ExamTakingPage */}
       <div className="bg-white border-t border-slate-200 sticky bottom-0 left-0 w-full z-30 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] mt-auto">
         <div className="max-w-4xl mx-auto px-4 py-4 md:px-6 flex items-center justify-between">
           <Text className="text-slate-400 hidden sm:block text-sm">
@@ -241,7 +281,7 @@ const SpeakingExamPage = ({ testId, onFinish }) => {
           <Button 
             type="primary" 
             size="large"
-            disabled={!audioBlob || saving}
+            disabled={!audioBlob || saving || isPreparing || isRecording}
             loading={saving}
             onClick={handleNextOrSubmit}
             icon={isLastQuestionOfTest ? <SendOutlined /> : <RightOutlined />}
