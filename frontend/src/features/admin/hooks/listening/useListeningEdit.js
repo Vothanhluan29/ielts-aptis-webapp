@@ -8,11 +8,10 @@ export const useListeningEdit = () => {
   const navigate = useNavigate();
   const isEditMode = !!id;
 
-  // Sử dụng Form instance của Ant Design để quản lý toàn bộ data
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  // --- 1. FETCH DỮ LIỆU ĐỂ FILL VÀO FORM (Chỉ chạy khi ở chế độ Edit) ---
+  // --- 1. FETCH DATA ---
   useEffect(() => {
     if (isEditMode) {
       const fetchTest = async () => {
@@ -21,7 +20,6 @@ export const useListeningEdit = () => {
           const response = await listeningAdminApi.getTestById(id);
           const data = response.data || response;
 
-          // Xử lý dữ liệu trả về: Đảm bảo options parse đúng dạng object để form render
           if (data.parts) {
             data.parts.forEach(part => {
               if (part.groups) {
@@ -33,11 +31,10 @@ export const useListeningEdit = () => {
                           q.options = JSON.parse(q.options);
                         } catch (e) {
                           q.options = {};
-                          message.error('Failed to parse options for question ID ' + q.id, e);
+                          message.error('Failed to parse options for question:', q, e);
                         }
                       }
                       if (!q.options) q.options = {};
-                      // Đảm bảo mảng correct_answers tồn tại
                       if (!q.correct_answers) q.correct_answers = [];
                     });
                   }
@@ -46,11 +43,10 @@ export const useListeningEdit = () => {
             });
           }
 
-          // Nạp dữ liệu vào form của Ant Design
           form.setFieldsValue(data);
         } catch (error) {
           console.error('Failed to fetch test details:', error);
-          message.error('Không thể tải dữ liệu đề thi!');
+          message.error('Unable to load test data!');
           navigate('/admin/skills/listening');
         } finally {
           setLoading(false);
@@ -59,11 +55,11 @@ export const useListeningEdit = () => {
 
       fetchTest();
     } else {
-      // Chế độ tạo mới: Nạp sẵn một số giá trị mặc định cho form
       form.setFieldsValue({
         time_limit: 40,
         is_published: false,
         is_full_test_only: false,
+        description: '', // 🔥 ENSURE THE FORM STRUCTURE INCLUDES DESCRIPTION
         parts: [
           {
             part_number: 1,
@@ -76,7 +72,7 @@ export const useListeningEdit = () => {
     }
   }, [id, form, navigate, isEditMode]);
 
-  // --- 2. LOGIC TỰ ĐỘNG ĐÁNH SỐ CÂU HỎI (Auto-increment Question Number) ---
+  // --- 2. NUMBERING LOGIC (Type Casting Bug Fixed) ---
   const getNextQuestionNumber = useCallback(() => {
     const currentValues = form.getFieldsValue();
     let maxNum = 0;
@@ -87,8 +83,10 @@ export const useListeningEdit = () => {
           p.groups.forEach(g => {
             if (g?.questions) {
               g.questions.forEach(q => {
-                if (q?.question_number > maxNum) {
-                  maxNum = q.question_number;
+                // 🔥 FIXED: Convert string to Number for correct counting (avoid "2" > "10" issue)
+                const currentNum = parseInt(q?.question_number, 10);
+                if (!isNaN(currentNum) && currentNum > maxNum) {
+                  maxNum = currentNum;
                 }
               });
             }
@@ -99,20 +97,20 @@ export const useListeningEdit = () => {
     return maxNum + 1;
   }, [form]);
 
-  // --- 3. LOGIC TÍNH TOÁN LẠI SỐ THỨ TỰ (Dành cho nút Recalculate) ---
+  // --- 3. RECALCULATE NUMBERS (Reference Issue Fixed) ---
   const recalculateAllQuestionNumbers = useCallback(() => {
-    const currentValues = form.getFieldsValue();
+    // 🔥 FIXED: Deep clone to avoid directly mutating Ant Design Form DOM state
+    const currentValues = JSON.parse(JSON.stringify(form.getFieldsValue()));
     let counter = 1;
     
     if (currentValues.parts) {
-      currentValues.parts.forEach((p, pIdx) => {
+      currentValues.parts.forEach(p => {
         if (p?.groups) {
-          p.groups.forEach((g, gIdx) => {
+          p.groups.forEach(g => {
             if (g?.questions) {
-              g.questions.forEach((q, qIdx) => {
-                // Update trực tiếp vào object values
-                if (currentValues.parts[pIdx].groups[gIdx].questions[qIdx]) {
-                    currentValues.parts[pIdx].groups[gIdx].questions[qIdx].question_number = counter++;
+              g.questions.forEach(q => {
+                if (q) {
+                  q.question_number = counter++;
                 }
               });
             }
@@ -121,34 +119,57 @@ export const useListeningEdit = () => {
       });
     }
     
-    // Nạp lại toàn bộ dữ liệu vào form sau khi tính toán
     form.setFieldsValue(currentValues);
-    message.success('Đã đánh số lại các câu hỏi từ 1 đến ' + (counter - 1));
+    message.success(`Question numbers have been recalculated from 1 to ${counter - 1}`);
   }, [form]);
 
-
-  // --- 4. HÀM GỬI DỮ LIỆU LÊN API ---
+  // --- 4. SUBMIT FUNCTION (FastAPI Null Error Fixed) ---
   const handleSave = async (values) => {
     setLoading(true);
     try {
+      
+      // 🔥 IMPORTANT STEP: "Clean" the payload before sending to FastAPI
+      // (Ant Design Form.List often leaves null values when deleting Group/Question)
+      let cleanPayload = { ...values };
+
+      if (cleanPayload.parts) {
+        cleanPayload.parts = cleanPayload.parts
+          .filter((p) => p !== null && p !== undefined)
+          .map((p) => {
+            const cleanGroups = (p.groups || [])
+              .filter((g) => g !== null && g !== undefined)
+              .map((g) => {
+                const cleanQuestions = (g.questions || [])
+                  .filter((q) => q !== null && q !== undefined);
+                return { ...g, questions: cleanQuestions };
+              });
+            return { ...p, groups: cleanGroups };
+          });
+      }
+
       if (isEditMode) {
-        await listeningAdminApi.updateTest(id, values);
-        message.success('Cập nhật đề thi thành công!');
+        await listeningAdminApi.updateTest(id, cleanPayload);
+        message.success('Test updated successfully!');
       } else {
-        await listeningAdminApi.createTest(values);
-        message.success('Tạo đề thi mới thành công!');
+        await listeningAdminApi.createTest(cleanPayload);
+        message.success('New test created successfully!');
       }
       navigate('/admin/skills/listening');
     } catch (error) {
-      console.error('Lỗi khi lưu đề thi:', error);
-      message.error(error.response?.data?.detail || 'Có lỗi xảy ra khi lưu đề thi!');
+      console.error('Error while saving the test:', error);
+      const errDetail = error.response?.data?.detail;
+      if (typeof errDetail === 'string') {
+        message.error(errDetail);
+      } else {
+        message.error('Data error (422) - Please check for missing required fields!');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   return {
-    form, // 🔥 Trả form instance ra cho giao diện sử dụng
+    form,
     loading,
     isEditMode,
     navigate,
