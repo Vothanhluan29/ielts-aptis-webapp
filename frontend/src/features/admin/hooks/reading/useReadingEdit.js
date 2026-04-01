@@ -70,14 +70,41 @@ export const useReadingEdit = () => {
   // =========================================================
   // 3. LOGIC LƯU DỮ LIỆU (SAVE DATA)
   // =========================================================
+  // =========================================================
+  // 3. LOGIC LƯU DỮ LIỆU (SAVE DATA) - ĐÃ FIX LỖI NULL CỦA FASTAPI
+  // =========================================================
   const handleSave = async (values) => {
     try {
       setLoading(true);
+
+      // 🔥 BƯỚC QUAN TRỌNG: "Rửa sạch" payload trước khi gửi
+      // Lọc bỏ toàn bộ các phần tử null/undefined do Form.List của Ant Design sinh ra khi Xóa
+      let cleanPayload = { ...values };
+
+      if (cleanPayload.passages) {
+        cleanPayload.passages = cleanPayload.passages
+          // 1. Lọc mảng passages
+          .filter((p) => p !== null && p !== undefined)
+          .map((p) => {
+            // 2. Lọc mảng groups bên trong mỗi passage
+            const cleanGroups = (p.groups || [])
+              .filter((g) => g !== null && g !== undefined)
+              .map((g) => {
+                // 3. Lọc mảng questions bên trong mỗi group
+                const cleanQuestions = (g.questions || [])
+                  .filter((q) => q !== null && q !== undefined);
+                return { ...g, questions: cleanQuestions };
+              });
+            return { ...p, groups: cleanGroups };
+          });
+      }
+
+      // Gửi payload đã sạch sẽ 100% xuống Backend
       if (isEditMode) {
-        await readingAdminApi.updateTest(id, values);
+        await readingAdminApi.updateTest(id, cleanPayload);
         toast.success("Cập nhật đề thi thành công!");
       } else {
-        await readingAdminApi.createTest(values);
+        await readingAdminApi.createTest(cleanPayload);
         toast.success("Tạo đề thi mới thành công!");
       }
       
