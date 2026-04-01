@@ -20,6 +20,17 @@ const ListeningEditPage = () => {
   
   const [activeTabKey, setActiveTabKey] = useState(null);
 
+  // 🔥 BƯỚC 1: THEO DÕI REALTIME SỐ LƯỢNG CÂU HỎI TRONG MẢNG 'parts'
+  const watchedParts = Form.useWatch('parts', form) || [];
+  
+  const totalQuestions = watchedParts.reduce((sum, part) => {
+    return sum + (part?.groups || []).reduce((groupSum, group) => {
+      return groupSum + (group?.questions?.length || 0);
+    }, 0);
+  }, 0);
+
+  const isMaxQuestions = totalQuestions >= 40;
+
   const onFinish = (values) => {
     // Clone payload để không làm thay đổi trực tiếp State của Form
     const payload = JSON.parse(JSON.stringify(values));
@@ -34,7 +45,7 @@ const ListeningEditPage = () => {
                   q.question_text = "";
                 }
                 
-                // 🔥 ĐÃ FIX LỖI 422 FASTAPI: Đảm bảo options LUÔN LUÔN là Object {}
+                // Đảm bảo options LUÔN LUÔN là Object {}
                 if (!q.options) {
                   q.options = {};
                 } else if (Array.isArray(q.options)) {
@@ -76,13 +87,18 @@ const ListeningEditPage = () => {
         </div>
         
         <Space>
+          {/* 🔥 BƯỚC 2: HIỂN THỊ BỘ ĐẾM TRÊN HEADER */}
+          <div className={`px-4 py-2 rounded-lg font-bold text-sm border-2 mr-2 transition-colors ${isMaxQuestions ? 'bg-green-50 text-green-600 border-green-200' : 'bg-blue-50 text-blue-600 border-blue-200'}`}>
+            Questions: {totalQuestions} / 40
+          </div>
+
           <Button 
             onClick={recalculateAllQuestionNumbers} 
             icon={<SortAscendingOutlined />}
             size="large"
             className="font-semibold text-slate-600 border-slate-300 shadow-sm rounded-lg hover:text-blue-600 hover:border-blue-400"
           >
-            Recalculate Question Numbers
+            Recalculate Numbers
           </Button>
 
           <Button 
@@ -104,7 +120,7 @@ const ListeningEditPage = () => {
         onFinish={onFinish} 
         onFinishFailed={onFinishFailed}
         autoComplete="off"
-        preserve={true} // 🔥 ĐÃ FIX: Giữ lại toàn bộ dữ liệu Form kể cả khi Tab chưa được mở
+        preserve={true} 
       >
         
         {/* ================= TEST INFO ================= */}
@@ -169,6 +185,12 @@ const ListeningEditPage = () => {
 
             const onEditTab = (targetKey, action) => {
               if (action === 'add') {
+                // 🔥 BƯỚC 3: NGĂN CHẶN THÊM PART NẾU ĐÃ MAX 40 CÂU
+                if (isMaxQuestions) {
+                  message.warning('You have reached the maximum limit of 40 questions!');
+                  return;
+                }
+
                 const nextNum = getNextQuestionNumber();
 
                 addPart({
@@ -211,7 +233,7 @@ const ListeningEditPage = () => {
               key: pField.key.toString(),
               label: <Text strong className="text-base px-4 py-1">Part {pIndex + 1}</Text>,
               closable: true,
-              forceRender: true, // 🔥 ĐÃ FIX: Bắt buộc render ngầm tất cả các Tab, tránh bị null mất dữ liệu
+              forceRender: true, 
               children: (
                 <div className="pt-4 animate-fade-in">
 
@@ -349,9 +371,12 @@ const ListeningEditPage = () => {
                                         />
                                       ))}
 
+                                      {/* 🔥 BƯỚC 4: KHÓA NÚT THÊM CÂU HỎI KHI ĐÃ ĐẠT 40 CÂU */}
                                       <Button
                                         type="dashed"
+                                        disabled={isMaxQuestions}
                                         onClick={() => {
+                                          if (isMaxQuestions) return;
                                           const nextNum = getNextQuestionNumber();
                                           addQuestion({
                                             question_number: nextNum,
@@ -362,9 +387,9 @@ const ListeningEditPage = () => {
                                         }}
                                         block
                                         icon={<PlusOutlined />}
-                                        className="h-12 rounded-xl text-indigo-600 font-semibold bg-white border-indigo-200 hover:border-indigo-500 shadow-sm mt-2"
+                                        className={`h-12 rounded-xl mt-2 font-semibold shadow-sm ${isMaxQuestions ? 'bg-slate-100 text-slate-400 border-slate-200' : 'text-indigo-600 bg-white border-indigo-200 hover:border-indigo-500'}`}
                                       >
-                                        Add New Question
+                                        {isMaxQuestions ? 'Maximum 40 Questions Reached' : 'Add New Question'}
                                       </Button>
 
                                     </div>
@@ -374,9 +399,12 @@ const ListeningEditPage = () => {
                               </Card>
                             ))}
 
+                            {/* 🔥 BƯỚC 5: KHÓA NÚT THÊM GROUP KHI ĐÃ ĐẠT 40 CÂU */}
                             <Button
                               type="dashed"
+                              disabled={isMaxQuestions}
                               onClick={() => {
+                                if (isMaxQuestions) return;
                                 const nextNum = getNextQuestionNumber();
                                 addGroup({
                                   order: groupFields.length + 1,
@@ -390,9 +418,9 @@ const ListeningEditPage = () => {
                               }}
                               block
                               icon={<PlusOutlined />}
-                              className="h-14 rounded-xl text-indigo-600 font-semibold bg-indigo-50 border-indigo-200 hover:border-indigo-400 shadow-sm text-base"
+                              className={`h-14 rounded-xl font-semibold shadow-sm text-base ${isMaxQuestions ? 'bg-slate-100 text-slate-400 border-slate-200' : 'text-indigo-600 bg-indigo-50 border-indigo-200 hover:border-indigo-400'}`}
                             >
-                              + Add New Question Group
+                              {isMaxQuestions ? 'Limit Reached (Cannot add more groups)' : '+ Add New Question Group'}
                             </Button>
 
                           </div>
@@ -415,6 +443,7 @@ const ListeningEditPage = () => {
                 items={tabItems}
                 className="custom-admin-tabs"
                 size="large"
+                hideAdd={isMaxQuestions} // 🔥 BƯỚC 6: ẨN DẤU CỘNG TẠO TAB NẾU ĐÃ ĐẠT 40 CÂU
               />
             );
           }}
