@@ -1,11 +1,25 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Card, Space, Typography, InputNumber, Switch, Divider, Tabs, message } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, SortAscendingOutlined } from '@ant-design/icons';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css'; // Import CSS giao diện của Quill
+
 import { useReadingEdit } from '../../hooks/reading/useReadingEdit';
 import QuestionCard from '../../components/QuestionForms/QuestionCard';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
+
+// 🔥 CẤU HÌNH THANH CÔNG CỤ CHO TRÌNH SOẠN THẢO VĂN BẢN (RICH TEXT EDITOR)
+const quillModules = {
+  toolbar: [
+    [{ 'header': [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+    [{ 'align': [] }],
+    ['clean'] // Nút xóa định dạng
+  ],
+};
 
 const ReadingEditPage = () => {
   const { 
@@ -14,6 +28,17 @@ const ReadingEditPage = () => {
   } = useReadingEdit();
   
   const [activeTabKey, setActiveTabKey] = useState(null);
+
+  // 🔥 THEO DÕI REALTIME SỐ LƯỢNG CÂU HỎI
+  const watchedPassages = Form.useWatch('passages', form) || [];
+  
+  const totalQuestions = watchedPassages.reduce((sum, passage) => {
+    return sum + (passage?.groups || []).reduce((groupSum, group) => {
+      return groupSum + (group?.questions?.length || 0);
+    }, 0);
+  }, 0);
+
+  const isMaxQuestions = totalQuestions >= 40;
 
   const onFinish = (values) => {
     // Clone payload để không làm thay đổi trực tiếp State của Form
@@ -29,11 +54,10 @@ const ReadingEditPage = () => {
                   q.question_text = "";
                 }
                 
-                // 🔥 ĐÃ FIX LỖI 422 FASTAPI: Đảm bảo options LUÔN LUÔN là Object {}
+                // 🔥 FIX LỖI 422 FASTAPI: Đảm bảo options LUÔN LUÔN là Object {}
                 if (!q.options) {
                   q.options = {};
                 } else if (Array.isArray(q.options)) {
-                  // Nếu xui rủi component con trả ra Array, ép nó về Dict {} ngay lập tức
                   const dict = {};
                   const labels = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
                   q.options.forEach((opt, i) => {
@@ -48,7 +72,6 @@ const ReadingEditPage = () => {
       });
     }
     
-    // console.log("🚀 PAYLOAD TO BACKEND:", payload);
     handleSave(payload);
   };
 
@@ -58,7 +81,6 @@ const ReadingEditPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-6 bg-slate-50 min-h-screen font-sans pb-24">
-      {/* 🔥 ĐÃ FIX: Đưa dòng comment này vào bên TRONG thẻ div để tránh lỗi sập React */}
       
       {/* ================= HEADER ================= */}
       <Space className="mb-6 w-full justify-between items-center">
@@ -72,13 +94,18 @@ const ReadingEditPage = () => {
         </div>
         
         <Space>
+          {/* BỘ ĐẾM TRÊN HEADER */}
+          <div className={`px-4 py-2 rounded-lg font-bold text-sm border-2 mr-2 transition-colors ${isMaxQuestions ? 'bg-green-50 text-green-600 border-green-200' : 'bg-blue-50 text-blue-600 border-blue-200'}`}>
+            Questions: {totalQuestions} / 40
+          </div>
+
           <Button 
             onClick={recalculateAllQuestionNumbers} 
             icon={<SortAscendingOutlined />}
             size="large"
             className="font-semibold text-slate-600 border-slate-300 shadow-sm rounded-lg hover:text-blue-600 hover:border-blue-400"
           >
-            Recalculate Question Numbers
+            Recalculate Numbers
           </Button>
 
           <Button 
@@ -100,6 +127,7 @@ const ReadingEditPage = () => {
         onFinish={onFinish} 
         onFinishFailed={onFinishFailed}
         autoComplete="off"
+        preserve={true} // Giữ lại toàn bộ giá trị Form kể cả khi Tab bị ẩn
       >
         
         {/* ================= TEST INFO ================= */}
@@ -164,8 +192,12 @@ const ReadingEditPage = () => {
 
             const onEditTab = (targetKey, action) => {
               if (action === 'add') {
-                const nextNum = getNextQuestionNumber();
+                if (isMaxQuestions) {
+                  message.warning('You have reached the maximum limit of 40 questions!');
+                  return;
+                }
 
+                const nextNum = getNextQuestionNumber();
                 addPassage({
                   order: passageFields.length + 1,
                   title: '',
@@ -182,9 +214,19 @@ const ReadingEditPage = () => {
                   }]
                 });
 
+                setTimeout(() => {
+                  const newKeys = form.getFieldValue('passages');
+                  if (newKeys && newKeys.length > 0) {
+                    setActiveTabKey((newKeys.length - 1).toString());
+                  }
+                }, 50);
+
               } else if (action === 'remove') {
                 const idx = passageFields.findIndex(f => f.key.toString() === targetKey);
-                if (idx !== -1) removePassage(passageFields[idx].name);
+                if (idx !== -1) {
+                  removePassage(passageFields[idx].name);
+                  if (targetKey === activeTabKey) setActiveTabKey("0");
+                }
               }
             };
 
@@ -194,6 +236,7 @@ const ReadingEditPage = () => {
               key: pField.key.toString(),
               label: <Text strong className="text-base px-4 py-1">Passage {pIndex + 1}</Text>,
               closable: true,
+              forceRender: true, // Bắt buộc render ngầm tất cả các Tab, tránh bị null mất dữ liệu khi lưu
               children: (
                 <div className="pt-4 animate-fade-in">
 
@@ -225,10 +268,13 @@ const ReadingEditPage = () => {
                           rules={[{ required: true, message: 'Passage content cannot be empty!' }]}
                           className="mb-0"
                         >
-                          <TextArea
-                            placeholder="Type or paste the passage content here..."
-                            className="font-serif text-[16px] leading-[1.8] custom-scrollbar bg-slate-50 focus:bg-white"
-                            autoSize={{ minRows: 10 }}
+                          {/* 🔥 ĐÃ NÂNG CẤP LÊN REACT QUILL (SOẠN THẢO VĂN BẢN XỊN) */}
+                          <ReactQuill 
+                            theme="snow"
+                            modules={quillModules}
+                            placeholder="Paste your reading passage here. Paragraphs and bold text will be preserved..."
+                            className="bg-white"
+                            style={{ height: '400px', marginBottom: '45px' }} // Chiều cao vừa vặn cho bài đọc
                           />
                         </Form.Item>
 
@@ -277,9 +323,12 @@ const ReadingEditPage = () => {
                                         />
                                       ))}
 
+                                      {/* NÚT THÊM CÂU HỎI */}
                                       <Button
                                         type="dashed"
+                                        disabled={isMaxQuestions}
                                         onClick={() => {
+                                          if (isMaxQuestions) return;
                                           const nextNum = getNextQuestionNumber();
                                           addQuestion({
                                             question_number: nextNum,
@@ -290,9 +339,9 @@ const ReadingEditPage = () => {
                                         }}
                                         block
                                         icon={<PlusOutlined />}
-                                        className="h-12 rounded-xl text-blue-600 font-semibold bg-white border-blue-200 hover:border-blue-500 shadow-sm mt-2"
+                                        className={`h-12 rounded-xl font-semibold mt-2 shadow-sm ${isMaxQuestions ? 'bg-slate-100 text-slate-400 border-slate-200' : 'text-blue-600 bg-white border-blue-200 hover:border-blue-500'}`}
                                       >
-                                        Add New Question
+                                        {isMaxQuestions ? 'Maximum 40 Questions Reached' : 'Add New Question'}
                                       </Button>
 
                                     </div>
@@ -302,9 +351,12 @@ const ReadingEditPage = () => {
                               </Card>
                             ))}
 
+                            {/* NÚT THÊM GROUP MỚI */}
                             <Button
                               type="dashed"
+                              disabled={isMaxQuestions}
                               onClick={() => {
+                                if (isMaxQuestions) return;
                                 const nextNum = getNextQuestionNumber();
                                 addGroup({
                                   order: groupFields.length + 1,
@@ -318,9 +370,9 @@ const ReadingEditPage = () => {
                               }}
                               block
                               icon={<PlusOutlined />}
-                              className="h-14 rounded-xl text-indigo-600 font-semibold bg-indigo-50 border-indigo-200 hover:border-indigo-400 shadow-sm text-base"
+                              className={`h-14 rounded-xl font-semibold shadow-sm text-base ${isMaxQuestions ? 'bg-slate-100 text-slate-400 border-slate-200' : 'text-indigo-600 bg-indigo-50 border-indigo-200 hover:border-indigo-400'}`}
                             >
-                              + Add New Question Group
+                              {isMaxQuestions ? 'Limit Reached (Cannot add more groups)' : '+ Add New Question Group'}
                             </Button>
 
                           </div>
@@ -343,6 +395,7 @@ const ReadingEditPage = () => {
                 items={tabItems}
                 className="custom-admin-tabs"
                 size="large"
+                hideAdd={isMaxQuestions} // Ẩn dấu (+) tạo Tab mới nếu đã đủ 40 câu
               />
             );
           }}
