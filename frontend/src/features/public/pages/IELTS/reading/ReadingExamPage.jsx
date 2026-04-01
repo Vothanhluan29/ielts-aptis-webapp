@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useReadingExam } from '../../../hooks/IELTS/reading/useReadingExam';
-import { Clock, Send, BookOpen, ChevronRight, ChevronLeft, Check, Info, Highlighter, Eraser } from 'lucide-react'; 
+import { Clock, Send, BookOpen, ChevronRight, ChevronLeft, Check, Info } from 'lucide-react'; 
 
 import StudentQuestionDisplay from '../../../components/IELTS/Question Display/StudentQuestionDisplay'; 
-import TextHighlighter from '../../../components/common/TextHighlighter'; 
 
 const ReadingExamPage = ({ testId, onFinish }) => {
   const { test, loading, submitting, answers, timeLeft, handleAnswerChange, handleSubmit, isFullTestMode } = useReadingExam(testId, onFinish);
   const [activeTab, setActiveTab] = useState(0);
-  const [activeTool, setActiveTool] = useState(null);
 
   useEffect(() => {
     const questionContainer = document.getElementById('reading-question-container');
@@ -46,6 +44,8 @@ const ReadingExamPage = ({ testId, onFinish }) => {
   );
 
   const currentPassage = test.passages?.[activeTab];
+  const isTimeWarning = timeLeft !== null && timeLeft <= 300;
+  const isLastPassage = activeTab === (test.passages?.length || 1) - 1; // Kiểm tra xem có phải Passage cuối chưa
 
   return (
     <div className="h-screen flex flex-col bg-linear-to-br from-slate-50 to-blue-50/30 font-sans overflow-hidden">
@@ -63,39 +63,14 @@ const ReadingExamPage = ({ testId, onFinish }) => {
               </div>
             </div>
 
-            {/* Center: Highlight Tools */}
-            <div className=" items-center gap-3 bg-linear-to-r from-indigo-50/50 to-blue-50/50 px-4 py-2 rounded-lg border border-indigo-200 hidden md:flex">
-              <span className="text-[11px] font-bold text-indigo-600 uppercase flex items-center gap-1.5">
-                <Highlighter size={14}/> Highlight:
-              </span>
-              {['yellow', 'green', 'red'].map(color => (
-                <button 
-                  key={color} 
-                  onClick={() => setActiveTool(activeTool === color ? null : color)} 
-                  className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${activeTool === color ? 'ring-2 ring-offset-2 ring-indigo-400 scale-110 shadow-md' : 'border-indigo-300 hover:border-indigo-500'}`} 
-                  style={{backgroundColor: color === 'yellow' ? '#fef08a' : color === 'green' ? '#bbf7d0' : '#fecaca'}}
-                  title={`Highlight ${color}`}
-                />
-              ))}
-              <div className="w-px h-5 bg-indigo-300"></div>
-              <button 
-                onClick={() => setActiveTool(null)} 
-                className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50 transition-colors"
-                title="Put pen down (Double click highlighted text to remove)"
-              >
-                <Eraser size={14}/> Clear Pen
-              </button>
-            </div>
-
-            {/* Right: Timer & Submit */}
+            {/* Right: Timer (Đã xóa bộ tool Highlight ở giữa) */}
             <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 font-mono text-lg font-bold px-4 py-2 rounded-lg border-2 ${timeLeft < 300 ? 'text-red-600 bg-red-50 border-red-300 animate-pulse' : 'text-slate-800 bg-slate-50 border-indigo-200'}`}>
-                <Clock size={18} className={timeLeft < 300 ? 'text-red-500' : 'text-indigo-600'} /> 
+              <div className={`flex items-center gap-2 font-mono text-lg font-bold px-5 py-1.5 rounded-lg border-2 ${
+                isTimeWarning ? 'text-red-600 bg-red-50 border-red-300 animate-pulse' : 'text-indigo-700 bg-indigo-50 border-indigo-200'
+              }`}>
+                <Clock size={18} className={isTimeWarning ? 'text-red-500' : 'text-indigo-600'} /> 
                 {formatTime(timeLeft)}
               </div>
-              <button onClick={() => handleSubmit(false)} disabled={submitting} className="flex items-center gap-2 px-6 py-2 bg-linear-to-r from-indigo-600 to-blue-600 text-white rounded-lg font-bold text-sm hover:from-indigo-700 hover:to-blue-700 shadow-md disabled:from-slate-400 disabled:to-slate-400 transition-all">
-                {submitting ? 'Submitting...' : 'Submit Test'} <Send size={16} />
-              </button>
             </div>
           </div>
         </header>
@@ -121,12 +96,10 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                     </div>
                   </div>
                   
-                  {/* CÓ SẴN whitespace-pre-wrap cho Passage */}
-                  <TextHighlighter 
-                    content={currentPassage.content} 
-                    storageKey={`ielts_reading_${testId}_passage_${activeTab}`} 
-                    activeTool={activeTool} 
-                    customClass="prose prose-slate prose-lg max-w-none text-justify font-serif leading-relaxed text-slate-800 whitespace-pre-wrap"
+                  {/* 🔥 ĐÃ XÓA HIGHLIGHTER: Dùng div với dangerouslySetInnerHTML mặc định */}
+                  <div 
+                    className="prose prose-slate prose-lg max-w-none text-justify font-serif leading-relaxed text-slate-800 whitespace-pre-wrap"
+                    dangerouslySetInnerHTML={{ __html: currentPassage.content }}
                   />
 
                 </div>
@@ -152,7 +125,6 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                       <div key={group.id || gIndex} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         {group.instruction && (
                           <div className="bg-linear-to-r from-indigo-50 via-blue-50 to-indigo-50 border-l-4 border-indigo-600 p-5 rounded-r-lg mb-6 shadow-sm">
-                            {/* 🔥 FIX 1: Thêm whitespace-pre-wrap cho phần Instruction */}
                             <p className="font-semibold text-slate-800 text-sm flex gap-2 items-start leading-relaxed whitespace-pre-wrap">
                               <Info size={18} className="text-indigo-600 mt-0.5 shrink-0"/>
                               <span>{group.instruction}</span>
@@ -163,7 +135,6 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                           </div>
                         )}
 
-                        {/* 🔥 FIX 2: Thêm whitespace-pre-wrap cho phần danh sách câu hỏi */}
                         <div className="space-y-6 whitespace-pre-wrap">
                           {group.questions?.map((question) => (
                             <StudentQuestionDisplay 
@@ -235,26 +206,42 @@ const ReadingExamPage = ({ testId, onFinish }) => {
             ))}
           </div>
 
-          {/* Right: Next hoặc Finish Section */}
-          {isFullTestMode && activeTab === (test.passages?.length || 1) - 1 ? (
-            <button
-              onClick={() => handleSubmit(false)}
-              disabled={submitting}
-              className="flex items-center gap-2 px-6 py-2 text-sm font-bold bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-lg shadow-md disabled:from-slate-400 disabled:to-slate-400 transition-all border-2 border-transparent"
-            >
-              {submitting ? 'Saving...' : 'Finish Section'}
-              <Check size={16} />
-            </button>
-          ) : (
-            <button 
-              onClick={() => setActiveTab(prev => Math.min((test.passages?.length || 1) - 1, prev + 1))} 
-              disabled={activeTab === (test.passages?.length || 1) - 1} 
-              className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg disabled:opacity-30 disabled:hover:bg-transparent transition-all border-2 border-transparent hover:border-indigo-200"
-            >
-              Next
-              <ChevronRight size={18}/>
-            </button>
-          )}
+          {/* RIGHT: PHÂN TÁCH LOGIC SUBMIT & NEXT RÕ RÀNG */}
+          <div>
+            {isLastPassage ? (
+              // NẾU LÀ PASSAGE CUỐI CÙNG
+              isFullTestMode ? (
+                // 🔵 Chế độ thi Full Test: Hiện nút Finish Section
+                <button
+                  onClick={() => handleSubmit(false)}
+                  disabled={submitting}
+                  className="flex items-center gap-2 px-6 py-2 text-sm font-bold bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-lg shadow-md disabled:from-slate-400 disabled:to-slate-400 transition-all border-2 border-transparent"
+                >
+                  {submitting ? 'Processing...' : 'Finish Section'}
+                  <Send size={16} />
+                </button>
+              ) : (
+                // 🟢 Chế độ Practice thông thường: Hiện nút Submit Test (Màu Xanh Ngọc)
+                <button
+                  onClick={() => handleSubmit(false)}
+                  disabled={submitting}
+                  className="flex items-center gap-2 px-6 py-2 text-sm font-bold bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow-md disabled:from-slate-400 disabled:to-slate-400 transition-all border-2 border-transparent"
+                >
+                  {submitting ? 'Submitting...' : 'Submit Test'}
+                  <Send size={16} />
+                </button>
+              )
+            ) : (
+              // NẾU CHƯA PHẢI LÀ PASSAGE CUỐI CÙNG -> Hiển thị nút NEXT
+              <button 
+                onClick={() => setActiveTab(prev => Math.min((test.passages?.length || 1) - 1, prev + 1))} 
+                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all border-2 border-transparent hover:border-indigo-200"
+              >
+                Next
+                <ChevronRight size={18}/>
+              </button>
+            )}
+          </div>
 
         </div>
       </footer>
