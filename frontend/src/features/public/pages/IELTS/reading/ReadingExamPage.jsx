@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useReadingExam } from '../../../hooks/IELTS/reading/useReadingExam';
-import { Clock, Send, BookOpen, ChevronRight, ChevronLeft, Check, Info } from 'lucide-react';
+import { Clock, Send, BookOpen, ChevronRight, ChevronLeft, Check, Info, Highlighter, Eraser } from 'lucide-react'; // 🔥 Import thêm Highlighter và Eraser
 
 import StudentQuestionDisplay from '../../../components/IELTS/Question Display/StudentQuestionDisplay'; 
+import TextHighlighter from '../../../components/common/TextHighlighter'; // 🔥 Import TextHighlighter
 
 const ReadingExamPage = ({ testId, onFinish }) => {
   const { test, loading, submitting, answers, timeLeft, handleAnswerChange, handleSubmit, isFullTestMode } = useReadingExam(testId, onFinish);
   const [activeTab, setActiveTab] = useState(0);
+  const [activeTool, setActiveTool] = useState(null); // 🔥 State quản lý màu bút highlight
 
   useEffect(() => {
     const questionContainer = document.getElementById('reading-question-container');
@@ -61,6 +63,29 @@ const ReadingExamPage = ({ testId, onFinish }) => {
               </div>
             </div>
 
+            <div className="flex items-center gap-3 bg-linear-to-r from-indigo-50/50 to-blue-50/50 px-4 py-2 rounded-lg border border-indigo-200 hidden md:flex">
+              <span className="text-[11px] font-bold text-indigo-600 uppercase flex items-center gap-1.5">
+                <Highlighter size={14}/> Highlight:
+              </span>
+              {['yellow', 'green', 'red'].map(color => (
+                <button 
+                  key={color} 
+                  onClick={() => setActiveTool(activeTool === color ? null : color)} 
+                  className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${activeTool === color ? 'ring-2 ring-offset-2 ring-indigo-400 scale-110 shadow-md' : 'border-indigo-300 hover:border-indigo-500'}`} 
+                  style={{backgroundColor: color === 'yellow' ? '#fef08a' : color === 'green' ? '#bbf7d0' : '#fecaca'}}
+                  title={`Highlight ${color}`}
+                />
+              ))}
+              <div className="w-px h-5 bg-indigo-300"></div>
+              <button 
+                onClick={() => setActiveTool(null)} 
+                className="text-xs font-bold text-red-600 hover:text-red-700 flex items-center gap-1 px-2 py-1 rounded hover:bg-red-50 transition-colors"
+                title="Put pen down (Double click highlighted text to remove)"
+              >
+                <Eraser size={14}/> Clear Pen
+              </button>
+            </div>
+
             {/* Right: Timer & Submit */}
             <div className="flex items-center gap-4">
               <div className={`flex items-center gap-2 font-mono text-lg font-bold px-4 py-2 rounded-lg border-2 ${timeLeft < 300 ? 'text-red-600 bg-red-50 border-red-300 animate-pulse' : 'text-slate-800 bg-slate-50 border-indigo-200'}`}>
@@ -94,10 +119,14 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                       </h2>
                     </div>
                   </div>
-                  <div className="prose prose-slate prose-lg max-w-none text-justify font-serif leading-relaxed text-slate-800">
-                    {/* Render HTML content without PassageViewer */}
-                    <div dangerouslySetInnerHTML={{ __html: currentPassage.content }} />
-                  </div>
+                  
+                  {/* 🔥 NHÚNG COMPONENT TEXT HIGHLIGHTER VÀO ĐÂY */}
+                  <TextHighlighter 
+                    content={currentPassage.content} 
+                    storageKey={`ielts_reading_${testId}_passage_${activeTab}`} 
+                    activeTool={activeTool} 
+                  />
+
                 </div>
               </div>
             </div>
