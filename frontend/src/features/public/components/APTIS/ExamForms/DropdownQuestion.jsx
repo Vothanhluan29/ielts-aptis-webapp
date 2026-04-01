@@ -4,7 +4,7 @@ import { Select, Typography } from 'antd';
 const { Text } = Typography;
 
 const DropdownQuestion = ({ questionId, questionNumber, questionText, options, selectedValue, onChange }) => {
-  // 1. Chuẩn hóa dữ liệu options từ Backend
+  // 1. Normalize options data from Backend
   let parsedOptions = options;
   if (typeof options === 'string') {
     try {
@@ -14,17 +14,17 @@ const DropdownQuestion = ({ questionId, questionNumber, questionText, options, s
     }
   }
 
-  // 2. Chuyển đổi thành định dạng mảng object { value, label } cho thẻ Select của Ant Design
+  // 2. Convert to array object format { value, label } for Ant Design Select component
   let selectOptions = [];
   if (parsedOptions) {
     if (typeof parsedOptions === 'object' && !Array.isArray(parsedOptions)) {
-      // Trường hợp: options là Object {"A": "Big", "B": "Small", "C": "Large"}
+      // Case: options is an Object {"A": "Big", "B": "Small", "C": "Large"}
       selectOptions = Object.entries(parsedOptions).map(([key, val]) => ({
-        value: key, // Lưu key (VD: "A") vào DB khi submit
-        label: `${key}. ${val}` // Hiển thị "A. Big" trên UI
+        value: key, // Save key (e.g., "A") to DB when submitting
+        label: `${key}. ${val}` // Display "A. Big" on UI
       }));
     } else if (Array.isArray(parsedOptions)) {
-      // Trường hợp dự phòng: options là Mảng ["Big", "Small", "Large"]
+      // Fallback case: options is an Array ["Big", "Small", "Large"]
       selectOptions = parsedOptions.map(opt => ({
         value: opt,
         label: opt
@@ -34,25 +34,25 @@ const DropdownQuestion = ({ questionId, questionNumber, questionText, options, s
 
   return (
     <div className="mb-6 p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-300 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
-      {/* CỘT TRÁI: Câu hỏi */}
+      {/* LEFT COLUMN: Question */}
       <div className="flex-1">
         <Text strong className="text-slate-800 text-base">
           {questionNumber}. {questionText}
         </Text>
       </div>
 
-      {/* CỘT PHẢI: Dropdown chọn đáp án */}
+      {/* RIGHT COLUMN: Answer dropdown */}
       <div className="w-full md:w-72 shrink-0">
         <Select
           showSearch
           allowClear
-          placeholder="Chọn đáp án..."
+          placeholder="Select an answer..."
           className="w-full"
           size="large"
           value={selectedValue || null}
           onChange={(value) => onChange(questionId, value || "")}
           options={selectOptions}
-          // Hỗ trợ tìm kiếm nhanh đáp án khi gõ chữ
+          // Support quick answer search when typing
           filterOption={(input, option) => 
             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
           }

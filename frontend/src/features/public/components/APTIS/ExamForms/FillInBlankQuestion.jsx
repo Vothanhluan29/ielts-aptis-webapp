@@ -18,10 +18,8 @@ const FillInBlankQuestion = ({
     }
   };
 
-  // Render text và làm nổi bật các dấu gạch dưới (VD: ______) nếu có
   const renderFormattedText = (text) => {
-    if (!text) return "Điền từ thích hợp vào chỗ trống:";
-    // Tìm các chuỗi dấu gạch dưới liên tiếp (ví dụ: ___) và bôi màu cam nhạt để làm nổi bật
+    if (!text) return "Fill in the appropriate word in the blank:";
     const parts = text.split(/(_+)/g);
     return parts.map((part, index) => {
       if (part.includes('_')) {
@@ -34,7 +32,6 @@ const FillInBlankQuestion = ({
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 md:p-6 mb-6 shadow-sm transition-all hover:border-orange-200 hover:shadow-md">
       
-      {/* Tiêu đề câu hỏi */}
       <div className="flex gap-4 items-start mb-5">
         <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-orange-100 text-orange-600 font-black text-lg shrink-0">
           {questionNumber}
@@ -46,12 +43,11 @@ const FillInBlankQuestion = ({
         </div>
       </div>
 
-      {/* Ô nhập text */}
       <div className="pl-0 md:pl-14">
         <Input 
           size="large"
           prefix={<EditOutlined className="text-slate-400 mr-2" />}
-          placeholder="Gõ câu trả lời của bạn vào đây..."
+          placeholder="Type your answer here..."
           value={selectedValue || ''}
           onChange={handleInputChange}
           autoComplete="off"

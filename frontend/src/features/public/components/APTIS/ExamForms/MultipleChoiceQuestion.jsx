@@ -4,11 +4,9 @@ import { Radio, Space, Typography } from 'antd';
 const { Text } = Typography;
 
 const MultipleChoiceQuestion = ({ questionId, questionNumber, questionText, options, selectedValue, onChange }) => {
-  // Xử lý options: Chuyển Object {"A": "have", "B": "had"} thành mảng để map()
   let optionsList = [];
   if (options) {
     if (typeof options === 'object' && !Array.isArray(options)) {
-      // Map thành: { value: "A", label: "A. have" }
       optionsList = Object.entries(options).map(([key, val]) => ({ value: key, label: `${key}. ${val}` }));
     } else if (Array.isArray(options)) {
       optionsList = options.map(opt => ({ value: opt, label: opt }));
@@ -31,12 +29,12 @@ const MultipleChoiceQuestion = ({ questionId, questionNumber, questionText, opti
           {optionsList.map((opt) => (
             <Radio 
               key={opt.value} 
-              value={opt.value} // Lưu giá trị "A", "B", "C" vào state
+              value={opt.value}
               className={`text-slate-600 text-base p-3 rounded-xl w-full border transition-all ${
                 selectedValue === opt.value ? 'bg-emerald-50 border-emerald-400' : 'border-transparent hover:bg-slate-50'
               }`}
             >
-              {opt.label} {/* Hiển thị "A. have" */}
+              {opt.label}
             </Radio>
           ))}
         </Space>
