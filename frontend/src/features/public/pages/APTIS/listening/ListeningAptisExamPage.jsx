@@ -15,9 +15,6 @@ import listeningAptisStudentApi from '../../../api/APTIS/listening/listeningApti
 const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
-// ==========================================
-// 🎵 CUSTOM AUDIO PLAYER CHUẨN APTIS
-// ==========================================
 const AptisAudioPlayer = ({ src }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -29,8 +26,8 @@ const AptisAudioPlayer = ({ src }) => {
     if (playCount >= MAX_PLAYS || isPlaying) return;
     if (audioRef.current) {
       audioRef.current.play().catch(e => {
-         console.error("🎵 [PLAYER] Lỗi khi phát âm thanh:", e);
-         message.error("Lỗi phát âm thanh. Vui lòng kiểm tra lại loa/trình duyệt!");
+         console.error("Audio playback error:", e);
+         message.error("Audio playback error. Please check your speakers/browser!");
       });
       setIsPlaying(true);
     }
@@ -56,7 +53,7 @@ const AptisAudioPlayer = ({ src }) => {
   if (!src) {
     return (
       <div className="bg-red-50 p-4 rounded-xl border border-red-200 mb-4">
-        <Text type="danger" className="font-bold">⚠️ Câu hỏi này đang bị thiếu file âm thanh từ hệ thống!</Text>
+        <Text type="danger" className="font-bold">⚠️ This question is missing its audio file from the system!</Text>
       </div>
     );
   }
@@ -88,10 +85,10 @@ const AptisAudioPlayer = ({ src }) => {
       <div className="flex-1">
         <div className="flex justify-between items-center mb-2">
           <Text className="font-bold text-blue-800 text-base">
-            {isPlaying ? 'Đang phát âm thanh...' : isLocked ? 'Đã hoàn thành nghe' : 'Nhấn Play để bắt đầu nghe'}
+            {isPlaying ? 'Playing audio...' : isLocked ? 'Listening complete' : 'Press Play to start listening'}
           </Text>
           <Tag color={isLocked ? "default" : "blue"} className="font-bold rounded-full border-0 px-3 py-1">
-            Lượt nghe còn lại: {playsLeft}
+            Plays remaining: {playsLeft}
           </Tag>
         </div>
         <Progress 
@@ -106,22 +103,14 @@ const AptisAudioPlayer = ({ src }) => {
   );
 };
 
-// ==========================================
-// 📝 MAIN EXAM PAGE
-// ==========================================
-
-// 🔥 NHẬN PROPS TỪ LAYOUT MẸ (ExamAptisExamPage) NẾU ĐANG THI FULL TEST
 const ListeningAptisExamPage = ({ 
   isFullTest = false, 
-  fullTestSubmissionId = null, 
   testIdFromProps = null,
   onSkillFinish = null 
 }) => {
   const { id: urlId } = useParams();
   const navigate = useNavigate();
 
-  // 🔥 NẾU thi Full Test -> Lấy ID bài thi được truyền từ component mẹ xuống.
-  // NẾU thi Độc lập -> Lấy ID bài thi từ trên URL xuống.
   const testId = isFullTest ? testIdFromProps : urlId;
 
   const [loading, setLoading] = useState(true);
@@ -135,16 +124,14 @@ const ListeningAptisExamPage = ({
   const answersRef = useRef(answers);
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
-  // 1. FETCH API
   useEffect(() => {
     const fetchTest = async () => {
       try {
         setLoading(true);
         if (!testId) {
-          throw new Error("Không tìm thấy ID bài thi Listening!");
+          throw new Error("Listening test ID not found!");
         }
 
-        // 🔥 Đã đổi `id` thành `testId`
         const response = await listeningAptisStudentApi.getTestDetail(testId);
         const data = response.data || response;
         
@@ -155,8 +142,8 @@ const ListeningAptisExamPage = ({
           setCurrentPartId(data.parts[0].id);
         }
       } catch (error) {
-        console.error("Lỗi tải đề thi:", error);
-        message.error(`Không thể tải đề thi: ${error.message}`);
+        console.error("Error loading test:", error);
+        message.error(`Failed to load test: ${error.message}`);
       } finally {
         setLoading(false);
       }
@@ -168,45 +155,40 @@ const ListeningAptisExamPage = ({
   const activePart = parts.find(p => p.id === currentPartId);
   const currentTabIndex = parts.findIndex(p => p.id === currentPartId);
 
-  // 2. SUBMIT TEST
   const handleSubmit = async (isAutoSubmit = false) => {
     if (submitting) return;
     try {
       setSubmitting(true);
       if (isAutoSubmit) {
-        message.warning({ content: "Đã hết thời gian! Hệ thống tự động thu bài.", duration: 5 });
+        message.warning({ content: "Time's up! The system has automatically submitted your test.", duration: 5 });
       } else {
-        message.loading({ content: 'Đang nộp bài Listening...', key: 'submit' });
+        message.loading({ content: 'Submitting Listening test...', key: 'submit' });
       }
 
       const payload = {
-        test_id: parseInt(testId), // 🔥 Đã đổi `id` thành `testId`
-        is_full_test_only: isFullTest, // 🔥 Báo cho DB biết có phải full test không
+        test_id: parseInt(testId),
+        is_full_test_only: isFullTest,
         user_answers: answersRef.current 
       };
 
       const res = await listeningAptisStudentApi.submitTest(payload);
       const submissionData = res.data || res;
       
-      message.success({ content: 'Nộp bài và chấm điểm thành công!', key: 'submit' });
+      message.success({ content: 'Test submitted and graded successfully!', key: 'submit' });
       
-      // 🔥 RẼ NHÁNH ĐIỀU HƯỚNG DỰA THEO CHẾ ĐỘ THI
       if (isFullTest && onSkillFinish) {
-        // Trả ID bài nộp (skill_submission_id) về cho Layout mẹ để nó gọi API chuyển skill
         onSkillFinish(submissionData.id);
       } else {
-        // Thi lẻ độc lập thì mới chuyển trang xem kết quả
         navigate(`/aptis/listening/result/${submissionData.id}`); 
       }
       
     } catch (error) {
       console.error("Submit error:", error);
-      message.error({ content: 'Lỗi hệ thống khi nộp bài. Vui lòng thử lại!', key: 'submit', duration: 5 });
+      message.error({ content: 'System error while submitting. Please try again!', key: 'submit', duration: 5 });
       setSubmitting(false);
     }
   };
 
-  // 3. COUNTDOWN TIMER
   useEffect(() => {
     if (loading || submitting || timeLeft <= 0) {
       if (timeLeft <= 0 && !loading && !submitting && testDetail) handleSubmit(true);
@@ -223,13 +205,13 @@ const ListeningAptisExamPage = ({
 
   const confirmSubmit = () => {
     Modal.confirm({
-      title: 'Xác nhận nộp bài',
+      title: 'Confirm Submission',
       icon: <ExclamationCircleOutlined className="text-red-500" />,
       content: isFullTest 
-        ? 'Sau khi nộp, hệ thống sẽ tự động chuyển sang phần Writing. Bạn sẽ không thể nghe hoặc sửa lại đáp án phần này. Tiếp tục?' 
-        : 'Bạn có chắc chắn muốn nộp bài? Hệ thống sẽ kết thúc bài thi của bạn ngay lập tức.',
-      okText: 'Nộp bài',
-      cancelText: 'Hủy',
+        ? 'After submitting, the system will automatically move to the Writing section. You will not be able to listen or change your answers for this section. Continue?' 
+        : 'Are you sure you want to submit? The system will end your test immediately.',
+      okText: 'Submit',
+      cancelText: 'Cancel',
       okButtonProps: { danger: true, className: 'rounded-lg' },
       cancelButtonProps: { className: 'rounded-lg' },
       onOk: () => handleSubmit(false)
@@ -247,7 +229,7 @@ const ListeningAptisExamPage = ({
       <div className="flex h-screen items-center justify-center bg-slate-50">
         <div className="flex flex-col items-center gap-4">
           <Spin size="large" />
-          <Text type="secondary" className="font-medium text-lg">Đang tải dữ liệu bài thi...</Text>
+          <Text type="secondary" className="font-medium text-lg">Loading test data...</Text>
         </div>
       </div>
     );
@@ -258,9 +240,9 @@ const ListeningAptisExamPage = ({
       <div className="flex h-screen items-center justify-center bg-slate-50">
         <Card className="text-center rounded-3xl shadow-sm border-0 py-10 px-8">
           <ExclamationCircleOutlined className="text-red-400 text-5xl mb-4 block" />
-          <Title level={4}>Bài thi trống</Title>
-          <Text type="secondary">Chưa có câu hỏi nào được thêm vào bài thi này.</Text>
-          <Button type="primary" onClick={() => navigate('/aptis/listening')} className="mt-6">Quay lại</Button>
+          <Title level={4}>Empty Test</Title>
+          <Text type="secondary">No questions have been added to this test yet.</Text>
+          <Button type="primary" onClick={() => navigate('/aptis/listening')} className="mt-6">Go Back</Button>
         </Card>
       </div>
     );
@@ -271,7 +253,6 @@ const ListeningAptisExamPage = ({
   return (
     <Layout style={{ minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh', backgroundColor: '#f8fafc' }}>
       
-      {/* HEADER: Ẩn đi nếu là Full Test vì Layout mẹ đã có Header to rồi */}
       {!isFullTest && (
         <Header style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 10 }}>
           <div className="flex items-center gap-3">
@@ -287,12 +268,11 @@ const ListeningAptisExamPage = ({
         </Header>
       )}
 
-      {/* HEADER PHỤ CHO FULL TEST: Chứa đồng hồ đếm ngược nội bộ của kỹ năng Listening */}
       {isFullTest && (
         <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-          <Text strong className="text-lg text-slate-700">Phần thi: Listening</Text>
+          <Text strong className="text-lg text-slate-700">Section: Listening</Text>
           <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-lg transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
-            <ClockCircleOutlined /> Thời gian còn lại: {formatTime(timeLeft)}
+            <ClockCircleOutlined /> Time remaining: {formatTime(timeLeft)}
           </div>
         </div>
       )}
@@ -305,13 +285,13 @@ const ListeningAptisExamPage = ({
               key={p.id} 
               type={currentPartId === p.id ? 'primary' : 'default'} 
               onClick={() => setCurrentPartId(p.id)} 
-              className={`flex-1 min-w-[140px] h-12 font-bold rounded-xl transition-all ${
+              className={`flex-1 min-w-35 h-12 font-bold rounded-xl transition-all ${
                 currentPartId === p.id 
                   ? 'bg-blue-600 hover:bg-blue-500 border-none shadow-md shadow-blue-200' 
                   : 'text-slate-500 border-slate-200 hover:text-blue-500 hover:border-blue-300'
               }`}
             >
-              Phần {p.part_number || idx + 1}
+              Part {p.part_number || idx + 1}
             </Button>
           ))}
         </div>
@@ -321,12 +301,12 @@ const ListeningAptisExamPage = ({
           <div className="mb-8 p-4 bg-blue-50/50 rounded-xl border-l-4 border-blue-500 text-slate-700 font-medium flex items-start gap-3">
             <CustomerServiceOutlined className="text-blue-600 text-xl mt-0.5" />
             <div>
-              Hãy nghe kỹ đoạn băng và chọn đáp án chính xác nhất. Nhớ rằng bạn chỉ có <strong>2 lượt nghe</strong> cho mỗi đoạn audio.
+              Listen carefully to the audio and select the most accurate answer. Remember that you only have <strong>2 plays</strong> for each audio clip.
             </div>
           </div>
 
           {!activePart?.groups || activePart.groups.length === 0 ? (
-             <div className="text-center py-10 text-slate-400">Không có câu hỏi trong phần này.</div>
+             <div className="text-center py-10 text-slate-400">No questions in this section.</div>
           ) : (
             activePart.groups.map((group) => (
               <div key={group.id} className="mb-14 last:mb-0 pb-8 border-b border-slate-100 last:border-0 last:pb-0">
@@ -386,7 +366,7 @@ const ListeningAptisExamPage = ({
           onClick={() => setCurrentPartId(parts[currentTabIndex - 1]?.id)}
           icon={<LeftOutlined />}
         >
-          Phần trước
+          Previous Part
         </Button>
         
         {currentTabIndex < parts.length - 1 ? (
@@ -397,7 +377,7 @@ const ListeningAptisExamPage = ({
             onClick={() => setCurrentPartId(parts[currentTabIndex + 1]?.id)}
             disabled={submitting}
           >
-            Phần tiếp theo <RightOutlined />
+            Next Part <RightOutlined />
           </Button>
         ) : (
           <Button
@@ -408,7 +388,7 @@ const ListeningAptisExamPage = ({
             loading={submitting}
             icon={<SendOutlined />}
           >
-            {isFullTest ? 'Nộp và chuyển sang Writing' : 'Nộp bài thi'}
+            {isFullTest ? 'Submit & Continue to Writing' : 'Submit Test'}
           </Button>
         )}
       </Footer>
