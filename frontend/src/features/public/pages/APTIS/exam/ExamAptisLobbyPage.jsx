@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Typography, Spin, message, Steps, Divider, Alert } from 'antd';
 import { ArrowLeftOutlined, PlayCircleOutlined, ReloadOutlined } from '@ant-design/icons';
@@ -25,11 +25,7 @@ const ExamAptisLobbyPage = () => {
   const [testDetail, setTestDetail] = useState(null);
   const [activeSubmission, setActiveSubmission] = useState(null);
 
-  useEffect(() => {
-    fetchLobbyData();
-  }, [id]);
-
-  const fetchLobbyData = async () => {
+  const fetchLobbyData = useCallback(async () => {
     setLoading(true);
     try {
       const testRes = await examAptisStudentApi.getLibraryTestDetail(id);
@@ -54,7 +50,11 @@ const ExamAptisLobbyPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    fetchLobbyData();
+  }, [fetchLobbyData]);
 
   const getSkillUrl = (stepId, submissionId) => {
     return `/aptis/exam/taking/${submissionId}`;
@@ -65,7 +65,7 @@ const ExamAptisLobbyPage = () => {
     try {
       if (activeSubmission) {
         const currentStep = activeSubmission.current_step || 'GRAMMAR_VOCAB';
-        message.info(`Resuming exam at: ${currentStep.replace('_', ' ')}`);
+        message.info(`Resuming exam at section: ${currentStep.replace('_', ' ')}`);
         navigate(getSkillUrl(currentStep, activeSubmission.id));
       } else {
         const startRes = await examAptisStudentApi.startExam(id);
@@ -116,10 +116,10 @@ const ExamAptisLobbyPage = () => {
             message="Full Test Instructions" 
             description={
               <ul className="list-disc pl-5 mt-2 text-slate-600 space-y-1">
-                <li>The test consists of 5 continuous sections. The system will <b>automatically save</b> after each skill.</li>
+                <li>The test includes 5 continuous sections. The system will <b>automatically save</b> after each skill.</li>
                 <li>Please prepare <b>Headphones</b> and a <b>Microphone</b> for the Listening & Speaking sections.</li>
                 <li>If you accidentally close the browser, you can return to this page and choose <b>Resume Exam</b>.</li>
-                <li>Each skill has its own countdown timer. When time is up, the test will auto-submit and move to the next section.</li>
+                <li>Each skill has its own countdown timer. When time runs out, the test will automatically submit and move to the next section.</li>
               </ul>
             }
             type="info"
