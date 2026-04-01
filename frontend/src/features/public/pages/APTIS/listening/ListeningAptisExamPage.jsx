@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   Layout, Button, Typography, Spin, Card, Tag, message, Modal, Progress 
@@ -15,6 +15,9 @@ import listeningAptisStudentApi from '../../../api/APTIS/listening/listeningApti
 const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
+// ==========================================
+// COMPONENT: AUDIO PLAYER
+// ==========================================
 const AptisAudioPlayer = ({ src }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -91,11 +94,12 @@ const AptisAudioPlayer = ({ src }) => {
             Plays remaining: {playsLeft}
           </Tag>
         </div>
+        {/* 🔥 FIX WARNING: trailColor đổi thành railColor */}
         <Progress 
           percent={isLocked ? 100 : progress} 
           showInfo={false} 
           strokeColor={isLocked ? "#94a3b8" : "#2563eb"}
-          trailColor="#e2e8f0"
+          railColor="#e2e8f0" 
           size="small"
         />
       </div>
@@ -103,6 +107,9 @@ const AptisAudioPlayer = ({ src }) => {
   );
 };
 
+// ==========================================
+// MAIN COMPONENT: LISTENING EXAM PAGE
+// ==========================================
 const ListeningAptisExamPage = ({ 
   isFullTest = false, 
   testIdFromProps = null,
@@ -124,26 +131,25 @@ const ListeningAptisExamPage = ({
   const answersRef = useRef(answers);
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
-  // 🔥 1. HÀM XỬ LÝ ĐÁP ÁN ĐÃ ĐƯỢC BỌC THÉP
-  const handleAnswerChange = (qId, arg1, arg2) => {
-    let finalValue = arg1;
-    
-    // Trường hợp 1: Component con truyền (questionId, value) -> arg2 sẽ là đáp án
-    if (arg2 !== undefined) {
-      finalValue = arg2;
-    } 
-    // Trường hợp 2: Component con truyền React Event (e.target.value)
-    else if (arg1 && arg1.target !== undefined) {
-      finalValue = arg1.target.value;
+  // 🔥 THE ULTIMATE FIX: HÀM XỬ LÝ ĐÁP ÁN HOÀN HẢO
+  const handleAnswerChange = (qKey, incomingValue) => {
+    // 1. Kiểm tra xem incomingValue có phải là React Event object (e) không?
+    let finalValue = incomingValue;
+    if (incomingValue && incomingValue.target && incomingValue.target.value !== undefined) {
+      finalValue = incomingValue.target.value;
     }
+    
+    // 2. Ép kiểu về String để Database hiểu
+    const stringValue = String(finalValue).trim();
 
     setAnswers(prev => {
-      const next = { ...prev, [qId]: String(finalValue) };
-      answersRef.current = next; // Đồng bộ lập tức
+      const next = { ...prev, [qKey]: stringValue };
+      answersRef.current = next; 
       return next;
     });
   };
 
+  // --- FETCH DỮ LIỆU ĐỀ THI ---
   useEffect(() => {
     const fetchTest = async () => {
       try {
@@ -175,6 +181,7 @@ const ListeningAptisExamPage = ({
   const activePart = parts.find(p => p.id === currentPartId);
   const currentTabIndex = parts.findIndex(p => p.id === currentPartId);
 
+  // --- HÀM SUBMIT BÀI THI ---
   const handleSubmit = async (isAutoSubmit = false) => {
     if (submitting) return;
     try {
@@ -185,11 +192,11 @@ const ListeningAptisExamPage = ({
         message.loading({ content: 'Submitting Listening test...', key: 'submit' });
       }
 
-      // 🔥 2. MÀNG LỌC RÁC: Chỉ đẩy các câu có đáp án chuẩn lên server
+      // Chỉ lấy các đáp án có giá trị thực sự
       const cleanedAnswers = {};
       Object.entries(answersRef.current).forEach(([key, val]) => {
-        if (val !== undefined && val !== null && String(val).trim() !== '') {
-          cleanedAnswers[key] = String(val).trim();
+        if (val && val !== 'undefined' && val !== 'null' && val.trim() !== '') {
+          cleanedAnswers[key] = val;
         }
       });
 
@@ -217,6 +224,7 @@ const ListeningAptisExamPage = ({
     }
   };
 
+  // --- ĐẾM NGƯỢC THỜI GIAN ---
   useEffect(() => {
     if (loading || submitting || timeLeft <= 0) {
       if (timeLeft <= 0 && !loading && !submitting && testDetail) handleSubmit(true);
@@ -248,6 +256,7 @@ const ListeningAptisExamPage = ({
     return `${m}:${s}`;
   };
 
+  // --- RENDER GIAO DIỆN ---
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -348,6 +357,8 @@ const ListeningAptisExamPage = ({
                                        qType === 'MATCHING' || 
                                        pType.includes('PART_4');
 
+                    const qKey = String(q.question_number || idx + 1);
+
                     if (isDropdown) {
                       return (
                         <DropdownQuestion 
@@ -356,9 +367,9 @@ const ListeningAptisExamPage = ({
                           questionNumber={q.question_number || idx + 1}
                           questionText={q.question_text}
                           options={q.options}
-                          selectedValue={answers[q.id]}
-                          // 🔥 3. TRUYỀN HÀM XỬ LÝ AN TOÀN
-                          onChange={(a, b) => handleAnswerChange(q.id, a, b)}
+                          selectedValue={answers[qKey]} 
+                          // 🔥 Bỏ truyền nhiều param, chỉ truyền 1 value duy nhất lên trên
+                          onChange={(val) => handleAnswerChange(qKey, val)} 
                         />
                       );
                     } else {
@@ -369,9 +380,9 @@ const ListeningAptisExamPage = ({
                           questionNumber={q.question_number || idx + 1}
                           questionText={q.question_text}
                           options={q.options}
-                          selectedValue={answers[q.id]}
-                          // 🔥 3. TRUYỀN HÀM XỬ LÝ AN TOÀN
-                          onChange={(a, b) => handleAnswerChange(q.id, a, b)}
+                          selectedValue={answers[qKey]} 
+                          // 🔥 Bỏ truyền nhiều param, chỉ truyền 1 value duy nhất lên trên
+                          onChange={(val) => handleAnswerChange(qKey, val)} 
                         />
                       );
                     }
@@ -414,7 +425,7 @@ const ListeningAptisExamPage = ({
             loading={submitting}
             icon={<SendOutlined />}
           >
-            {isFullTest ? 'Submit & Continue' : 'Submit Test'}
+            {isFullTest ? 'Submit & Continue to Writing' : 'Submit Test'}
           </Button>
         )}
       </Footer>
