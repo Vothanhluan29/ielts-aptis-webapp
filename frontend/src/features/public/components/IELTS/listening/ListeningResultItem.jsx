@@ -24,7 +24,7 @@ const ListeningResultItem = ({ item, index }) => {
   }
 
   const isCorrect = item.is_correct;
-  const hasAnswer = userAnswerText !== "--";
+  const hasAnswer = userAnswerText !== "--(Skipped)--";
 
   return (
     <>
