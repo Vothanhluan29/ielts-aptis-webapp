@@ -53,7 +53,6 @@ const ReadingExamPage = ({ testId, onFinish }) => {
       {/* HEADER */}
       {!isFullTestMode && (
         <header className="bg-white border-b-2 border-indigo-200 shadow-sm h-14 shrink-0 z-30">
-          {/* Đã fix max-w-400 thành max-w-7xl */}
           <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
             {/* Left: Title */}
             <div className="flex items-center gap-3">
@@ -122,7 +121,7 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                     </div>
                   </div>
                   
-                  {/* 🔥 ĐÃ FIX: Thêm customClass có "whitespace-pre-wrap" để giữ nguyên dấu Enter từ Admin */}
+                  {/* CÓ SẴN whitespace-pre-wrap cho Passage */}
                   <TextHighlighter 
                     content={currentPassage.content} 
                     storageKey={`ielts_reading_${testId}_passage_${activeTab}`} 
@@ -153,6 +152,7 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                       <div key={group.id || gIndex} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         {group.instruction && (
                           <div className="bg-linear-to-r from-indigo-50 via-blue-50 to-indigo-50 border-l-4 border-indigo-600 p-5 rounded-r-lg mb-6 shadow-sm">
+                            {/* 🔥 FIX 1: Thêm whitespace-pre-wrap cho phần Instruction */}
                             <p className="font-semibold text-slate-800 text-sm flex gap-2 items-start leading-relaxed whitespace-pre-wrap">
                               <Info size={18} className="text-indigo-600 mt-0.5 shrink-0"/>
                               <span>{group.instruction}</span>
@@ -163,7 +163,8 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                           </div>
                         )}
 
-                        <div className="space-y-6">
+                        {/* 🔥 FIX 2: Thêm whitespace-pre-wrap cho phần danh sách câu hỏi */}
+                        <div className="space-y-6 whitespace-pre-wrap">
                           {group.questions?.map((question) => (
                             <StudentQuestionDisplay 
                               key={question.id || question.question_number}
@@ -205,8 +206,7 @@ const ReadingExamPage = ({ testId, onFinish }) => {
 
       {/* FOOTER - Passage Navigation */}
       <footer className="bg-white border-t-2 border-indigo-200 h-16 shrink-0 z-30 shadow-sm">
-        {/* Đã fix max-w-400 thành max-w-7xl */}
-        <div className="h-full max-w-7xl  mx-auto px-6 flex items-center justify-between">
+        <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
 
           {/* Left: Previous */}
           <button 
