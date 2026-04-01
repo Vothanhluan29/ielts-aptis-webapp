@@ -61,10 +61,11 @@ const ListeningExamPage = ({ testId, onFinish }) => {
   if (!test) return null;
 
   const isTimeWarning = timeLeft !== null && timeLeft <= 300;
+  const isLastPart = currentPartIndex === (test.parts?.length || 1) - 1; // Kiểm tra xem có phải Part cuối chưa
 
   return (
     <div className="h-screen flex flex-col bg-linear-to-br from-slate-50 to-blue-50/30 font-sans overflow-hidden">
-      
+
       {/* HEADER */}
       {!isFullTestMode && (
         <header className="bg-white border-b-2 border-indigo-200 shadow-sm h-14 shrink-0 z-30">
@@ -82,21 +83,14 @@ const ListeningExamPage = ({ testId, onFinish }) => {
               </div>
             </div>
 
-            {/* Right: Timer & Submit */}
+            {/* Right: Timer (Đã bỏ nút Submit ở đây) */}
             <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 font-mono text-lg font-bold px-4 py-2 rounded-lg border-2 ${
-                isTimeWarning ? 'text-red-600 bg-red-50 border-red-300 animate-pulse' : 'text-slate-800 bg-slate-50 border-indigo-200'
+              <div className={`flex items-center gap-2 font-mono text-lg font-bold px-5 py-1.5 rounded-lg border-2 ${
+                isTimeWarning ? 'text-red-600 bg-red-50 border-red-300 animate-pulse' : 'text-indigo-700 bg-indigo-50 border-indigo-200'
               }`}>
                 <Clock size={18} className={isTimeWarning ? 'text-red-500' : 'text-indigo-600'} />
                 {formatTime(timeLeft)}
               </div>
-              <button
-                onClick={() => handleSubmit(false)}
-                disabled={submitting}
-                className="flex items-center gap-2 px-6 py-2 bg-linear-to-r from-indigo-600 to-blue-600 text-white rounded-lg font-bold text-sm hover:from-indigo-700 hover:to-blue-700 shadow-md disabled:from-slate-400 disabled:to-slate-400 transition-all"
-              >
-                {submitting ? 'Submitting...' : 'Submit Test'} <Send size={16} />
-              </button>
             </div>
           </div>
         </header>
@@ -111,8 +105,8 @@ const ListeningExamPage = ({ testId, onFinish }) => {
             <div className="bg-white h-full overflow-y-auto scroll-smooth" style={{ scrollbarWidth: 'thin', scrollbarColor: '#818cf8 #f1f5f9' }}>
               <div className="p-8 md:p-12 max-w-4xl mx-auto">
                 
-                {/* 🔥 AUDIO PLAYER THU GỌN */}
-                <div className="bg--to-r from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-5 mb-8 shadow-sm">
+                {/* AUDIO PLAYER THU GỌN */}
+                <div className="bg-linear-to-r from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-5 mb-8 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                      <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-lg bg-linear-to-br from-indigo-600 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
@@ -228,7 +222,7 @@ const ListeningExamPage = ({ testId, onFinish }) => {
                           </div>
                         )}
 
-                        {/* 🔥 HIỂN THỊ HÌNH ẢNH MAP/DIAGRAM NẾU CÓ */}
+                        {/* HIỂN THỊ HÌNH ẢNH MAP/DIAGRAM NẾU CÓ */}
                         {group.image_url && (
                            <div className="mb-6 flex justify-center">
                               <div className="bg-white p-2 border-2 border-slate-200 rounded-xl shadow-sm hover:border-indigo-300 transition-colors">
@@ -313,26 +307,42 @@ const ListeningExamPage = ({ testId, onFinish }) => {
             ))}
           </div>
 
-          {/* RIGHT: Next hoặc Finish Section */}
-          {isFullTestMode && currentPartIndex === (test.parts?.length || 1) - 1 ? (
-            <button
-              onClick={() => handleSubmit(false)}
-              disabled={submitting}
-              className="flex items-center gap-2 px-6 py-2 text-sm font-bold bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-lg shadow-md disabled:from-slate-400 disabled:to-slate-400 transition-all border-2 border-transparent"
-            >
-              {submitting ? 'Processing...' : 'Finish Section'}
-              <Send size={16} />
-            </button>
-          ) : (
-            <button
-              onClick={nextPart}
-              disabled={currentPartIndex === (test.parts?.length || 1) - 1}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg disabled:opacity-30 disabled:hover:bg-transparent transition-all border-2 border-transparent hover:border-indigo-200"
-            >
-              Next
-              <ChevronRight size={18} />
-            </button>
-          )}
+          {/* 🔥 RIGHT: PHÂN TÁCH LOGIC SUBMIT & NEXT RÕ RÀNG */}
+          <div>
+            {isLastPart ? (
+              // NẾU LÀ PART CUỐI CÙNG
+              isFullTestMode ? (
+                // 🔵 Chế độ thi Full Test: Hiện nút Finish Section
+                <button
+                  onClick={() => handleSubmit(false)}
+                  disabled={submitting}
+                  className="flex items-center gap-2 px-6 py-2 text-sm font-bold bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-lg shadow-md disabled:from-slate-400 disabled:to-slate-400 transition-all border-2 border-transparent"
+                >
+                  {submitting ? 'Processing...' : 'Finish Section'}
+                  <Send size={16} />
+                </button>
+              ) : (
+                // 🟢 Chế độ Practice thông thường: Hiện nút Submit Test (Màu Xanh Ngọc)
+                <button
+                  onClick={() => handleSubmit(false)}
+                  disabled={submitting}
+                  className="flex items-center gap-2 px-6 py-2 text-sm font-bold bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow-md disabled:from-slate-400 disabled:to-slate-400 transition-all border-2 border-transparent"
+                >
+                  {submitting ? 'Submitting...' : 'Submit Test'}
+                  <Send size={16} />
+                </button>
+              )
+            ) : (
+              // NẾU CHƯA PHẢI LÀ PART CUỐI CÙNG -> Hiển thị nút NEXT
+              <button
+                onClick={nextPart}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all border-2 border-transparent hover:border-indigo-200"
+              >
+                Next
+                <ChevronRight size={18} />
+              </button>
+            )}
+          </div>
 
         </div>
       </footer>
