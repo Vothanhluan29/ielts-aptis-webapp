@@ -2,20 +2,15 @@ import React from 'react';
 import MultipleChoiceDisplay from './MultipleChoiceDisplay';
 import TrueFalseDisplay from './TrueFalseDisplay';
 import FillInBlankDisplay from './FillInBlankDisplay';
+import MatchingDisplay from './MatchingDisplay'; // 🔥 Import component mới
 
 const StudentQuestionDisplay = ({ question, currentAnswer, onAnswerChange }) => {
   if (!question) return null;
 
   switch (question.question_type) {
-    // 🔥 NHÓM TRẮC NGHIỆM & NỐI THÔNG TIN (Dùng cho cả Reading & Listening)
+    // 🔥 NHÓM TRẮC NGHIỆM CHỌN A, B, C, D
     case 'MULTIPLE_CHOICE':
     case 'MULTIPLE_ANSWER':
-    case 'MATCHING_HEADINGS':
-    case 'MATCHING_FEATURES':
-    case 'MATCHING_PARAGRAPH_INFORMATION':
-    case 'MATCHING':
-    case 'MAP_PLAN_LABELING':
-    case 'DIAGRAM_LABELING':
       return (
         <MultipleChoiceDisplay 
           question={question} 
@@ -23,8 +18,23 @@ const StudentQuestionDisplay = ({ question, currentAnswer, onAnswerChange }) => 
           onAnswerChange={onAnswerChange} 
         />
       );
+
+    // 🔥 NHÓM NỐI THÔNG TIN (SỬ DỤNG DROPDOWN)
+    case 'MATCHING_HEADINGS':
+    case 'MATCHING_FEATURES':
+    case 'MATCHING_PARAGRAPH_INFORMATION':
+    case 'MATCHING':
+    case 'MAP_PLAN_LABELING': // Dạng MAP IELTS thường cũng chọn A, B, C, D từ danh sách
+    case 'DIAGRAM_LABELING':
+      return (
+        <MatchingDisplay 
+          question={question} 
+          currentAnswer={currentAnswer} 
+          onAnswerChange={onAnswerChange} 
+        />
+      );
       
-    // 🔥 NHÓM ĐÚNG/SAI/KHÔNG CÓ THÔNG TIN (Chủ yếu dùng cho Reading)
+    // 🔥 NHÓM ĐÚNG/SAI/KHÔNG CÓ THÔNG TIN
     case 'TRUE_FALSE_NOT_GIVEN':
     case 'YES_NO_NOT_GIVEN':
       return (
@@ -35,7 +45,7 @@ const StudentQuestionDisplay = ({ question, currentAnswer, onAnswerChange }) => 
         />
       );
       
-    // 🔥 NHÓM ĐIỀN TỪ (Dùng rất nhiều trong Listening & Reading)
+    // 🔥 NHÓM ĐIỀN TỪ 
     case 'SENTENCE_COMPLETION':
     case 'SUMMARY_COMPLETION':
     case 'FORM_COMPLETION':
@@ -52,7 +62,6 @@ const StudentQuestionDisplay = ({ question, currentAnswer, onAnswerChange }) => 
       );
       
     default:
-      // Mặc định an toàn: Nếu vô tình có type lạ, hệ thống vẫn cho phép gõ text
       return (
         <FillInBlankDisplay 
           question={question} 
