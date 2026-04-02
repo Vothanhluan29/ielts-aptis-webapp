@@ -46,8 +46,8 @@ const GrammarVocabAptisListPage = () => {
           tagColor: 'success',
           text: 'Completed',
           icon: <CheckCircle size={14} className="mr-1" />,
-          mainBtnText: 'View Result',
-          mainBtnAction: () => navigate(`/aptis/grammar-vocab/result/${testId}`),
+          mainBtnText: 'View History',
+          mainBtnAction: () => navigate(`/aptis/grammar-vocab/history`),
           showRetry: true
         };
       case 'NOT_STARTED':
