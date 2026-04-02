@@ -94,7 +94,7 @@ const AptisAudioPlayer = ({ src }) => {
             Plays remaining: {playsLeft}
           </Tag>
         </div>
-        {/* 🔥 FIX WARNING: trailColor đổi thành railColor */}
+        {/* Đã sửa trailColor thành railColor để tránh warning */}
         <Progress 
           percent={isLocked ? 100 : progress} 
           showInfo={false} 
@@ -131,15 +131,13 @@ const ListeningAptisExamPage = ({
   const answersRef = useRef(answers);
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
-  // 🔥 THE ULTIMATE FIX: HÀM XỬ LÝ ĐÁP ÁN HOÀN HẢO
+  // HÀM XỬ LÝ ĐÁP ÁN
   const handleAnswerChange = (qKey, incomingValue) => {
-    // 1. Kiểm tra xem incomingValue có phải là React Event object (e) không?
     let finalValue = incomingValue;
     if (incomingValue && incomingValue.target && incomingValue.target.value !== undefined) {
       finalValue = incomingValue.target.value;
     }
     
-    // 2. Ép kiểu về String để Database hiểu
     const stringValue = String(finalValue).trim();
 
     setAnswers(prev => {
@@ -149,7 +147,7 @@ const ListeningAptisExamPage = ({
     });
   };
 
-  // --- FETCH DỮ LIỆU ĐỀ THI ---
+  // FETCH DỮ LIỆU ĐỀ THI
   useEffect(() => {
     const fetchTest = async () => {
       try {
@@ -181,7 +179,7 @@ const ListeningAptisExamPage = ({
   const activePart = parts.find(p => p.id === currentPartId);
   const currentTabIndex = parts.findIndex(p => p.id === currentPartId);
 
-  // --- HÀM SUBMIT BÀI THI ---
+  // HÀM SUBMIT BÀI THI
   const handleSubmit = async (isAutoSubmit = false) => {
     if (submitting) return;
     try {
@@ -192,7 +190,6 @@ const ListeningAptisExamPage = ({
         message.loading({ content: 'Submitting Listening test...', key: 'submit' });
       }
 
-      // Chỉ lấy các đáp án có giá trị thực sự
       const cleanedAnswers = {};
       Object.entries(answersRef.current).forEach(([key, val]) => {
         if (val && val !== 'undefined' && val !== 'null' && val.trim() !== '') {
@@ -224,7 +221,7 @@ const ListeningAptisExamPage = ({
     }
   };
 
-  // --- ĐẾM NGƯỢC THỜI GIAN ---
+  // ĐẾM NGƯỢC THỜI GIAN
   useEffect(() => {
     if (loading || submitting || timeLeft <= 0) {
       if (timeLeft <= 0 && !loading && !submitting && testDetail) handleSubmit(true);
@@ -256,7 +253,7 @@ const ListeningAptisExamPage = ({
     return `${m}:${s}`;
   };
 
-  // --- RENDER GIAO DIỆN ---
+  // RENDER GIAO DIỆN
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -368,8 +365,11 @@ const ListeningAptisExamPage = ({
                           questionText={q.question_text}
                           options={q.options}
                           selectedValue={answers[qKey]} 
-                          // 🔥 Bỏ truyền nhiều param, chỉ truyền 1 value duy nhất lên trên
-                          onChange={(val) => handleAnswerChange(qKey, val)} 
+                          // 🔥 BỘ LỌC THÔNG MINH CHO TẤT CẢ TRƯỜNG HỢP TRUYỀN PARAM
+                          onChange={(arg1, arg2) => {
+                            const val = arg2 !== undefined ? arg2 : arg1;
+                            handleAnswerChange(qKey, val);
+                          }} 
                         />
                       );
                     } else {
@@ -381,8 +381,11 @@ const ListeningAptisExamPage = ({
                           questionText={q.question_text}
                           options={q.options}
                           selectedValue={answers[qKey]} 
-                          // 🔥 Bỏ truyền nhiều param, chỉ truyền 1 value duy nhất lên trên
-                          onChange={(val) => handleAnswerChange(qKey, val)} 
+                          // 🔥 BỘ LỌC THÔNG MINH CHO TẤT CẢ TRƯỜNG HỢP TRUYỀN PARAM
+                          onChange={(arg1, arg2) => {
+                            const val = arg2 !== undefined ? arg2 : arg1;
+                            handleAnswerChange(qKey, val);
+                          }} 
                         />
                       );
                     }
