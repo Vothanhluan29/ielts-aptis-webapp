@@ -1,44 +1,26 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { Card, Button, Tag, Typography, Row, Col, Skeleton, Empty, Space, Radio } from 'antd';
-import { ReadOutlined } from '@ant-design/icons'; // ✅ Ant Design Icon
-import { 
-  Clock, CheckCircle, 
-  AlertCircle, ArrowRight, History, RotateCcw 
-} from 'lucide-react';
+import { ReadOutlined } from '@ant-design/icons';
+import { Clock, CheckCircle, AlertCircle, ArrowRight, History, RotateCcw } from 'lucide-react';
 
-import grammarVocabAptisStudentApi from '../../../api/APTIS/grammar_vocab/grammarvocabAptisStudentApi';
+// Nhúng Custom Hook vào
+import { useGrammarVocabAptisList } from './useGrammarVocabAptisList';
 
 const { Title, Paragraph, Text } = Typography;
 
 const GrammarVocabAptisListPage = () => {
-  const navigate = useNavigate();
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  const [filterStatus, setFilterStatus] = useState('ALL'); 
+  // 🔥 Rút trích dữ liệu và hàm xử lý từ Hook
+  const { 
+    loading, 
+    filterStatus, 
+    setFilterStatus, 
+    filteredTests, 
+    handleNavigateHistory, 
+    handleNavigateLobby, 
+    handleNavigateRetry 
+  } = useGrammarVocabAptisList();
 
-  useEffect(() => {
-    fetchTests();
-  }, []);
-
-  const fetchTests = async () => {
-    try {
-      setLoading(true);
-      const response = await grammarVocabAptisStudentApi.getAllTests({ skip: 0, limit: 100 });
-      setTests(response || []);
-    } catch (error) {
-      console.error("Error fetching Grammar & Vocabulary test list:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredTests = useMemo(() => {
-    if (filterStatus === 'ALL') return tests;
-    return tests.filter(test => test.status === filterStatus);
-  }, [tests, filterStatus]);
-
+  // 🔥 Hàm tính toán giao diện dựa trên status
   const getStatusConfig = (status, testId) => {
     switch (status) {
       case 'GRADED':
@@ -47,7 +29,7 @@ const GrammarVocabAptisListPage = () => {
           text: 'Completed',
           icon: <CheckCircle size={14} className="mr-1" />,
           mainBtnText: 'View History',
-          mainBtnAction: () => navigate(`/aptis/grammar-vocab/history`),
+          mainBtnAction: handleNavigateHistory, // Tránh lỗi 404 bằng cách đưa về lịch sử
           showRetry: true
         };
       case 'NOT_STARTED':
@@ -57,7 +39,7 @@ const GrammarVocabAptisListPage = () => {
           text: 'Not Started',
           icon: <AlertCircle size={14} className="mr-1" />,
           mainBtnText: 'Start Now',
-          mainBtnAction: () => navigate(`/aptis/grammar-vocab/lobby/${testId}`),
+          mainBtnAction: () => handleNavigateLobby(testId),
           showRetry: false
         };
     }
@@ -70,7 +52,6 @@ const GrammarVocabAptisListPage = () => {
       <div className="mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         
         <div className="flex items-center gap-4">
-          
           {/* ICON */}
           <div className="p-4 bg-emerald-500 text-white rounded-2xl shadow-lg shadow-emerald-200 flex items-center justify-center">
             <ReadOutlined style={{ fontSize: 32 }} />
@@ -87,7 +68,6 @@ const GrammarVocabAptisListPage = () => {
         </div>
 
         <Space size="middle" wrap>
-
           <Radio.Group 
             value={filterStatus} 
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -102,12 +82,11 @@ const GrammarVocabAptisListPage = () => {
 
           <Button 
             icon={<History size={18} />} 
-            onClick={() => navigate('/aptis/grammar-vocab/history')}
+            onClick={handleNavigateHistory}
             className="flex items-center gap-2 rounded-lg font-bold border-slate-200 hover:text-emerald-600 shadow-sm h-10"
           >
             History
           </Button>
-
         </Space>
       </div>
 
@@ -166,7 +145,6 @@ const GrammarVocabAptisListPage = () => {
                   </div>
 
                   <div className="flex flex-col gap-2">
-
                     <Button 
                       type={test.status === 'NOT_STARTED' ? 'primary' : 'default'}
                       size="large"
@@ -186,12 +164,11 @@ const GrammarVocabAptisListPage = () => {
                         icon={<RotateCcw size={16} />}
                         block
                         className="h-11 rounded-xl font-semibold text-slate-500 border-slate-200 hover:text-orange-500 hover:border-orange-500"
-                        onClick={() => navigate(`/aptis/grammar-vocab/taking/${test.id}`)}
+                        onClick={() => handleNavigateRetry(test.id)}
                       >
                         Retry Test
                       </Button>
                     )}
-
                   </div>
 
                 </Card>
