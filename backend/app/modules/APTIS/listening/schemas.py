@@ -163,7 +163,7 @@ class ListeningTestListItem(BaseModel):
 
 class SubmitAnswer(BaseModel):
     test_id: int
-    answers: Dict[str, str] = Field(default_factory=dict)
+    user_answers: Dict[str, str] = Field(default_factory=dict)
     is_full_test_only: bool = False
 
 class ResultDetailItem(BaseModel):

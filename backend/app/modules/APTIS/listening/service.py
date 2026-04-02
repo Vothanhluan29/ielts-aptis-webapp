@@ -267,7 +267,6 @@ class AptisListeningService:
         test = db.query(AptisListeningTest).filter(AptisListeningTest.id == submission_in.test_id).first()
         if not test: return None
 
-        # 🔥 SỬA Ở ĐÂY: Thêm .order_by(AptisListeningQuestion.question_number) để chốt đúng thứ tự 1, 2, 3...
         questions = (
             db.query(AptisListeningQuestion)
             .join(AptisListeningQuestionGroup)
@@ -280,21 +279,27 @@ class AptisListeningService:
 
         correct_count = 0
         detailed_results = []
-        user_answers_map = {str(k): v for k, v in submission_in.answers.items()}
+        
+        # 🔥 FIX 1: Đổi .answers thành .user_answers để khớp 100% với Frontend và Model DB
+        incoming_answers = getattr(submission_in, 'user_answers', None) or getattr(submission_in, 'answers', {})
+        user_answers_map = {str(k): v for k, v in incoming_answers.items()}
 
         for q in questions:
             q_id = str(q.id)
             q_num = str(q.question_number)
             
-            # Ưu tiên lấy theo ID (chuẩn React), nếu không có thì lấy theo số thứ tự (cho Swagger)
             user_ans = user_answers_map.get(q_id)
             if user_ans is None:
                 user_ans = user_answers_map.get(q_num, "")
             
             norm_user = AptisListeningService.normalize_answer(user_ans)
             norm_correct = AptisListeningService.normalize_answer(q.correct_answer)
-            possible_answers = [ans.strip() for ans in norm_correct.split('|')]
-            is_correct = norm_user in possible_answers
+            
+            # 🔥 FIX 2: Bịt lỗ hổng tặng điểm. Nếu 1 trong 2 cái trống -> Auto Sai!
+            is_correct = False
+            if norm_user and norm_correct:
+                possible_answers = [ans.strip() for ans in norm_correct.split('|')]
+                is_correct = norm_user in possible_answers
             
             if is_correct: correct_count += 1
             
@@ -308,13 +313,12 @@ class AptisListeningService:
                 "explanation": q.explanation
             })
         
-        # Gọi hàm tính điểm mới
         scoring_result = AptisListeningService.calculate_aptis_score_and_cefr(correct_count, len(questions))
 
         db_submission = AptisListeningSubmission(
             user_id=user_id,
             test_id=submission_in.test_id,
-            user_answers=submission_in.answers,
+            user_answers=incoming_answers, # 🔥 Đã fix lưu đúng Dict
             correct_count=correct_count,
             score=scoring_result["score"],
             cefr_level=scoring_result["cefr_level"],
@@ -328,16 +332,14 @@ class AptisListeningService:
         return schemas.SubmissionDetail(
             id=db_submission.id,
             test_id=db_submission.test_id,
-            test={"id": test.id, "title": test.title, "description": test.description}, # 🔥 ĐÃ THÊM
+            test={"id": test.id, "title": test.title, "description": test.description},
             user_id=db_submission.user_id,
             status=db_submission.status,
             is_full_test_only=db_submission.is_full_test_only,
-            
             correct_count=db_submission.correct_count,
             score=db_submission.score,
             cefr_level=db_submission.cefr_level,
             total_questions=len(questions),
-            
             submitted_at=db_submission.submitted_at,
             user_answers=db_submission.user_answers,
             results=detailed_results
@@ -396,7 +398,7 @@ class AptisListeningService:
             norm_user = AptisListeningService.normalize_answer(user_ans)
             norm_correct = AptisListeningService.normalize_answer(q.correct_answer)
             possible = [ans.strip() for ans in norm_correct.split('|')]
-            is_correct = norm_user in possible
+            is_correct =False
 
             detailed_results.append({
                 "id": q.id,
