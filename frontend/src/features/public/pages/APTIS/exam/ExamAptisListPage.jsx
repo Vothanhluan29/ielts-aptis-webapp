@@ -1,193 +1,277 @@
 import React from 'react';
-import { Card, Button, Tag, Typography, Row, Col, Skeleton, Empty, Space, Radio } from 'antd';
 import { 
-  Clock, CheckCircle, AlertCircle, ArrowRight, 
-  History, RotateCcw, ClipboardList, RefreshCw 
-} from 'lucide-react';
+  Table, Tag, Space, Typography, Card, Row, Col, 
+  Statistic, Button, Empty, Spin 
+} from 'antd';
+import { 
+  HistoryOutlined, 
+  FileTextOutlined, 
+  EyeOutlined,
+  CalendarOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  ArrowLeftOutlined,
+  PlayCircleOutlined,
+  SyncOutlined
+} from '@ant-design/icons';
+import dayjs from 'dayjs';
 
-// Gọi Custom Hook vào
-import { useExamAptisList } from './useExamAptisList';
+// Gọi Custom Hook
+import { useExamAptisHistory } from '../../../hooks/APTIS/exam/useExamAptisHistory';
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Text } = Typography;
 
-const ExamAptisListPage = () => {
-  // 🔥 Lấy toàn bộ "Não bộ" từ Hook
+const ExamAptisHistoryPage = () => {
+  // 🔥 Lấy toàn bộ data và function từ Hook
   const { 
     loading, 
-    filterStatus, 
-    setFilterStatus, 
-    filteredTests, 
-    handleNavigateLobby, 
-    handleNavigateResult, 
-    handleNavigateHistory 
-  } = useExamAptisList();
+    historyData, 
+    stats, 
+    handleGoBack, 
+    handleViewResult, 
+    handleResumeTest 
+  } = useExamAptisHistory();
 
-  // 🔥 Cấu hình giao diện và hành động dựa trên status
-  const getStatusConfig = (test) => {
-    const status = test.user_status || 'NOT_STARTED';
-    const testId = test.id;
-    const subId = test.exam_submission_id || testId; 
+  // Cấu hình cột của bảng (Đẩy các hàm điều hướng từ Hook vào)
+  const columns = [
+    {
+      title: 'Test',
+      dataIndex: 'full_test',
+      key: 'test_title',
+      render: (fullTest) => <Text strong className="text-slate-800">{fullTest?.title || 'Aptis Full Mock Test'}</Text>,
+    },
+    {
+      title: 'Start Time',
+      dataIndex: 'start_time',
+      key: 'start_time',
+      sorter: (a, b) => new Date(a.start_time) - new Date(b.start_time),
+      render: (time) => (
+        <Space>
+          <CalendarOutlined className="text-slate-400" />
+          <Text className="text-slate-600 font-medium">{time ? dayjs(time).format('DD/MM/YYYY HH:mm') : 'N/A'}</Text>
+        </Space>
+      ),
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => {
+        if (['GRADED', 'COMPLETED', 'FINISHED'].includes(status)) {
+          return <Tag color="success" icon={<CheckCircleOutlined />} className="font-bold border-0 bg-green-50 px-3 py-1 text-green-600 rounded-full">Completed</Tag>;
+        }
+        if (status === 'PENDING') {
+          return <Tag color="processing" icon={<SyncOutlined spin />} className="font-bold border-0 bg-blue-50 px-3 py-1 text-blue-600 rounded-full">Awaiting Review</Tag>;
+        }
+        if (status === 'IN_PROGRESS') {
+          return <Tag color="warning" icon={<ClockCircleOutlined />} className="font-bold border-0 bg-amber-50 px-3 py-1 text-amber-600 rounded-full">In Progress</Tag>;
+        }
+        return <Tag color="default" className="rounded-full px-3 py-1">{status}</Tag>;
+      },
+    },
+    {
+      title: 'Score',
+      key: 'score',
+      align: 'center',
+      render: (_, record) => {
+        if (record.status === 'PENDING') {
+          return (
+            <div className="flex flex-col items-center">
+              <Text strong style={{ color: '#f59e0b', fontSize: 16 }}>{record.overall_score || 0}/250</Text>
+              <Text type="secondary" style={{ fontSize: 11, fontWeight: 600 }}>Partial Score</Text>
+            </div>
+          );
+        }
+        if (['GRADED', 'COMPLETED', 'FINISHED'].includes(record.status)) {
+          return <Text strong style={{ color: '#16a34a', fontSize: 16 }}>{record.overall_score || 0}/250</Text>;
+        }
+        return <Text type="secondary">--</Text>;
+      },
+    },
+    {
+      title: 'CEFR Level',
+      dataIndex: 'overall_cefr_level',
+      key: 'cefr_level',
+      align: 'center',
+      render: (level, record) => {
+        if (record.status === 'PENDING') {
+          return <Tag color="orange" className="font-bold rounded-lg border-0 bg-amber-50">Pending</Tag>;
+        }
+        return ['GRADED', 'COMPLETED', 'FINISHED'].includes(record.status) && level ? (
+          <Tag color="blue" className="font-bold rounded-lg border-0 bg-indigo-50 text-indigo-600 px-3">{level}</Tag>
+        ) : <Text type="secondary">--</Text>;
+      }
+    },
+    {
+      title: 'Action',
+      key: 'action',
+      align: 'right',
+      render: (_, record) => {
+        if (['GRADED', 'COMPLETED', 'FINISHED', 'PENDING'].includes(record.status)) {
+          return (
+            <Button 
+              type="primary" 
+              ghost 
+              icon={<EyeOutlined />} 
+              onClick={() => handleViewResult(record.id)}
+              className="font-semibold rounded-lg"
+            >
+              View Result
+            </Button>
+          );
+        }
+        if (record.status === 'IN_PROGRESS') {
+          return (
+            <Button 
+              type="primary" 
+              icon={<PlayCircleOutlined />} 
+              onClick={() => handleResumeTest(record.full_test_id)}
+              style={{ backgroundColor: '#faad14', borderColor: '#faad14' }}
+              className="font-semibold rounded-lg shadow-sm"
+            >
+              Resume Test
+            </Button>
+          );
+        }
+        return null;
+      },
+    },
+  ];
 
-    if (['GRADED', 'COMPLETED', 'FINISHED'].includes(status)) {
-      return {
-        tagColor: 'success',
-        text: 'Completed',
-        icon: <CheckCircle size={14} className="mr-1" />,
-        mainBtnText: 'View Result',
-        mainBtnAction: () => handleNavigateResult(subId),
-        btnClass: 'text-indigo-600 border-indigo-200 hover:bg-indigo-50',
-        showRetry: true 
-      };
-    } else if (status === 'IN_PROGRESS') {
-      return {
-        tagColor: 'warning',
-        text: 'In Progress',
-        icon: <RefreshCw size={14} className="mr-1" />,
-        mainBtnText: 'Resume Test',
-        mainBtnAction: () => handleNavigateLobby(testId),
-        btnClass: 'bg-amber-500 hover:bg-amber-400 border-none text-white',
-        showRetry: false
-      };
-    } else {
-      return {
-        tagColor: 'purple',
-        text: 'Not Started',
-        icon: <AlertCircle size={14} className="mr-1" />,
-        mainBtnText: 'Start Now',
-        mainBtnAction: () => handleNavigateLobby(testId),
-        btnClass: 'bg-indigo-600 hover:bg-indigo-500 border-none text-white',
-        showRetry: false
-      };
-    }
-  };
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '100px' }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 animate-in fade-in duration-500">
-      
-      {/* ================= HEADER SECTION ================= */}
-      <div className="mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-        
-        <div className="flex items-center gap-4">
-          <div className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-200 flex items-center justify-center">
-            <ClipboardList size={32} strokeWidth={2} />
-          </div>
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px' }} className="font-sans">
 
+      {/* BACK BUTTON */}
+      <button
+        onClick={handleGoBack}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '8px 20px',
+          borderRadius: 999,
+          border: '1px solid #e2e8f0',
+          background: '#fff',
+          color: '#475569',
+          fontWeight: 600,
+          cursor: 'pointer',
+          transition: 'all 0.2s',
+          marginBottom: 24,
+        }}
+        onMouseOver={(e) => { e.currentTarget.style.color = '#4f46e5'; e.currentTarget.style.borderColor = '#c7d2fe'; e.currentTarget.style.background = '#f8fafc'; }}
+        onMouseOut={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#fff'; }}
+      >
+        <ArrowLeftOutlined />
+        Back to Exam List
+      </button>
+
+      {/* HEADER SECTION */}
+      <div style={{ marginBottom: 32 }}>
+        <Space align="center" style={{ marginBottom: 16 }}>
+          <div style={{ padding: 12, background: '#4f46e5', borderRadius: 14, display: 'flex', boxShadow: '0 4px 14px rgba(79,70,229,0.3)' }}>
+            <HistoryOutlined style={{ fontSize: 24, color: '#fff' }} />
+          </div>
           <div>
-            <Title level={2} style={{ margin: 0, fontWeight: 800, color: '#1e293b' }}>
-              Aptis Full Mock Test
+            <Title level={2} style={{ margin: 0, color: '#1e293b', fontWeight: 800 }}>
+              Full Mock Test History
             </Title>
-            <Text className="text-slate-500 font-medium">
-              Comprehensive 5-skill assessment based on the British Council structure
+            <Text type="secondary" className="text-slate-500 font-medium text-base">
+              Track your progress and review your comprehensive exam submissions
             </Text>
           </div>
-        </div>
-
-        <Space size="middle" wrap>
-          <Radio.Group 
-            value={filterStatus} 
-            onChange={(e) => setFilterStatus(e.target.value)}
-            optionType="button"
-            buttonStyle="solid"
-            className="custom-radio-group"
-          >
-            <Radio.Button value="ALL">All</Radio.Button>
-            <Radio.Button value="NOT_STARTED">Not Started</Radio.Button>
-            <Radio.Button value="IN_PROGRESS">In Progress</Radio.Button>
-            <Radio.Button value="COMPLETED">Completed</Radio.Button>
-          </Radio.Group>
-
-          <Button 
-            icon={<History size={18} />} 
-            onClick={handleNavigateHistory}
-            className="flex items-center gap-2 rounded-lg font-bold border-slate-200 hover:text-indigo-600 shadow-sm h-10"
-          >
-            History
-          </Button>
         </Space>
       </div>
 
-      {/* ================= CONTENT SECTION ================= */}
-      {loading ? (
-        <Row gutter={[24, 24]}>
-          {[1, 2, 3].map((i) => (
-            <Col xs={24} md={12} lg={8} key={i}>
-              <Card className="rounded-3xl border-slate-100">
-                <Skeleton active paragraph={{ rows: 3 }} />
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      ) : filteredTests.length === 0 ? (
-        <Empty 
-          className="mt-20" 
-          description={
-            <Text type="secondary" style={{ fontSize: 16 }}>
-              No matching tests found.
-            </Text>
-          } 
-        />
-      ) : (
-        <Row gutter={[24, 24]}>
-          {filteredTests.map((test) => {
-            const config = getStatusConfig(test);
-            
-            return (
-              <Col xs={24} md={12} lg={8} key={test.id}>
-                <Card 
-                  hoverable
-                  className="h-full flex flex-col rounded-3xl border-slate-200 shadow-sm transition-all duration-300 hover:shadow-indigo-100/60 hover:border-indigo-200"
-                  styles={{ body: { display: 'flex', flexDirection: 'column', height: '100%', padding: '24px' } }}
-                >
+      {/* STATS SECTION */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
+        <Col xs={24} sm={6}>
+          <Card variant="borderless" style={{ borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #f1f5f9' }}>
+            <Statistic 
+              title={<span className="text-slate-500 font-bold uppercase text-xs tracking-wider">Total Submissions</span>}
+              value={stats.total} 
+              prefix={<FileTextOutlined className="text-indigo-500" />} 
+              valueStyle={{ fontWeight: 800, color: '#1e293b' }}
+            />
+          </Card>
+        </Col>
 
-                  <div className="flex justify-between items-center mb-4">
-                    <Tag color={config.tagColor} className="flex items-center gap-1 px-3 py-1 m-0 rounded-lg font-bold border-0">
-                      {config.icon} {config.text}
-                    </Tag>
+        <Col xs={24} sm={6}>
+          <Card variant="borderless" style={{ borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #fcfdfd', background: '#f0fdf4' }}>
+            <Statistic 
+              title={<span className="text-green-600 font-bold uppercase text-xs tracking-wider">Completed</span>}
+              value={stats.completed} 
+              prefix={<CheckCircleOutlined className="text-green-500" />} 
+              valueStyle={{ fontWeight: 800, color: '#16a34a' }}
+            />
+          </Card>
+        </Col>
 
-                    <Space className="text-slate-400 text-xs font-bold bg-slate-50 px-2 py-1 rounded-md">
-                      <Clock size={12} /> {test.time_limit || 160} Minutes
-                    </Space>
-                  </div>
+        <Col xs={24} sm={6}>
+          <Card variant="borderless" style={{ borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #fefce8', background: '#fffbeb' }}>
+            <Statistic 
+              title={<span className="text-amber-600 font-bold uppercase text-xs tracking-wider">Pending Review</span>}
+              value={stats.pending} 
+              prefix={<SyncOutlined spin className="text-amber-500" />} 
+              valueStyle={{ fontWeight: 800, color: '#d97706' }}
+            />
+          </Card>
+        </Col>
 
-                  <div className="flex-1 mb-6">
-                    <Title level={4} className="line-clamp-1" style={{ marginTop: 0, marginBottom: 8, fontWeight: 800 }}>
-                      {test.title}
-                    </Title>
+        <Col xs={24} sm={6}>
+          <Card variant="borderless" style={{ borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #f8fafc' }}>
+            <Statistic 
+              title={<span className="text-slate-500 font-bold uppercase text-xs tracking-wider">In Progress</span>}
+              value={stats.inProgress} 
+              prefix={<ClockCircleOutlined className="text-slate-400" />} 
+              valueStyle={{ fontWeight: 800, color: '#475569' }}
+            />
+          </Card>
+        </Col>
+      </Row>
 
-                    <Paragraph className="text-slate-500 line-clamp-2 m-0" style={{ fontSize: 13 }}>
-                      {test.description || 'This full mock test evaluates your comprehensive English proficiency across 5 skills: Grammar & Vocab, Reading, Listening, Writing, and Speaking.'}
-                    </Paragraph>
-                  </div>
+      {/* TABLE SECTION */}
+      <Card 
+        variant="borderless" 
+        style={{ borderRadius: 20, boxShadow: '0 4px 24px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9' }}
+        styles={{ body: { padding: '24px' } }}
+      >
+        {historyData.length > 0 ? (
+          <Table 
+            columns={columns} 
+            dataSource={historyData} 
+            rowKey="id"
+            pagination={{ pageSize: 10, position: ['bottomCenter'] }}
+            className="custom-table font-medium"
+            scroll={{ x: 'max-content' }}
+          />
+        ) : (
+          <Empty 
+            image={Empty.PRESENTED_IMAGE_SIMPLE} 
+            description={<span className="text-slate-500 font-medium">You have not taken any full mock tests yet.</span>}
+          >
+            <Button 
+              type="primary" 
+              size="large"
+              onClick={handleGoBack}
+              style={{ backgroundColor: '#4f46e5', borderRadius: 12, fontWeight: 700 }}
+              className="mt-2"
+            >
+              Start an Exam
+            </Button>
+          </Empty>
+        )}
+      </Card>
 
-                  <div className="flex flex-col gap-2">
-                    <Button 
-                      size="large"
-                      block
-                      onClick={config.mainBtnAction}
-                      className={`h-11 rounded-xl font-bold flex items-center justify-center gap-2 ${config.btnClass}`}
-                    >
-                      {config.mainBtnText} <ArrowRight size={18} />
-                    </Button>
-
-                    {config.showRetry && (
-                      <Button 
-                        icon={<RotateCcw size={16} />}
-                        block
-                        className="h-11 rounded-xl font-semibold text-slate-500 border-slate-200 hover:text-orange-500 hover:border-orange-500"
-                        onClick={() => handleNavigateLobby(test.id)}
-                      >
-                        Retry Test
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              </Col>
-            );
-          })}
-        </Row>
-      )}
     </div>
   );
 };
 
-export default ExamAptisListPage;
+export default ExamAptisHistoryPage;
