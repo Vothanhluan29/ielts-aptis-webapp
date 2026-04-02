@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
 import { Layout, Button, Typography, Spin, Space, Card, Divider, Alert, Row, Col } from 'antd';
 import { 
   PlayCircleOutlined, 
@@ -9,38 +8,22 @@ import {
   FileDoneOutlined
 } from '@ant-design/icons';
 import { BookOpen } from 'lucide-react';
-import grammarVocabAptisStudentApi from '../../../api/APTIS/grammar_vocab/grammarvocabAptisStudentApi';
 
-// Đã bỏ Header ra khỏi Layout vì không cần dùng nữa
+// Gọi Custom Hook vào
+import { useGrammarVocabLobby } from './useGrammarVocabLobby';
+
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
 
 const GrammarVocabLobbyPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(true);
-  const [testDetail, setTestDetail] = useState(null);
-
-  useEffect(() => {
-    const fetchTestDetail = async () => {
-      try {
-        setLoading(true);
-        const data = await grammarVocabAptisStudentApi.getTestDetail(id);
-        setTestDetail(data);
-      } catch (error) {
-        console.error("Error fetching test details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchTestDetail();
-  }, [id]);
-
-  const handleStartTest = () => {
-    // Navigate to the actual Exam page
-    navigate(`/aptis/grammar-vocab/taking/${id}`);
-  };
+  // 🔥 Rút toàn bộ Data và Hàm xử lý từ Hook
+  const { 
+    loading, 
+    testDetail, 
+    timeLimit, 
+    handleStartTest, 
+    handleGoBack 
+  } = useGrammarVocabLobby();
 
   if (loading) {
     return (
@@ -59,15 +42,13 @@ const GrammarVocabLobbyPage = () => {
         <Space orientation="vertical">
           <WarningOutlined style={{ fontSize: 48, color: '#faad14' }} />
           <Title level={4}>Test not found</Title>
-          <Button type="primary" onClick={() => navigate('/aptis/grammar-vocab')}>
+          <Button type="primary" onClick={handleGoBack}>
             Back to list
           </Button>
         </Space>
       </div>
     );
   }
-
-  const timeLimit = testDetail.time_limit || 25; // Default Aptis time is 25 minutes
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
@@ -169,7 +150,7 @@ const GrammarVocabLobbyPage = () => {
               
               <Button 
                 size="large" 
-                onClick={() => navigate('/aptis/grammar-vocab')}
+                onClick={handleGoBack}
                 style={{ 
                   height: 56, 
                   padding: '0 32px', 
