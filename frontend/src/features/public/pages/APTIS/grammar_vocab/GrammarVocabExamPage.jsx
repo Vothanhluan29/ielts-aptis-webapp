@@ -9,7 +9,7 @@ import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/Multiple
 // import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion';
 
 // Gọi Custom Hook
-import { useGrammarVocabExam, TABS } from './useGrammarVocabExam';
+import { useGrammarVocabExam, TABS } from '../../../hooks/APTIS/grammar_vocab/useGrammarVocabExam';
 
 const { Header, Content, Footer } = Layout;
 const { Text } = Typography;
