@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Spin, message, Steps, Modal, Typography, Button } from 'antd';
+import { Spin, Steps, Modal, Typography, Button } from 'antd';
 import { ClipboardList, BookOpen, Headphones, PenTool, Mic, ShieldAlert } from 'lucide-react';
 
-import examAptisStudentApi from '../../../api/APTIS/exam/examAptisStudentApi';
+// Nhúng Custom Hook vào
+import { useAptisExamFlow } from '../../../hooks/APTIS/exam/useExamAptisExam'; 
 
-// 🔥 IMPORT 5 INDIVIDUAL EXAM PAGES FOR DYNAMIC RENDERING
 import GrammarVocabExamPage from '../grammar_vocab/GrammarVocabExamPage';
 import ListeningAptisExamPage from '../listening/ListeningAptisExamPage';
 import ReadingAptisExamPage from '../reading/ReadingAptisExamPage';
@@ -14,8 +14,8 @@ import SpeakingAptisExamPage from '../speaking/SpeakingAptisExamPage';
 
 const { Title, Text } = Typography;
 
-// 🔥 APTIS EXAM FLOW ORDER
-const APTIS_STEPS = [
+// Mảng giao diện chứa Icon cho component Steps
+const APTIS_UI_STEPS = [
   { id: 'GRAMMAR_VOCAB', title: 'Grammar & Vocab', icon: <ClipboardList size={18} /> },
   { id: 'LISTENING', title: 'Listening', icon: <Headphones size={18} /> },
   { id: 'READING', title: 'Reading', icon: <BookOpen size={18} /> },
@@ -27,92 +27,15 @@ const ExamAptisExamPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
-  const [submission, setSubmission] = useState(null);
-  const [transitioning, setTransitioning] = useState(false);
-  const [transitionMsg, setTransitionMsg] = useState('Loading exam data...');
+  // 🔥 Gọi Hook để lấy State và Function
+  const { 
+    loading, 
+    submission, 
+    transitioning, 
+    transitionMsg, 
+    handleSkillFinish 
+  } = useAptisExamFlow(id);
 
-  useEffect(() => {
-    fetchCurrentProgress();
-
-    const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = '';
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [id]);
-
-const fetchCurrentProgress = async () => {
-    setLoading(true);
-    try {
-      const res = await examAptisStudentApi.getCurrentProgress(id);
-      const data = res.data || res;
-      
-      // 🔥 ĐÃ THÊM 'PENDING': Nếu bài thi đang chờ chấm hoặc đã chấm xong -> Đá về trang Result
-      if (['PENDING', 'GRADED', 'COMPLETED', 'FINISHED'].includes(data.status)) {
-        message.success("You have successfully submitted the Full Mock Test!");
-        navigate(`/aptis/exam/result/${id}`);
-        return;
-      }
-      
-      setSubmission(data);
-    } catch (error) {
-      console.error("Error fetching progress:", error);
-      message.error("Unable to load exam data!");
-      navigate('/aptis/exam');
-    } finally {
-      setLoading(false);
-      setTransitioning(false);
-    }
-  };
-
-  // 🔥 CRITICAL FUNCTION
-  const handleSkillFinish = async (skillSubmissionId) => {
-    if (!submission) return;
-
-    setTransitioning(true);
-
-    try {
-      const currentIndex = APTIS_STEPS.findIndex(
-        (s) => s.id === submission?.current_step
-      );
-
-      let nextStep = 'COMPLETED';
-      let nextTitle = 'Completing Exam';
-
-      if (currentIndex >= 0 && currentIndex < APTIS_STEPS.length - 1) {
-        nextStep = APTIS_STEPS[currentIndex + 1].id;
-        nextTitle = APTIS_STEPS[currentIndex + 1].title;
-      }
-
-      const currentTitle =
-        currentIndex >= 0 ? APTIS_STEPS[currentIndex].title : 'Current Section';
-
-      setTransitionMsg(
-        `Submitted ${currentTitle}. Transitioning to ${nextTitle}...`
-      );
-
-      await examAptisStudentApi.submitSkillStep({
-        exam_submission_id: Number(id),
-        current_step: submission.current_step,
-        next_step: nextStep,
-        skill_submission_id: skillSubmissionId,
-      });
-
-      await fetchCurrentProgress();
-    } catch (error) {
-      console.error("Error transitioning exam part:", error);
-      message.error("Error saving results. Please do not leave the page!");
-      setTransitioning(false);
-    }
-  };
-
-  // 🔥 DYNAMICALLY RENDER SKILL
   const renderCurrentSkill = () => {
     if (!submission) return null;
 
@@ -126,45 +49,15 @@ const fetchCurrentProgress = async () => {
 
     switch (safeStep) {
       case 'GRAMMAR_VOCAB':
-        return (
-          <GrammarVocabExamPage
-            {...commonProps}
-            testIdFromProps={fullTestObj?.grammar_vocab_test_id}
-          />
-        );
-
+        return <GrammarVocabExamPage {...commonProps} testIdFromProps={fullTestObj?.grammar_vocab_test_id} />;
       case 'LISTENING':
-        return (
-          <ListeningAptisExamPage
-            {...commonProps}
-            testIdFromProps={fullTestObj?.listening_test_id}
-          />
-        );
-
+        return <ListeningAptisExamPage {...commonProps} testIdFromProps={fullTestObj?.listening_test_id} />;
       case 'READING':
-        return (
-          <ReadingAptisExamPage
-            {...commonProps}
-            testIdFromProps={fullTestObj?.reading_test_id}
-          />
-        );
-
+        return <ReadingAptisExamPage {...commonProps} testIdFromProps={fullTestObj?.reading_test_id} />;
       case 'WRITING':
-        return (
-          <WritingAptisExamPage
-            {...commonProps}
-            testIdFromProps={fullTestObj?.writing_test_id}
-          />
-        );
-
+        return <WritingAptisExamPage {...commonProps} testIdFromProps={fullTestObj?.writing_test_id} />;
       case 'SPEAKING':
-        return (
-          <SpeakingAptisExamPage
-            {...commonProps}
-            testIdFromProps={fullTestObj?.speaking_test_id}
-          />
-        );
-
+        return <SpeakingAptisExamPage {...commonProps} testIdFromProps={fullTestObj?.speaking_test_id} />;
       default:
         return (
           <div className="flex flex-col items-center justify-center h-full text-center p-10 bg-white m-8 rounded-3xl shadow-sm border border-slate-200">
@@ -191,7 +84,7 @@ const fetchCurrentProgress = async () => {
     );
   }
 
-  const currentStepIndex = APTIS_STEPS.findIndex(
+  const currentStepIndex = APTIS_UI_STEPS.findIndex(
     (s) => s.id === submission?.current_step
   );
 
@@ -205,9 +98,7 @@ const fetchCurrentProgress = async () => {
           </div>
 
           <Text className="font-bold text-slate-700 hidden md:block">
-            {submission?.full_test?.title ||
-              submission?.test?.title ||
-              "Aptis Assessment"}
+            {submission?.full_test?.title || submission?.test?.title || "Aptis Assessment"}
           </Text>
         </div>
 
@@ -216,7 +107,7 @@ const fetchCurrentProgress = async () => {
           <Steps
             size="small"
             current={currentStepIndex !== -1 ? currentStepIndex : 0}
-            items={APTIS_STEPS.map((step) => ({
+            items={APTIS_UI_STEPS.map((step) => ({
               title: step.title,
               icon: step.icon,
             }))}
@@ -231,8 +122,7 @@ const fetchCurrentProgress = async () => {
           onClick={() => {
             Modal.confirm({
               title: 'Are you sure you want to exit?',
-              content:
-                'Your progress for the current part might not be fully saved. You can still return to continue later.',
+              content: 'Your progress for the current part might not be fully saved. You can still return to continue later.',
               okText: 'Exit Exam',
               cancelText: 'Continue',
               okButtonProps: { danger: true },
