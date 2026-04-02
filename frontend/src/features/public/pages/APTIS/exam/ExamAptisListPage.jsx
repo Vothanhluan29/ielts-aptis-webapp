@@ -1,51 +1,31 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { Card, Button, Tag, Typography, Row, Col, Skeleton, Empty, Space, Radio } from 'antd';
 import { 
-  Clock, CheckCircle, 
-  AlertCircle, ArrowRight, History, RotateCcw, 
-  ClipboardList, RefreshCw 
+  Clock, CheckCircle, AlertCircle, ArrowRight, 
+  History, RotateCcw, ClipboardList, RefreshCw 
 } from 'lucide-react';
 
-import examAptisStudentApi from '../../../api/APTIS/exam/examAptisStudentApi';
+// Gọi Custom Hook vào
+import { useExamAptisList } from './useExamAptisList';
 
 const { Title, Paragraph, Text } = Typography;
 
 const ExamAptisListPage = () => {
-  const navigate = useNavigate();
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  const [filterStatus, setFilterStatus] = useState('ALL'); 
+  // 🔥 Lấy toàn bộ "Não bộ" từ Hook
+  const { 
+    loading, 
+    filterStatus, 
+    setFilterStatus, 
+    filteredTests, 
+    handleNavigateLobby, 
+    handleNavigateResult, 
+    handleNavigateHistory 
+  } = useExamAptisList();
 
-  useEffect(() => {
-    fetchTests();
-  }, []);
-
-  const fetchTests = async () => {
-    try {
-      setLoading(true);
-      const response = await examAptisStudentApi.getLibraryTests();
-      setTests(response?.data || response || []);
-    } catch (error) {
-      console.error("Error fetching Aptis Full Test list:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 🔥 ĐÃ SỬA: Lọc dựa theo `user_status` thay vì `status`
-  const filteredTests = useMemo(() => {
-    if (filterStatus === 'ALL') return tests;
-    if (filterStatus === 'COMPLETED') return tests.filter(test => ['GRADED', 'COMPLETED', 'FINISHED'].includes(test.user_status));
-    return tests.filter(test => test.user_status === filterStatus);
-  }, [tests, filterStatus]);
-
-  // 🔥 ĐÃ SỬA: Cấu hình thông minh dùng user_status và exam_submission_id
+  // 🔥 Cấu hình giao diện và hành động dựa trên status
   const getStatusConfig = (test) => {
     const status = test.user_status || 'NOT_STARTED';
     const testId = test.id;
-    // Lấy submission id để xem kết quả, nếu không có thì fallback tạm về testId
     const subId = test.exam_submission_id || testId; 
 
     if (['GRADED', 'COMPLETED', 'FINISHED'].includes(status)) {
@@ -54,9 +34,9 @@ const ExamAptisListPage = () => {
         text: 'Completed',
         icon: <CheckCircle size={14} className="mr-1" />,
         mainBtnText: 'View Result',
-        mainBtnAction: () => navigate(`/aptis/exam/result/${subId}`), // Dẫn vào Result
+        mainBtnAction: () => handleNavigateResult(subId),
         btnClass: 'text-indigo-600 border-indigo-200 hover:bg-indigo-50',
-        showRetry: true // Hiện thêm nút làm lại
+        showRetry: true 
       };
     } else if (status === 'IN_PROGRESS') {
       return {
@@ -64,7 +44,7 @@ const ExamAptisListPage = () => {
         text: 'In Progress',
         icon: <RefreshCw size={14} className="mr-1" />,
         mainBtnText: 'Resume Test',
-        mainBtnAction: () => navigate(`/aptis/exam/lobby/${testId}`), // Dẫn vào Lobby
+        mainBtnAction: () => handleNavigateLobby(testId),
         btnClass: 'bg-amber-500 hover:bg-amber-400 border-none text-white',
         showRetry: false
       };
@@ -74,7 +54,7 @@ const ExamAptisListPage = () => {
         text: 'Not Started',
         icon: <AlertCircle size={14} className="mr-1" />,
         mainBtnText: 'Start Now',
-        mainBtnAction: () => navigate(`/aptis/exam/lobby/${testId}`), // Dẫn vào Lobby
+        mainBtnAction: () => handleNavigateLobby(testId),
         btnClass: 'bg-indigo-600 hover:bg-indigo-500 border-none text-white',
         showRetry: false
       };
@@ -88,8 +68,6 @@ const ExamAptisListPage = () => {
       <div className="mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         
         <div className="flex items-center gap-4">
-          
-          {/* ICON */}
           <div className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-200 flex items-center justify-center">
             <ClipboardList size={32} strokeWidth={2} />
           </div>
@@ -105,7 +83,6 @@ const ExamAptisListPage = () => {
         </div>
 
         <Space size="middle" wrap>
-
           <Radio.Group 
             value={filterStatus} 
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -121,17 +98,15 @@ const ExamAptisListPage = () => {
 
           <Button 
             icon={<History size={18} />} 
-            onClick={() => navigate('/aptis/exam/history')}
+            onClick={handleNavigateHistory}
             className="flex items-center gap-2 rounded-lg font-bold border-slate-200 hover:text-indigo-600 shadow-sm h-10"
           >
             History
           </Button>
-
         </Space>
       </div>
 
       {/* ================= CONTENT SECTION ================= */}
-
       {loading ? (
         <Row gutter={[24, 24]}>
           {[1, 2, 3].map((i) => (
@@ -154,7 +129,6 @@ const ExamAptisListPage = () => {
       ) : (
         <Row gutter={[24, 24]}>
           {filteredTests.map((test) => {
-            // 🔥 Truyền thẳng test object vào
             const config = getStatusConfig(test);
             
             return (
@@ -186,10 +160,7 @@ const ExamAptisListPage = () => {
                   </div>
 
                   <div className="flex flex-col gap-2">
-
-                    {/* NÚT MAIN (Start, Resume, hoặc View Result) */}
                     <Button 
-                      type={test.user_status === 'NOT_STARTED' || test.user_status === 'IN_PROGRESS' ? 'primary' : 'default'}
                       size="large"
                       block
                       onClick={config.mainBtnAction}
@@ -198,20 +169,17 @@ const ExamAptisListPage = () => {
                       {config.mainBtnText} <ArrowRight size={18} />
                     </Button>
 
-                    {/* NÚT RETRY (Chỉ hiện khi đã thi xong) */}
                     {config.showRetry && (
                       <Button 
                         icon={<RotateCcw size={16} />}
                         block
                         className="h-11 rounded-xl font-semibold text-slate-500 border-slate-200 hover:text-orange-500 hover:border-orange-500"
-                        onClick={() => navigate(`/aptis/exam/lobby/${test.id}`)}
+                        onClick={() => handleNavigateLobby(test.id)}
                       >
                         Retry Test
                       </Button>
                     )}
-
                   </div>
-
                 </Card>
               </Col>
             );
