@@ -94,7 +94,6 @@ const AptisAudioPlayer = ({ src }) => {
             Plays remaining: {playsLeft}
           </Tag>
         </div>
-        {/* Đã sửa trailColor thành railColor để tránh warning */}
         <Progress 
           percent={isLocked ? 100 : progress} 
           showInfo={false} 
@@ -204,8 +203,25 @@ const ListeningAptisExamPage = ({
       };
 
       const res = await listeningAptisStudentApi.submitTest(payload);
-      const submissionData = res.data || res;
       
+      // Lấy dữ liệu an toàn từ Axios response
+      let submissionData = res.data ? res.data : res;
+
+      // 🚀 LOG BẮT BỆNH LỖI NOT FOUND 🚀
+      console.log("=========================================");
+      console.log("🟢 1. RAW API SUBMIT RESPONSE:", res);
+      console.log("🟢 2. EXTRACTED SUBMISSION DATA:", submissionData);
+      console.log("🟢 3. ID SẼ CHUYỂN HƯỚNG ĐẾN:", submissionData?.id);
+      console.log("=========================================");
+
+      // CHỐT CHẶN AN TOÀN
+      if (!submissionData || !submissionData.id) {
+        console.error("❌ LỖI NGHIÊM TRỌNG: Backend trả về thành công nhưng không tìm thấy trường 'id' trong dữ liệu!");
+        message.error("Lỗi hệ thống: Không thể lấy ID bài nộp để hiển thị kết quả!");
+        setSubmitting(false);
+        return; // Dừng lại ở đây, không chuyển trang ảo nữa
+      }
+
       message.success({ content: 'Test submitted and graded successfully!', key: 'submit' });
       
       if (isFullTest && onSkillFinish) {
@@ -365,7 +381,6 @@ const ListeningAptisExamPage = ({
                           questionText={q.question_text}
                           options={q.options}
                           selectedValue={answers[qKey]} 
-                          // 🔥 BỘ LỌC THÔNG MINH CHO TẤT CẢ TRƯỜNG HỢP TRUYỀN PARAM
                           onChange={(arg1, arg2) => {
                             const val = arg2 !== undefined ? arg2 : arg1;
                             handleAnswerChange(qKey, val);
@@ -381,7 +396,6 @@ const ListeningAptisExamPage = ({
                           questionText={q.question_text}
                           options={q.options}
                           selectedValue={answers[qKey]} 
-                          // 🔥 BỘ LỌC THÔNG MINH CHO TẤT CẢ TRƯỜNG HỢP TRUYỀN PARAM
                           onChange={(arg1, arg2) => {
                             const val = arg2 !== undefined ? arg2 : arg1;
                             handleAnswerChange(qKey, val);

@@ -124,7 +124,7 @@ const ListeningAptisHistoryPage = () => {
           type="primary"
           icon={<EyeOutlined />}
           className="bg-blue-600 hover:bg-blue-500 border-none rounded-lg font-semibold shadow-md shadow-blue-200"
-          onClick={() => navigate(`/aptis/listening/result/${record.test_id}`)}
+          onClick={() => navigate(`/aptis/listening/result/${record.id}`)}
         >
           View Details
         </Button>

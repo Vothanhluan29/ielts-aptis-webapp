@@ -39,8 +39,8 @@ const ListeningAptisListPage = () => {
         return {
           tagColor: 'success', text: 'Completed',
           icon: <CheckCircle size={14} className="mr-1" />,
-          mainBtnText: 'View Result',
-          mainBtnAction: () => navigate(`/aptis/listening/result/${testId}`),
+          mainBtnText: 'View History',
+          mainBtnAction: () => navigate(`/aptis/listening/history`),
           showRetry: true
         };
       default:

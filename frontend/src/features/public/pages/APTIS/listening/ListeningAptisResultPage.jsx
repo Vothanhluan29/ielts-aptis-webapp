@@ -23,9 +23,18 @@ const safeParse = (data, defaultVal = {}) => {
   try { return JSON.parse(data); } catch { return defaultVal; }
 };
 
+// 🔥 TỐI ƯU 1: Dịch option mượt mà cho cả Array và Object
 const getOptionLabel = (optionsObj, key) => {
-  if (!key) return 'No answer selected';
+  if (!key || String(key).trim() === "") return 'No answer selected';
   const p = safeParse(optionsObj);
+  
+  if (Array.isArray(p)) {
+    const idx = parseInt(key);
+    // Nếu key là index (0, 1, 2), dịch thành A, B, C
+    if (!isNaN(idx) && p[idx]) return `${String.fromCharCode(65 + idx)}. ${p[idx]}`;
+    return key;
+  }
+  
   return p[key] ? `${key}. ${p[key]}` : key;
 };
 
@@ -41,11 +50,14 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
   const userAnswerKey = qResult?.user_answer;
   const correctAnswerRaw = qResult?.correct_answer || q.correct_answer;
   const isCorrect = qResult?.is_correct || false;
-  // Nếu userAnswerKey rỗng, null hoặc undefined thì coi như bỏ qua
-  const isSkipped = userAnswerKey === undefined || userAnswerKey === null || userAnswerKey === ""; 
+  
+  // 🔥 TỐI ƯU 2: Chống lỗi học viên nộp đáp án là khoảng trắng ("   ")
+  const isSkipped = userAnswerKey === undefined || userAnswerKey === null || String(userAnswerKey).trim() === ""; 
+  
   const explanation = qResult?.explanation || q.explanation;
   const parsedOptions = safeParse(q.options);
 
+  // 🔥 TỐI ƯU 3: Hiển thị đáp án đúng đẹp mắt (Convert 0,1,2 -> A,B,C nếu là Array)
   const getCorrectDisplay = () => {
     if (!correctAnswerRaw) return 'Answer not yet provided by system';
     if (parsedOptions[correctAnswerRaw]) return `${correctAnswerRaw}. ${parsedOptions[correctAnswerRaw]}`;
@@ -53,7 +65,15 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
     const found = Object.entries(parsedOptions).find(
       ([, v]) => String(v).trim().toLowerCase() === String(correctAnswerRaw).trim().toLowerCase()
     );
-    return found ? `${found[0]}. ${found[1]}` : correctAnswerRaw;
+    
+    if (found) {
+      if (Array.isArray(parsedOptions)) {
+         const letter = String.fromCharCode(65 + parseInt(found[0])); // 0 -> A
+         return `${letter}. ${found[1]}`;
+      }
+      return `${found[0]}. ${found[1]}`;
+    }
+    return correctAnswerRaw;
   };
 
   const accent = isCorrect ? '#10b981' : isSkipped ? '#94a3b8' : '#ef4444';
@@ -149,12 +169,6 @@ const ListeningAptisResultPage = () => {
         const detailsRes = await listeningAptisStudentApi.getSubmissionDetail(id);
         const subData = detailsRes.data || detailsRes;
         setSubmission(subData);
-
-        // 🚀 LOG 1: KIỂM TRA DATA BÀI NỘP TỪ API
-        console.log("=========================================");
-        console.log("🟢 1. API SUBMISSION DATA:", subData);
-        console.log("🟢 2. RESULTS ARRAY:", subData.results);
-        console.log("=========================================");
 
         if (subData?.test_id) {
           const testRes = await listeningAptisStudentApi.getTestDetail(subData.test_id);
@@ -404,14 +418,10 @@ const ListeningAptisResultPage = () => {
 
                     <div className="pl-2">
                       {group.questions?.map((q, idx) => {
-                        
-                        // 🚀 LOG 2: QUÁ TRÌNH TÌM KIẾM ĐÁP ÁN CHO TỪNG CÂU
                         const qResult = resultsArray.find(r => 
                           String(r.id) === String(q.id) || 
                           String(r.question_number) === String(q.question_number)
                         );
-                        
-                        console.log(`🔍 Tìm kết quả cho câu hỏi: [ID: ${q.id} | Q_NUM: ${q.question_number}]`, qResult);
 
                         return (
                           <QuestionReviewCard
