@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { 
   Table, Tag, Space, Typography, Card, Row, Col, 
-  Statistic, Button, Empty, Spin, message
+  Statistic, Button, Empty, Spin 
 } from 'antd';
 import { 
   HistoryOutlined, 
@@ -17,44 +16,23 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
-import examAptisStudentApi from '../../../api/APTIS/exam/examAptisStudentApi';
+// Gọi Custom Hook
+import { useExamAptisHistory } from '../../../hooks/APTIS/exam/useExamAptisHistory';
 
 const { Title, Text } = Typography;
 
 const ExamAptisHistoryPage = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [historyData, setHistoryData] = useState([]);
+  // 🔥 Lấy toàn bộ data và function từ Hook
+  const { 
+    loading, 
+    historyData, 
+    stats, 
+    handleGoBack, 
+    handleViewResult, 
+    handleResumeTest 
+  } = useExamAptisHistory();
 
-  useEffect(() => {
-    fetchHistory();
-  }, []);
-
-  const fetchHistory = async () => {
-    try {
-      setLoading(true);
-      const res = await examAptisStudentApi.getMyExamHistory();
-      const data = res.data || res || [];
-      
-      // Sort newest history first
-      const sortedData = data.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
-      setHistoryData(sortedData);
-    } catch (error) {
-      console.error("Error fetching full test history:", error);
-      message.error("Unable to load exam history. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 🔥 ADDED PENDING STATS
-  const stats = {
-    total: historyData.length,
-    completed: historyData.filter(h => ['GRADED', 'COMPLETED', 'FINISHED'].includes(h.status)).length,
-    pending: historyData.filter(h => h.status === 'PENDING').length,
-    inProgress: historyData.filter(h => h.status === 'IN_PROGRESS').length,
-  };
-
+  // Cấu hình cột của bảng (Đẩy các hàm điều hướng từ Hook vào)
   const columns = [
     {
       title: 'Test',
@@ -82,7 +60,6 @@ const ExamAptisHistoryPage = () => {
         if (['GRADED', 'COMPLETED', 'FINISHED'].includes(status)) {
           return <Tag color="success" icon={<CheckCircleOutlined />} className="font-bold border-0 bg-green-50 px-3 py-1 text-green-600 rounded-full">Completed</Tag>;
         }
-        // 🔥 ADDED PENDING TAG
         if (status === 'PENDING') {
           return <Tag color="processing" icon={<SyncOutlined spin />} className="font-bold border-0 bg-blue-50 px-3 py-1 text-blue-600 rounded-full">Awaiting Review</Tag>;
         }
@@ -97,7 +74,6 @@ const ExamAptisHistoryPage = () => {
       key: 'score',
       align: 'center',
       render: (_, record) => {
-        // 🔥 HANDLES PENDING SCORES (Displays temporary score)
         if (record.status === 'PENDING') {
           return (
             <div className="flex flex-col items-center">
@@ -118,7 +94,6 @@ const ExamAptisHistoryPage = () => {
       key: 'cefr_level',
       align: 'center',
       render: (level, record) => {
-        // 🔥 HANDLES PENDING CEFR
         if (record.status === 'PENDING') {
           return <Tag color="orange" className="font-bold rounded-lg border-0 bg-amber-50">Pending</Tag>;
         }
@@ -132,14 +107,13 @@ const ExamAptisHistoryPage = () => {
       key: 'action',
       align: 'right',
       render: (_, record) => {
-        // 🔥 UNLOCKED VIEW RESULT FOR PENDING STATUS
         if (['GRADED', 'COMPLETED', 'FINISHED', 'PENDING'].includes(record.status)) {
           return (
             <Button 
               type="primary" 
               ghost 
               icon={<EyeOutlined />} 
-              onClick={() => navigate(`/aptis/exam/result/${record.id}`)}
+              onClick={() => handleViewResult(record.id)}
               className="font-semibold rounded-lg"
             >
               View Result
@@ -151,7 +125,7 @@ const ExamAptisHistoryPage = () => {
             <Button 
               type="primary" 
               icon={<PlayCircleOutlined />} 
-              onClick={() => navigate(`/aptis/exam/lobby/${record.full_test_id}`)}
+              onClick={() => handleResumeTest(record.full_test_id)}
               style={{ backgroundColor: '#faad14', borderColor: '#faad14' }}
               className="font-semibold rounded-lg shadow-sm"
             >
@@ -177,7 +151,7 @@ const ExamAptisHistoryPage = () => {
 
       {/* BACK BUTTON */}
       <button
-        onClick={() => navigate('/aptis/exam')}
+        onClick={handleGoBack}
         style={{
           display: 'inline-flex',
           alignItems: 'center',
@@ -240,7 +214,6 @@ const ExamAptisHistoryPage = () => {
           </Card>
         </Col>
 
-        {/* 🔥 NEW STAT CARD FOR PENDING REVIEWS */}
         <Col xs={24} sm={6}>
           <Card variant="borderless" style={{ borderRadius: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', border: '1px solid #fefce8', background: '#fffbeb' }}>
             <Statistic 
@@ -287,7 +260,7 @@ const ExamAptisHistoryPage = () => {
             <Button 
               type="primary" 
               size="large"
-              onClick={() => navigate('/aptis/exam')}
+              onClick={handleGoBack}
               style={{ backgroundColor: '#4f46e5', borderRadius: 12, fontWeight: 700 }}
               className="mt-2"
             >
