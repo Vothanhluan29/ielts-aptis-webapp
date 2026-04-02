@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Button, Typography, Spin, message, Steps, Divider, Alert } from 'antd';
+import React from 'react';
+import { Card, Button, Typography, Spin, Steps, Divider, Alert } from 'antd';
 import { ArrowLeftOutlined, PlayCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import { ClipboardList, BookOpen, Headphones, PenTool, Mic } from 'lucide-react';
 
-import examAptisStudentApi from '../../../api/APTIS/exam/examAptisStudentApi';
+// Nhúng Custom Hook
+import { useExamAptisLobby } from '../../../hooks/APTIS/exam/useExamAptisLobby';
 
 const { Title, Text } = Typography;
 
@@ -17,68 +17,16 @@ const APTIS_SKILLS_STEPS = [
 ];
 
 const ExamAptisLobbyPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  
-  const [loading, setLoading] = useState(true);
-  const [starting, setStarting] = useState(false);
-  const [testDetail, setTestDetail] = useState(null);
-  const [activeSubmission, setActiveSubmission] = useState(null);
-
-  const fetchLobbyData = useCallback(async () => {
-    setLoading(true);
-    try {
-      const testRes = await examAptisStudentApi.getLibraryTestDetail(id);
-      setTestDetail(testRes.data || testRes);
-
-      const historyRes = await examAptisStudentApi.getMyExamHistory();
-      const history = historyRes.data || historyRes || [];
-      
-      const inProgressSub = history.find(
-        (sub) => sub.test_id === Number(id) && sub.status === 'IN_PROGRESS'
-      );
-      
-      if (inProgressSub) {
-        const progressRes = await examAptisStudentApi.getCurrentProgress(inProgressSub.id);
-        setActiveSubmission(progressRes.data || progressRes);
-      }
-
-    } catch (error) {
-      console.error("Lobby Error:", error);
-      message.error("Unable to load exam lobby data!");
-      navigate('/aptis/exam');
-    } finally {
-      setLoading(false);
-    }
-  }, [id, navigate]);
-
-  useEffect(() => {
-    fetchLobbyData();
-  }, [fetchLobbyData]);
-
-  const getSkillUrl = (stepId, submissionId) => {
-    return `/aptis/exam/taking/${submissionId}`;
-  };
-
-  const handleStartOrResume = async () => {
-    setStarting(true);
-    try {
-      if (activeSubmission) {
-        const currentStep = activeSubmission.current_step || 'GRAMMAR_VOCAB';
-        message.info(`Resuming exam at section: ${currentStep.replace('_', ' ')}`);
-        navigate(getSkillUrl(currentStep, activeSubmission.id));
-      } else {
-        const startRes = await examAptisStudentApi.startExam(id);
-        const newSubmission = startRes.data || startRes;
-        message.success("Full test started!");
-        navigate(getSkillUrl('GRAMMAR_VOCAB', newSubmission.id));
-      }
-    } catch (error) {
-      console.error("Start Error:", error);
-      message.error("Unable to start the exam. Please try again!");
-      setStarting(false);
-    }
-  };
+  // 🔥 Kéo toàn bộ não bộ từ Hook sang
+  const { 
+    loading, 
+    starting, 
+    testDetail, 
+    activeSubmission, 
+    currentStepIndex, 
+    handleStartOrResume, 
+    handleGoBack 
+  } = useExamAptisLobby();
 
   if (loading) {
     return (
@@ -90,12 +38,6 @@ const ExamAptisLobbyPage = () => {
   }
 
   if (!testDetail) return null;
-
-  let currentStepIndex = 0;
-  if (activeSubmission && activeSubmission.current_step) {
-    currentStepIndex = APTIS_SKILLS_STEPS.findIndex(s => s.id === activeSubmission.current_step);
-    if (currentStepIndex === -1) currentStepIndex = 0;
-  }
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -161,7 +103,7 @@ const ExamAptisLobbyPage = () => {
             <Button
               size="large"
               icon={<ArrowLeftOutlined />}
-              onClick={() => navigate('/aptis/exam')}
+              onClick={handleGoBack}
               className="h-14 px-8 text-base font-semibold rounded-2xl border-slate-300 text-slate-600 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 transition-all w-full sm:w-auto"
             >
               Back to Exam List
