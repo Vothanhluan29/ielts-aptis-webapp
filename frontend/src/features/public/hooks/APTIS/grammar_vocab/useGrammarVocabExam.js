@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { message, Modal } from 'antd';
-import { ExclamationCircleOutlined } from '@ant-design/icons';
+
 import grammarVocabAptisStudentApi from '../../../api/APTIS/grammar_vocab/grammarvocabAptisStudentApi';
 
 export const TABS = ['GRAMMAR', 'VOCABULARY'];
@@ -68,7 +68,7 @@ export const useGrammarVocabExam = ({ isFullTest, testIdFromProps, onSkillFinish
       if (isFullTest && onSkillFinish) {
         onSkillFinish(submissionData.id);
       } else {
-        navigate(`/aptis/grammar-vocab/result/${submissionData.id}`); 
+        navigate(`/aptis/grammar-vocab/result/${testId}`);
       }
       
     } catch (error) {
@@ -98,7 +98,6 @@ export const useGrammarVocabExam = ({ isFullTest, testIdFromProps, onSkillFinish
   const confirmSubmit = () => {
     Modal.confirm({
       title: 'Xác nhận nộp bài',
-      icon: <ExclamationCircleOutlined />,
       content: isFullTest 
        ? 'After submission, the system will automatically move to the Reading section. You cannot modify your answers for this part. Continue?' 
         : 'The system will grade your test immediately. Are you sure you want to submit?',
