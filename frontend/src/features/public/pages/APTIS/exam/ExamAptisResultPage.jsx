@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Spin, message } from 'antd';
+import React from 'react';
+import { Spin } from 'antd';
 import { ClipboardList, BookOpen, Headphones, PenTool, Mic, ArrowLeft, Clock, Award, Info } from 'lucide-react';
-import examAptisStudentApi from '../../../api/APTIS/exam/examAptisStudentApi';
+
+// Nhúng Custom Hook vào
+import { useExamAptisResult } from '../../../hooks/APTIS/exam/useExamAptisResult';
 
 const SKILL_THEMES = {
   GRAMMAR:   { label: 'Grammar & Vocab', color: '#059669', bg: '#ecfdf5', icon: ClipboardList },
@@ -89,27 +90,8 @@ const SkillCard = ({ theme, score, maxScore, isPending }) => {
 };
 
 const ExamAptisResultPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [resultData, setResultData] = useState(null);
-
-  useEffect(() => {
-    const fetchResult = async () => {
-      try {
-        setLoading(true);
-        const res = await examAptisStudentApi.getExamResult(id);
-        setResultData(res.data || res);
-      } catch (error) {
-        console.error("Error fetching full test result:", error);
-        message.error("Unable to load exam results. Please try again later!");
-        navigate('/aptis/exam/history');
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchResult();
-  }, [id, navigate]);
+  // 🔥 Lấy Data và Logic từ Hook
+  const { loading, resultData, computedData, handleGoBack } = useExamAptisResult();
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', gap: 16 }}>
@@ -118,54 +100,10 @@ const ExamAptisResultPage = () => {
     </div>
   );
 
-  if (!resultData) return null;
+  if (!resultData || !computedData) return null;
 
-  // 🔥 FIX 1: Trạng thái tổng thể
-  const isFullyGraded = ['GRADED', 'COMPLETED', 'FINISHED'].includes(resultData.status?.toUpperCase());
-
-  // 🔥 FIX 2: Logic Pending
-  // Vì API không trả status riêng lẻ cho từng phần, ta sẽ dựa vào isFullyGraded
-  // Nếu chưa Graded toàn bộ bài, mà writing/speaking score bị null/undefined -> coi như Pending
-  const isWritingPending = !isFullyGraded && (resultData.writing_score === null || resultData.writing_score === undefined);
-  const isSpeakingPending = !isFullyGraded && (resultData.speaking_score === null || resultData.speaking_score === undefined);
-  
-  const hasPendingSkills = isWritingPending || isSpeakingPending;
-  const showFinal = isFullyGraded || !hasPendingSkills;
+  const { showFinal, skills } = computedData;
   const cefrColor = CEFR_COLORS[resultData.overall_cefr_level?.toUpperCase()] || '#6366f1';
-
-  // 🔥 FIX 3: Ánh xạ lại chính xác 100% key name theo log API của bạn
-  const skills = [
-    { 
-      key: 'GRAMMAR',   
-      score: resultData.grammar_vocab_score || 0, 
-      max: 50, 
-      pending: false 
-    },
-    { 
-      key: 'READING',   
-      score: resultData.reading_score || 0,       
-      max: 50, 
-      pending: false 
-    },
-    { 
-      key: 'LISTENING', 
-      score: resultData.listening_score || 0,     
-      max: 50, 
-      pending: false 
-    },
-    { 
-      key: 'WRITING',   
-      score: resultData.writing_score || 0,       
-      max: 50, 
-      pending: isWritingPending 
-    },
-    { 
-      key: 'SPEAKING',  
-      score: resultData.speaking_score || 0,
-      max: 50, 
-      pending: isSpeakingPending 
-    },
-  ];
 
   return (
     <div style={{ minHeight: '100vh', padding: '32px 16px', fontFamily: 'system-ui,sans-serif' }}>
@@ -173,7 +111,7 @@ const ExamAptisResultPage = () => {
 
         {/* Top Bar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}>
-          <button onClick={() => navigate('/aptis/exam')} style={{
+          <button onClick={handleGoBack} style={{
             display: 'flex', alignItems: 'center', gap: 8,
             padding: '6px 16px', borderRadius: 999,
             border: '1px solid #e2e8f0', background: '#f8fafc',
