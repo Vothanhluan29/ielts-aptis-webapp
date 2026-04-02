@@ -45,8 +45,8 @@ const WritingAptisListPage = () => {
           tagColor: 'success',
           text: 'Graded',
           icon: <CheckCircle size={14} className="mr-1" />,
-          mainBtnText: 'View Result',
-          mainBtnAction: () => navigate(`/aptis/writing/result/${testId}`),
+          mainBtnText: 'View History',
+          mainBtnAction: () => navigate(`/aptis/writing/history`),
           showRetry: true
         };
 

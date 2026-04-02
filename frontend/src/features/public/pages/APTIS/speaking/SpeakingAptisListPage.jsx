@@ -49,8 +49,8 @@ const SpeakingAptisListPage = () => {
           tagColor: 'success',
           text: 'Graded',
           icon: <CheckCircle size={14} className="mr-1" />,
-          mainBtnText: 'View Result',
-          mainBtnAction: () => navigate(`/aptis/speaking/result/${testId}`),
+          mainBtnText: 'View History',
+          mainBtnAction: () => navigate(`/aptis/speaking/history`),
           showRetry: true
         };
 
