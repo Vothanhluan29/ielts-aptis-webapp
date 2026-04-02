@@ -41,7 +41,8 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
   const userAnswerKey = qResult?.user_answer;
   const correctAnswerRaw = qResult?.correct_answer || q.correct_answer;
   const isCorrect = qResult?.is_correct || false;
-  const isSkipped = !userAnswerKey;
+  // Nếu userAnswerKey rỗng, null hoặc undefined thì coi như bỏ qua
+  const isSkipped = userAnswerKey === undefined || userAnswerKey === null || userAnswerKey === ""; 
   const explanation = qResult?.explanation || q.explanation;
   const parsedOptions = safeParse(q.options);
 
@@ -90,7 +91,7 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
           <span style={{ fontSize: 13 }}>
             <strong style={{ color: isCorrect ? '#15803d' : '#b91c1c' }}>Your answer: </strong>
             <span style={{ color: isCorrect ? '#166534' : '#7f1d1d' }}>
-              {getOptionLabel(q.options, userAnswerKey)}
+              {isSkipped ? "Skipped" : getOptionLabel(q.options, userAnswerKey)}
             </span>
           </span>
         </div>
@@ -131,7 +132,7 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
 
 /* ─── Main Page ──────────────────────────── */
 const ListeningAptisResultPage = () => {
-  const { id } = useParams(); // id này là submission_id
+  const { id } = useParams(); // submission_id
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -139,18 +140,22 @@ const ListeningAptisResultPage = () => {
   const [testDetail, setTestDetail] = useState(null);
   const [activePartId, setActivePartId] = useState(null);
 
-  /* ── fetch logic (Đã Fix 404) ── */
+  /* ── fetch logic ── */
   useEffect(() => {
     const fetchResult = async () => {
       try {
         setLoading(true);
 
-        // 1. Lấy chi tiết bài nộp (dùng submission_id từ URL)
         const detailsRes = await listeningAptisStudentApi.getSubmissionDetail(id);
         const subData = detailsRes.data || detailsRes;
         setSubmission(subData);
 
-        // 2. Có bài nộp rồi thì mới lấy test_id để tải đề thi
+        // 🚀 LOG 1: KIỂM TRA DATA BÀI NỘP TỪ API
+        console.log("=========================================");
+        console.log("🟢 1. API SUBMISSION DATA:", subData);
+        console.log("🟢 2. RESULTS ARRAY:", subData.results);
+        console.log("=========================================");
+
         if (subData?.test_id) {
           const testRes = await listeningAptisStudentApi.getTestDetail(subData.test_id);
           const testData = testRes.data || testRes;
@@ -163,7 +168,6 @@ const ListeningAptisResultPage = () => {
 
       } catch (err) {
         console.error('Error fetching result:', err);
-        // Có thể thêm message.error ở đây nếu muốn
       } finally {
         setLoading(false);
       }
@@ -239,7 +243,6 @@ const ListeningAptisResultPage = () => {
             padding: '24px 24px 0 24px',
           }}
         >
-          {/* Back to History */}
           <button
             onClick={() => navigate('/aptis/listening')}
             style={{
@@ -260,16 +263,8 @@ const ListeningAptisResultPage = () => {
             Test List
           </button>
 
-          {/* Divider */}
-          <div
-            style={{
-              width: 1,
-              height: 20,
-              background: '#bfdbfe'
-            }}
-          />
+          <div style={{ width: 1, height: 20, background: '#bfdbfe' }} />
 
-          {/* Category */}
           <div
             style={{
               display: 'flex',
@@ -288,7 +283,6 @@ const ListeningAptisResultPage = () => {
             LISTENING
           </div>
 
-          {/* Title */}
           <span
             style={{
               fontSize: 16,
@@ -410,7 +404,15 @@ const ListeningAptisResultPage = () => {
 
                     <div className="pl-2">
                       {group.questions?.map((q, idx) => {
-                        const qResult = resultsArray.find(r => r.id === q.id);
+                        
+                        // 🚀 LOG 2: QUÁ TRÌNH TÌM KIẾM ĐÁP ÁN CHO TỪNG CÂU
+                        const qResult = resultsArray.find(r => 
+                          String(r.id) === String(q.id) || 
+                          String(r.question_number) === String(q.question_number)
+                        );
+                        
+                        console.log(`🔍 Tìm kết quả cho câu hỏi: [ID: ${q.id} | Q_NUM: ${q.question_number}]`, qResult);
+
                         return (
                           <QuestionReviewCard
                             key={q.id}
