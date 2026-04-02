@@ -14,7 +14,7 @@ const { Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
-// 🔥 Standard color palette for 5 Writing grading sections
+// Standard color palette for 5 Writing grading sections
 const themeColors = {
   blue: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', hex: '#3b82f6', leftBorder: 'border-l-blue-500' },
   green: { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-700', hex: '#22c55e', leftBorder: 'border-l-green-500' },
@@ -23,10 +23,21 @@ const themeColors = {
   rose: { bg: 'bg-rose-50', border: 'border-rose-300', text: 'text-rose-700', hex: '#f43f5e', leftBorder: 'border-l-rose-500' },
 };
 
+// Hàm hỗ trợ Parse JSON an toàn (Lớp 1)
+const safeParseAnswers = (data) => {
+  if (!data) return {};
+  if (typeof data === 'object') return data;
+  try {
+    return JSON.parse(data);
+  } catch (error) {
+    return {error}; ;
+  }
+};
+
 const WritingGradingDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation(); // 🔥 GET STATE TO KNOW WHERE WE CAME FROM
+  const location = useLocation(); 
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -90,18 +101,14 @@ const WritingGradingDetailPage = () => {
     return colors[level] || "#d9d9d9";
   };
 
-  // 🔥 1. Back navigation logic
   const handleBack = () => {
-    // If state has fromExamId, go back to Full Test detail page
     if (location.state && location.state.fromExamId) {
       navigate(`/admin/aptis/submissions/${location.state.fromExamId}`);
     } else {
-      // Default: go back to standalone submission list
       navigate("/admin/aptis/submissions/writing");
     }
   };
 
-  // 🔥 2. Save grade handler
   const handleSaveGrade = async () => {
     setSubmitting(true);
     try {
@@ -121,7 +128,6 @@ const WritingGradingDetailPage = () => {
       await writingAptisAdminApi.gradeSubmission(id, payload);
       message.success("Grade saved successfully!");
       
-      // After saving, automatically call handleBack for smart redirection
       handleBack(); 
 
     } catch {
@@ -143,11 +149,9 @@ const WritingGradingDetailPage = () => {
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
-
       {/* COMPACT HEADER */}
       <div className="bg-white px-5 py-3 rounded-lg shadow-sm mb-4 flex justify-between items-center border border-gray-200">
         <Space size="large">
-          {/* 🔥 3. Apply handleBack to the Back button */}
           <Button icon={<ArrowLeftOutlined />} onClick={handleBack} size="small">Back</Button>
           
           <div className="flex items-center gap-4">
@@ -160,7 +164,6 @@ const WritingGradingDetailPage = () => {
               <FileTextOutlined className="text-indigo-400" />
               <Text className="text-gray-600">{submission?.test?.title}</Text>
             </Space>
-            {/* 🔥 Show Badge if coming from Full Test */}
             {location.state?.fromExamId && (
               <Badge color="purple" text="Full Test Component" className="ml-2 font-semibold" />
             )}
@@ -188,11 +191,22 @@ const WritingGradingDetailPage = () => {
         <Col xs={24} lg={13}>
           <div className="space-y-4">
             {(() => {
-              let globalQuestionIndex = 1;
+              // Parse Object bọc ngoài cùng (part_1, part_2...)
+              const parsedUserAnswers = safeParseAnswers(submission?.user_answers);
+
               return submission?.test?.parts?.map((part, index) => {
-                // Apply colors sequentially (reuse colors since test has 4 main parts)
                 const colorKeys = ['blue', 'green', 'orange', 'purple', 'rose'];
                 const theme = themeColors[colorKeys[index % 5]];
+
+                // 🔥 BỘ GIẢI MÃ: Parse đáp án của từng Part (Lớp 2)
+                const partKey = `part_${part.part_number}`;
+                const rawPartData = parsedUserAnswers[partKey] || "";
+                let decodedPartAnswers;
+                try {
+                  decodedPartAnswers = JSON.parse(rawPartData);
+                } catch {
+                  decodedPartAnswers = rawPartData; // Fallback nếu nó là chuỗi thuần (như part_2)
+                }
 
                 return (
                   <Card
@@ -206,16 +220,31 @@ const WritingGradingDetailPage = () => {
                     </Text>
 
                     <div className="space-y-3">
-                      {part.questions?.map((q) => {
-                        const answer = submission?.user_answers?.[globalQuestionIndex.toString()] || "";
-                        const wordCount = answer ? answer.trim().split(/\s+/).length : 0;
-                        globalQuestionIndex++;
+                      {part.questions?.map((q, qIndex) => {
+                        
+                        // 🔥 BỘ GIẢI MÃ: Khớp vị trí câu hỏi với dữ liệu vừa giải mã
+                        let finalAnswer = "";
+                        
+                        if (Array.isArray(decodedPartAnswers)) {
+                          // Nếu là mảng (như Part 1, Part 3) -> Lấy theo vị trí index
+                          finalAnswer = decodedPartAnswers[qIndex] || "";
+                        } else if (typeof decodedPartAnswers === 'object' && decodedPartAnswers !== null) {
+                          // Nếu là Object (như Part 4) -> Phân biệt informal / formal
+                          finalAnswer = qIndex === 0 
+                            ? (decodedPartAnswers.informal || "") 
+                            : (decodedPartAnswers.formal || "");
+                        } else {
+                          // Nếu là chuỗi trơn (như Part 2)
+                          finalAnswer = decodedPartAnswers || "";
+                        }
+
+                        const wordCount = finalAnswer ? finalAnswer.trim().split(/\s+/).length : 0;
 
                         return (
                           <div key={q.id} className={`p-3 border rounded-lg ${theme.bg} ${theme.border}`}>
                             <Text strong className={`text-sm block mb-1 ${theme.text}`}>{q.question_text}</Text>
                             <div className="p-2 bg-white border border-gray-200 rounded min-h-[50px] whitespace-pre-wrap text-sm text-gray-800">
-                              {answer || <Text type="danger" italic>Student left this blank</Text>}
+                              {finalAnswer || <Text type="danger" italic>Student left this blank</Text>}
                             </div>
                             <div className="mt-1 text-right">
                               <Text type="secondary" className="text-[11px] font-medium">
