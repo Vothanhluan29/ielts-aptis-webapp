@@ -10,7 +10,7 @@ import {
 import { BookOpen } from 'lucide-react';
 
 // Gọi Custom Hook vào
-import { useGrammarVocabLobby } from './useGrammarVocabLobby';
+import { useGrammarVocabLobby } from '../../../hooks/APTIS/grammar_vocab/useGrammarVocabLobby';
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
