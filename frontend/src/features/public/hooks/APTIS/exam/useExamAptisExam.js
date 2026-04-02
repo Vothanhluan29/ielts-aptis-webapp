@@ -7,7 +7,7 @@ import examAptisStudentApi from '../../../api/APTIS/exam/examAptisStudentApi';
 const STEP_IDS = ['GRAMMAR_VOCAB', 'LISTENING', 'READING', 'WRITING', 'SPEAKING'];
 const STEP_TITLES = ['Grammar & Vocab', 'Listening', 'Reading', 'Writing', 'Speaking'];
 
-export const useAptisExamFlow = (id) => {
+export const useAptisExam = (id) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submission, setSubmission] = useState(null);
