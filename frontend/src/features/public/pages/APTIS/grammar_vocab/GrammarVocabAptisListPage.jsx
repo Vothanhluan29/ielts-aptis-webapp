@@ -4,7 +4,7 @@ import { ReadOutlined } from '@ant-design/icons';
 import { Clock, CheckCircle, AlertCircle, ArrowRight, History, RotateCcw } from 'lucide-react';
 
 // Nhúng Custom Hook vào
-import { useGrammarVocabAptisList } from './useGrammarVocabAptisList';
+import { useGrammarVocabAptisList } from '../../../hooks/APTIS/grammar_vocab/useGrammarVocabAptisList';
 
 const { Title, Paragraph, Text } = Typography;
 
