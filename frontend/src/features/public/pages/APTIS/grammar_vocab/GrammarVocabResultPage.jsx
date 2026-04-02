@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
 import { Spin, Result, Button, Typography, Layout, Row, Col, Card } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -10,7 +9,9 @@ import {
   ClockCircleOutlined,
   AimOutlined
 } from '@ant-design/icons';
-import grammarVocabAptisStudentApi from '../../../api/APTIS/grammar_vocab/grammarvocabAptisStudentApi';
+
+// Nhúng Custom Hook
+import { useGrammarVocabResult } from '../../../hooks/APTIS/grammar_vocab/useGrammarVocabResult';
 
 const { Content } = Layout;
 const { Text, Title } = Typography;
@@ -122,46 +123,17 @@ const QuestionReviewCard = ({ q, index, userAnswerKey, answerDetail }) => {
 
 /* ─── Main Page ──────────────────────────── */
 const GrammarVocabResultPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  // 🔥 Lấy toàn bộ State và Hàm từ Hook
+  const {
+    loading,
+    submission,
+    testDetail,
+    activeTab,
+    setActiveTab,
+    computedData,
+    handleGoBack
+  } = useGrammarVocabResult();
 
-  const [loading, setLoading] = useState(true);
-  const [submission, setSubmission] = useState(null);
-  const [testDetail, setTestDetail] = useState(null);
-  const [activeTab, setActiveTab] = useState('GRAMMAR'); // 'GRAMMAR' | 'VOCABULARY'
-
-  /* ── fetch logic ── */
-  useEffect(() => {
-    const fetchResult = async () => {
-      try {
-        setLoading(true);
-
-        const testRes = await grammarVocabAptisStudentApi.getTestDetail(id);
-        const testData = testRes.data || testRes;
-        setTestDetail(testData);
-
-        const historyRes = await grammarVocabAptisStudentApi.getMyHistory();
-        const historyList = historyRes.data || historyRes || [];
-        const testSubmissions = historyList.filter(item => item.test_id === parseInt(id));
-
-        if (testSubmissions.length > 0) {
-          const latestSub = testSubmissions.sort((a, b) => b.id - a.id)[0];
-          const detailsRes = await grammarVocabAptisStudentApi.getSubmissionDetail(latestSub.id);
-          const subData = detailsRes.data || detailsRes;
-          setSubmission(subData);
-        } else {
-          setSubmission(null);
-        }
-      } catch (err) {
-        console.error('Error fetching result:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchResult();
-  }, [id]);
-
-  /* ── loading & not found ── */
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
       <div style={{ textAlign: 'center' }}>
@@ -177,38 +149,22 @@ const GrammarVocabResultPage = () => {
         status="404"
         title="Result not found"
         subTitle="This submission has not been submitted or does not exist."
-        extra={<Button type="primary" onClick={() => navigate('/aptis/grammar-vocab')} className="bg-emerald-600">Back to list</Button>}
+        extra={<Button type="primary" onClick={handleGoBack} className="bg-emerald-600">Back to list</Button>}
       />
     </div>
   );
 
-  /* ── data processing ── */
-  const questions = testDetail?.questions || [];
-  const userAnswers = safeParse(submission.user_answers, {});
-  const answerDetails = submission.answer_details || {};
-
-  const totalQuestions = questions.length;
-  const scoreVal = submission.total_score || submission.score || 0;
-  
-  let correctCount = 0;
-  Object.values(answerDetails).forEach(detail => {
-    if (detail.is_correct) correctCount += 1;
-  });
-
-  const dateStr = submission.submitted_at || submission.created_at;
-  const submitDate = dateStr
-    ? new Date(dateStr).toLocaleDateString('en-GB', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
-    : 'N/A';
-
-  const grammarQuestions = questions.filter(q => (q.part_type?.toUpperCase() || '').includes('GRAMMAR'));
-  const vocabQuestions = questions.filter(q => (q.part_type?.toUpperCase() || '').includes('VOCAB'));
-
-  const activeQuestions = activeTab === 'GRAMMAR' ? grammarQuestions : vocabQuestions;
-
-  const TABS = [
-    { id: 'GRAMMAR', label: 'Grammar', count: grammarQuestions.length },
-    { id: 'VOCABULARY', label: 'Vocabulary', count: vocabQuestions.length }
-  ];
+  // Giải nén các biến đã được Hook tính toán xong xuôi
+  const {
+    userAnswers,
+    answerDetails,
+    totalQuestions,
+    scoreVal,
+    correctCount,
+    submitDate,
+    activeQuestions,
+    tabsConfig
+  } = computedData;
 
   return (
     <Layout style={{ minHeight: '100vh', background: '#f8fafc' }}>
@@ -224,15 +180,11 @@ const GrammarVocabResultPage = () => {
       {/* ── CUSTOM HEADER ── */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          marginBottom: 28,
-          padding: '24px 24px 0 24px',
+          display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28, padding: '24px 24px 0 24px',
         }}
       >
         <button
-          onClick={() => navigate('/aptis/grammar-vocab')}
+          onClick={handleGoBack}
           style={{
             display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px',
             borderRadius: 999, border: '1px solid #e2e8f0', background: '#f8fafc',
@@ -268,7 +220,7 @@ const GrammarVocabResultPage = () => {
 
       <Content style={{ padding: '0px 24px 32px 24px', maxWidth: 1000, margin: '0 auto', width: '100%' }}>
 
-        {/* ── SCORE CARD (Đã bỏ CEFR) ── */}
+        {/* ── SCORE CARD ── */}
         <Card variant="borderless" className="rounded-3xl mb-8 shadow-sm border-slate-200" styles={{ body: { padding: '32px' } }}>
           <Row gutter={[24, 24]} align="middle" justify="center">
 
@@ -304,7 +256,7 @@ const GrammarVocabResultPage = () => {
 
         {/* ── TABS (GRAMMAR / VOCAB) ── */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 16, animation: 'fadeUp .45s ease both', overflowX: 'auto', paddingBottom: 8 }} className="custom-scrollbar">
-          {TABS.map((tab) => {
+          {tabsConfig.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
