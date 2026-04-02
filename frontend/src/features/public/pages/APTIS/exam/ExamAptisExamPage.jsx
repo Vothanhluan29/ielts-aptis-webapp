@@ -169,7 +169,7 @@ const fetchCurrentProgress = async () => {
         return (
           <div className="flex flex-col items-center justify-center h-full text-center p-10 bg-white m-8 rounded-3xl shadow-sm border border-slate-200">
             <ShieldAlert size={64} className="text-red-500 mb-6" />
-            <Title level={3} className="!text-slate-800">
+            <Title level={3} className="text-slate-800!">
               Invalid Exam Status
             </Title>
             <Text className="text-slate-500 text-lg">
