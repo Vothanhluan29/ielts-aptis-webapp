@@ -1,6 +1,7 @@
 import os
 import shutil
 import uuid
+import json
 from sqlalchemy.orm import Session, joinedload
 from fastapi import UploadFile, HTTPException, status
 from typing import Optional, List
@@ -20,7 +21,7 @@ BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8000").rstrip("/")
 class AptisListeningService:
 
     # =======================================================
-    # 📁 1. FILE UPLOAD (Giữ nguyên - Rất chuẩn xác)
+    # 📁 1. FILE UPLOAD 
     # =======================================================
     @staticmethod
     def save_audio_file(file: UploadFile) -> str:
@@ -33,7 +34,7 @@ class AptisListeningService:
                 detail=f"File type not allowed. Allowed: {', '.join(allowed_extensions)}"
             )
 
-        UPLOAD_DIR = "static/audio/aptis_listening" # Đổi thư mục cho gọn gàng
+        UPLOAD_DIR = "static/audio/aptis_listening"
         os.makedirs(UPLOAD_DIR, exist_ok=True)
         
         filename = f"{uuid.uuid4()}{file_ext}"
@@ -56,7 +57,7 @@ class AptisListeningService:
         try:
             db_test = AptisListeningTest(
                 title=test_in.title, 
-                description=test_in.description, # 🔥 ĐÃ THÊM: Lưu description
+                description=test_in.description, 
                 time_limit=test_in.time_limit,
                 is_published=test_in.is_published,
                 is_full_test_only=test_in.is_full_test_only
@@ -68,9 +69,8 @@ class AptisListeningService:
                 for p_data in test_in.parts:
                     db_part = AptisListeningPart(
                         test_id=db_test.id,
-                        title = p_data.title,
+                        title=p_data.title,
                         part_number=p_data.part_number
-                        # 🔥 ĐÃ XÓA audio_url và transcript khỏi Part
                     )
                     db.add(db_part)
                     db.flush()
@@ -82,9 +82,8 @@ class AptisListeningService:
                                 instruction=g_data.instruction,
                                 image_url=g_data.image_url,
                                 order=g_data.order,
-                                # 🟢 AUDIO VÀ TRANSCRIPT ĐƯỢC CHUYỂN XUỐNG ĐÂY
-                                audio_url=g_data.audio_url,
-                                transcript=g_data.transcript
+                                audio_url=g_data.audio_url, 
+                                transcript=g_data.transcript 
                             )
                             db.add(db_group)
                             db.flush()
@@ -116,13 +115,12 @@ class AptisListeningService:
         if not test: return None
         
         if test_in.title is not None: test.title = test_in.title
-        if test_in.description is not None: test.description = test_in.description # 🔥 ĐÃ THÊM: Cập nhật description
+        if test_in.description is not None: test.description = test_in.description 
         if test_in.time_limit is not None: test.time_limit = test_in.time_limit
         if test_in.is_published is not None: test.is_published = test_in.is_published
         if test_in.is_full_test_only is not None: test.is_full_test_only = test_in.is_full_test_only
 
         if test_in.parts is not None:
-            # Xóa cũ làm lại (Cách an toàn và nhanh nhất cho Nested dữ liệu sâu)
             db.query(AptisListeningPart).filter(AptisListeningPart.test_id == test_id).delete(synchronize_session=False)
             db.flush()
 
@@ -138,8 +136,8 @@ class AptisListeningService:
                             instruction=g_data.instruction,
                             image_url=g_data.image_url,
                             order=g_data.order,
-                            audio_url=g_data.audio_url,   # 🟢 Chèn Audio vào Group
-                            transcript=g_data.transcript  # 🟢 Chèn Transcript vào Group
+                            audio_url=g_data.audio_url,
+                            transcript=g_data.transcript
                         )
                         db.add(db_group)
                         db.flush()
@@ -160,7 +158,6 @@ class AptisListeningService:
 
         db.commit()
         return AptisListeningService.get_test_detail(db, test.id)
-
 
     @staticmethod
     def delete_test(db: Session, test_id: int):
@@ -232,38 +229,27 @@ class AptisListeningService:
         if cleaned.endswith('.'): cleaned = cleaned[:-1]
         return " ".join(cleaned.split())
 
-    # 🔥 HÀM TÍNH ĐIỂM CEFR MỚI CHO APTIS
-   # 🔥 HỆ THỐNG ĐIỂM VÀ CEFR (Chuẩn Aptis - Scale 50)
     @staticmethod
     def calculate_aptis_score_and_cefr(correct_count: int, total_questions: int = 25) -> dict:
-        # 1. Tính điểm quy chiếu (Scale Score) trên thang 50
-        # Nếu có 25 câu, đúng 18 câu -> (18/25)*50 = 36 điểm
         if total_questions > 0:
             scale_score = round((correct_count / total_questions) * 50)
         else:
             scale_score = 0
 
-        # 2. Tính trình độ CEFR theo đúng chuẩn PREP
         cefr = "A0"
-        if correct_count >= 21:    # 21 - 25 câu
-            cefr = "C"
-        elif correct_count >= 17:  # 17 - 20 câu
-            cefr = "B2"
-        elif correct_count >= 12:  # 12 - 16 câu
-            cefr = "B1"
-        elif correct_count >= 6:   # 6 - 11 câu
-            cefr = "A2"
-        elif correct_count >= 1:   # 1 - 5 câu  
-            cefr = "A1"
+        if correct_count >= 21:    cefr = "C"
+        elif correct_count >= 17:  cefr = "B2"
+        elif correct_count >= 12:  cefr = "B1"
+        elif correct_count >= 6:   cefr = "A2"
+        elif correct_count >= 1:   cefr = "A1"
             
         return {
-            "score": scale_score,     # Lát nữa sẽ lưu vào cột 'score' (VD: 34)
-            "cefr_level": cefr        # Lát nữa sẽ lưu vào cột 'cefr_level' (VD: "B2")
+            "score": scale_score,
+            "cefr_level": cefr
         }
 
     @staticmethod
     def submit_test(db: Session, user_id: int, submission_in: schemas.SubmitAnswer):
-
         test = db.query(AptisListeningTest).filter(AptisListeningTest.id == submission_in.test_id).first()
         if not test: return None
 
@@ -280,7 +266,6 @@ class AptisListeningService:
         correct_count = 0
         detailed_results = []
         
-        # 🔥 FIX 1: Đổi .answers thành .user_answers để khớp 100% với Frontend và Model DB
         incoming_answers = getattr(submission_in, 'user_answers', None) or getattr(submission_in, 'answers', {})
         user_answers_map = {str(k): v for k, v in incoming_answers.items()}
 
@@ -291,11 +276,22 @@ class AptisListeningService:
             user_ans = user_answers_map.get(q_id)
             if user_ans is None:
                 user_ans = user_answers_map.get(q_num, "")
+                
+            # 🔥 BỘ DỊCH MINI ĐỂ CHẤM ĐIỂM
+            actual_ans = str(user_ans).strip()
+            try:
+                opts = json.loads(q.options) if isinstance(q.options, str) else (q.options or {})
+                if isinstance(opts, dict): 
+                    actual_ans = str(opts.get(user_ans, user_ans))
+                elif isinstance(opts, list) and actual_ans.isdigit(): 
+                    idx = int(actual_ans)
+                    if 0 <= idx < len(opts): actual_ans = str(opts[idx])
+            except Exception:
+                pass
             
-            norm_user = AptisListeningService.normalize_answer(user_ans)
+            norm_user = AptisListeningService.normalize_answer(actual_ans)
             norm_correct = AptisListeningService.normalize_answer(q.correct_answer)
             
-            # 🔥 FIX 2: Bịt lỗ hổng tặng điểm. Nếu 1 trong 2 cái trống -> Auto Sai!
             is_correct = False
             if norm_user and norm_correct:
                 possible_answers = [ans.strip() for ans in norm_correct.split('|')]
@@ -318,7 +314,7 @@ class AptisListeningService:
         db_submission = AptisListeningSubmission(
             user_id=user_id,
             test_id=submission_in.test_id,
-            user_answers=incoming_answers, # 🔥 Đã fix lưu đúng Dict
+            user_answers=incoming_answers, 
             correct_count=correct_count,
             score=scoring_result["score"],
             cefr_level=scoring_result["cefr_level"],
@@ -344,6 +340,7 @@ class AptisListeningService:
             user_answers=db_submission.user_answers,
             results=detailed_results
         )
+
     # =======================================================
     # 📜 4. HISTORY & ADMIN SUBMISSIONS
     # =======================================================
@@ -360,7 +357,7 @@ class AptisListeningService:
             schemas.SubmissionSummary(
                 id=sub.id,
                 test_id=sub.test_id,
-                test={"id": sub.test.id, "title": sub.test.title, "description": sub.test.description} if sub.test else None, # 🔥 ĐÃ THÊM
+                test={"id": sub.test.id, "title": sub.test.title, "description": sub.test.description} if sub.test else None,
                 status=sub.status,
                 is_full_test_only=sub.is_full_test_only,
                 score=sub.score,
@@ -386,19 +383,34 @@ class AptisListeningService:
 
         detailed_results = []
         user_answers_json = sub.user_answers or {}
-        user_answers_json = {str(k): v for k, v in user_answers_json.items()}
+        user_answers_map = {str(k): v for k, v in user_answers_json.items()}
 
         for q in questions:
             q_id = str(q.id)
             q_num = str(q.question_number)
-            user_ans = user_answers_json.get(q_id)
+            user_ans = user_answers_map.get(q_id)
             if user_ans is None:
-                user_ans = user_answers_json.get(q_num, "")
+                user_ans = user_answers_map.get(q_num, "")
             
-            norm_user = AptisListeningService.normalize_answer(user_ans)
+            # 🔥 BỘ DỊCH MINI ĐỂ LẤY LỊCH SỬ CHÍNH XÁC
+            actual_ans = str(user_ans).strip()
+            try:
+                opts = json.loads(q.options) if isinstance(q.options, str) else (q.options or {})
+                if isinstance(opts, dict): 
+                    actual_ans = str(opts.get(user_ans, user_ans))
+                elif isinstance(opts, list) and actual_ans.isdigit(): 
+                    idx = int(actual_ans)
+                    if 0 <= idx < len(opts): actual_ans = str(opts[idx])
+            except Exception:
+                pass
+            
+            norm_user = AptisListeningService.normalize_answer(actual_ans)
             norm_correct = AptisListeningService.normalize_answer(q.correct_answer)
-            possible = [ans.strip() for ans in norm_correct.split('|')]
-            is_correct =False
+            
+            is_correct = False
+            if norm_user and norm_correct:
+                possible = [ans.strip() for ans in norm_correct.split('|')]
+                is_correct = norm_user in possible
 
             detailed_results.append({
                 "id": q.id,
@@ -413,7 +425,7 @@ class AptisListeningService:
         return schemas.SubmissionDetail(
             id=sub.id,
             test_id=sub.test_id,
-            test={"id": sub.test.id, "title": sub.test.title, "description": sub.test.description} if sub.test else None, # 🔥 ĐÃ THÊM
+            test={"id": sub.test.id, "title": sub.test.title, "description": sub.test.description} if sub.test else None, 
             user_id=sub.user_id,
             status=sub.status,
             is_full_test_only=sub.is_full_test_only,
@@ -443,7 +455,7 @@ class AptisListeningService:
                 schemas.AdminListeningSubmissionResponse(
                     id=sub.id,
                     test_id=sub.test_id,
-                    test=schemas.TestTitleOnly(id=sub.test.id, title=sub.test.title, description=sub.test.description) if sub.test else None, # 🔥 ĐÃ THÊM
+                    test=schemas.TestTitleOnly(id=sub.test.id, title=sub.test.title, description=sub.test.description) if sub.test else None, 
                     user_id=sub.user_id,
                     status=sub.status,
                     is_full_test_only=sub.is_full_test_only,
@@ -469,14 +481,13 @@ class AptisListeningService:
             AptisListeningSubmission.user_id == target_user_id
         ).order_by(AptisListeningSubmission.submitted_at.desc()).all()
 
-        # Dùng format trả về đồng nhất với get_all_submissions_for_admin
         results = []
         for sub in submissions:
             results.append(
                 schemas.AdminListeningSubmissionResponse(
                     id=sub.id,
                     test_id=sub.test_id,
-                    test=schemas.TestTitleOnly(id=sub.test.id, title=sub.test.title, description=sub.test.description) if sub.test else None, # 🔥 ĐÃ THÊM
+                    test=schemas.TestTitleOnly(id=sub.test.id, title=sub.test.title, description=sub.test.description) if sub.test else None,
                     user_id=sub.user_id,
                     status=sub.status,
                     is_full_test_only=sub.is_full_test_only,
