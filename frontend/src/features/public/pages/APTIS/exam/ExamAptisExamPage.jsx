@@ -4,7 +4,7 @@ import { Spin, Steps, Modal, Typography, Button } from 'antd';
 import { ClipboardList, BookOpen, Headphones, PenTool, Mic, ShieldAlert } from 'lucide-react';
 
 // Nhúng Custom Hook vào
-import { useAptisExamFlow } from '../../../hooks/APTIS/exam/useExamAptisExam'; 
+import { useAptisExam } from '../../../hooks/APTIS/exam/useExamAptisExam'; 
 
 import GrammarVocabExamPage from '../grammar_vocab/GrammarVocabExamPage';
 import ListeningAptisExamPage from '../listening/ListeningAptisExamPage';
@@ -34,7 +34,7 @@ const ExamAptisExamPage = () => {
     transitioning, 
     transitionMsg, 
     handleSkillFinish 
-  } = useAptisExamFlow(id);
+  } = useAptisExam(id);
 
   const renderCurrentSkill = () => {
     if (!submission) return null;
