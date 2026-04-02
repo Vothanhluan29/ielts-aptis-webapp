@@ -1,141 +1,40 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Layout, Button, Typography, Spin, Space, Card, Tag, message, Modal } from 'antd'; 
+import React from 'react';
+import { Layout, Button, Typography, Spin, Space, Card, Tag } from 'antd'; 
 import { 
-  ClockCircleOutlined, ExclamationCircleOutlined, SendOutlined, 
+  ClockCircleOutlined, SendOutlined, 
   LeftOutlined, RightOutlined, BookOutlined 
 } from '@ant-design/icons';
 
 import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion'; 
-// import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion'; // Tạm thời comment lại
-import grammarVocabAptisStudentApi from '../../../api/APTIS/grammar_vocab/grammarvocabAptisStudentApi';
+// import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion';
+
+// Gọi Custom Hook
+import { useGrammarVocabExam, TABS } from './useGrammarVocabExam';
 
 const { Header, Content, Footer } = Layout;
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
-// 🔥 Fix cứng 2 tabs
-const TABS = ['GRAMMAR', 'VOCABULARY'];
-
-// 🔥 NHẬN PROPS TỪ LAYOUT MẸ (ExamAptisExamPage) NẾU ĐANG THI FULL TEST
 const GrammarVocabExamPage = ({ 
   isFullTest = false, 
   testIdFromProps = null,
   onSkillFinish = null 
 }) => {
-  const { id: urlId } = useParams();
-  const navigate = useNavigate();
-
-  // NẾU thi Full Test -> Lấy ID bài thi được truyền từ component mẹ xuống.
-  // NẾU thi Độc lập -> Lấy ID bài thi từ trên URL xuống.
-  const testId = isFullTest ? testIdFromProps : urlId;
-
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [testDetail, setTestDetail] = useState(null);
-  
-  // Mặc định luôn ở Tab GRAMMAR
-  const [currentTab, setCurrentTab] = useState(TABS[0]);
-  const [timeLeft, setTimeLeft] = useState(0);
-
-  // Store answers as { "203": "A", "204": "C" }
-  const [answers, setAnswers] = useState({});
-  const answersRef = useRef(answers);
-  useEffect(() => { answersRef.current = answers; }, [answers]);
-
-  // FETCH API
-  useEffect(() => {
-    const fetchTest = async () => {
-      try {
-        setLoading(true);
-        if (!testId) {
-          throw new Error("Grammar & Vocab test ID not found!");
-        }
-        
-        // 🔥 Đã đổi `id` thành `testId`
-        const data = await grammarVocabAptisStudentApi.getTestDetail(testId);
-        setTestDetail(data);
-        setTimeLeft((data?.time_limit || 25) * 60); 
-      } catch (error) {
-        message.error(`Unable to load test: ${error.message}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTest();
-  }, [testId]);
-
-  // SUBMIT TEST
-  const handleSubmit = async (isAutoSubmit = false) => {
-    if (submitting) return;
-    try {
-      setSubmitting(true);
-      if (isAutoSubmit) {
-         message.warning({ content: "Time is up! The system is automatically submitting your test...", duration: 5 });
-      } else {
-        message.loading({ content: 'Grading your test...', key: 'submit' });
-      }
-
-      const payload = {
-        test_id: parseInt(testId), // 🔥 Đã đổi `id` thành `testId`
-        is_full_test_only: isFullTest, // 🔥 Khai báo chính xác trạng thái cho DB
-        user_answers: answersRef.current 
-      };
-
-      const res = await grammarVocabAptisStudentApi.submitTest(payload);
-      const submissionData = res.data || res;
-      
-      message.success({ content: 'Test submitted and graded successfully!', key: 'submit' });
-      
-      // 🔥 RẼ NHÁNH ĐIỀU HƯỚNG DỰA THEO CHẾ ĐỘ THI
-      if (isFullTest && onSkillFinish) {
-        // Trả ID bài nộp (skill_submission_id) về cho Layout mẹ để nó gọi API chuyển skill
-        onSkillFinish(submissionData.id);
-      } else {
-        // Thi lẻ độc lập thì mới chuyển trang xem kết quả
-        navigate(`/aptis/grammar-vocab/result/${submissionData.id}`); 
-      }
-      
-    } catch (error) {
-      console.error("Submit error:", error);
-      message.error({ content: 'Lỗi hệ thống. Vui lòng kiểm tra lại!', key: 'submit', duration: 5 });
-      setSubmitting(false);
-    }
-  };
-
-  // COUNTDOWN TIMER
-  useEffect(() => {
-    if (loading || submitting || timeLeft <= 0) {
-      if (timeLeft <= 0 && !loading && !submitting && testDetail) handleSubmit(true);
-      return;
-    }
-    const timerId = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-    return () => clearInterval(timerId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, loading, submitting, testDetail]);
-
-  const handleAnswerChange = (questionId, value) => {
-    setAnswers(prev => ({ ...prev, [questionId]: String(value) }));
-  };
-
-  const confirmSubmit = () => {
-    Modal.confirm({
-      title: 'Xác nhận nộp bài',
-      icon: <ExclamationCircleOutlined />,
-      content: isFullTest 
-       ? 'After submission, the system will automatically move to the Reading section. You cannot modify your answers for this part. Continue?' 
-        : 'The system will grade your test immediately. Are you sure you want to submit?',
-      okText: 'Submit',
-      cancelText: 'Cancel',
-      okButtonProps: { danger: true },
-      onOk: () => handleSubmit(false)
-    });
-  };
-
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  };
+  // 🔥 Lấy toàn bộ vũ khí từ Hook
+  const {
+    loading,
+    submitting,
+    testDetail,
+    currentTab,
+    setCurrentTab,
+    timeLeft,
+    answers,
+    currentQuestions,
+    currentTabIndex,
+    isTimeRunningOut,
+    handleAnswerChange,
+    confirmSubmit,
+    formatTime
+  } = useGrammarVocabExam({ isFullTest, testIdFromProps, onSkillFinish });
 
   if (loading) {
     return (
@@ -147,18 +46,6 @@ const GrammarVocabExamPage = ({
       </div>
     );
   }
-
-  // 🔥 FILTER CÂU HỎI THÔNG MINH
-  const questions = testDetail?.questions || [];
-  const currentQuestions = questions.filter(q => {
-    const type = q.part_type?.toUpperCase() || "";
-    if (currentTab === 'GRAMMAR') return type.includes('GRAMMAR');
-    if (currentTab === 'VOCABULARY') return type.includes('VOCAB');
-    return false;
-  });
-
-  const currentTabIndex = TABS.indexOf(currentTab);
-  const isTimeRunningOut = timeLeft < 120;
 
   return (
     <Layout style={{ minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh', backgroundColor: '#f8fafc' }}>
@@ -179,7 +66,7 @@ const GrammarVocabExamPage = ({
         </Header>
       )}
 
-      {/* Nếu ĐANG LÀ FULL TEST thì vẫn phải hiện đồng hồ đếm ngược nội bộ của kỹ năng này ở đây cho học viên thấy */}
+      {/* Nếu ĐANG LÀ FULL TEST thì vẫn phải hiện đồng hồ đếm ngược nội bộ */}
       {isFullTest && (
         <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center sticky top-0 z-10 shadow-sm">
           <Text strong className="text-lg text-slate-700">Section: Grammar & Vocabulary</Text>
