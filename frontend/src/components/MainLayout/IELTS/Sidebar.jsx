@@ -59,10 +59,8 @@ const Sidebar = ({
   pathname,
   handleLogout
 }) => {
-  // 🔥 Rút logic từ Hook
   const { isActive } = useSidebar({ pathname });
-
-  const sidebarWidth = sidebarCollapsed ? "w-20" : "w-64"; // Thu nhỏ độ rộng tối đa một chút từ 72 (288px) xuống 64 (256px) cho cân đối
+  const sidebarWidth = sidebarCollapsed ? "w-20" : "w-64";
 
   return (
     <aside
@@ -84,20 +82,18 @@ const Sidebar = ({
         </button>
       </div>
 
-      {/* NAVIGATION (Đã giảm các khoảng hở) */}
-      <nav className="flex-1 px-3 py-5 space-y-4 overflow-y-auto custom-scrollbar">
+      {/* NAVIGATION (flex-1 sẽ đẩy Footer xuống đáy, space-y-6 dàn đều các nhóm) */}
+      <nav className="flex-1 px-3 py-6 space-y-6 overflow-y-auto custom-scrollbar">
         {SIDEBAR_GROUPS.map((group) => (
           <div key={group.title}>
             
-            {/* Group Title (Giảm margin bottom) */}
             {!sidebarCollapsed && (
-              <p className="px-3 mb-1.5 text-[11px] font-bold uppercase text-slate-500 tracking-widest m-0">
+              <p className="px-3 mb-2 text-[11px] font-bold uppercase text-slate-500 tracking-widest m-0">
                 {group.title}
               </p>
             )}
-
-            {/* Group Items (Giảm khoảng cách giữa các nút) */}
-            <div className="space-y-0.5">
+            
+            <div className="space-y-1">
               {group.items.map((item) => (
                 <SidebarLink
                   key={item.to}
@@ -114,13 +110,13 @@ const Sidebar = ({
         ))}
       </nav>
 
-      {/* LOGOUT */}
-      <div className="p-4 border-t border-slate-200 shrink-0">
+      {/* FOOTER & LOGOUT (Được ghim ở đáy, có màu nền nhẹ và viền để phân tách) */}
+      <div className="shrink-0 p-4 border-t border-slate-200 bg-slate-50/50 mt-auto">
         <button
           onClick={handleLogout}
           className={`flex items-center gap-3 w-full rounded-xl transition-colors ${
-            sidebarCollapsed ? "justify-center h-11" : "px-4 py-2.5"
-          } text-slate-600 hover:text-red-600 hover:bg-red-50`}
+            sidebarCollapsed ? "justify-center h-12" : "px-4 py-2.5"
+          } text-slate-600 hover:text-red-600 hover:bg-red-50 bg-white border border-slate-100 shadow-sm`}
         >
           <LogoutOutlined style={{ fontSize: 18 }} />
           {!sidebarCollapsed && (
@@ -137,7 +133,6 @@ const Sidebar = ({
    SIDEBAR LINK
 ========================= */
 const SidebarLink = ({ to, label, icon, active, collapsed }) => {
-  // Giảm padding y từ py-3 xuống py-2.5 để nút gọn hơn
   const baseStyle = "flex items-center gap-3 rounded-xl font-semibold transition-all relative overflow-hidden group";
   const sizeStyle = collapsed ? "justify-center h-11 w-11 mx-auto" : "px-3 py-2.5";
   
@@ -160,7 +155,7 @@ const SidebarLink = ({ to, label, icon, active, collapsed }) => {
         </span>
       )}
 
-      {/* Active Indicator (thanh xanh dọc bên phải khi thu gọn) */}
+      {/* Active Indicator */}
       {collapsed && active && (
         <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-white rounded-l-full" />
       )}
