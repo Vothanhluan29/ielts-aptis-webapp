@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Layout, Button, Typography, Spin, Space, Card, Divider, Alert, Row, Col, message } from 'antd';
+import React from 'react';
+import { Layout, Button, Typography, Spin, Space, Card, Divider, Alert, Row, Col } from 'antd';
 import { 
   PlayCircleOutlined, 
   ClockCircleOutlined,
@@ -9,39 +8,23 @@ import {
   EditOutlined,
   FileTextOutlined
 } from '@ant-design/icons';
-import writingAptisStudentApi from '../../../api/APTIS/writing/writingAptisStudentApi';
+
+import { useWritingAptisLobby } from '../../../hooks/APTIS/writing/useWritingAptisLobby';
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
 
 const WritingAptisLobbyPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  
-  const [loading, setLoading] = useState(true);
-  const [testDetail, setTestDetail] = useState(null);
+  const {
+    loading,
+    testDetail,
+    timeLimit,
+    totalParts,
+    handleStartTest,
+    handleGoBack
+  } = useWritingAptisLobby();
 
-  useEffect(() => {
-    const fetchTestDetail = async () => {
-      try {
-        setLoading(true);
-        const response = await writingAptisStudentApi.getTestDetail(id);
-        const data = response.data || response;
-        setTestDetail(data);
-      } catch (error) {
-        console.error('Error loading test details:', error);
-        message.error('Unable to load test details. Please try again later!');
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchTestDetail();
-  }, [id]);
-
-  const handleStartTest = () => {
-    navigate(`/aptis/writing/taking/${id}`);
-  };
-
+  // LOADING STATE
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -53,13 +36,14 @@ const WritingAptisLobbyPage = () => {
     );
   }
 
+  // NOT FOUND STATE
   if (!testDetail) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50 text-center p-4">
         <Space orientation="vertical">
           <WarningOutlined style={{ fontSize: 48, color: '#faad14' }} />
           <Title level={4}>Test not found</Title>
-          <Button type="primary" onClick={() => navigate('/aptis/writing')}>
+          <Button type="primary" onClick={handleGoBack}>
             Back to list
           </Button>
         </Space>
@@ -67,9 +51,7 @@ const WritingAptisLobbyPage = () => {
     );
   }
 
-  const timeLimit = testDetail.time_limit || 50; // Default Aptis Writing time is approx 50 mins
-  const totalParts = 4; // Aptis Writing always has exactly 4 parts
-
+  // MAIN RENDER
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
       
@@ -171,12 +153,12 @@ const WritingAptisLobbyPage = () => {
               style={{ borderRadius: 12, backgroundColor: '#fffbeb', borderColor: '#fef08a' }}
             />
 
-            {/* NÚT BACK & START ĐẶT CẠNH NHAU */}
+            {/* NÚT BACK & START */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 40, flexWrap: 'wrap' }}>
               
               <Button 
                 size="large" 
-                onClick={() => navigate('/aptis/writing')}
+                onClick={handleGoBack}
                 style={{ 
                   height: 56, 
                   padding: '0 32px', 
