@@ -5,7 +5,7 @@ import {
   CustomerServiceOutlined, BulbOutlined, ClockCircleOutlined,
   TrophyFilled, AimOutlined
 } from '@ant-design/icons';
-import { useListeningAptisResult } from '../../../hooks/APTIS/listening /useListeningAptisResult';
+import { useListeningAptisResult } from '../../../hooks/APTIS/listening/useListeningAptisResult';
 
 const { Content } = Layout;
 const { Text } = Typography;
