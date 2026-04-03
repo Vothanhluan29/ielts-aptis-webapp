@@ -1,8 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Layout, Button, Typography, Spin, Card, Tag, message, Modal, Divider 
-} from 'antd'; 
+import React from 'react';
+import { Layout, Button, Typography, Spin, Card, Tag, Divider } from 'antd'; 
 import { 
   ClockCircleOutlined, ExclamationCircleOutlined, SendOutlined, 
   LeftOutlined, RightOutlined, ReadOutlined, FileTextOutlined
@@ -12,7 +9,9 @@ import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/Multiple
 import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion'; 
 import ReorderQuestion from '../../../components/APTIS/ExamForms/ReorderQuestion'; 
 import FillInBlankQuestion from '../../../components/APTIS/ExamForms/FillInBlankQuestion'; 
-import readingAptisStudentApi from '../../../api/APTIS/reading/readingAptisStudentApi';
+
+// Nhúng Custom Hook
+import { useReadingAptisExam } from '../../../hooks/APTIS/reading/useReadingAptisExam';
 
 const { Header, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -22,123 +21,24 @@ const ReadingAptisExamPage = ({
   testIdFromProps = null,
   onSkillFinish = null 
 }) => {
-  const { id: urlId } = useParams();
-  const navigate = useNavigate();
-
-  const testId = isFullTest ? testIdFromProps : urlId;
-
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [testDetail, setTestDetail] = useState(null);
-  
-  const [currentPartId, setCurrentPartId] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(0);
-
-  const [answers, setAnswers] = useState({});
-  const answersRef = useRef(answers);
-  useEffect(() => { answersRef.current = answers; }, [answers]);
-
-  useEffect(() => {
-    const fetchTest = async () => {
-      try {
-        setLoading(true);
-        if (!testId) throw new Error("Reading test ID not found!");
-
-        const response = await readingAptisStudentApi.getTestDetail(testId);
-        const data = response.data || response;
-        
-        setTestDetail(data);
-        setTimeLeft((data?.time_limit || 35) * 60);
-
-        if (data.parts && data.parts.length > 0) {
-          setCurrentPartId(data.parts[0].id);
-        }
-      } catch (error) {
-        console.error("Error loading test:", error);
-        message.error("Unable to load the test. Please check your connection!");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTest();
-  }, [testId]);
-
-  const parts = testDetail?.parts || [];
-  const activePart = parts.find(p => p.id === currentPartId);
-  const currentTabIndex = parts.findIndex(p => p.id === currentPartId);
-
-  const hasReadingPassage = !!(
-    activePart?.content || 
-    activePart?.groups?.some(g => g.transcript || g.content || g.text || g.image_url)
-  );
-
-  const handleSubmit = async (isAutoSubmit = false) => {
-    if (submitting) return;
-    try {
-      setSubmitting(true);
-      if (isAutoSubmit) {
-        message.warning({ content: "Time's up! The system has automatically submitted your test.", duration: 5 });
-      } else {
-        message.loading({ content: 'Submitting Reading test...', key: 'submit' });
-      }
-
-      const payload = {
-        test_id: parseInt(testId),
-        is_full_test_only: isFullTest,
-        answers: answersRef.current
-      };
-
-      const res = await readingAptisStudentApi.submitTest(payload);
-      const submissionData = res.data || res;
-      
-      message.success({ content: 'Test submitted successfully!', key: 'submit' });
-      
-      if (isFullTest && onSkillFinish) {
-        onSkillFinish(submissionData.id);
-      } else {
-        navigate(`/aptis/reading/result/${submissionData.id}`); 
-      }
-    } catch (error) {
-      console.error("Submit error:", error);
-      message.error({ content: 'A system error occurred while submitting. Please try again!', key: 'submit', duration: 5 });
-      setSubmitting(false);
-    }
-  };
-
-  useEffect(() => {
-    if (loading || submitting || timeLeft <= 0) {
-      if (timeLeft <= 0 && !loading && !submitting && testDetail) handleSubmit(true);
-      return;
-    }
-    const timerId = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-    return () => clearInterval(timerId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, loading, submitting, testDetail]);
-
-  const handleAnswerChange = (questionId, value) => {
-    setAnswers(prev => ({ ...prev, [questionId]: String(value) }));
-  };
-
-  const confirmSubmit = () => {
-    Modal.confirm({
-      title: 'Confirm Submission',
-      icon: <ExclamationCircleOutlined className="text-red-500" />,
-      content: isFullTest 
-        ? 'Are you sure you want to submit? The system will automatically move to the Listening section.'
-        : 'Are you sure you want to submit? The system will end your Reading test immediately.',
-      okText: 'Submit',
-      cancelText: 'Cancel',
-      okButtonProps: { danger: true, className: 'rounded-lg' },
-      cancelButtonProps: { className: 'rounded-lg' },
-      onOk: () => handleSubmit(false)
-    });
-  };
-
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  };
+  const {
+    loading,
+    submitting,
+    testDetail,
+    currentPartId,
+    setCurrentPartId,
+    timeLeft,
+    answers,
+    parts,
+    activePart,
+    currentTabIndex,
+    hasReadingPassage,
+    isTimeRunningOut,
+    handleAnswerChange,
+    confirmSubmit,
+    formatTime,
+    handleGoBackEmpty
+  } = useReadingAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
   const renderQuestionsList = (groups) => {
     return groups?.map((group) => (
@@ -215,6 +115,7 @@ const ReadingAptisExamPage = ({
     ));
   };
 
+  // LOADING STATE
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -226,6 +127,7 @@ const ReadingAptisExamPage = ({
     );
   }
 
+  // EMPTY STATE
   if (parts.length === 0) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -233,14 +135,13 @@ const ReadingAptisExamPage = ({
           <ExclamationCircleOutlined className="text-red-400 text-5xl mb-4 block" />
           <Title level={4}>Empty Test</Title>
           <Text type="secondary">No content has been added to this Reading test yet.</Text>
-          <Button type="primary" onClick={() => navigate('/aptis/reading')} className="mt-6 bg-orange-500 border-none">Go Back</Button>
+          <Button type="primary" onClick={handleGoBackEmpty} className="mt-6 bg-orange-500 border-none">Go Back</Button>
         </Card>
       </div>
     );
   }
 
-  const isTimeRunningOut = timeLeft < 120;
-
+  // MAIN EXAM RENDER
   return (
     <Layout style={{ height: isFullTest ? 'calc(100vh - 64px)' : '100vh', overflow: 'hidden', backgroundColor: '#f8fafc' }}>
       
@@ -270,6 +171,7 @@ const ReadingAptisExamPage = ({
 
       <div className="flex flex-col flex-1 w-full max-w-400 mx-auto p-4 sm:p-6 overflow-hidden">
         
+        {/* TABS NAVIGATION */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-2 custom-scrollbar shrink-0">
           {parts.map((p, idx) => (
             <Button 
@@ -287,8 +189,10 @@ const ReadingAptisExamPage = ({
           ))}
         </div>
         
+        {/* DYNAMIC CONTENT (Split Screen or Single Column) */}
         {hasReadingPassage ? (
           <div className="flex flex-col lg:flex-row gap-6 flex-1 overflow-hidden animation-fade-in">
+            {/* LEFT PANEL: READING PASSAGE */}
             <div className="w-full lg:w-1/2 bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
               <div className="bg-slate-50 border-b border-slate-200 p-4 shrink-0 flex items-center gap-2">
                 <FileTextOutlined className="text-orange-500 text-lg" />
@@ -322,6 +226,7 @@ const ReadingAptisExamPage = ({
               </div>
             </div>
 
+            {/* RIGHT PANEL: QUESTIONS */}
             <div className="w-full lg:w-1/2 bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
               <div className="bg-slate-50 border-b border-slate-200 p-4 shrink-0 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -338,6 +243,7 @@ const ReadingAptisExamPage = ({
             </div>
           </div>
         ) : (
+          /* SINGLE COLUMN (NO PASSAGE) */
           <div className="flex-1 overflow-y-auto custom-scrollbar bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-10 animation-fade-in">
             <div className="max-w-4xl mx-auto">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-8">
@@ -357,6 +263,7 @@ const ReadingAptisExamPage = ({
 
       </div>
 
+      {/* FOOTER */}
       <Footer style={{ backgroundColor: '#fff', borderTop: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10, shrink: 0 }}>
         <Button
           size="large"
