@@ -1,15 +1,15 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { message } from 'antd';
 import authApi from '../api/authApi'; 
 
 export const useStudentProfile = () => {
-  // 1. Lấy context từ MainLayout (nơi chứa state user gốc)
+  // 1. Get context from MainLayout (where the main user state is stored)
   const context = useOutletContext();
   const user = context?.user;
   const refreshUser = context?.refreshUser;
 
-  // 2. Các states xử lý hiệu ứng loading và form
+  // 2. States for loading effects and form handling
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [submittingProfile, setSubmittingProfile] = useState(false);
   
@@ -17,14 +17,14 @@ export const useStudentProfile = () => {
 
   const fileInputRef = useRef(null);
 
-  // Đồng bộ tên từ user context vào form khi trang vừa load xong
+  // Sync full name from user context when the page loads
   useEffect(() => {
     if (user?.full_name) {
       setProfileData({ full_name: user.full_name });
     }
   }, [user]);
 
-  // 3. Xử lý URL Avatar với cache busting
+  // 3. Avatar URL handling with cache busting
   const avatarUrl = useMemo(() => {
     if (!user?.avatar_url) return null;
     return `${user.avatar_url}?t=${new Date().getTime()}`;
@@ -32,60 +32,63 @@ export const useStudentProfile = () => {
 
   /* ===================== HANDLERS ===================== */
 
-  // Cập nhật Avatar
+  // Update avatar
   const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
-      return toast.error('Kích thước ảnh phải nhỏ hơn 2MB');
+      return message.error('Image size must be smaller than 2MB');
     }
 
     setUploadingAvatar(true);
-    const loadingToast = toast.loading('Đang tải ảnh lên...');
+    const loadingMessage = message.loading('Uploading image...', 0);
+
     try {
       await authApi.uploadAvatar(file);
       
       if (refreshUser) {
-        await refreshUser(); 
+        await refreshUser();
       }
       
-      toast.success('Cập nhật ảnh đại diện thành công', { id: loadingToast });
+      message.success('Avatar updated successfully');
     } catch (error) {
       console.error('Upload avatar error:', error);
-      toast.error('Lỗi khi upload ảnh', { id: loadingToast });
+      message.error('Error uploading image');
     } finally {
+      loadingMessage();
       setUploadingAvatar(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  // Cập nhật Thông tin cá nhân (Full Name)
+  // Update profile information (Full Name)
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     
-    // Tránh gửi request nếu người dùng không thay đổi gì
+    // Prevent request if nothing has changed
     if (profileData.full_name === user?.full_name) {
-      return toast.success('Đã lưu thông tin cá nhân!');
+      return message.success('Profile information saved');
     }
 
     setSubmittingProfile(true);
-    const loadingToast = toast.loading('Đang lưu thay đổi...');
+    const loadingMessage = message.loading('Saving changes...', 0);
     
     try {
-      // Nhớ đảm bảo bạn đã tạo hàm updateProfile trong authApi
+      // Ensure updateProfile function exists in authApi
       await authApi.updateProfile({ full_name: profileData.full_name });
       
       if (refreshUser) {
         await refreshUser();
       }
       
-      toast.success('Cập nhật thông tin thành công!', { id: loadingToast });
+      message.success('Profile updated successfully');
     } catch (error) {
       console.error('Update profile error:', error);
-      const errorMsg = error.response?.data?.detail || 'Lỗi khi lưu thông tin';
-      toast.error(errorMsg, { id: loadingToast });
+      const errorMsg = error.response?.data?.detail || 'Error saving profile information';
+      message.error(errorMsg);
     } finally {
+      loadingMessage();
       setSubmittingProfile(false);
     }
   };
