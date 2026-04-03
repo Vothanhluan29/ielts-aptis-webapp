@@ -62,7 +62,7 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
 
   return (
     <div className={`border rounded-2xl p-5 mb-3 flex gap-3.5 animate-in fade-in slide-in-from-bottom-2 ${cardStyle}`}>
-      <div className={`min-w-[32px] h-8 rounded-lg text-white flex items-center justify-center text-xs font-extrabold mt-0.5 ${badgeStyle}`}>
+      <div className={`min-w-8 h-8 rounded-lg text-white flex items-center justify-center text-xs font-extrabold mt-0.5 ${badgeStyle}`}>
         {q.question_number || index + 1}
       </div>
 
@@ -175,7 +175,7 @@ const ListeningAptisResultPage = () => {
             return (
               <button
                 key={p.id} onClick={() => setActivePartId(p.id)}
-                className={`flex-shrink-0 flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-extrabold text-sm transition-all border-2 ${
+                className={`shrink-0 flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-extrabold text-sm transition-all border-2 ${
                   isActive ? 'border-blue-500 bg-blue-50 text-blue-800' : 'border-slate-200 bg-white text-slate-500 hover:opacity-80'
                 }`}
               >
