@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Layout, Button, Typography, Spin, Space, Card, Divider, Alert, Row, Col, message } from 'antd';
+import React from 'react';
+import { Layout, Button, Typography, Spin, Space, Card, Divider, Alert, Row, Col } from 'antd';
 import { 
   PlayCircleOutlined, 
   ClockCircleOutlined,
@@ -9,39 +8,24 @@ import {
   ReadOutlined,
   FileTextOutlined
 } from '@ant-design/icons';
-import readingAptisStudentApi from '../../../api/APTIS/reading/readingAptisStudentApi';
+
+// Nhúng Custom Hook
+import { useReadingAptisLobby } from '../../../hooks/APTIS/reading/useReadingAptisLobby';
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
 
 const ReadingAptisLobbyPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  
-  const [loading, setLoading] = useState(true);
-  const [testDetail, setTestDetail] = useState(null);
+  const {
+    loading,
+    testDetail,
+    totalQuestions,
+    timeLimit,
+    handleStartTest,
+    handleGoBack
+  } = useReadingAptisLobby();
 
-  useEffect(() => {
-    const fetchTestDetail = async () => {
-      try {
-        setLoading(true);
-        const response = await readingAptisStudentApi.getTestDetail(id);
-        const data = response.data || response;
-        setTestDetail(data);
-      } catch (error) {
-        console.error('Error loading test details:', error);
-        message.error('Unable to load test details. Please try again later!');
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchTestDetail();
-  }, [id]);
-
-  const handleStartTest = () => {
-    navigate(`/aptis/reading/taking/${id}`);
-  };
-
+  // LOADING STATE
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -53,13 +37,14 @@ const ReadingAptisLobbyPage = () => {
     );
   }
 
+  // NOT FOUND STATE
   if (!testDetail) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50 text-center p-4">
         <Space orientation="vertical">
           <WarningOutlined style={{ fontSize: 48, color: '#faad14' }} />
           <Title level={4}>Test not found</Title>
-          <Button type="primary" onClick={() => navigate('/aptis/reading')}>
+          <Button type="primary" onClick={handleGoBack}>
             Back to list
           </Button>
         </Space>
@@ -67,23 +52,7 @@ const ReadingAptisLobbyPage = () => {
     );
   }
 
-  // Count total questions (supports Parts -> Groups -> Questions or Parts -> Questions)
-  let totalQuestions = 0;
-  if (testDetail.parts) {
-    testDetail.parts.forEach(part => {
-      if (part.questions) totalQuestions += part.questions.length;
-      if (part.groups) {
-        part.groups.forEach(group => {
-          if (group.questions) totalQuestions += group.questions.length;
-        });
-      }
-    });
-  } else if (testDetail.questions) {
-    totalQuestions = testDetail.questions.length;
-  }
-
-  const timeLimit = testDetail.time_limit || 35; // Default Aptis Reading time is approx 35 mins
-
+  // MAIN RENDER
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
       
@@ -179,12 +148,12 @@ const ReadingAptisLobbyPage = () => {
               style={{ borderRadius: 12, backgroundColor: '#fffbeb', borderColor: '#fef08a' }}
             />
 
-            {/* NÚT BACK & START ĐẶT CẠNH NHAU */}
+            {/* NÚT BACK & START */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 40, flexWrap: 'wrap' }}>
               
               <Button 
                 size="large" 
-                onClick={() => navigate('/aptis/reading')}
+                onClick={handleGoBack}
                 style={{ 
                   height: 56, 
                   padding: '0 32px', 
