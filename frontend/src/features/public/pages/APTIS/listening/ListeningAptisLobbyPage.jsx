@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
 import { Layout, Button, Typography, Spin, Space, Card, Divider, Alert, Row, Col } from 'antd';
 import { 
-  ArrowLeftOutlined, 
   PlayCircleOutlined, 
   ClockCircleOutlined,
   CheckCircleFilled,
@@ -10,36 +8,22 @@ import {
   CustomerServiceOutlined,
   FileDoneOutlined
 } from '@ant-design/icons';
-import listeningAptisStudentApi from '../../../api/APTIS/listening/listeningAptisStudentApi';
+
+// Gọi Custom Hook vào
+import { useListeningAptisLobby } from '../../../hooks/APTIS/listening/useListeningAptisLobby';
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
 
 const ListeningAptisLobbyPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-
-  const [loading, setLoading] = useState(true);
-  const [testDetail, setTestDetail] = useState(null);
-
-  useEffect(() => {
-    const fetchTestDetail = async () => {
-      try {
-        setLoading(true);
-        const data = await listeningAptisStudentApi.getTestDetail(id);
-        setTestDetail(data.data || data); // Đảm bảo lấy đúng data
-      } catch (error) {
-        console.error("Error fetching test details:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchTestDetail();
-  }, [id]);
-
-  const handleStartTest = () => {
-    navigate(`/aptis/listening/taking/${id}`);
-  };
+  const { 
+    loading, 
+    testDetail, 
+    timeLimit, 
+    totalQuestions, 
+    handleStartTest, 
+    handleGoBack 
+  } = useListeningAptisLobby();
 
   if (loading) {
     return (
@@ -58,16 +42,13 @@ const ListeningAptisLobbyPage = () => {
         <Space orientation="vertical">
           <WarningOutlined style={{ fontSize: 48, color: '#faad14' }} />
           <Title level={4}>Test not found</Title>
-          <Button type="primary" onClick={() => navigate('/aptis/listening')}>
+          <Button type="primary" onClick={handleGoBack}>
             Back to list
           </Button>
         </Space>
       </div>
     );
   }
-
-  const timeLimit = testDetail.time_limit || 40; // Default Aptis Listening time is approx 40 mins
-  const totalQuestions = testDetail.questions ? testDetail.questions.length : (testDetail.total_questions || 25);
 
   return (
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
@@ -169,7 +150,7 @@ const ListeningAptisLobbyPage = () => {
               
               <Button 
                 size="large" 
-                onClick={() => navigate('/aptis/listening')}
+                onClick={handleGoBack}
                 style={{ 
                   height: 56, 
                   padding: '0 32px', 
