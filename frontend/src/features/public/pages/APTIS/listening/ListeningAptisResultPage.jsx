@@ -143,7 +143,7 @@ const ListeningAptisResultPage = () => {
               <div className="mx-auto flex flex-col items-center justify-center w-24 h-24 rounded-full mb-2 shadow-inner" style={{ backgroundColor: `${cefrColor}15`, border: `3px solid ${cefrColor}` }}>
                 <span style={{ fontSize: 32, fontWeight: 900, lineHeight: 1, color: cefrColor }}>{cefrLevel}</span>
               </div>
-              <Text strong className="text-slate-500 uppercase tracking-widest text-[10px]">CEFR Level</Text>
+              <Text strong className="text-slate-500 uppercase tracking-widest text-[10px]">Certification Level</Text>
             </Col>
 
             <Col xs={12} md={8} className="text-center md:border-r border-slate-200">
