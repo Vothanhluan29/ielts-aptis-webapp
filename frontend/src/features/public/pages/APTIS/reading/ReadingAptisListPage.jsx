@@ -1,50 +1,22 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  Card, Button, Tag, Typography, Row, Col,
-  Skeleton, Empty, Space, Radio
-} from 'antd';
+import React from 'react';
+import { Card, Button, Tag, Typography, Row, Col, Skeleton, Empty, Space, Radio } from 'antd';
+import { BookOpen, Clock, CheckCircle, AlertCircle, ArrowRight, History, RotateCcw } from 'lucide-react';
 
-import {
-  BookOpen, Clock, CheckCircle,
-  AlertCircle, ArrowRight, History, RotateCcw
-} from 'lucide-react';
-
-import readingAptisStudentApi
-  from '../../../api/APTIS/reading/readingAptisStudentApi';
+// Nhúng Custom Hook vào
+import { useReadingAptisList } from '../../../hooks/APTIS/reading/useReadingAptisList';
 
 const { Title, Paragraph, Text } = Typography;
 
 const ReadingAptisListPage = () => {
-
-  const navigate = useNavigate();
-
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  const [filterStatus, setFilterStatus] = useState('ALL');
-
-  useEffect(() => {
-    fetchTests();
-  }, []);
-
-  const fetchTests = async () => {
-    try {
-      setLoading(true);
-      const response = await readingAptisStudentApi.getListTests();
-      const data = response.data || response || [];
-      setTests(data);
-    } catch (error) {
-      console.error('Error fetching Reading test list:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const filteredTests = useMemo(() => {
-    if (filterStatus === 'ALL') return tests;
-    return tests.filter(test => test.status === filterStatus);
-  }, [tests, filterStatus]);
+  const { 
+    loading, 
+    filterStatus, 
+    setFilterStatus, 
+    filteredTests, 
+    handleNavigateHistory, 
+    handleNavigateLobby, 
+    handleNavigateRetry 
+  } = useReadingAptisList();
 
   const getStatusConfig = (status, testId) => {
     switch (status) {
@@ -55,7 +27,7 @@ const ReadingAptisListPage = () => {
           text: 'Completed',
           icon: <CheckCircle size={14} className="mr-1" />,
           mainBtnText: 'View History',
-          mainBtnAction: () => navigate(`/aptis/reading/history`),
+          mainBtnAction: handleNavigateHistory,
           showRetry: true
         };
       default:
@@ -64,7 +36,7 @@ const ReadingAptisListPage = () => {
           text: 'Not Started',
           icon: <AlertCircle size={14} className="mr-1" />,
           mainBtnText: 'Start Now',
-          mainBtnAction: () => navigate(`/aptis/reading/lobby/${testId}`),
+          mainBtnAction: () => handleNavigateLobby(testId),
           showRetry: false
         };
     }
@@ -107,7 +79,7 @@ const ReadingAptisListPage = () => {
 
           <Button
             icon={<History size={18} />}
-            onClick={() => navigate('/aptis/reading/history')}
+            onClick={handleNavigateHistory}
             className="flex items-center gap-2 rounded-lg font-bold border-slate-200 hover:text-orange-500 shadow-sm h-10"
           >
             History
@@ -222,7 +194,7 @@ const ReadingAptisListPage = () => {
                         icon={<RotateCcw size={16} />}
                         block
                         className="h-11 rounded-xl font-semibold text-slate-500 border-slate-200 hover:text-orange-500 hover:border-orange-500"
-                        onClick={() => navigate(`/aptis/reading/taking/${test.id}`)}
+                        onClick={() => handleNavigateRetry(test.id)}
                       >
                         Retry Test
                       </Button>
