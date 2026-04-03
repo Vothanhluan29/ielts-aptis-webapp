@@ -12,7 +12,7 @@ import {
 } from '@ant-design/icons';
 
 // Nhúng Custom Hook
-import { useReadingAptisHistory } from './useReadingAptisHistory';
+import { useReadingAptisHistory } from '../../../hooks/APTIS/reading/useReadingAptisHistory';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
