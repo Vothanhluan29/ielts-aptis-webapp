@@ -1,68 +1,70 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { 
-  Table, Tag, Space, Typography, Card, Row, Col, 
-  Statistic, Button, Empty, Spin
+  Layout, Table, Tag, Button, Typography, 
+  Card, Empty, Skeleton
 } from 'antd';
 import { 
-  HistoryOutlined, 
-  FileTextOutlined, 
-  EyeOutlined,
+  ArrowLeftOutlined, 
+  EyeOutlined, 
+  HistoryOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  ArrowLeftOutlined
+  EditOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import writingAptisStudentApi from '../../../api/APTIS/writing/writingAptisStudentApi';
 
+// Nhúng Custom Hook
+import { useWritingAptisHistory } from '../../../hooks/APTIS/writing/useWritingAptisHistory';
+
+const { Content } = Layout;
 const { Title, Text } = Typography;
 
+// Helper function để lấy màu Tag theo chuẩn CEFR
+const getCefrColor = (level) => {
+  if (level === 'C') return 'success';
+  if (level?.includes('B')) return 'processing';
+  if (level?.includes('A')) return 'warning';
+  return 'default';
+};
+
 const WritingAptisHistoryPage = () => {
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [history, setHistory] = useState([]);
+  // 🔥 Kéo Data và Handlers từ Hook
+  const { 
+    loading, 
+    history, 
+    stats, 
+    handleGoBack, 
+    handleViewResult 
+  } = useWritingAptisHistory();
 
-  useEffect(() => {
-    fetchHistory();
-  }, []);
-
-  const fetchHistory = async () => {
-    try {
-      setLoading(true);
-      const res = await writingAptisStudentApi.getMyHistory();
-      const data = res.data || res;
-      setHistory(data);
-    } catch (error) {
-      console.error("Error fetching history:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Statistics
-  const stats = {
-    total: history.length,
-    graded: history.filter(h => h.status === 'GRADED').length,
-  };
-
+  // 🔥 Định nghĩa cấu trúc cột Table
   const columns = [
     {
-      title: 'Test',
+      title: 'Test Name',
       dataIndex: ['test', 'title'],
       key: 'title',
-      render: (text) => <Text strong>{text}</Text>,
+      render: (text, record) => (
+        <div className="flex flex-col">
+          <Text strong className="text-slate-700 text-base">
+            {text || `Test #${record.test_id}`}
+          </Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            Submission ID: {record.id}
+          </Text>
+        </div>
+      ),
     },
     {
       title: 'Submission Date',
       dataIndex: 'submitted_at',
-      key: 'submitted_at',
-      sorter: (a, b) => new Date(a.submitted_at) - new Date(b.submitted_at),
-      render: (date) => (
-        <Space>
-          <CalendarOutlined style={{ color: '#8c8c8c' }} />
-          {dayjs(date).format('DD/MM/YYYY HH:mm')}
-        </Space>
+      key: 'date',
+      width: 200,
+      render: date => (
+        <div className="flex items-center gap-2 text-slate-500">
+          <CalendarOutlined />
+          <span>{dayjs(date).format('DD/MM/YYYY HH:mm')}</span>
+        </div>
       ),
     },
     {
@@ -74,54 +76,51 @@ const WritingAptisHistoryPage = () => {
           GRADED: { color: 'success', icon: <CheckCircleOutlined />, text: 'Graded' },
           PENDING: { color: 'warning', icon: <ClockCircleOutlined />, text: 'Pending Review' },
         };
-
         const s = config[status] || { color: 'default', text: status };
 
         return (
-          <Tag color={s.color} icon={s.icon}>
+          <Tag color={s.color} icon={s.icon} className="font-bold border-0 px-2 py-0.5 rounded-md text-sm">
             {s.text}
           </Tag>
         );
       },
     },
     {
-      title: 'Score',
-      dataIndex: 'score',
+      title: 'Result',
       key: 'score',
       align: 'center',
-      render: (score, record) => (
-        record.status === 'GRADED' ? (
-          <Text strong style={{ color: '#52c41a', fontSize: 16 }}>
-            {score}/50
-          </Text>
-        ) : (
-          <Text type="secondary">--</Text>
-        )
-      ),
-    },
-    {
-      title: 'Level',
-      dataIndex: 'cefr_level',
-      key: 'cefr_level',
-      align: 'center',
-      render: (level, record) => (
-        record.status === 'GRADED' ? (
-          <Tag color="blue" style={{ fontWeight: 'bold' }}>
-            {level}
-          </Tag>
-        ) : null
-      ),
+      width: 180,
+      render: (_, record) => {
+        const score = record.score || 0;
+        const cefr = record.cefr_level || 'N/A';
+
+        if (record.status !== 'GRADED') {
+          return <Text type="secondary" className="italic text-sm">Awaiting Score</Text>;
+        }
+
+        return (
+          <div className="flex flex-col items-center gap-1.5">
+            <Tag className="font-bold px-3 py-1 rounded-full border-0 bg-indigo-50 text-indigo-600 m-0 text-sm">
+              {score} / 50
+            </Tag>
+            <Tag color={getCefrColor(cefr)} className="font-bold m-0 border-0 rounded px-2">
+              CEFR: {cefr}
+            </Tag>
+          </div>
+        );
+      },
     },
     {
       title: 'Action',
       key: 'action',
       align: 'right',
+      width: 150,
       render: (_, record) => (
-        <Button 
-          type="primary" 
-          ghost 
-          icon={<EyeOutlined />} 
-          onClick={() => navigate(`/aptis/writing/result/${record.test_id}`)}
+        <Button
+          type="primary"
+          icon={<EyeOutlined />}
+          className="bg-indigo-600 hover:bg-indigo-500 border-none rounded-lg font-semibold shadow-md shadow-indigo-200"
+          onClick={() => handleViewResult(record.id)} // Truyền chính xác record.id (Submission ID)
         >
           View Details
         </Button>
@@ -129,133 +128,92 @@ const WritingAptisHistoryPage = () => {
     },
   ];
 
-  if (loading) {
-    return (
-      <div style={{ textAlign: 'center', padding: '100px' }}>
-        <Spin size="large" />
-      </div>
-    );
-  }
-
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px' }}>
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+      <Content style={{ padding: '40px 24px', maxWidth: 1000, margin: '0 auto', width: '100%' }}>
 
-      {/* BACK BUTTON */}
-      <button
-        onClick={() => navigate('/aptis/writing')}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          padding: '6px 16px',
-          borderRadius: 999,
-          border: '1px solid #e2e8f0',
-          background: '#fff',
-          color: '#475569',
-          fontWeight: 600,
-          cursor: 'pointer',
-          transition: 'all 0.2s',
-          marginBottom: 24,
-        }}
-        onMouseOver={(e) => { e.currentTarget.style.color = '#7c3aed'; e.currentTarget.style.borderColor = '#d8b4fe'; }}
-        onMouseOut={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
-      >
-        <ArrowLeftOutlined />
-        Back
-      </button>
+        {/* NÚT BACK */}
+        <button
+          onClick={handleGoBack}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px',
+            borderRadius: 999, border: '1px solid #e2e8f0', background: '#fff',
+            color: '#475569', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
+            marginBottom: 24,
+          }}
+          onMouseOver={(e) => { e.currentTarget.style.color = '#4f46e5'; e.currentTarget.style.borderColor = '#a5b4fc'; }}
+          onMouseOut={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+        >
+          <ArrowLeftOutlined />
+          Back
+        </button>
 
-      {/* HEADER SECTION */}
-      <div style={{ marginBottom: 32 }}>
-        <Space align="center" style={{ marginBottom: 16 }}>
-          <div style={{ padding: 12, background: '#7c3aed', borderRadius: 12 }}>
-            <HistoryOutlined style={{ fontSize: 24, color: '#fff' }} />
+        {/* BANNER */}
+        <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-5">
+            <div className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-200">
+              <HistoryOutlined style={{ fontSize: 32 }} />
+            </div>
+            <div>
+              <Title level={2} style={{ margin: 0, fontWeight: 800, color: '#1e293b' }}>
+                Writing Test History
+              </Title>
+              <Text className="text-slate-500 text-base">
+                Track your progress, scores, and teacher feedback.
+              </Text>
+            </div>
           </div>
 
-          <div>
-            <Title level={2} style={{ margin: 0 }}>
-              Practice History
-            </Title>
+          {/* Mini Stats (Sử dụng object stats từ Hook) */}
+          {stats && (
+            <Card className="rounded-2xl border-indigo-100 bg-indigo-50/50 shadow-sm" styles={{ body: { padding: '12px 24px' } }}>
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <Text className="block text-[10px] uppercase font-bold text-indigo-600 mb-1">Total Submissions</Text>
+                  <Text className="text-xl font-black text-indigo-800">{stats.totalSubmissions}</Text>
+                </div>
+                <div className="w-px h-10 bg-indigo-200"></div>
+                <div className="text-center">
+                  <Text className="block text-[10px] uppercase font-bold text-indigo-600 mb-1">Graded Tests</Text>
+                  <Text className="text-xl font-black text-indigo-800">{stats.gradedSubmissions}</Text>
+                </div>
+              </div>
+            </Card>
+          )}
+        </div>
 
-            <Text type="secondary">
-              Track your progress and review submitted writing tests
-            </Text>
-          </div>
-        </Space>
-      </div>
-
-      {/* STATS SECTION */}
-      <Row gutter={[16, 16]} style={{ marginBottom: 32 }}>
-        
-        <Col xs={24} sm={12}>
-          <Card 
-            variant="borderless" 
-            style={{ 
-              borderRadius: 16,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-            }}
-          >
-            <Statistic 
-              title="Total Submissions" 
-              value={stats.total} 
-              prefix={
-                <FileTextOutlined style={{ color: '#1890ff' }} />
-              } 
+        {/* MAIN TABLE */}
+        {loading ? (
+          <Card className="rounded-3xl border-0 shadow-sm"><Skeleton active paragraph={{ rows: 6 }} /></Card>
+        ) : history.length === 0 ? (
+          <Card className="rounded-3xl border-0 shadow-sm text-center py-20">
+            <Empty 
+              image={<EditOutlined style={{ fontSize: 64, color: '#cbd5e1' }} />}
+              description={<Text type="secondary" className="text-lg">You have not taken any Writing tests yet.</Text>}
             />
-          </Card>
-        </Col>
-
-        <Col xs={24} sm={12}>
-          <Card 
-            variant="borderless" 
-            style={{ 
-              borderRadius: 16,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-            }}
-          >
-            <Statistic 
-              title="Graded Tests" 
-              value={stats.graded} 
-              prefix={
-                <CheckCircleOutlined style={{ color: '#52c41a' }} />
-              } 
-            />
-          </Card>
-        </Col>
-
-      </Row>
-
-      {/* TABLE SECTION */}
-      <Card 
-        variant="borderless" 
-        style={{ 
-          borderRadius: 16,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-        }}
-      >
-        {history.length > 0 ? (
-          <Table 
-            columns={columns} 
-            dataSource={history} 
-            rowKey="id"
-            pagination={{ pageSize: 10 }}
-            className="custom-table"
-          />
-        ) : (
-          <Empty 
-            image={Empty.PRESENTED_IMAGE_SIMPLE} 
-            description="You have not taken any writing tests yet."
-          >
-            <Button 
-              type="primary" 
-              onClick={() => navigate('/aptis/writing')}
+            <Button
+              type="primary"
+              size="large"
+              className="mt-6 bg-indigo-600 hover:bg-indigo-500 border-none h-12 px-8 rounded-xl font-bold shadow-md shadow-indigo-200"
+              onClick={handleGoBack}
             >
               Start Practice
             </Button>
-          </Empty>
+          </Card>
+        ) : (
+          <Card className="rounded-3xl border-0 shadow-sm overflow-hidden" styles={{ body: { padding: 0 } }}>
+            <Table
+              columns={columns}
+              dataSource={history}
+              rowKey="id"
+              pagination={{ pageSize: 8, hideOnSinglePage: true }}
+              scroll={{ x: 700 }}
+              className="custom-history-table"
+            />
+          </Card>
         )}
-      </Card>
-
-    </div>
+      </Content>
+    </Layout>
   );
 };
 
