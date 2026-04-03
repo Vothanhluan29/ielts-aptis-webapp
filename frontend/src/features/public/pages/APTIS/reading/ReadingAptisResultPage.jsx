@@ -1,22 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
 import { Spin, Result, Button, Typography, Layout, Row, Col, Card, Tag, Divider } from 'antd';
 import {
-  ArrowLeftOutlined,
-  CheckCircleFilled,
-  CloseCircleFilled,
-  ReadOutlined,
-  BulbOutlined,
-  ClockCircleOutlined,
-  TrophyFilled,
-  AimOutlined
+  ArrowLeftOutlined, CheckCircleFilled, CloseCircleFilled,
+  ReadOutlined, BulbOutlined, ClockCircleOutlined,
+  TrophyFilled, AimOutlined
 } from '@ant-design/icons';
-import readingAptisStudentApi from '../../../api/APTIS/reading/readingAptisStudentApi';
 
-const { Header, Content } = Layout;
-const { Text, Title, Paragraph } = Typography;
+// Nhúng Custom Hook
+import { useReadingAptisResult } from './useReadingAptisResult';
 
-/* ─── helpers ───────────────────────────── */
+const { Content } = Layout;
+const { Text, Title } = Typography;
+
+/* ─── Helpers ───────────────────────────── */
 const safeParse = (data, defaultVal = {}) => {
   if (!data) return defaultVal;
   if (typeof data === 'object') return data;
@@ -26,36 +22,16 @@ const safeParse = (data, defaultVal = {}) => {
 const getOptionLabel = (optionsObj, key) => {
   if (!key) return 'No answer selected';
   const p = safeParse(optionsObj);
-  // If answer is a joined string (e.g. Matching/Reorder "A-B-C"), display as-is
+  // Dành cho Matching/Reorder "A-B-C"
   if (typeof key === 'string' && key.includes('-')) return key;
   return p[key] ? `${key}. ${p[key]}` : key;
 };
 
-// CEFR color helper
 const getCefrColor = (level) => {
   if (level === 'C') return '#10b981'; // Emerald
   if (level?.includes('B')) return '#3b82f6'; // Blue
   if (level?.includes('A')) return '#f59e0b'; // Amber
   return '#94a3b8'; // Gray
-};
-
-/* ─── Score Arc SVG ─────────────────────── */
-const ScoreArc = ({ pct }) => {
-  const r = 54;
-  const circ = Math.PI * r; 
-  const dash = circ * Math.min(pct, 1);
-  const color = pct >= 0.8 ? '#10b981' : pct >= 0.5 ? '#f97316' : '#ef4444'; 
-  
-  return (
-    <svg width="140" height="82" viewBox="0 0 140 82">
-      <path d="M 14 76 A 56 56 0 0 1 126 76" fill="none" stroke="#e2e8f0" strokeWidth="10" strokeLinecap="round" />
-      <path d="M 14 76 A 56 56 0 0 1 126 76" fill="none" stroke={color} strokeWidth="10" strokeLinecap="round"
-        strokeDasharray={`${dash} ${circ}`}
-        style={{ transition: 'stroke-dasharray 1s cubic-bezier(.4,0,.2,1)' }}
-      />
-      <TrophyOutlined style={{ display: 'none' }} />
-    </svg>
-  );
 };
 
 /* ─── Question Review Card ──────────────── */
@@ -70,7 +46,6 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
   const getCorrectDisplay = () => {
     if (!correctAnswerRaw) return 'Answer not provided by the system';
     if (parsedOptions[correctAnswerRaw]) return `${correctAnswerRaw}. ${parsedOptions[correctAnswerRaw]}`;
-    
     if (typeof correctAnswerRaw === 'string' && correctAnswerRaw.includes('-')) return correctAnswerRaw;
 
     const found = Object.entries(parsedOptions).find(
@@ -79,72 +54,43 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
     return found ? `${found[0]}. ${found[1]}` : correctAnswerRaw;
   };
 
-  const accent = isCorrect ? '#10b981' : isSkipped ? '#94a3b8' : '#ef4444';
-  const bg     = isCorrect ? '#f0fdf4' : isSkipped ? '#f8fafc' : '#fff5f5';
-  const border = isCorrect ? '#bbf7d0' : isSkipped ? '#e2e8f0' : '#fecaca';
+  // Tailwind dynamic classes
+  const cardStyle = isCorrect ? 'bg-green-50 border-green-200' : isSkipped ? 'bg-slate-50 border-slate-200' : 'bg-red-50 border-red-200';
+  const badgeStyle = isCorrect ? 'bg-green-500' : isSkipped ? 'bg-slate-400' : 'bg-red-500';
 
   return (
-    <div style={{
-      background: bg, border: `1px solid ${border}`, borderRadius: 16,
-      padding: '18px 20px', marginBottom: 12, display: 'flex', gap: 14,
-      animation: 'fadeUp .3s ease both',
-    }}>
-      <div style={{
-        minWidth: 32, height: 32, borderRadius: 10, background: accent, color: '#fff',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontSize: 12, fontWeight: 800, flexShrink: 0, marginTop: 2,
-      }}>
+    <div className={`border rounded-2xl p-5 mb-3 flex gap-3.5 animate-in fade-in slide-in-from-bottom-2 ${cardStyle}`}>
+      <div className={`min-w-[32px] h-8 rounded-lg text-white flex items-center justify-center text-xs font-extrabold mt-0.5 ${badgeStyle}`}>
         {q.question_number || index + 1}
       </div>
 
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b', marginBottom: 12, lineHeight: 1.5 }}>
-          {q.question_text}
-        </div>
+      <div className="flex-1 min-w-0">
+        <div className="text-sm font-bold text-slate-800 mb-3 leading-relaxed">{q.question_text}</div>
 
-        <div style={{
-          display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 14px', borderRadius: 10,
-          background: isCorrect ? '#dcfce7' : '#fee2e2', border: `1px solid ${isCorrect ? '#86efac' : '#fca5a5'}`,
-          marginBottom: !isCorrect && correctAnswerRaw ? 8 : 0,
-        }}>
-          {isCorrect
-            ? <CheckCircleFilled style={{ color: '#16a34a', marginTop: 2, flexShrink: 0 }} />
-            : <CloseCircleFilled style={{ color: '#dc2626', marginTop: 2, flexShrink: 0 }} />
-          }
-          <span style={{ fontSize: 13 }}>
-            <strong style={{ color: isCorrect ? '#15803d' : '#b91c1c' }}>Your answer: </strong>
-            <span style={{ color: isCorrect ? '#166534' : '#7f1d1d' }}>
-              {getOptionLabel(q.options, userAnswerKey)}
-            </span>
+        <div className={`flex items-start gap-2 p-2.5 rounded-lg border mb-2 ${isCorrect ? 'bg-green-100 border-green-300' : 'bg-red-100 border-red-300'}`}>
+          {isCorrect ? <CheckCircleFilled className="text-green-600 mt-0.5" /> : <CloseCircleFilled className="text-red-600 mt-0.5" />}
+          <span className="text-[13px]">
+            <strong className={isCorrect ? 'text-green-800' : 'text-red-800'}>Your answer: </strong>
+            <span className={isCorrect ? 'text-green-900' : 'text-red-900'}>{isSkipped ? "Skipped" : getOptionLabel(q.options, userAnswerKey)}</span>
           </span>
         </div>
 
         {!isCorrect && correctAnswerRaw && (
-          <div style={{
-            display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 14px', borderRadius: 10,
-            background: '#fff7ed', border: '1px solid #fed7aa', marginBottom: explanation ? 8 : 0,
-          }}>
-            <CheckCircleFilled style={{ color: '#ea580c', marginTop: 2, flexShrink: 0 }} />
-            <span style={{ fontSize: 13 }}>
-              <strong style={{ color: '#c2410c' }}>Correct answer: </strong>
-              <span style={{ color: '#9a3412' }}>{getCorrectDisplay()}</span>
+          <div className="flex items-start gap-2 p-2.5 rounded-lg bg-orange-50 border border-orange-200 mb-2">
+            <CheckCircleFilled className="text-orange-600 mt-0.5" />
+            <span className="text-[13px]">
+              <strong className="text-orange-700">Correct answer: </strong>
+              <span className="text-orange-900">{getCorrectDisplay()}</span>
             </span>
           </div>
         )}
 
         {explanation && (
-          <div style={{
-            display: 'flex', gap: 10, padding: '10px 14px', borderRadius: 10, background: '#fffbeb',
-            border: '1px solid #ffedd5', marginTop: explanation && !isCorrect ? 0 : 8,
-          }}>
-            <BulbOutlined style={{ color: '#f97316', flexShrink: 0, marginTop: 2 }} />
+          <div className="flex gap-2.5 p-3 rounded-lg bg-orange-50/50 border border-orange-100 mt-2">
+            <BulbOutlined className="text-orange-500 mt-0.5" />
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#ea580c', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Explanation
-              </div>
-              <div style={{ fontSize: 13, color: '#9a3412', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                {explanation}
-              </div>
+              <div className="text-xs font-extrabold text-orange-600 mb-1 uppercase tracking-wide">Explanation</div>
+              <div className="text-[13px] text-orange-900 leading-relaxed whitespace-pre-wrap">{explanation}</div>
             </div>
           </div>
         )}
@@ -155,109 +101,48 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
 
 /* ─── Main Page ──────────────────────────── */
 const ReadingAptisResultPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  
-  const [loading, setLoading] = useState(true);
-  const [submission, setSubmission] = useState(null);
-  const [testDetail, setTestDetail] = useState(null);
-  const [activePartId, setActivePartId] = useState(null);
+  // 🔥 Rút Data và Handlers từ Hook
+  const {
+    loading,
+    submission,
+    testDetail,
+    activePartId,
+    setActivePartId,
+    computedData,
+    handleGoBack
+  } = useReadingAptisResult();
 
-  /* ── fetch logic ── */
-  useEffect(() => {
-    const fetchResult = async () => {
-      try {
-        setLoading(true);
-
-        const testRes = await readingAptisStudentApi.getTestDetail(id);
-        const testData = testRes.data || testRes;
-        setTestDetail(testData);
-
-        if (testData.parts?.length > 0) {
-          setActivePartId(testData.parts[0].id);
-        }
-
-        const historyRes = await readingAptisStudentApi.getMyHistory();
-        const historyList = historyRes.data || historyRes || [];
-        const testSubmissions = historyList.filter(item => item.test_id === parseInt(id));
-
-        if (testSubmissions.length > 0) {
-          const latestSub = testSubmissions.sort((a, b) => b.id - a.id)[0];
-          const detailsRes = await readingAptisStudentApi.getSubmissionDetail(latestSub.id);
-          const subData = detailsRes.data || detailsRes;
-          setSubmission(subData);
-        } else {
-          setSubmission(null);
-        }
-
-      } catch (err) {
-        console.error('Error fetching result:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchResult();
-  }, [id]);
-
-  /* ── loading & not found ── */
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
-      <div style={{ textAlign: 'center' }}>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="text-center">
         <Spin size="large" />
-        <div style={{ marginTop: 12, color: '#94a3b8', fontSize: 14 }}>Loading results...</div>
+        <div className="mt-3 text-slate-400 text-sm">Loading results...</div>
       </div>
     </div>
   );
 
-  if (!submission) return (
-    <div style={{ minHeight: '100vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <Result
-        status="404"
-        title="Result Not Found"
-        subTitle="This submission has not been submitted or does not exist."
-        extra={<Button type="primary" onClick={() => navigate('/aptis/reading')} className="bg-orange-500 border-none">Back to List</Button>}
-      />
+  if (!submission || !testDetail || !computedData) return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <Result status="404" title="Result Not Found" subTitle="This submission does not exist." extra={<Button type="primary" onClick={handleGoBack} className="bg-orange-500 border-none">Back to List</Button>} />
     </div>
   );
 
-  /* ── DATA FROM BACKEND ── */
-  const parts = testDetail?.parts || [];
-  const resultsArray = submission.results || [];
-  
-  const cefrLevel = submission.cefr_level || "N/A";
-  const scoreVal = submission.score || 0;
-  const correctCount = submission.correct_count || 0;
-  
-  let totalQuestions = 0;
-  parts.forEach(p => {
-    p.groups?.forEach(g => {
-      totalQuestions += g.questions?.length || 0;
-    });
-  });
-
-  const dateStr = submission.submitted_at || submission.created_at;
-  const submitDate = dateStr
-    ? new Date(dateStr).toLocaleDateString('en-US', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
-    : 'N/A';
-
+  // Giải nén các biến đã được hook tính toán xong
+  const { parts, resultsArray, cefrLevel, scoreVal, correctCount, totalQuestions, submitDate, activePart } = computedData;
   const cefrColor = getCefrColor(cefrLevel);
-  const activePart = parts.find(p => p.id === activePartId);
 
-  // --- RENDER QUESTION REVIEW (SINGLE COLUMN LAYOUT) ---
+  // Render câu hỏi cho phần Review
   const renderReviewQuestions = (groups) => {
     return groups?.map((group) => (
       <div key={group.id} className="mb-10 last:mb-0">
         {group.instruction && (
           <div className="mb-6 p-4 bg-orange-50 rounded-xl border-l-4 border-orange-500">
-            <Text className="text-orange-800 font-bold text-base whitespace-pre-wrap">
-              {group.instruction}
-            </Text>
+            <Text className="text-orange-800 font-bold text-base whitespace-pre-wrap">{group.instruction}</Text>
           </div>
         )}
-
         <div className="space-y-4 pl-2">
           {group.questions?.map((q, idx) => {
-            const qResult = resultsArray.find(r => r.id === q.id);
+            const qResult = resultsArray.find(r => r.id === q.id || String(r.question_number) === String(q.question_number));
             return <QuestionReviewCard key={q.id} q={q} index={idx} qResult={qResult} />;
           })}
         </div>
@@ -267,181 +152,79 @@ const ReadingAptisResultPage = () => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#f8fafc' }}>
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .tab-btn { transition: all .2s ease; }
-        .tab-btn:hover { opacity: .85; }
-        .animation-fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(5px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
-
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 12,
-          marginBottom: 28,
-          padding: '24px 24px 0',
-        }}
-      >
-        {/* Back button */}
-        <button
-          onClick={() => navigate('/aptis/reading')}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '6px 16px',
-            borderRadius: 999,
-            border: '1px solid #e2e8f0',
-            background: '#f8fafc',
-            color: '#475569',
-            fontWeight: 600,
-            cursor: 'pointer',
-            transition: 'all 0.2s'
-          }}
-        >
-          <ArrowLeftOutlined />
-          Test List
+    <Layout className="min-h-screen bg-slate-50">
+      
+      {/* CUSTOM HEADER */}
+      <div className="flex items-center gap-3 mb-7 px-6 pt-6">
+        <button onClick={handleGoBack} className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600 font-semibold hover:bg-slate-100 transition-all">
+          <ArrowLeftOutlined /> Test List
         </button>
-
-        {/* Vertical divider */}
-        <div
-          style={{
-            width: 1,
-            height: 20,
-            background: '#fdba74'
-          }}
-        />
-
-        {/* Category badge */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            padding: '6px 16px',
-            borderRadius: 999,
-            background: '#fff7ed',
-            border: '1px solid #fdba74',
-            color: '#ea580c',
-            fontWeight: 700,
-            fontSize: 13
-          }}
-        >
-          <ReadOutlined />
-          READING
+        <div className="w-px h-5 bg-orange-300" />
+        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-orange-50 border border-orange-300 text-orange-600 font-bold text-[13px]">
+          <ReadOutlined /> READING
         </div>
-
-        {/* Test title */}
-        <span
-          style={{
-            fontSize: 16,
-            fontWeight: 700,
-            color: '#1e293b',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          {testDetail?.title}
-        </span>
+        <span className="text-base font-bold text-slate-800 truncate">{testDetail?.title}</span>
       </div>
 
-      <Content style={{ padding: '32px 24px', maxWidth: 1000, margin: '0 auto', width: '100%' }}>
+      <Content className="px-6 pb-8 max-w-5xl mx-auto w-full">
 
-        {/* ── SCORE CARD (3 COLUMNS) ── */}
+        {/* ── SCORE CARD ── */}
         <Card variant="borderless" className="rounded-3xl mb-8 shadow-sm border-slate-200" styles={{ body: { padding: '32px' } }}>
           <Row gutter={[24, 24]} align="middle">
-            
-            {/* Column 1: CEFR */}
             <Col xs={24} md={8} className="text-center md:border-r border-slate-200">
               <div className="mx-auto flex flex-col items-center justify-center w-32 h-32 rounded-full mb-3 shadow-inner" style={{ backgroundColor: `${cefrColor}15`, border: `4px solid ${cefrColor}` }}>
                 <TrophyFilled style={{ fontSize: 24, color: cefrColor, marginBottom: 8 }} />
-                <span style={{ fontSize: 40, fontWeight: 900, lineHeight: 1, color: cefrColor }}>
-                  {cefrLevel}
-                </span>
+                <span style={{ fontSize: 40, fontWeight: 900, lineHeight: 1, color: cefrColor }}>{cefrLevel}</span>
               </div>
               <Text strong className="text-slate-500 uppercase tracking-widest text-xs">CEFR Level</Text>
             </Col>
 
-            {/* Column 2: Aptis Score */}
             <Col xs={12} md={8} className="text-center md:border-r border-slate-200">
-              <div className="mb-2">
-                <AimOutlined className="text-3xl text-orange-500 mb-2" />
-              </div>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#1e293b', lineHeight: 1 }}>
-                {scoreVal} <span className="text-xl text-slate-400 font-bold">/ 50</span>
-              </div>
+              <AimOutlined className="text-3xl text-orange-500 mb-2 block" />
+              <div className="text-3xl font-black text-slate-800 leading-none">{scoreVal} <span className="text-xl text-slate-400">/ 50</span></div>
               <Text strong className="text-slate-500 uppercase tracking-widest text-xs mt-2 block">Aptis Score</Text>
             </Col>
 
-            {/* Column 3: Correct Answers */}
             <Col xs={12} md={8} className="text-center">
-              <div className="mb-2">
-                <CheckCircleFilled className="text-3xl text-emerald-500 mb-2" />
-              </div>
-              <div style={{ fontSize: 32, fontWeight: 900, color: '#1e293b', lineHeight: 1 }}>
-                {correctCount} <span className="text-xl text-slate-400 font-bold">/ {totalQuestions}</span>
-              </div>
+              <CheckCircleFilled className="text-3xl text-green-500 mb-2 block" />
+              <div className="text-3xl font-black text-slate-800 leading-none">{correctCount} <span className="text-xl text-slate-400">/ {totalQuestions}</span></div>
               <Text strong className="text-slate-500 uppercase tracking-widest text-xs mt-2 block">Correct Answers</Text>
             </Col>
-
           </Row>
 
-          <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-center gap-2 text-slate-500">
-            <ClockCircleOutlined /> 
-            <span>Submitted at: <strong className="text-slate-700">{submitDate}</strong></span>
+          <div className="mt-8 pt-6 border-t border-slate-100 text-center text-slate-500 flex items-center justify-center gap-2">
+            <ClockCircleOutlined /> Submitted at: <strong className="text-slate-700">{submitDate}</strong>
           </div>
         </Card>
 
         {/* ── PART TABS ── */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 24, animation: 'fadeUp .45s ease both', overflowX: 'auto', paddingBottom: 8 }} className="custom-scrollbar">
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-2 custom-scrollbar animate-in fade-in slide-in-from-bottom-2">
           {parts.map((p, i) => {
             const isActive = activePartId === p.id;
             const count = p.groups?.reduce((sum, g) => sum + (g.questions?.length || 0), 0) || 0;
-
             return (
               <button
-                key={p.id}
-                className="tab-btn"
-                onClick={() => setActivePartId(p.id)}
-                style={{
-                  padding: '10px 24px', borderRadius: 14, flexShrink: 0,
-                  border: isActive ? '2px solid #f97316' : '2px solid #e2e8f0',
-                  background: isActive ? '#fff7ed' : '#fff', color: isActive ? '#c2410c' : '#64748b',
-                  fontWeight: 800, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10,
-                }}
+                key={p.id} onClick={() => setActivePartId(p.id)}
+                className={`flex-shrink-0 flex items-center gap-2.5 px-6 py-2.5 rounded-xl font-extrabold text-sm transition-all border-2 ${
+                  isActive ? 'border-orange-500 bg-orange-50 text-orange-800' : 'border-slate-200 bg-white text-slate-500 hover:opacity-80'
+                }`}
               >
                 Part {p.part_number || i + 1}
-                <span style={{
-                  background: isActive ? '#f97316' : '#f1f5f9', color: isActive ? '#fff' : '#94a3b8',
-                  borderRadius: 999, padding: '2px 10px', fontSize: 12, fontWeight: 800,
-                }}>
-                  {count}
-                </span>
+                <span className={`px-2.5 py-0.5 rounded-full text-xs ${isActive ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-400'}`}>{count}</span>
               </button>
             );
           })}
         </div>
 
-        {/* SINGLE COLUMN LAYOUT — Question Review for all Parts */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-10 animation-fade-in">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-8">
-                <ReadOutlined className="text-orange-500 text-2xl" />
-                <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Detailed Question Explanations</Title>
-              </div>
-              
-              {renderReviewQuestions(activePart?.groups)}
+        {/* ── SINGLE COLUMN LAYOUT ── */}
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-10 animate-in fade-in">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-8">
+              <ReadOutlined className="text-orange-500 text-2xl" />
+              <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Detailed Question Explanations</Title>
             </div>
+            {renderReviewQuestions(activePart?.groups)}
+          </div>
         </div>
 
       </Content>
