@@ -18,9 +18,9 @@ const AverageAptisSkillScores = ({ skillStats }) => {
     <Card 
       variant="borderless" 
       className="rounded-3xl shadow-sm border-slate-200 h-full" 
-      title={<span className="font-bold text-slate-700">Average Skill Levels (CEFR)</span>}
+      title={<span className="font-bold text-slate-700">Average Skill Levels (Certification)</span>}
     >
-      <div className="space-y-6"> {/* Tăng khoảng cách giữa các hàng cho thoáng */}
+      <div className="space-y-6"> 
         {skillStats?.map((stat) => {
           const config = SKILL_CONFIG[stat.skill];
           if (!config) return null;

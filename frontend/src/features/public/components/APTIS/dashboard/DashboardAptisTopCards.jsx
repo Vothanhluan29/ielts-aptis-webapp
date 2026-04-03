@@ -16,13 +16,13 @@ const DashboardAptisTopCards = ({ stats }) => {
           <Text className="text-slate-500 font-bold text-xs uppercase tracking-wider">Total Full Tests</Text>
           <div className="mt-2 flex items-end gap-2">
             <span className="text-5xl font-black text-indigo-600">{stats?.total_exams || 0}</span>
-            <span className="text-slate-400 font-medium mb-1">tests completed</span>
+            <span className="text-slate-400 font-medium mb-1">Tests Completed</span>
           </div>
         </Card>
       </Col>
       <Col xs={24} md={8}>
         <Card variant="borderless" className="rounded-3xl shadow-sm h-full border-slate-200">
-          <Text className="text-slate-500 font-bold text-xs uppercase tracking-wider">Highest CEFR</Text>
+          <Text className="text-slate-500 font-bold text-xs uppercase tracking-wider">Highest Certification Level</Text>
           <div className="mt-2 flex items-center gap-4">
             <div 
               className="w-14 h-14 rounded-2xl flex items-center justify-center text-white text-3xl font-black shadow-sm"
@@ -30,7 +30,7 @@ const DashboardAptisTopCards = ({ stats }) => {
             >
               {stats?.highest_cefr || '-'}
             </div>
-            {stats?.highest_cefr && <Text className="text-slate-400 font-medium">Common European Framework</Text>}
+            {stats?.highest_cefr && <Text className="text-slate-400 font-medium"></Text>}
           </div>
         </Card>
       </Col>
