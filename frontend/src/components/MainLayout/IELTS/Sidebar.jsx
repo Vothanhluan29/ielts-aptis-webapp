@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
 import {
   DashboardOutlined,
   BookOutlined,
@@ -14,64 +13,38 @@ import {
   AppstoreOutlined
 } from "@ant-design/icons";
 
+// Nhúng Custom Hook
+import { useSidebar } from "../../../hooks/MainLayout/useSidebar";
+
 /* =========================
    MENU CONFIG
 ========================= */
-
 const SIDEBAR_GROUPS = [
   {
     title: "Main Menu",
     items: [
-      {
-        to: "/dashboard",
-        label: "Dashboard",
-        icon: DashboardOutlined
-      }
+      { to: "/dashboard", label: "Dashboard", icon: DashboardOutlined }
     ]
   },
   {
     title: "Exams",
     items: [
-      {
-        to: "/exam",
-        label: "Full Tests",
-        icon: AppstoreOutlined
-      }
+      { to: "/exam", label: "Full Tests", icon: AppstoreOutlined }
     ]
   },
   {
     title: "Practice Skills",
     items: [
-      {
-        to: "/listening",
-        label: "Listening",
-        icon: CustomerServiceOutlined
-      },
-      {
-        to: "/reading",
-        label: "Reading",
-        icon: BookOutlined
-      },
-      {
-        to: "/writing",
-        label: "Writing",
-        icon: EditOutlined
-      },
-      {
-        to: "/speaking",
-        label: "Speaking",
-        icon: AudioOutlined
-      }
+      { to: "/listening", label: "Listening", icon: CustomerServiceOutlined },
+      { to: "/reading", label: "Reading", icon: BookOutlined },
+      { to: "/writing", label: "Writing", icon: EditOutlined },
+      { to: "/speaking", label: "Speaking", icon: AudioOutlined }
     ]
   },
   {
     title: "Settings",
     items: [
-      {
-        to: "/profile",
-        label: "Profile",
-        icon: UserOutlined
-      }
+      { to: "/profile", label: "Profile", icon: UserOutlined }
     ]
   }
 ];
@@ -79,7 +52,6 @@ const SIDEBAR_GROUPS = [
 /* =========================
    MAIN SIDEBAR
 ========================= */
-
 const Sidebar = ({
   sidebarOpen,
   sidebarCollapsed,
@@ -87,188 +59,74 @@ const Sidebar = ({
   pathname,
   handleLogout
 }) => {
+  // 🔥 Rút logic từ Hook
+  const { isActive } = useSidebar({ pathname });
 
-  const sidebarWidth =
-    sidebarCollapsed
-      ? "w-20"
-      : "w-72";
-
-  const isActive = (path) =>
-    pathname.startsWith(path);
+  const sidebarWidth = sidebarCollapsed ? "w-20" : "w-64"; // Thu nhỏ độ rộng tối đa một chút từ 72 (288px) xuống 64 (256px) cho cân đối
 
   return (
     <aside
-      className={`
-      fixed inset-y-0 left-0 z-50 ${sidebarWidth}
-
-      bg-linear-to-b
-      from-blue-100
-      via-sky-50
-      to-white
-
-      border-r border-slate-200
-      flex flex-col
-      transition-all duration-300
-      shadow-lg
-
-      ${sidebarOpen
-        ? "translate-x-0"
-        : "-translate-x-full"}
-
-      md:translate-x-0
-      md:relative
-      `}
+      className={`fixed inset-y-0 left-0 z-50 ${sidebarWidth} bg-linear-to-b from-blue-100 via-sky-50 to-white border-r border-slate-200 flex flex-col transition-all duration-300 shadow-lg ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:relative`}
     >
 
       {/* LOGO */}
-
-      <div
-        className="
-        h-20
-        flex items-center justify-between
-        px-5
-        border-b border-slate-200
-        "
-      >
-
+      <div className="h-20 flex items-center justify-between px-5 border-b border-slate-200 shrink-0">
         {!sidebarCollapsed && (
-          <h1
-            className="
-            text-xl
-            font-black
-            tracking-wide
-            text-blue-700
-            "
-          >
+          <h1 className="text-xl font-black tracking-wide text-blue-700 m-0">
             IELTS PRO
           </h1>
         )}
-
         <button
-          onClick={() =>
-            setSidebarCollapsed(
-              !sidebarCollapsed
-            )
-          }
-          className="
-          p-2
-          rounded-lg
-          bg-white
-          border border-slate-200
-          hover:bg-sky-100
-          transition
-          "
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className="p-2 rounded-lg bg-white border border-slate-200 hover:bg-sky-100 transition text-slate-600 mx-auto"
         >
-
-          {sidebarCollapsed
-            ? <MenuUnfoldOutlined />
-            : <MenuFoldOutlined />
-          }
-
+          {sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         </button>
-
       </div>
 
-      {/* NAVIGATION */}
+      {/* NAVIGATION (Đã giảm các khoảng hở) */}
+      <nav className="flex-1 px-3 py-5 space-y-4 overflow-y-auto custom-scrollbar">
+        {SIDEBAR_GROUPS.map((group) => (
+          <div key={group.title}>
+            
+            {/* Group Title (Giảm margin bottom) */}
+            {!sidebarCollapsed && (
+              <p className="px-3 mb-1.5 text-[11px] font-bold uppercase text-slate-500 tracking-widest m-0">
+                {group.title}
+              </p>
+            )}
 
-      <nav
-        className="
-        flex-1
-        p-4
-        space-y-6
-        overflow-y-auto
-        "
-      >
-
-        {SIDEBAR_GROUPS.map(
-          (group) => (
-            <div key={group.title}>
-
-              {!sidebarCollapsed && (
-                <p
-                  className="
-                  px-3
-                  mb-3
-                  text-xs
-                  font-bold
-                  uppercase
-                  text-slate-500
-                  tracking-widest
-                  "
-                >
-                  {group.title}
-                </p>
-              )}
-
-              <div className="space-y-1">
-
-                {group.items.map(
-                  (item) => (
-                    <SidebarLink
-                      key={item.to}
-                      to={item.to}
-                      label={item.label}
-                      icon={item.icon}
-                      active={
-                        isActive(item.to)
-                      }
-                      collapsed={
-                        sidebarCollapsed
-                      }
-                    />
-                  )
-                )}
-
-              </div>
-
+            {/* Group Items (Giảm khoảng cách giữa các nút) */}
+            <div className="space-y-0.5">
+              {group.items.map((item) => (
+                <SidebarLink
+                  key={item.to}
+                  to={item.to}
+                  label={item.label}
+                  icon={item.icon}
+                  active={isActive(item.to)}
+                  collapsed={sidebarCollapsed}
+                />
+              ))}
             </div>
-          )
-        )}
 
+          </div>
+        ))}
       </nav>
 
       {/* LOGOUT */}
-
-      <div
-        className="
-        p-4
-        border-t border-slate-200
-        "
-      >
-
+      <div className="p-4 border-t border-slate-200 shrink-0">
         <button
           onClick={handleLogout}
-          className={`
-          flex items-center gap-3
-          w-full
-          rounded-lg
-          transition
-
-          ${sidebarCollapsed
-            ? "justify-center h-12"
-            : "px-4 py-3"}
-
-          text-slate-600
-          hover:text-red-600
-          hover:bg-red-100
-          `}
+          className={`flex items-center gap-3 w-full rounded-xl transition-colors ${
+            sidebarCollapsed ? "justify-center h-11" : "px-4 py-2.5"
+          } text-slate-600 hover:text-red-600 hover:bg-red-50`}
         >
-
-          <LogoutOutlined />
-
+          <LogoutOutlined style={{ fontSize: 18 }} />
           {!sidebarCollapsed && (
-            <span
-              className="
-              text-sm
-              font-semibold
-              "
-            >
-              Sign Out
-            </span>
+            <span className="text-[15px] font-semibold">Sign Out</span>
           )}
-
         </button>
-
       </div>
 
     </aside>
@@ -278,74 +136,34 @@ const Sidebar = ({
 /* =========================
    SIDEBAR LINK
 ========================= */
-
-const SidebarLink = ({
-  to,
-  label,
-  icon,
-  active,
-  collapsed
-}) => {
-
-  const base =
-    "flex items-center gap-3 rounded-lg font-semibold transition relative";
-
-  const size =
-    collapsed
-      ? "justify-center h-12 w-12 mx-auto"
-      : "px-4 py-3";
-
-  const activeStyle =
-    "bg-blue-500 text-white shadow";
-
-  const inactiveStyle =
-    "text-slate-700 hover:bg-sky-200 hover:text-blue-700";
+const SidebarLink = ({ to, label, icon, active, collapsed }) => {
+  // Giảm padding y từ py-3 xuống py-2.5 để nút gọn hơn
+  const baseStyle = "flex items-center gap-3 rounded-xl font-semibold transition-all relative overflow-hidden group";
+  const sizeStyle = collapsed ? "justify-center h-11 w-11 mx-auto" : "px-3 py-2.5";
+  
+  const activeStyle = "bg-blue-600 text-white shadow-sm";
+  const inactiveStyle = "text-slate-600 hover:bg-sky-100 hover:text-blue-700";
 
   return (
     <Link
       to={to}
       title={collapsed ? label : ""}
-      className={`
-        ${base}
-        ${size}
-        ${active
-          ? activeStyle
-          : inactiveStyle}
-      `}
+      className={`${baseStyle} ${sizeStyle} ${active ? activeStyle : inactiveStyle}`}
     >
-
-      {icon &&
-        React.createElement(
-          icon,
-          {
-            style: {
-              fontSize: 18
-            }
-          }
-        )
-      }
+      {icon && React.createElement(icon, { 
+        className: `text-lg transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`
+      })}
 
       {!collapsed && (
-        <span className="text-sm">
+        <span className="text-[15px] tracking-wide whitespace-nowrap">
           {label}
         </span>
       )}
 
+      {/* Active Indicator (thanh xanh dọc bên phải khi thu gọn) */}
       {collapsed && active && (
-        <span
-          className="
-          absolute
-          right-0
-          top-1/2
-          -translate-y-1/2
-          w-1.5
-          h-8
-          bg-blue-500
-          rounded-l-full
-          "
-        />
+        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-white rounded-l-full" />
       )}
-
     </Link>
   );
 };
