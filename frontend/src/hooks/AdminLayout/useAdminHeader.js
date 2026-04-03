@@ -1,49 +1,73 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import profileApi from '../../features/admin/api/profile/profileApi';
 
 export const useAdminHeader = () => {
-  const [time, setTime] = useState(new Date());
+  const [time, setTime] = useState(() => new Date());
   const [isBackendHealthy, setIsBackendHealthy] = useState(true);
   const [admin, setAdmin] = useState(null);
 
-  // Hàm lấy thông tin Admin từ API /users/me
+  const isMounted = useRef(true);
+
   const fetchAdminData = useCallback(async () => {
     try {
       const data = await profileApi.getMe();
-      setAdmin(data);
+      if (isMounted.current) {
+        setAdmin(data);
+      }
     } catch (error) {
       console.error("Header Profile Sync Error:", error);
     }
   }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => setTime(new Date()), 1000);
-
-    const checkHealth = async () => {
-      try {
-        await axios.get(`${import.meta.env.VITE_API_URL}/health`);
+  const checkHealth = useCallback(async () => {
+    try {
+      await axios.get(`${import.meta.env.VITE_API_URL}/health`);
+      if (isMounted.current) {
         setIsBackendHealthy(true);
-      } catch (error) { error
+      }
+    } catch {
+      if (isMounted.current) {
         setIsBackendHealthy(false);
       }
+    }
+  }, []);
+
+  useEffect(() => {
+    isMounted.current = true;
+
+    const init = async () => {
+      await fetchAdminData();
+      await checkHealth();
     };
+
+    init();
+
+    const clockTimer = setInterval(() => {
+      if (isMounted.current) {
+        setTime(new Date());
+      }
+    }, 1000);
 
     const healthTimer = setInterval(checkHealth, 30000);
-    
-    // Khởi chạy lần đầu
-    checkHealth();
-    fetchAdminData();
 
-    // LẮNG NGHE SỰ KIỆN CẬP NHẬT TỪ PROFILE PAGE
-    window.addEventListener('admin-updated', fetchAdminData);
+    const handleAdminUpdated = () => {
+      fetchAdminData();
+    };
+
+    window.addEventListener('admin-updated', handleAdminUpdated);
 
     return () => {
-      clearInterval(timer);
+      isMounted.current = false;
+      clearInterval(clockTimer);
       clearInterval(healthTimer);
-      window.removeEventListener('admin-updated', fetchAdminData);
+      window.removeEventListener('admin-updated', handleAdminUpdated);
     };
-  }, [fetchAdminData]);
+  }, [fetchAdminData, checkHealth]);
 
-  return { time, isBackendHealthy, admin };
+  return {
+    time,
+    isBackendHealthy,
+    admin
+  };
 };
