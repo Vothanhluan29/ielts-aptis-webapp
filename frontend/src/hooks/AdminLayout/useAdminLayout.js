@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import toast from 'react-hot-toast';
+import { message } from 'antd';
 
 export const useAdminLayout = () => {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export const useAdminLayout = () => {
 
   const logout = () => {
     localStorage.removeItem('access_token');
-    toast.success('Đã đăng xuất Admin');
+    message.success('Admin logged out successfully');
     navigate('/login');
   };
 
