@@ -1,36 +1,22 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { Card, Button, Tag, Typography, Row, Col, Skeleton, Empty, Space, Radio } from 'antd';
 import { Headphones, Clock, CheckCircle, AlertCircle, ArrowRight, History, RotateCcw } from 'lucide-react';
-import listeningAptisStudentApi from '../../../api/APTIS/listening/listeningAptisStudentApi';
+
+// Nhúng Custom Hook vào
+import { useListeningAptisList } from '../../../hooks/APTIS/listening/useListeningAptisList';
 
 const { Title, Paragraph, Text } = Typography;
 
 const ListeningAptisListPage = () => {
-  const navigate = useNavigate();
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState('ALL');
-
-  useEffect(() => {
-    const fetchTests = async () => {
-      try {
-        setLoading(true);
-        const response = await listeningAptisStudentApi.getListTests();
-        setTests(response.data || response || []);
-      } catch (error) {
-        console.error("Error fetching Listening test list:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTests();
-  }, []);
-
-  const filteredTests = useMemo(() => {
-    if (filterStatus === 'ALL') return tests;
-    return tests.filter(test => test.status === filterStatus);
-  }, [tests, filterStatus]);
+  const { 
+    loading, 
+    filterStatus, 
+    setFilterStatus, 
+    filteredTests, 
+    handleNavigateHistory, 
+    handleNavigateLobby, 
+    handleNavigateRetry 
+  } = useListeningAptisList();
 
   const getStatusConfig = (status, testId) => {
     switch (status) {
@@ -40,7 +26,7 @@ const ListeningAptisListPage = () => {
           tagColor: 'success', text: 'Completed',
           icon: <CheckCircle size={14} className="mr-1" />,
           mainBtnText: 'View History',
-          mainBtnAction: () => navigate(`/aptis/listening/history`),
+          mainBtnAction: handleNavigateHistory,
           showRetry: true
         };
       default:
@@ -48,7 +34,7 @@ const ListeningAptisListPage = () => {
           tagColor: 'purple', text: 'Not Started',
           icon: <AlertCircle size={14} className="mr-1" />,
           mainBtnText: 'Start Now',
-          mainBtnAction: () => navigate(`/aptis/listening/lobby/${testId}`),
+          mainBtnAction: () => handleNavigateLobby(testId),
           showRetry: false
         };
     }
@@ -56,7 +42,7 @@ const ListeningAptisListPage = () => {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-4 animate-in fade-in duration-500">
-      {/* HEADER */}
+      {/* ================= HEADER ================= */}
       <div className="mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
           <div className="p-4 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-200">
@@ -88,7 +74,7 @@ const ListeningAptisListPage = () => {
 
           <Button
             icon={<History size={18} />}
-            onClick={() => navigate('/aptis/listening/history')}
+            onClick={handleNavigateHistory}
             className="flex items-center gap-2 rounded-lg font-bold border-slate-200 hover:text-blue-600 shadow-sm h-10"
           >
             History
@@ -96,7 +82,7 @@ const ListeningAptisListPage = () => {
         </Space>
       </div>
 
-      {/* CONTENT */}
+      {/* ================= CONTENT ================= */}
       {loading ? (
         <Row gutter={[24, 24]}>
           {[1, 2, 3].map(i => (
@@ -116,6 +102,7 @@ const ListeningAptisListPage = () => {
         <Row gutter={[24, 24]}>
           {filteredTests.map(test => {
             const config = getStatusConfig(test.status, test.id);
+            
             return (
               <Col xs={24} md={12} lg={8} key={test.id}>
                 <Card
@@ -150,7 +137,11 @@ const ListeningAptisListPage = () => {
                       size="large"
                       block
                       onClick={config.mainBtnAction}
-                      className={`h-11 rounded-xl font-bold flex items-center justify-center gap-2 ${test.status === 'NOT_STARTED' ? 'bg-blue-600 hover:bg-blue-500 border-none' : 'text-blue-600 border-blue-200 hover:bg-blue-50'}`}
+                      className={`h-11 rounded-xl font-bold flex items-center justify-center gap-2 ${
+                        test.status === 'NOT_STARTED' 
+                          ? 'bg-blue-600 hover:bg-blue-500 border-none' 
+                          : 'text-blue-600 border-blue-200 hover:bg-blue-50'
+                      }`}
                     >
                       {config.mainBtnText} <ArrowRight size={18} />
                     </Button>
@@ -160,7 +151,7 @@ const ListeningAptisListPage = () => {
                         icon={<RotateCcw size={16} />}
                         block
                         className="h-11 rounded-xl font-semibold text-slate-500 border-slate-200 hover:text-orange-500 hover:border-orange-500"
-                        onClick={() => navigate(`/aptis/listening/taking/${test.id}`)}
+                        onClick={() => handleNavigateRetry(test.id)}
                       >
                         Retry Test
                       </Button>
