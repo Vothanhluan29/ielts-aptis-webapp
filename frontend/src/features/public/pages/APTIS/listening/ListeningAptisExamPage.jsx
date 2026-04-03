@@ -9,7 +9,7 @@ import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/Multiple
 import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion'; 
 
 // Gọi Custom Hook vào
-import { useListeningAptisExam } from './useListeningAptisExam';
+import { useListeningAptisExam } from '../../../hooks/APTIS/listening/useListeningAptisExam';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;

@@ -88,7 +88,7 @@ export const useListeningAptisExam = ({ isFullTest, testIdFromProps, onSkillFini
         onSkillFinish(submissionData.id);
       } else {
         // 🔥 ĐÃ FIX LỖI ID: Chuyển hướng theo testId thay vì submissionData.id
-        navigate(`/aptis/listening/result/${testId}`); 
+        navigate(`/aptis/listening/result/${submissionData.id}`); 
       }
       
     } catch (error) {
