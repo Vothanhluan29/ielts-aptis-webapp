@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 
 // Nhúng Custom Hook vào
-import { useSpeakingAptisList } from './useSpeakingAptisList';
+import { useSpeakingAptisList } from '../../../hooks/APTIS/speaking/useSpeakingAptisList';
 
 const { Title, Paragraph, Text } = Typography;
 
