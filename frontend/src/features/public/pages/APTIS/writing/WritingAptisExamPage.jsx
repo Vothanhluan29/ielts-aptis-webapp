@@ -1,195 +1,40 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Layout, Button, Input, Modal, Typography, Spin, message, Space, Card, Row, Col, Divider, Tag } from 'antd';
+import React from 'react';
+import { Layout, Button, Input, Typography, Spin, Space, Card, Row, Col, Divider, Tag } from 'antd';
 import { 
-  ClockCircleOutlined, 
-  ExclamationCircleOutlined, 
-  SendOutlined, 
-  LeftOutlined, 
-  RightOutlined,
-  EditOutlined
+  ClockCircleOutlined, SendOutlined, LeftOutlined, RightOutlined, EditOutlined
 } from '@ant-design/icons';
-import writingAptisStudentApi from '../../../api/APTIS/writing/writingAptisStudentApi';
+
+// Nhúng Custom Hook
+import { useWritingAptisExam } from '../../../hooks/APTIS/writing/useWritingAptisExam';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
 
-// 🔥 RECEIVE PROPS FROM PARENT LAYOUT (ExamAptisExamPage)
-const WritingAptisExamPage = ({ 
-  isFullTest = false, 
-  testIdFromProps = null,
-  onSkillFinish = null 
-}) => {
-  const { id: urlId } = useParams();
-  const navigate = useNavigate();
-
-  // 🔥 GET ID DYNAMICALLY BASED ON EXAM MODE
-  const testId = isFullTest ? testIdFromProps : urlId;
-
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [testDetail, setTestDetail] = useState(null);
-  
-  const [currentPart, setCurrentPart] = useState(1);
-  const [timeLeft, setTimeLeft] = useState(0);
-
-  const [answers, setAnswers] = useState({
-    part_1: ["", "", "", "", ""],
-    part_2: "",
-    part_3: ["", "", ""],
-    part_4: { informal: "", formal: "" }
-  });
-
-  const answersRef = useRef(answers);
-  useEffect(() => {
-    answersRef.current = answers;
-  }, [answers]);
-
-  // ==========================================
-  // 1. FETCH API & MAP DATABASE
-  // ==========================================
-  useEffect(() => {
-    const fetchTest = async () => {
-      try {
-        setLoading(true);
-        if (!testId) throw new Error("Test ID not found!");
-
-        // 🔥 Changed `id` to `testId`
-        const data = await writingAptisStudentApi.getTestDetail(testId);
-        setTestDetail(data);
-        setTimeLeft((data?.time_limit || 50) * 60); 
-      } catch (error) {
-        message.error(`Unable to load the test: ${error.message || "Please try again!"}`);
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTest();
-  }, [testId]);
-
-  const handleSubmit = async (isAutoSubmit = false) => {
-    if (submitting) return;
-    try {
-      setSubmitting(true);
-      if (isAutoSubmit) {
-        message.warning({ content: "Time's up! The system has automatically submitted your test.", duration: 5 });
-      } else {
-        message.loading({ content: 'Submitting test...', key: 'submit' });
-      }
-
-      const currentAnswers = answersRef.current;
-      
-      const payload = {
-        test_id: parseInt(testId), // 🔥 Changed `id` to `testId`
-        is_full_test_only: isFullTest, // 🔥 Declare exam mode
-        user_answers: {
-          part_1: JSON.stringify(currentAnswers.part_1), 
-          part_2: String(currentAnswers.part_2 || ""),   
-          part_3: JSON.stringify(currentAnswers.part_3), 
-          part_4: JSON.stringify(currentAnswers.part_4)  
-        }
-      };
-
-      const res = await writingAptisStudentApi.submitTest(payload);
-      const submissionData = res.data || res;
-      
-      message.success({ content: 'Test submitted successfully!', key: 'submit' });
-      
-      // 🔥 BRANCH NAVIGATION
-      if (isFullTest && onSkillFinish) {
-        // Call parent layout to move to next skill (Speaking)
-        onSkillFinish(submissionData.id);
-      } else {
-        // Navigate to Result instead of History for consistency
-        navigate(`/aptis/writing/result/${submissionData.id}`); 
-      }
-
-    } catch (error) {
-      console.error("submission error:", error?.response?.data || error);
-      message.error({ content: 'Submission failed. Please check and try again!', key: 'submit' });
-      setSubmitting(false);
-    }
-  };
-
-  // ==========================================
-  // 3. TIMER LOGIC
-  // ==========================================
-  useEffect(() => {
-    if (loading || submitting || timeLeft <= 0) {
-      if (timeLeft <= 0 && !loading && !submitting && testDetail) {
-        handleSubmit(true);
-      }
-      return;
-    }
-    const timerId = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-    return () => clearInterval(timerId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, loading, submitting, testDetail]);
-
-  // ==========================================
-  // 4. HELPERS & UI COMPONENTS
-  // ==========================================
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  };
-
-  const countWords = (str) => {
-    if (!str || str.trim() === '') return 0;
-    return str.trim().split(/\s+/).filter(word => word.length > 0).length;
-  };
-
-  const updateAnswer = (part, index, value, subKey = null) => {
-    setAnswers(prev => {
-      const newAnswers = { ...prev };
-      if (subKey) {
-        newAnswers[part] = { ...newAnswers[part], [subKey]: value };
-      } else if (index !== null) {
-        const newArr = [...newAnswers[part]];
-        newArr[index] = value;
-        newAnswers[part] = newArr;
-      } else {
-        newAnswers[part] = value;
-      }
-      return newAnswers;
-    });
-  };
-
-  const confirmSubmit = () => {
-    Modal.confirm({
-      title: 'Confirm Submission',
-      icon: <ExclamationCircleOutlined />,
-      // 🔥 Change message depending on exam mode
-      content: isFullTest 
-        ? 'After submitting, the system will automatically move to the Speaking section. You will not be able to edit your answers for this section. Continue?' 
-        : 'Are you sure you want to submit? You cannot change your answers after submission.',
-      okText: 'Submit',
-      cancelText: 'Cancel',
-      okButtonProps: { danger: true },
-      onOk: () => handleSubmit(false)
-    });
-  };
+const WritingAptisExamPage = ({ isFullTest = false, testIdFromProps = null, onSkillFinish = null }) => {
+  const {
+    loading, submitting, testDetail, currentPart, setCurrentPart, timeLeft,
+    answers, updateAnswer, confirmSubmit, formatTime, countWords,
+    getPart, getQuestionText, isTimeRunningOut
+  } = useWritingAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
   const renderWordCount = (current, min, max) => {
-    let color = '#8c8c8c'; 
+    let colorClass = 'text-slate-400'; 
     if (min && max) {
-      if (current >= min && current <= max) color = '#52c41a'; 
-      else if (current > 0) color = '#faad14'; 
+      if (current >= min && current <= max) colorClass = 'text-emerald-500'; 
+      else if (current > 0) colorClass = 'text-amber-500'; 
     }
     return (
-      <div style={{ textAlign: 'right', marginTop: 8 }}>
-        <Text style={{ color, fontWeight: 'bold' }}>Words: {current} {max ? `/ ${max}` : ''}</Text>
+      <div className={`text-right mt-2 text-xs font-bold ${colorClass}`}>
+        Words: {current} {max ? `/ ${max}` : ''}
       </div>
     );
   };
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f2f5' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+      <div className="min-h-screen flex justify-center items-center bg-slate-50">
+        <div className="flex flex-col items-center gap-4">
           <Spin size="large" />
           <Text type="secondary">Loading test...</Text>
         </div>
@@ -197,93 +42,87 @@ const WritingAptisExamPage = ({
     );
   }
 
-  // ========================================================
-  // 🔥 EXTRACT DATA FROM DATABASE
-  // ========================================================
-  const partsList = testDetail?.parts || [];
-  const getPart = (num) => partsList.find(p => p.part_number === num) || { instruction: "", questions: [] };
-  
+  // Khai báo 4 part
   const p1 = getPart(1);
   const p2 = getPart(2);
   const p3 = getPart(3);
   const p4 = getPart(4);
 
-  const getQuestionText = (part, index, defaultText) => {
-    if (part.questions && part.questions[index]) {
-      return part.questions[index].question_text;
-    }
-    return defaultText;
-  };
-
-  const isTimeRunningOut = timeLeft < 300;
-
   return (
-    <Layout style={{ minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh', backgroundColor: '#f0f2f5', overflow: 'hidden' }}>
+    <Layout className={`bg-slate-50 overflow-hidden ${isFullTest ? 'h-[calc(100vh-64px)]' : 'h-screen'}`}>
       
-      {/* ORIGINAL HEADER: Hidden if in Full Test mode */}
+      {/* HEADER: Chế độ thi đơn */}
       {!isFullTest && (
-        <Header style={{ backgroundColor: '#fff', borderBottom: '1px solid #d9d9d9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', zIndex: 10 }}>
+        <Header className="bg-white border-b border-slate-200 flex justify-between items-center px-6 z-10 shrink-0">
           <Space>
-            <Tag color="blue" style={{ fontSize: 14, padding: '4px 12px' }}>
-              <EditOutlined style={{ marginRight: 4 }}/> Aptis Writing
+            <Tag color="indigo" className="text-sm px-3 py-1 font-bold rounded-md m-0 border-0 bg-indigo-50 text-indigo-600">
+              <EditOutlined className="mr-1"/> Aptis Writing
             </Tag>
-            <Text strong style={{ fontSize: 16 }}>{testDetail?.title}</Text>
+            <Text strong className="text-base text-slate-800">{testDetail?.title}</Text>
           </Space>
-          <Space size="large">
-            <div style={{ backgroundColor: isTimeRunningOut ? '#fff1f0' : '#f6ffed', border: `1px solid ${isTimeRunningOut ? '#ffa39e' : '#b7eb8f'}`, padding: '4px 16px', borderRadius: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <ClockCircleOutlined style={{ color: isTimeRunningOut ? '#f5222d' : '#52c41a', fontSize: 18 }} />
-              <Text strong style={{ color: isTimeRunningOut ? '#f5222d' : '#52c41a', fontSize: 18 }}>
-                {formatTime(timeLeft)}
-              </Text>
-            </div>
-          </Space>
+          <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-lg transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}>
+            <ClockCircleOutlined /> {formatTime(timeLeft)}
+          </div>
         </Header>
       )}
 
-      {/* SECONDARY HEADER FOR FULL TEST */}
+      {/* HEADER: Chế độ Full Test */}
       {isFullTest && (
         <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center z-10 shadow-sm shrink-0">
           <Text strong className="text-lg text-slate-700">Skill: Writing</Text>
-          <div style={{ backgroundColor: isTimeRunningOut ? '#fff1f0' : '#f6ffed', border: `1px solid ${isTimeRunningOut ? '#ffa39e' : '#b7eb8f'}`, padding: '4px 16px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <ClockCircleOutlined style={{ color: isTimeRunningOut ? '#f5222d' : '#52c41a', fontSize: 16 }} />
-            <Text strong style={{ color: isTimeRunningOut ? '#f5222d' : '#52c41a', fontSize: 16 }}>
-              Time remaining: {formatTime(timeLeft)}
-            </Text>
+          <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-base transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}>
+            <ClockCircleOutlined /> Time remaining: {formatTime(timeLeft)}
           </div>
         </div>
       )}
 
       {/* CONTENT */}
-      <Content className="overflow-y-auto custom-scrollbar flex-1" style={{ padding: '24px', width: '100%' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+      <Content className="overflow-y-auto custom-scrollbar flex-1 w-full p-4 md:p-8">
+        <div className="max-w-4xl mx-auto w-full">
           
-          <div style={{ display: 'flex', gap: 8, marginBottom: 24, overflowX: 'auto', paddingBottom: 8 }}>
+          {/* TABS NAVIGATION */}
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2 custom-scrollbar shrink-0">
             {[1, 2, 3, 4].map(partNum => (
-              <Button key={partNum} type={currentPart === partNum ? 'primary' : 'default'} onClick={() => setCurrentPart(partNum)} style={{ flex: 1, minWidth: 100, height: 40, fontWeight: currentPart === partNum ? 'bold' : 'normal' }}>
+              <Button 
+                key={partNum} 
+                type={currentPart === partNum ? 'primary' : 'default'} 
+                onClick={() => setCurrentPart(partNum)} 
+                className={`flex-1 min-w-25 h-11 font-bold rounded-xl transition-all ${
+                  currentPart === partNum 
+                    ? 'bg-indigo-600 hover:bg-indigo-500 border-none shadow-md shadow-indigo-200 text-white' 
+                    : 'text-slate-500 border-slate-200 hover:text-indigo-600 hover:border-indigo-300 bg-white'
+                }`}
+              >
                 Part {partNum}
               </Button>
             ))}
           </div>
 
-          <Card variant="borderless" style={{ borderRadius: 8, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+          <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200" styles={{ body: { padding: '32px' } }}>
             
             {/* ----- PART 1 ----- */}
             {currentPart === 1 && (
-              <div>
-                <Title level={4}>Part 1: Word-level writing</Title>
-                <Paragraph style={{ fontSize: 16, backgroundColor: '#fafafa', padding: 16, borderLeft: '4px solid #1890ff', whiteSpace: 'pre-wrap' }}>
+              <div className="animate-in fade-in slide-in-from-bottom-2">
+                <Title level={4} className="text-slate-800">Part 1: Word-level writing</Title>
+                <div className="bg-indigo-50 p-4 rounded-xl border-l-4 border-indigo-500 text-indigo-900 text-[15px] whitespace-pre-wrap mb-6">
                   {p1.instruction || "You are joining a club. You have 5 messages from a member of the club. Write short answers (1 to 5 words) to each message."}
-                </Paragraph>
-                <Divider />
+                </div>
                 <Row gutter={[24, 24]}>
                   {[...Array(5)].map((_, idx) => (
                     <Col xs={24} sm={12} key={idx}>
-                      <Card size="small" type="inner" title={`Message ${idx + 1}`} style={{ backgroundColor: '#fafafa' }}>
-                        <Text strong style={{ display: 'block', marginBottom: 12, whiteSpace: 'pre-wrap' }}>
+                      <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 h-full flex flex-col">
+                        <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Message {idx + 1}</div>
+                        <Text strong className="block mb-4 text-slate-700 whitespace-pre-wrap flex-1">
                           {getQuestionText(p1, idx, `Question ${idx + 1}?`)}
                         </Text>
-                        <Input placeholder="Write your answer here..." value={answers.part_1[idx]} onChange={(e) => updateAnswer('part_1', idx, e.target.value)} disabled={submitting} />
-                      </Card>
+                        <Input 
+                          placeholder="Write your answer here..." 
+                          className="h-10 rounded-lg"
+                          value={answers.part_1[idx]} 
+                          onChange={(e) => updateAnswer('part_1', idx, e.target.value)} 
+                          disabled={submitting} 
+                        />
+                      </div>
                     </Col>
                   ))}
                 </Row>
@@ -292,41 +131,53 @@ const WritingAptisExamPage = ({
 
             {/* ----- PART 2 ----- */}
             {currentPart === 2 && (
-              <div>
-                <Title level={4}>Part 2: Short text writing</Title>
-                <Paragraph style={{ fontSize: 16, backgroundColor: '#fafafa', padding: 16, borderLeft: '4px solid #1890ff', whiteSpace: 'pre-wrap' }}>
+              <div className="animate-in fade-in slide-in-from-bottom-2">
+                <Title level={4} className="text-slate-800">Part 2: Short text writing</Title>
+                <div className="bg-indigo-50 p-4 rounded-xl border-l-4 border-indigo-500 text-indigo-900 text-[15px] whitespace-pre-wrap mb-6">
                   {p2.instruction || "You are a new member of the club. Fill in the form. Write in sentences. Use 20 - 30 words."}
-                </Paragraph>
-                <Divider />
-                <div style={{ marginBottom: 16 }}>
-                  <Text strong style={{ fontSize: 16, whiteSpace: 'pre-wrap' }}>
+                </div>
+                <div className="mb-4">
+                  <Text strong className="text-base text-slate-700 whitespace-pre-wrap">
                     {getQuestionText(p2, 0, "Please tell us why you are interested in joining this club.")}
                   </Text>
                 </div>
-                <TextArea rows={6} placeholder="Start typing your response here..." value={answers.part_2} onChange={(e) => updateAnswer('part_2', null, e.target.value)} disabled={submitting} style={{ fontSize: 16 }} />
+                <TextArea 
+                  rows={6} 
+                  className="rounded-xl p-4 text-base bg-slate-50 focus:bg-white"
+                  placeholder="Start typing your response here..." 
+                  value={answers.part_2} 
+                  onChange={(e) => updateAnswer('part_2', null, e.target.value)} 
+                  disabled={submitting} 
+                />
                 {renderWordCount(countWords(answers.part_2), 20, 30)}
               </div>
             )}
 
             {/* ----- PART 3 ----- */}
             {currentPart === 3 && (
-              <div>
-                <Title level={4}>Part 3: Three written responses</Title>
-                <Paragraph style={{ fontSize: 16, backgroundColor: '#fafafa', padding: 16, borderLeft: '4px solid #1890ff', whiteSpace: 'pre-wrap' }}>
+              <div className="animate-in fade-in slide-in-from-bottom-2">
+                <Title level={4} className="text-slate-800">Part 3: Three written responses</Title>
+                <div className="bg-indigo-50 p-4 rounded-xl border-l-4 border-indigo-500 text-indigo-900 text-[15px] whitespace-pre-wrap mb-6">
                   {p3.instruction || "You are talking to other members of the club in the chat room. Talk to them using sentences. Use 30 - 40 words per answer."}
-                </Paragraph>
-                <Divider />
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+                </div>
+                <div className="flex flex-col gap-8">
                   {[...Array(3)].map((_, idx) => (
-                    <div key={idx} style={{ display: 'flex', gap: 16 }}>
-                      <div style={{ width: 40, height: 40, backgroundColor: '#bfbfbf', borderRadius: '50%', display: 'flex', justifyContent: 'center', alignItems: 'center', color: '#fff', fontWeight: 'bold', shrink: 0 }}>M{idx + 1}</div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ backgroundColor: '#e6f7ff', padding: '12px 16px', borderRadius: '0 8px 8px 8px', display: 'inline-block', marginBottom: 12 }}>
-                          <Text style={{ whiteSpace: 'pre-wrap' }}>
+                    <div key={idx} className="flex gap-4">
+                      <div className="w-10 h-10 bg-slate-200 rounded-full flex justify-center items-center text-slate-500 font-black shrink-0 mt-2 text-xs">M{idx + 1}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="bg-slate-100 text-slate-700 p-3.5 rounded-2xl rounded-tl-sm inline-block mb-3 border border-slate-200">
+                          <Text className="whitespace-pre-wrap text-[15px] font-medium">
                               {getQuestionText(p3, idx, `Message ${idx + 1} from a member.`)}
                           </Text>
                         </div>
-                        <TextArea rows={3} placeholder="Reply to the member..." value={answers.part_3[idx]} onChange={(e) => updateAnswer('part_3', idx, e.target.value)} disabled={submitting} />
+                        <TextArea 
+                          rows={3} 
+                          className="rounded-xl p-3 bg-indigo-50/30 focus:bg-white text-[15px]"
+                          placeholder="Reply to the member..." 
+                          value={answers.part_3[idx]} 
+                          onChange={(e) => updateAnswer('part_3', idx, e.target.value)} 
+                          disabled={submitting} 
+                        />
                         {renderWordCount(countWords(answers.part_3[idx]), 30, 40)}
                       </div>
                     </div>
@@ -337,33 +188,52 @@ const WritingAptisExamPage = ({
 
             {/* ----- PART 4 ----- */}
             {currentPart === 4 && (
-              <div>
-                <Title level={4}>Part 4: Formal and informal writing</Title>
-                <Paragraph style={{ fontSize: 16, backgroundColor: '#fafafa', padding: 16, borderLeft: '4px solid #1890ff', whiteSpace: 'pre-wrap' }}>
+              <div className="animate-in fade-in slide-in-from-bottom-2">
+                <Title level={4} className="text-slate-800">Part 4: Formal and informal writing</Title>
+                <div className="bg-indigo-50 p-4 rounded-xl border-l-4 border-indigo-500 text-indigo-900 text-[15px] whitespace-pre-wrap mb-6">
                   {p4.instruction || "You are a member of a club. You received an email from the club manager. Read the email and write two responses."}
-                </Paragraph>
-                <Divider />
+                </div>
                 
-                <Card size="small" style={{ backgroundColor: '#fffbe6', borderColor: '#ffe58f', marginBottom: 24 }}>
-                  <Text style={{ whiteSpace: 'pre-wrap', fontSize: 15 }}>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-8 shadow-sm">
+                  <Text className="whitespace-pre-wrap text-[15px] text-amber-900 font-medium">
                     {getQuestionText(p4, 0, "Dear Members,\n\nWe are writing to inform you that the upcoming club event will be cancelled due to bad weather. We apologize for the inconvenience.\n\nManager.")}
                   </Text>
-                </Card>
+                </div>
 
-                <Row gutter={[24, 24]}>
+                <Row gutter={[32, 32]}>
                   <Col xs={24} md={12}>
-                    <Text strong style={{ color: '#1890ff', fontSize: 16 }}>
-                      {getQuestionText(p4, 1, "Task 1: Write to a friend (approx. 50 words)")}
+                    <Text strong className="text-indigo-600 text-base flex items-center gap-2 mb-3">
+                      <EditOutlined /> Task 1: Informal (approx. 50 words)
                     </Text>
-                    <TextArea rows={8} style={{ marginTop: 12 }} placeholder="Start your email to your friend here..." value={answers.part_4.informal} onChange={(e) => updateAnswer('part_4', null, e.target.value, 'informal')} disabled={submitting} />
+                    <div className="text-sm text-slate-500 mb-3 line-clamp-2" title={getQuestionText(p4, 1, "")}>
+                       {getQuestionText(p4, 1, "Write to a friend.")}
+                    </div>
+                    <TextArea 
+                      rows={8} 
+                      className="rounded-xl p-4 bg-slate-50 focus:bg-white text-[15px]" 
+                      placeholder="Start your email to your friend here..." 
+                      value={answers.part_4.informal} 
+                      onChange={(e) => updateAnswer('part_4', null, e.target.value, 'informal')} 
+                      disabled={submitting} 
+                    />
                     {renderWordCount(countWords(answers.part_4.informal), null, 50)}
                   </Col>
 
                   <Col xs={24} md={12}>
-                    <Text strong style={{ color: '#1890ff', fontSize: 16 }}>
-                      {getQuestionText(p4, 2, "Task 2: Write to the manager (120-150 words)")}
+                    <Text strong className="text-indigo-600 text-base flex items-center gap-2 mb-3">
+                      <EditOutlined /> Task 2: Formal (120-150 words)
                     </Text>
-                    <TextArea rows={8} style={{ marginTop: 12 }} placeholder="Start your formal email here..." value={answers.part_4.formal} onChange={(e) => updateAnswer('part_4', null, e.target.value, 'formal')} disabled={submitting} />
+                    <div className="text-sm text-slate-500 mb-3 line-clamp-2" title={getQuestionText(p4, 2, "")}>
+                       {getQuestionText(p4, 2, "Write to the manager.")}
+                    </div>
+                    <TextArea 
+                      rows={8} 
+                      className="rounded-xl p-4 bg-slate-50 focus:bg-white text-[15px]" 
+                      placeholder="Start your formal email here..." 
+                      value={answers.part_4.formal} 
+                      onChange={(e) => updateAnswer('part_4', null, e.target.value, 'formal')} 
+                      disabled={submitting} 
+                    />
                     {renderWordCount(countWords(answers.part_4.formal), 120, 150)}
                   </Col>
                 </Row>
@@ -375,17 +245,37 @@ const WritingAptisExamPage = ({
       </Content>
 
       {/* FOOTER */}
-      <Footer style={{ backgroundColor: '#fff', borderTop: '1px solid #d9d9d9', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10, shrink: 0 }}>
-        <Button size="large" disabled={currentPart === 1 || submitting} onClick={() => setCurrentPart(prev => prev - 1)} icon={<LeftOutlined />}>
+      <Footer className="bg-white border-t border-slate-200 px-6 py-4 flex justify-between items-center z-10 shrink-0">
+        <Button 
+          size="large" 
+          disabled={currentPart === 1 || submitting} 
+          onClick={() => setCurrentPart(prev => prev - 1)} 
+          icon={<LeftOutlined />}
+          className="rounded-xl font-bold text-slate-600 h-11 px-6"
+        >
           Previous
         </Button>
+
         {currentPart < 4 ? (
-          <Button type="primary" size="large" onClick={() => setCurrentPart(prev => prev + 1)} disabled={submitting}>
+          <Button 
+            type="primary" 
+            size="large" 
+            onClick={() => setCurrentPart(prev => prev + 1)} 
+            disabled={submitting}
+            className="rounded-xl font-bold bg-slate-800 hover:bg-slate-700 border-none h-11 px-8 shadow-md shadow-slate-200"
+          >
             Next <RightOutlined />
           </Button>
         ) : (
-          <Button type="primary" danger size="large" onClick={confirmSubmit} loading={submitting} icon={<SendOutlined />}>
-            {isFullTest ? 'Submit & Continue to Speaking' : 'Submit Test'}
+          <Button 
+            type="primary" 
+            size="large" 
+            onClick={confirmSubmit} 
+            loading={submitting} 
+            icon={<SendOutlined />}
+            className="rounded-xl font-bold bg-indigo-600 hover:bg-indigo-500 border-none h-11 px-8 shadow-lg shadow-indigo-200"
+          >
+            {isFullTest ? 'Submit & Go to Speaking' : 'Submit Test'}
           </Button>
         )}
       </Footer>
