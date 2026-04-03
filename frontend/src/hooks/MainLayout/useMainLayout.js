@@ -1,75 +1,109 @@
-import { useState, useEffect } from 'react';
-import { subscriptionApi } from '../../features/public/api/IELTS/subscriptions/subscriptionApi';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { message } from 'antd';
+import authApi from '../../features/auth/api/authApi';
 
-const useUserUsage = () => {
-  // 1. Initialize state with all fields (Exam, Writing, Speaking)
-  const [usage, setUsage] = useState({
-    // Speaking
-    speaking_used: 0,
-    speaking_limit: 3,
+export const useMainLayout = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const profileRef = useRef(null);
 
-    // Writing
-    writing_used: 0,
-    writing_limit: 3,
+  const [user, setUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
-    // Exam (Mock Test)
-    exam_used: 0,
-    exam_limit: 1,
+  const fetchMe = useCallback(async () => {
+    const token = localStorage.getItem('access_token');
 
-    loading: true
-  });
+    if (!token) {
+      // Do not disable loading here so MainLayout keeps the loading/blank screen
+      // until the Login page is mounted
+      navigate('/login', { replace: true });
+      return;
+    }
 
-  // 2. Fetch data when the component mounts
-  useEffect(() => {
-    let isMounted = true;
+    try {
+      const data = await authApi.getMe();
+      setUser(data);
+    } catch (err) {
+      console.error('Auth error:', err);
+      localStorage.removeItem('access_token');
 
-    const fetchUsage = async () => {
-      try {
-        const data = await subscriptionApi.getMyUsage();
-        if (isMounted) {
-          // Backend returns JSON with matching keys, so we can spread directly
-          setUsage({ ...data, loading: false });
-        }
-      } catch (error) {
-        console.error("Failed to fetch usage:", error);
-        if (isMounted) {
-          setUsage(prev => ({ ...prev, loading: false }));
-        }
+      // Show message only if not on login page to avoid repetition
+      if (location.pathname !== '/login') {
+        message.error('Session has expired');
       }
-    };
 
-    fetchUsage();
+      navigate('/login', { replace: true });
+    } finally {
+      setLoadingUser(false);
+    }
+  }, [navigate, location.pathname]);
 
-    return () => { isMounted = false; };
+  // Auth check when the app initializes
+  useEffect(() => {
+    fetchMe();
+  }, [fetchMe]);
+
+  // Automatically close mobile sidebar when changing routes
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Manage sidebar state with LocalStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    if (saved !== null) setSidebarCollapsed(JSON.parse(saved));
   }, []);
 
-  // 3. Refetch function (called after submission to update usage count)
-  const refetchUsage = async () => {
-    try {
-      const data = await subscriptionApi.getMyUsage();
-      setUsage({ ...data, loading: false });
-    } catch (error) {
-      console.error("Refetch failed:", error);
+  useEffect(() => {
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(sidebarCollapsed));
+  }, [sidebarCollapsed]);
+
+  // Click outside logic for profile dropdown
+  useEffect(() => {
+    const handler = (e) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleLogout = () => {
+    if (window.confirm('Are you sure you want to log out?')) {
+      localStorage.removeItem('access_token');
+      message.success('Logged out successfully');
+      navigate('/login', { replace: true });
     }
   };
 
-  // 4. Derived state for quick status checks
-  // Helps the UI avoid repeating conditions like a >= b
-  const isExamFull = usage.exam_used >= usage.exam_limit;
-  const isWritingFull = usage.writing_used >= usage.writing_limit;
-  const isSpeakingFull = usage.speaking_used >= usage.speaking_limit;
+  // Improve page title: full-tests -> Full Tests
+  const getPageTitle = () => {
+    const path = location.pathname.split('/')[1];
+    if (!path || path === 'dashboard') return 'Dashboard';
+    return path
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
 
   return {
-    usage,
-    refetchUsage,
-
-    // Return convenient status flags
-    isExamFull,
-    isWritingFull,
-    isSpeakingFull,
-
-    loading: usage.loading
+    user,
+    loadingUser,
+    sidebarOpen,
+    sidebarCollapsed,
+    profileOpen,
+    setSidebarOpen,
+    setSidebarCollapsed,
+    setProfileOpen,
+    profileRef,
+    handleLogout,
+    pageTitle: getPageTitle(),
+    location,
+    fetchMe
   };
 };
-
-export default useUserUsage;
