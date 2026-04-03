@@ -1,8 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Layout, Button, Typography, Spin, Card, Tag, message, Modal, Progress 
-} from 'antd'; 
+import React, { useState, useRef } from 'react';
+import { Layout, Button, Typography, Spin, Card, Tag, message, Progress } from 'antd'; 
 import { 
   ClockCircleOutlined, ExclamationCircleOutlined, SendOutlined, 
   LeftOutlined, RightOutlined, CustomerServiceOutlined, PlayCircleFilled, CheckCircleFilled
@@ -10,13 +7,15 @@ import {
 
 import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion'; 
 import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion'; 
-import listeningAptisStudentApi from '../../../api/APTIS/listening/listeningAptisStudentApi';
+
+// Gọi Custom Hook vào
+import { useListeningAptisExam } from './useListeningAptisExam';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
 // ==========================================
-// COMPONENT: AUDIO PLAYER
+// COMPONENT: AUDIO PLAYER (Giữ nguyên)
 // ==========================================
 const AptisAudioPlayer = ({ src }) => {
   const audioRef = useRef(null);
@@ -114,162 +113,25 @@ const ListeningAptisExamPage = ({
   testIdFromProps = null,
   onSkillFinish = null 
 }) => {
-  const { id: urlId } = useParams();
-  const navigate = useNavigate();
+  // 🔥 Rút vũ khí từ Hook ra sử dụng
+  const {
+    loading,
+    submitting,
+    testDetail,
+    currentPartId,
+    setCurrentPartId,
+    timeLeft,
+    answers,
+    parts,
+    activePart,
+    currentTabIndex,
+    isTimeRunningOut,
+    handleAnswerChange,
+    confirmSubmit,
+    formatTime,
+    handleGoBackEmpty
+  } = useListeningAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
-  const testId = isFullTest ? testIdFromProps : urlId;
-
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [testDetail, setTestDetail] = useState(null);
-  
-  const [currentPartId, setCurrentPartId] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(0);
-
-  const [answers, setAnswers] = useState({});
-  const answersRef = useRef(answers);
-  useEffect(() => { answersRef.current = answers; }, [answers]);
-
-  // HÀM XỬ LÝ ĐÁP ÁN
-  const handleAnswerChange = (qKey, incomingValue) => {
-    let finalValue = incomingValue;
-    if (incomingValue && incomingValue.target && incomingValue.target.value !== undefined) {
-      finalValue = incomingValue.target.value;
-    }
-    
-    const stringValue = String(finalValue).trim();
-
-    setAnswers(prev => {
-      const next = { ...prev, [qKey]: stringValue };
-      answersRef.current = next; 
-      return next;
-    });
-  };
-
-  // FETCH DỮ LIỆU ĐỀ THI
-  useEffect(() => {
-    const fetchTest = async () => {
-      try {
-        setLoading(true);
-        if (!testId) {
-          throw new Error("Listening test ID not found!");
-        }
-
-        const response = await listeningAptisStudentApi.getTestDetail(testId);
-        const data = response.data || response;
-        
-        setTestDetail(data);
-        setTimeLeft((data?.time_limit || 40) * 60); 
-
-        if (data.parts && data.parts.length > 0) {
-          setCurrentPartId(data.parts[0].id);
-        }
-      } catch (error) {
-        console.error("Error loading test:", error);
-        message.error(`Failed to load test: ${error.message}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTest();
-  }, [testId]);
-
-  const parts = testDetail?.parts || [];
-  const activePart = parts.find(p => p.id === currentPartId);
-  const currentTabIndex = parts.findIndex(p => p.id === currentPartId);
-
-  // HÀM SUBMIT BÀI THI
-  const handleSubmit = async (isAutoSubmit = false) => {
-    if (submitting) return;
-    try {
-      setSubmitting(true);
-      if (isAutoSubmit) {
-        message.warning({ content: "Time's up! The system has automatically submitted your test.", duration: 5 });
-      } else {
-        message.loading({ content: 'Submitting Listening test...', key: 'submit' });
-      }
-
-      const cleanedAnswers = {};
-      Object.entries(answersRef.current).forEach(([key, val]) => {
-        if (val && val !== 'undefined' && val !== 'null' && val.trim() !== '') {
-          cleanedAnswers[key] = val;
-        }
-      });
-
-      const payload = {
-        test_id: parseInt(testId),
-        is_full_test_only: isFullTest,
-        user_answers: cleanedAnswers 
-      };
-
-      const res = await listeningAptisStudentApi.submitTest(payload);
-      
-      // Lấy dữ liệu an toàn từ Axios response
-      let submissionData = res.data ? res.data : res;
-
-      // 🚀 LOG BẮT BỆNH LỖI NOT FOUND 🚀
-      console.log("=========================================");
-      console.log("🟢 1. RAW API SUBMIT RESPONSE:", res);
-      console.log("🟢 2. EXTRACTED SUBMISSION DATA:", submissionData);
-      console.log("🟢 3. ID SẼ CHUYỂN HƯỚNG ĐẾN:", submissionData?.id);
-      console.log("=========================================");
-
-      // CHỐT CHẶN AN TOÀN
-      if (!submissionData || !submissionData.id) {
-        console.error("❌ LỖI NGHIÊM TRỌNG: Backend trả về thành công nhưng không tìm thấy trường 'id' trong dữ liệu!");
-        message.error("Lỗi hệ thống: Không thể lấy ID bài nộp để hiển thị kết quả!");
-        setSubmitting(false);
-        return; // Dừng lại ở đây, không chuyển trang ảo nữa
-      }
-
-      message.success({ content: 'Test submitted and graded successfully!', key: 'submit' });
-      
-      if (isFullTest && onSkillFinish) {
-        onSkillFinish(submissionData.id);
-      } else {
-        navigate(`/aptis/listening/result/${submissionData.id}`); 
-      }
-      
-    } catch (error) {
-      console.error("Submit error:", error);
-      message.error({ content: 'System error while submitting. Please try again!', key: 'submit', duration: 5 });
-      setSubmitting(false);
-    }
-  };
-
-  // ĐẾM NGƯỢC THỜI GIAN
-  useEffect(() => {
-    if (loading || submitting || timeLeft <= 0) {
-      if (timeLeft <= 0 && !loading && !submitting && testDetail) handleSubmit(true);
-      return;
-    }
-    const timerId = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-    return () => clearInterval(timerId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeLeft, loading, submitting, testDetail]);
-
-  const confirmSubmit = () => {
-    Modal.confirm({
-      title: 'Confirm Submission',
-      icon: <ExclamationCircleOutlined className="text-red-500" />,
-      content: isFullTest 
-        ? 'After submitting, the system will automatically move to the next section. You will not be able to change your answers. Continue?' 
-        : 'Are you sure you want to submit? The system will end your test immediately.',
-      okText: 'Submit',
-      cancelText: 'Cancel',
-      okButtonProps: { danger: true, className: 'rounded-lg' },
-      cancelButtonProps: { className: 'rounded-lg' },
-      onOk: () => handleSubmit(false)
-    });
-  };
-
-  const formatTime = (seconds) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-    const s = (seconds % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
-  };
-
-  // RENDER GIAO DIỆN
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -288,13 +150,11 @@ const ListeningAptisExamPage = ({
           <ExclamationCircleOutlined className="text-red-400 text-5xl mb-4 block" />
           <Title level={4}>Empty Test</Title>
           <Text type="secondary">No questions have been added to this test yet.</Text>
-          <Button type="primary" onClick={() => navigate('/aptis/listening')} className="mt-6">Go Back</Button>
+          <Button type="primary" onClick={handleGoBackEmpty} className="mt-6">Go Back</Button>
         </Card>
       </div>
     );
   }
-
-  const isTimeRunningOut = timeLeft < 120;
 
   return (
     <Layout style={{ minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh', backgroundColor: '#f8fafc' }}>
