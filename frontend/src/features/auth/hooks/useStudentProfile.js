@@ -11,7 +11,6 @@ export const useStudentProfile = () => {
 
   // 2. Các states xử lý hiệu ứng loading và form
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [isUpdatingTarget, setIsUpdatingTarget] = useState(false);
   const [submittingProfile, setSubmittingProfile] = useState(false);
   
   const [profileData, setProfileData] = useState({ full_name: '' });
@@ -32,25 +31,6 @@ export const useStudentProfile = () => {
   }, [user?.avatar_url]);
 
   /* ===================== HANDLERS ===================== */
-
-  // Cập nhật Target Band
-  const handleUpdateTarget = async (newBand) => {
-    setIsUpdatingTarget(true);
-    const loadingToast = toast.loading('Đang cập nhật mục tiêu...');
-    try {
-      await authApi.updateTargetBand(Number(newBand));
-      
-      if (refreshUser) {
-        await refreshUser();
-      }
-      
-      toast.success('Đã cập nhật mục tiêu điểm số!', { id: loadingToast });
-    } catch (error) {
-      toast.error('Không thể cập nhật mục tiêu', { id: loadingToast }, error);
-    } finally {
-      setIsUpdatingTarget(false);
-    }
-  };
 
   // Cập nhật Avatar
   const handleAvatarChange = async (e) => {
@@ -113,13 +93,11 @@ export const useStudentProfile = () => {
   return {
     user,
     avatarUrl,
-    isUpdatingTarget,
     uploadingAvatar,
     submittingProfile,
     profileData,
     fileInputRef,
     setProfileData,
-    handleUpdateTarget,
     handleAvatarChange,
     handleUpdateProfile
   };

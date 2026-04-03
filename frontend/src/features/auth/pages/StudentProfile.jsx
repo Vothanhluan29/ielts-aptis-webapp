@@ -2,7 +2,6 @@ import {
   Camera,
   Mail,
   Loader2,
-  Target as TargetIcon,
   User,
   ShieldCheck,
   Save
@@ -13,19 +12,14 @@ const StudentProfilePage = () => {
   const {
     user,
     avatarUrl,
-    isUpdatingTarget,
     uploadingAvatar,
     fileInputRef,
-    handleUpdateTarget,
     handleAvatarChange,
-    // 👇 Thêm các hàm/biến này vào hook của bạn để xử lý form
     profileData,
     setProfileData,
     submittingProfile,
     handleUpdateProfile,
   } = useStudentProfile();
-
-  const currentTarget = user?.target_band || 6.0;
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 font-sans">
@@ -34,13 +28,13 @@ const StudentProfilePage = () => {
         {/* Header Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Account Settings</h1>
-          <p className="text-slate-500 mt-1">Manage your profile and learning goals</p>
+          <p className="text-slate-500 mt-1">Manage your profile and account preferences</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
           {/* ======================================================== */}
-          {/* LEFT COLUMN: AVATAR & TARGET BAND                        */}
+          {/* LEFT COLUMN: AVATAR CARD                                 */}
           {/* ======================================================== */}
           <div className="lg:col-span-4 space-y-6">
             
@@ -48,7 +42,7 @@ const StudentProfilePage = () => {
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
               <div className="h-24 bg-linear-to-r from-blue-600 to-indigo-600"></div>
               
-              <div className="px-6 pb-6 -mt-12 flex-1 flex flex-col items-center">
+              <div className="px-6 pb-8 -mt-12 flex-1 flex flex-col items-center">
                 <div
                   onClick={() => !uploadingAvatar && fileInputRef.current.click()}
                   className="relative w-24 h-24 group cursor-pointer shrink-0"
@@ -76,66 +70,17 @@ const StudentProfilePage = () => {
                   <input ref={fileInputRef} type="file" accept="image/*" hidden onChange={handleAvatarChange} />
                 </div>
 
-                <div className="text-center mt-4">
-                  <h2 className="text-lg font-bold text-slate-900">{user?.full_name || "Student"}</h2>
-                  <p className="text-sm text-slate-500">IELTS Student Account</p>
+                <div className="text-center mt-5">
+                  <h2 className="text-xl font-bold text-slate-900">{user?.full_name || "Student"}</h2>
+                  <p className="text-sm text-slate-500 font-medium mt-1">Student Account</p>
                 </div>
               </div>
             </div>
-
-            {/* Target Band Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <div className="flex items-start gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-teal-500 flex items-center justify-center shrink-0 shadow-sm shadow-teal-200">
-                  <TargetIcon className="text-white" size={20} />
-                </div>
-                <div className="flex-1 mt-0.5">
-                  <h3 className="text-base font-bold text-slate-900">IELTS Target</h3>
-                  <p className="text-xs text-slate-500">Set your goal score</p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="relative">
-                  <select
-                    value={currentTarget}
-                    onChange={(e) => handleUpdateTarget(e.target.value)}
-                    disabled={isUpdatingTarget}
-                    className="w-full bg-slate-50 border border-slate-200 text-slate-900 rounded-xl px-4 py-3 font-semibold outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 cursor-pointer appearance-none transition-all disabled:opacity-50"
-                  >
-                    {[4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0, 8.5, 9.0].map(v => (
-                      <option key={v} value={v}>Band {v.toFixed(1)}</option>
-                    ))}
-                  </select>
-                  <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                    <svg className="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                  </div>
-                </div>
-
-                {isUpdatingTarget && (
-                  <div className="flex items-center gap-2 text-xs font-semibold text-teal-700 bg-teal-50 px-3 py-2 rounded-lg animate-pulse">
-                    <Loader2 size={14} className="animate-spin" /><span>Updating target...</span>
-                  </div>
-                )}
-
-                <div className="pt-2">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Progress</span>
-                    <span className="text-sm font-bold text-teal-600">{currentTarget}</span>
-                  </div>
-                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-teal-500 rounded-full transition-all duration-700"
-                      style={{ width: `${(currentTarget / 9.0) * 100}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
+            
           </div>
 
           {/* ======================================================== */}
-          {/* RIGHT COLUMN: PERSONAL INFORMATION (GIỐNG ẢNH 100%)      */}
+          {/* RIGHT COLUMN: PERSONAL INFORMATION                       */}
           {/* ======================================================== */}
           <div className="lg:col-span-8">
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 h-full">
