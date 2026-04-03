@@ -152,7 +152,7 @@ const SpeakingAptisListPage = () => {
 
                   {/* INFO */}
                   <div className="flex-1 mb-6">
-                    <Title level={4} className="line-clamp-1 !mt-0 !mb-2 !font-extrabold">
+                    <Title level={4} className="line-clamp-1 mt-0! mb-2! font-extrabold!">
                       {test.title}
                     </Title>
                     <Paragraph className="text-slate-500 line-clamp-2 m-0 text-[13px]">
