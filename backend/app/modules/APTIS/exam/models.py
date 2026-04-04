@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 import enum
 from app.core.database import Base
@@ -83,7 +83,7 @@ class AptisExamSubmission(Base):
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
     # Relationships
-    user = relationship("User", backref="aptis_exam_submissions")
+    user = relationship("User", backref=backref("aptis_exam_submissions", cascade="all, delete-orphan"))
     full_test = relationship("AptisFullTest", back_populates="submissions")
     
     # Kết nối trực tiếp để lấy điểm từng phần nhanh chóng
