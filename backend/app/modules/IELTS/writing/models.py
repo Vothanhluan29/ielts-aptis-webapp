@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Float, DateTime, Boolean, JSON, Enum as SqlEnum
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 import enum
 from app.core.database import Base # Nhớ chỉnh lại đường dẫn cho đúng
@@ -96,4 +96,4 @@ class WritingSubmission(Base):
     graded_at = Column(DateTime(timezone=True), nullable=True)
 
     test = relationship("WritingTest", back_populates="submissions")
-    user = relationship("User", backref="writing_submissions")
+    user = relationship("User", backref=backref("writing_submissions", cascade="all, delete-orphan"))
