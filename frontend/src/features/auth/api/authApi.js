@@ -21,19 +21,13 @@ const authApi = {
   },
 
   getMe: () => {
-    // Hàm này giờ đây sẽ trả về cả target_band và latest_overall_score từ Backend
+    // Lấy thông tin cá nhân của User từ Backend
     return axiosClient.get(API_URLS.ME);
   },
 
   updateProfile: (data) => axiosClient.patch('/users/me', data),
 
   changePassword: (data) => axiosClient.post('/users/me/password', data),
-
-  // Cập nhật mục tiêu điểm IELTS (Target Band)
-  updateTargetBand: (targetBand) => {
-    // Khớp với endpoint PATCH /users/me/target-band ở Backend
-    return axiosClient.patch('/users/me/target-band', { target_band: targetBand });
-  },
 
   // Upload Avatar
   uploadAvatar: (file) => {
