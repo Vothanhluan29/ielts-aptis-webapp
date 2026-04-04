@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Float, DateTime, Boolean
 from sqlalchemy.dialects.postgresql import JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 import enum
 from app.core.database import Base
@@ -122,4 +122,4 @@ class ReadingSubmission(Base):
     is_full_test_only = Column(Boolean, default=False)
 
     test = relationship("ReadingTest", back_populates="submissions")
-    user = relationship("User", backref="reading_submissions")
+    user = relationship("User", backref=backref("reading_submissions", cascade="all, delete-orphan"))
