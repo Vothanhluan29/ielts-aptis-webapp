@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Float, DateTime, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 import enum
 from app.core.database import Base
@@ -79,7 +79,7 @@ class ExamSubmission(Base):
     overall_score = Column(Float, default=0.0) 
 
     # Relationships
-    user = relationship("User", backref="exam_submissions")
+    user = relationship("User", backref=backref("exam_submissions", cascade="all, delete-orphan"))
     full_test = relationship("FullTest", back_populates="submissions")
     
     reading_submission = relationship("ReadingSubmission", foreign_keys=[reading_submission_id])
