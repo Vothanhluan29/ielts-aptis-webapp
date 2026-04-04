@@ -17,9 +17,6 @@ class User(Base):
     full_name = Column(String, nullable=True)
     avatar_url = Column(String, nullable=True)
     role = Column(String, default=UserRole.STUDENT)
-    
-    target_band = Column(Float, default=6.5) 
-    
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     usage = relationship("UserUsage", back_populates="user", uselist=False, cascade="all, delete-orphan")
