@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import desc
 from fastapi import HTTPException, status, UploadFile
 import os
 import shutil
@@ -7,7 +6,6 @@ import uuid
 from app.modules.users.models import User, UserRole
 from app.modules.users import schemas
 from app.core.security import get_password_hash, verify_password
-from app.modules.IELTS.exam.models import ExamSubmission
 
 class UserService:
     @staticmethod
@@ -32,7 +30,6 @@ class UserService:
         db.refresh(db_user)
         return db_user
     
-
     @staticmethod
     def upload_avatar(db: Session, user: User, file: UploadFile):
         # 1. Validate file (Optional: Chỉ cho phép ảnh)
@@ -72,26 +69,13 @@ class UserService:
         db.add(user)
         db.commit()
         return {"message": "Password updated successfully"}
-    
 
     @staticmethod
     def get_user_with_stats(db: Session, user: User):
         """
         Chỉ thực hiện làm mới dữ liệu từ Database để đảm bảo 
-        Target Band luôn là con số mới nhất.
+        thông tin user luôn là dữ liệu mới nhất.
         """
-        db.refresh(user) # Ép SQLAlchemy tải lại data mới nhất từ DB
-        return user
-
-    @staticmethod
-    def update_target_band(db: Session, user: User, target: float):
-        """Cập nhật điểm mục tiêu IELTS của học viên"""
-        if target < 0 or target > 9.0:
-            raise HTTPException(status_code=400, detail="Target band must be between 0 and 9.0")
-        
-        user.target_band = target
-        db.add(user)
-        db.commit()
         db.refresh(user)
         return user
 

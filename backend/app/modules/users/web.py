@@ -17,19 +17,10 @@ def get_users_me(
     db: Session = Depends(get_db)
 ):
     """
-    Lấy thông tin chính mình (Profile & Target Band).
+    Lấy thông tin chính mình.
     Hàm này gọi get_user_with_stats để db.refresh(user) dữ liệu mới nhất.
     """
     return UserService.get_user_with_stats(db, current_user)
-
-@router.patch("/me/target-band", response_model=schemas.UserResponse)
-def update_my_target_band(
-    target_data: schemas.UpdateTargetBand,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-    """Học viên tự cập nhật mục tiêu điểm IELTS."""
-    return UserService.update_target_band(db, current_user, target_data.target_band)
 
 @router.patch("/me/avatar", response_model=schemas.UserResponse)
 def update_avatar(
@@ -60,7 +51,7 @@ def change_password(
 
 
 # --- SECTION 2: ADMIN ROLE (Các thao tác quản lý) ---
-@router.get("/", response_model=schemas.UserPaginationResponse) # Thay đổi ở đây
+@router.get("/", response_model=schemas.UserPaginationResponse)
 def get_all_users_by_admin(
     skip: int = 0, 
     limit: int = 10, 
