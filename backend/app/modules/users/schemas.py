@@ -1,6 +1,5 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr
 from typing import Optional, List
-from datetime import datetime
 
 # --- Base ---
 class UserBase(BaseModel):
@@ -18,7 +17,7 @@ class UserUpdate(BaseModel):
 class UserUpdateAdmin(BaseModel):
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
-    role: Optional[str] = None   #Admin only
+    role: Optional[str] = None       # Admin only
     is_active: Optional[bool] = None # Admin only
 
 class ChangePassword(BaseModel):
@@ -33,17 +32,13 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str]
     is_active: bool
     role: str
-    target_band: float  
     
     class Config:
         from_attributes = True
 
-class UpdateTargetBand(BaseModel):
-    target_band: float = Field(..., ge=0, le=9.0)
-
-# Thêm vào file schemas.py
+# --- Pagination ---
 class UserPaginationResponse(BaseModel):
-    items: List[UserResponse] # Danh sách user trên trang hiện tại
-    total: int                # Tổng số user trong Database
-    page: int                 # Trang hiện tại
-    size: int                 # Số lượng bản ghi mỗi trang
+    items: List[UserResponse]  # Danh sách user trên trang hiện tại
+    total: int                 # Tổng số user trong Database
+    page: int                  # Trang hiện tại
+    size: int                  # Số lượng bản ghi mỗi trang
