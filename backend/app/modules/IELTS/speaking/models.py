@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Float, DateTime, Boolean, JSON, Enum as SqlEnum
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 import enum
 from app.core.database import Base # Nhớ điều chỉnh đường dẫn import Base cho khớp project của bạn
@@ -91,7 +91,7 @@ class SpeakingSubmission(Base):
 
     # Relationships
     test = relationship("SpeakingTest", back_populates="submissions")
-    user = relationship("User", backref="speaking_submissions") 
+    user = relationship("User", backref=backref("speaking_submissions", cascade="all, delete-orphan"))
     answers = relationship("SpeakingQuestionAnswer", back_populates="submission", cascade="all, delete-orphan")
 
 # --- 5. TRẢ LỜI & CHẤM ĐIỂM TỪNG CÂU HỎI ---
