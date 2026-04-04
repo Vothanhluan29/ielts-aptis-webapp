@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Float, DateTime, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from sqlalchemy.types import JSON # Dùng JSON chung để tương thích cả MySQL/Postgres/SQLite
 import enum
@@ -114,4 +114,4 @@ class ListeningSubmission(Base):
     is_full_test_only = Column(Boolean, default=False)
 
     test = relationship("ListeningTest", back_populates="submissions")
-    user = relationship("User", backref="listening_submissions")
+    user = relationship("User", backref=backref("listening_submissions", cascade="all, delete-orphan"))
