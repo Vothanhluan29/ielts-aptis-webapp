@@ -8,10 +8,10 @@ import writingAptisAdminApi from '../../../api/APTIS/writing/writingAptisAdminAp
 
 // Cấu hình cố định cho 4 phần thi Writing của Aptis
 export const PART_CONFIGS = [
-  { type: "PART_1", title: "Part 1", icon: <MessageOutlined />, qCount: 5 },
-  { type: "PART_2", title: "Part 2", icon: <FormOutlined />, qCount: 1 },
-  { type: "PART_3", title: "Part 3", icon: <FileTextOutlined />, qCount: 3 },
-  { type: "PART_4", title: "Part 4", icon: <MailOutlined />, qCount: 3 },
+  { type: "PART_1", title: "Part 1",  qCount: 5 },
+  { type: "PART_2", title: "Part 2",  qCount: 1 },
+  { type: "PART_3", title: "Part 3",  qCount: 3 },
+  { type: "PART_4", title: "Part 4",  qCount: 3 },
 ];
 
 export const useWritingAptisEdit = () => {
