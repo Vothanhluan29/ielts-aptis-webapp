@@ -7,24 +7,25 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_admin_user
 from app.modules.users.models import User
 
-# Import Service và Schemas dành riêng cho Aptis
-from .service import AptisExamService
-from . import schemas
+# Import Schemas
+from app.modules.APTIS.exam import schemas
+from app.modules.APTIS.exam.services.test_service import AptisExamTestService
+from app.modules.APTIS.exam.services.submission_service import AptisExamSubmissionService
 
 # 🔥 Đổi prefix thành /aptis/exam để tách biệt với IELTS
 router = APIRouter(prefix="/aptis/exam", tags=["Aptis Exam (Full Test)"])
 
 # =========================
-# ADMIN - FULL TEST
+# 👑 ADMIN - FULL TEST
 # =========================
 
-@router.get("/admin/tests", response_model=List[schemas.AptisFullTestListItem]) # 🔥 Đổi sang ListItem
+@router.get("/admin/tests", response_model=List[schemas.AptisFullTestListItem]) 
 def admin_get_all_tests(
     db: Session = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
     # Service trả về list các object đã được joinedload
-    return AptisExamService.get_all_full_tests(db, admin_view=True)
+    return AptisExamTestService.get_all_full_tests(db, admin_view=True)
 
 
 @router.post("/admin/tests", response_model=schemas.AptisFullTestResponse)
@@ -33,7 +34,7 @@ def create_full_test(
     db: Session = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
-    return AptisExamService.create_full_test(db, data)
+    return AptisExamTestService.create_full_test(db, data)
 
 
 @router.get("/admin/tests/{test_id}", response_model=schemas.AptisFullTestResponse)
@@ -42,7 +43,7 @@ def get_test_detail_admin(
     db: Session = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
-    test = AptisExamService.get_full_test_detail(db, test_id)
+    test = AptisExamTestService.get_full_test_detail(db, test_id)
     if not test:
         raise HTTPException(status_code=404, detail="Test not found")
     return test
@@ -55,7 +56,7 @@ def update_full_test(
     db: Session = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
-    updated = AptisExamService.update_full_test(db, test_id, data)
+    updated = AptisExamTestService.update_full_test(db, test_id, data)
     if not updated:
         raise HTTPException(status_code=404, detail="Test not found")
     return updated
@@ -67,19 +68,19 @@ def delete_full_test(
     db: Session = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
-    success = AptisExamService.delete_full_test(db, test_id)
+    success = AptisExamTestService.delete_full_test(db, test_id)
     if not success:
         raise HTTPException(status_code=404, detail="Test not found")
     return {"message": "Deleted successfully"}
 
 
 # =========================
-# ADMIN - SUBMISSIONS
+# 📑 ADMIN - SUBMISSIONS
 # =========================
 
 @router.get(
     "/admin/submissions",
-    response_model=schemas.AdminAptisExamPagingResponse, # 🔥 [ĐÃ CẬP NHẬT] Sử dụng Paging Schema
+    response_model=schemas.AdminAptisExamPagingResponse, 
 )
 def admin_get_all_submissions(
     skip: int = Query(0, ge=0),
@@ -88,11 +89,11 @@ def admin_get_all_submissions(
     db: Session = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
-    return AptisExamService.get_all_submissions_for_admin(db, skip, limit, status)
+    return AptisExamSubmissionService.get_all_submissions_for_admin(db, skip, limit, status)
 
 
 # =========================
-# STUDENT - TEST LIBRARY
+# 🎓 STUDENT - TEST LIBRARY
 # =========================
 
 @router.get("/tests", response_model=List[schemas.AptisFullTestListItem])
@@ -100,7 +101,7 @@ def get_library_tests(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return AptisExamService.get_all_full_tests(
+    return AptisExamTestService.get_all_full_tests(
         db,
         admin_view=False,
         current_user_id=current_user.id,
@@ -113,7 +114,7 @@ def get_library_test_detail(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    test = AptisExamService.get_full_test_detail(db, test_id)
+    test = AptisExamTestService.get_full_test_detail(db, test_id)
     if not test:
         raise HTTPException(status_code=404, detail="Test not found")
 
@@ -125,7 +126,7 @@ def get_library_test_detail(
 
 
 # =========================
-# STUDENT - EXAM FLOW
+# 🚀 STUDENT - EXAM FLOW
 # =========================
 
 @router.post("/start", response_model=schemas.AptisExamSubmissionResponse)
@@ -134,7 +135,7 @@ def start_exam(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return AptisExamService.start_exam(
+    return AptisExamSubmissionService.start_exam(
         db,
         current_user.id,
         payload.full_test_id,
@@ -150,7 +151,7 @@ def get_current_progress(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    sub = AptisExamService.get_submission_detail(db, submission_id)
+    sub = AptisExamSubmissionService.get_submission_detail(db, submission_id)
 
     if not sub or sub.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Submission not found")
@@ -167,7 +168,7 @@ def submit_skill_step(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return AptisExamService.submit_skill_part(
+    return AptisExamSubmissionService.submit_skill_part(
         db=db,
         user_id=current_user.id,
         exam_submission_id=payload.exam_submission_id,
@@ -177,7 +178,7 @@ def submit_skill_step(
 
 
 # =========================
-# STUDENT - HISTORY & RESULT
+# 📜 STUDENT - HISTORY & RESULT
 # =========================
 
 @router.get(
@@ -188,7 +189,7 @@ def get_my_exam_history(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return AptisExamService.get_my_history(db, current_user.id)
+    return AptisExamSubmissionService.get_my_history(db, current_user.id)
 
 
 @router.get(
@@ -200,7 +201,7 @@ def get_exam_result(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    sub = AptisExamService.get_submission_detail(db, submission_id)
+    sub = AptisExamSubmissionService.get_submission_detail(db, submission_id)
 
     if not sub:
         raise HTTPException(status_code=404, detail="Result not found")
