@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { adminWritingApi } from '../../api/IELTS/writing/adminWritingApi';
+import { adminWritingApi } from '../../../api/IELTS/writing/adminWritingApi';
 
 export const useWritingEdit = (id) => {
   const navigate = useNavigate();
