@@ -62,7 +62,7 @@ const SpeakingEditPage = () => {
         >
           {/* Header Action */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-            <Title level={2} className="!m-0 flex items-center gap-3 !text-slate-800">
+            <Title level={2} className="m-0 flex items-center gap-3 text-slate-800">
               <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center">
                 <AudioOutlined />
               </div>
@@ -154,7 +154,7 @@ const SpeakingEditPage = () => {
                   <Form.Item 
                     label={<span className="font-bold text-slate-700">Description / Notes</span>} 
                     name="description"
-                    className="!mb-0"
+                    className="mb-0"
                   >
                     <TextArea 
                       rows={2} 
@@ -183,7 +183,7 @@ const SpeakingEditPage = () => {
                   <div className="p-1.5 bg-indigo-50 text-indigo-500 rounded">
                     <LayoutOutlined />
                   </div>
-                  <Title level={4} className="!m-0 !text-slate-800">
+                  <Title level={4} className="m-0 text-slate-800">
                     {part.part_number === 1 ? 'Introduction & Interview' 
                     : part.part_number === 2 ? 'Long Turn (Cue Card)' 
                     : 'Two-Way Discussion'}
@@ -209,7 +209,7 @@ const SpeakingEditPage = () => {
 
                       {part.part_number === 2 && (
                         <div>
-                          <label className="block text-sm font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+                          <label className="block text-sm font-bold text-slate-700 mb-1.5 items-center gap-1">
                             <AimOutlined className="text-orange-500" /> Cue Card Content
                           </label>
                           <TextArea 
