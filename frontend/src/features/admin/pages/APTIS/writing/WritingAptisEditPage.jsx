@@ -1,152 +1,30 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
 import { 
   Form, Input, Button, Card, Space, Switch, InputNumber, 
-  message, Spin, Row, Col, Typography, Tag, Divider 
+  Spin, Row, Col, Typography, Tag, Divider 
 } from 'antd';
 import { 
-  ArrowLeftOutlined, SaveOutlined, MessageOutlined, 
-  FormOutlined, FileTextOutlined, MailOutlined, EditOutlined 
+  ArrowLeftOutlined, SaveOutlined, EditOutlined 
 } from '@ant-design/icons';
-import writingAptisAdminApi from '../../../api/APTIS/writing/writingAptisAdminApi';
+
+// Import Custom Hook và cấu hình
+import { useWritingAptisEdit, PART_CONFIGS } from '../../../hooks/APTIS/writing/useWritingAptisEdit';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 
-const PART_CONFIGS = [
-  { type: "PART_1", title: "Part 1: Simple Writing (Chat)", icon: <MessageOutlined />, qCount: 5 },
-  { type: "PART_2", title: "Part 2: Personal Writing (Form)", icon: <FormOutlined />, qCount: 1 },
-  { type: "PART_3", title: "Part 3: Social Interaction (Club)", icon: <FileTextOutlined />, qCount: 3 },
-  { type: "PART_4", title: "Part 4: Emails (Formal & Informal)", icon: <MailOutlined />, qCount: 3 },
-];
-
 const WritingAptisEditPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [form] = Form.useForm();
-  const isEditMode = Boolean(id);
-  const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const {
+    id,
+    form,
+    isEditMode,
+    loading,
+    submitting,
+    onFinish,
+    navigate
+  } = useWritingAptisEdit();
 
-  const initDefaultData = useCallback(() => {
-    const defaultParts = PART_CONFIGS.map((config, pIndex) => {
-      let questions = [];
-      
-      if (config.type === "PART_4") {
-        questions = [
-          { order_number: 1, sub_type: "scenario", question_text: "" },
-          { order_number: 2, sub_type: "informal", question_text: "" },
-          { order_number: 3, sub_type: "formal", question_text: "" }
-        ];
-      } else {
-        questions = Array.from({ length: config.qCount }).map((_, qIndex) => ({
-          order_number: qIndex + 1,
-          sub_type: null,
-          question_text: ""
-        }));
-      }
-
-      return {
-        part_number: pIndex + 1,
-        part_type: config.type,
-        instruction: "",
-        image_url: "",
-        image_description: "",
-        questions: questions
-      };
-    });
-
-    form.setFieldsValue({ 
-      title: "", 
-      time_limit: 50, 
-      description: "",
-      is_published: false, 
-      is_full_test_only: false, 
-      parts: defaultParts 
-    });
-  }, [form]);
-
-  useEffect(() => {
-    if (isEditMode) {
-      const fetchDetail = async () => {
-        setLoading(true);
-        try {
-          const res = await writingAptisAdminApi.getTestDetail(id);
-          const data = res.data || res;
-
-          const mergedParts = PART_CONFIGS.map((config, pIndex) => {
-            const existingPart = data.parts?.find(p => p.part_type === config.type);
-
-            if (existingPart) {
-              return {
-                ...existingPart,
-                // Vẫn giữ lại các trường này để gửi lên API không bị lỗi schema
-                image_url: existingPart.image_url || "",
-                image_description: existingPart.image_description || ""
-              };
-            }
-
-            let defaultQuestions = [];
-            if (config.type === "PART_4") {
-              defaultQuestions = [
-                { order_number: 1, sub_type: "scenario", question_text: "" },
-                { order_number: 2, sub_type: "informal", question_text: "" },
-                { order_number: 3, sub_type: "formal", question_text: "" }
-              ];
-            } else {
-              defaultQuestions = Array.from({ length: config.qCount }).map((_, qIndex) => ({
-                order_number: qIndex + 1,
-                sub_type: null,
-                question_text: ""
-              }));
-            }
-
-            return {
-              part_number: pIndex + 1,
-              part_type: config.type,
-              instruction: "",
-              image_url: "",
-              image_description: "",
-              questions: defaultQuestions
-            };
-          });
-
-          form.setFieldsValue({
-            ...data,
-            parts: mergedParts
-          });
-        } catch (error) {
-          message.error('Failed to load test data!', error);
-          navigate('/admin/aptis/writing');
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchDetail();
-    } else {
-      initDefaultData();
-    }
-  }, [id, isEditMode, initDefaultData, navigate, form]);
-
-  const onFinish = async (values) => {
-    setSubmitting(true);
-    try {
-      if (isEditMode) {
-        await writingAptisAdminApi.updateTest(id, values);
-        message.success('Test updated successfully!');
-      } else {
-        await writingAptisAdminApi.createTest(values);
-        message.success('Test created successfully!');
-      }
-      navigate('/admin/aptis/writing');
-    } catch (error) {
-      message.error('Save failed! Please check all required fields.');
-      console.error(error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
+  // Helper render câu hỏi cho từng Part
   const renderQuestions = (partType, partName) => {
     if (partType === "PART_4") {
       return (
@@ -216,14 +94,14 @@ const WritingAptisEditPage = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <Space>
           <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/aptis/writing')}>Back</Button>
-          <Title level={3} style={{ margin: 0, color: '#7c3aed' }}><EditOutlined /> Writing Test Setup</Title>
+          <Title level={3} style={{ margin: 0, color: '#7c3aed' }}><EditOutlined /> {isEditMode ? `Edit Setup #${id}` : 'Writing Test Setup'}</Title>
         </Space>
         <Button 
           type="primary" size="large" onClick={() => form.submit()} 
           icon={<SaveOutlined />} loading={submitting} 
           style={{ backgroundColor: '#7c3aed', borderRadius: 8, height: 45 }}
         >
-          SAVE TEST
+          {isEditMode ? 'UPDATE TEST' : 'SAVE TEST'}
         </Button>
       </div>
 
@@ -254,7 +132,7 @@ const WritingAptisEditPage = () => {
           </Row>
           <Row style={{ marginTop: 16 }}>
             <Col span={24}>
-              <Form.Item name="description" label={<Text strong>Test Description </Text>}>
+              <Form.Item name="description" label={<Text strong>Test Description</Text>}>
                 <TextArea rows={4} placeholder="e.g. This is a full Aptis Writing Practice Test. Please write carefully." style={{ fontSize: 13 }} />
               </Form.Item>
             </Col>
@@ -269,6 +147,7 @@ const WritingAptisEditPage = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {fields.map(({ key, name }, index) => {
                 const config = PART_CONFIGS[index];
+                if (!config) return null; // An toàn dữ liệu
 
                 return (
                   <Card 
@@ -277,7 +156,6 @@ const WritingAptisEditPage = () => {
                     extra={<Tag color="purple">Part {index + 1}</Tag>}
                     style={{ borderLeft: '6px solid #7c3aed', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}
                   >
-                    {/* ĐÃ SỬA: Chuyển Col span thành 24 để chiếm toàn bộ chiều rộng (Bỏ cột Upload ảnh) */}
                     <Row gutter={24}>
                       <Col span={24}>
                         <Form.Item name={[name, 'instruction']} label={<Text strong>Part Instructions</Text>}>
