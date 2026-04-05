@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Form } from 'antd';
-import { readingAdminApi } from '../../api/IELTS/reading/readingAdminApi';
+import { readingAdminApi } from '../../../api/IELTS/reading/readingAdminApi';
 import toast from 'react-hot-toast';
 
 export const useReadingEdit = () => {
