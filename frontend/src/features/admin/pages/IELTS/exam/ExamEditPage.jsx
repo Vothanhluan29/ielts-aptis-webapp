@@ -26,7 +26,7 @@ import {
 } from '@ant-design/icons';
 
 // Nhúng Custom Hook
-import { useExamEdit } from '../../hooks/IELTS/exam/useExamEdit'; // Đổi đường dẫn cho phù hợp với dự án của bạn
+import { useExamEdit } from '../../../hooks/IELTS/exam/useExamEdit'; // Đổi đường dẫn cho phù hợp với dự án của bạn
 
 const { Title, Text } = Typography;
 const { Option } = Select;
