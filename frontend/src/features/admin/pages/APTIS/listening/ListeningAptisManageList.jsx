@@ -1,75 +1,36 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  Table, Button, Popconfirm, message, Tag, Space, Card, Switch, Tooltip, Typography, Badge
+  Table, Button, Popconfirm, Tag, Space, Card, Switch, Tooltip, Typography, Badge
 } from 'antd';
 import { 
-  PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, CustomerServiceOutlined
+  PlusOutlined, EditOutlined, DeleteOutlined, CustomerServiceOutlined
 } from '@ant-design/icons';
-import listeningAptisAdminApi from '../../../api/APTIS/listening/listeningAptisAdminApi';
 import dayjs from 'dayjs';
+
+// Nhúng Custom Hook
+import { useListeningAptisManage } from '../../../hooks/APTIS/listening/useListeningAptisManage'; // Đổi đường dẫn theo dự án của bạn
 
 const { Title, Text } = Typography;
 
 const ROUTES = {
   CREATE: '/admin/aptis/listening/create',
   EDIT: (id) => `/admin/aptis/listening/edit/${id}`,
-  SUBMISSIONS: (id) => `/admin/aptis/listening/submissions?test_id=${id}`,
 };
 
 const ListeningAptisManageList = () => {
   const navigate = useNavigate();
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
-  const [isMockFilter, setIsMockFilter] = useState(false);
-
-  const fetchTests = useCallback(async (page, pageSize, isMock) => {
-    setLoading(true);
-    try {
-      const response = await listeningAptisAdminApi.getTests({
-        skip: (page - 1) * pageSize,
-        limit: pageSize,
-        is_mock_selector: isMock,
-      });
-      const data = response.data || response;
-      setTests(data);
-      setPagination(prev => ({
-        ...prev,
-        current: page,
-        pageSize,
-        total: data.length === pageSize ? page * pageSize + 10 : page * pageSize,
-      }));
-    } catch (error) {
-      console.error('Error loading test list:', error);
-      message.error('Failed to load Listening tests!');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTests(1, pagination.pageSize, isMockFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMockFilter]);
-
-  const handleTableChange = (newPagination) => {
-    fetchTests(newPagination.current, newPagination.pageSize, isMockFilter);
-  };
-
-  const handleDelete = async (testId) => {
-    try {
-      await listeningAptisAdminApi.deleteTest(testId);
-      message.success('Test deleted successfully!');
-      fetchTests(pagination.current, pagination.pageSize, isMockFilter);
-    } catch (error) {
-      if (error.response && error.response.status === 400) {
-        message.error(error.response.data.detail || 'Unable to delete this test as it is currently in use.');
-      } else {
-        message.error('Failed to delete test!');
-      }
-    }
-  };
+  
+  // Bóc tách Data và Function từ Hook
+  const {
+    tests,
+    loading,
+    pagination,
+    isMockFilter,
+    setIsMockFilter,
+    handleTableChange,
+    handleDelete
+  } = useListeningAptisManage();
 
   const columns = useMemo(() => [
     {
@@ -123,8 +84,6 @@ const ListeningAptisManageList = () => {
       key: 'is_published',
       width: 130,
       align: 'center',
-      // Read-only: reflects is_published set in ListeningAptisEditPage.
-      // To change status, edit the test directly.
       render: (isPublished) => (
         <Tooltip title="Edit the test to change its status">
           <Badge
@@ -159,7 +118,7 @@ const ListeningAptisManageList = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 130,
+      width: 100, // Thu gọn cột Action vì đã bỏ đi 1 icon
       align: 'center',
       render: (_, record) => (
         <Space size={2}>
@@ -172,14 +131,7 @@ const ListeningAptisManageList = () => {
             />
           </Tooltip>
 
-          <Tooltip title="View submissions">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
-              onClick={() => navigate(ROUTES.SUBMISSIONS(record.id))}
-              style={{ color: '#10b981' }}
-            />
-          </Tooltip>
+          {/* 🔥 ĐÃ XÓA NÚT VIEW SUBMISSIONS (CON MẮT) THEO YÊU CẦU */}
 
           <Popconfirm
             title="Delete this test?"
@@ -194,7 +146,7 @@ const ListeningAptisManageList = () => {
         </Space>
       ),
     },
-  ], [navigate]);
+  ], [navigate, handleDelete]);
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
@@ -220,13 +172,12 @@ const ListeningAptisManageList = () => {
                 Listening Test Bank
               </Title>
               <Text type="secondary">
-                Manage Aptis Listening test content and student submissions
+                Manage Aptis Listening test content
               </Text>
             </div>
           </Space>
 
           <Space size="middle">
-            {/* Mock filter toggle — preserved from original logic */}
             <Space size="small">
               <Text style={{ fontWeight: 500, color: '#6b7280' }}>Mock only</Text>
               <Switch
