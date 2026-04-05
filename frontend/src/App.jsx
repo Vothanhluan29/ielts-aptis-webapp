@@ -104,7 +104,7 @@ import AdminRoute from './routes/AdminRoute';
 import AdminProfilePage from './features/admin/pages/profile/AdminProfilePage';
 import AdminDashboardPage from './features/admin/pages/dashboard/AdminDashboardPage';
 import UserManagement from './features/admin/pages/users/UserManagement';
-import AdminSubmissions from './features/admin/pages/submissions/AdminSubmissionsPage';
+import AdminSubmissions from './features/admin/pages/IELTS/submissions/AdminSubmissionsPage';
 
 // Exam Management
 import ExamManagerPage from './features/admin/pages/IELTS/exam/ExamManagerPage';
