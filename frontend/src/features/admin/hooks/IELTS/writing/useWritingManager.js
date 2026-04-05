@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { adminWritingApi } from '../../api/IELTS/writing/adminWritingApi';
+import { adminWritingApi } from '../../../api/IELTS/writing/adminWritingApi';
 
 export const useWritingManager = () => {
   const [tests, setTests] = useState([]);

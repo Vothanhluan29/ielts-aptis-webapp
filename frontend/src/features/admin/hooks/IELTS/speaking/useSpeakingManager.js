@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { adminSpeakingApi } from "../../api/IELTS/speaking/adminSpeakingApi";
+import { adminSpeakingApi } from "../../../api/IELTS/speaking/adminSpeakingApi";
 import toast from "react-hot-toast";
 
 export const useSpeakingManager = (initialMockFilter = false) => {
