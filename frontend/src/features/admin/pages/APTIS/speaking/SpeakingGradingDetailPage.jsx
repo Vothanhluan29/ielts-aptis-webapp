@@ -1,132 +1,42 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom'; // 🔥 ADD useLocation
+import React from 'react';
 import { 
   Row, Col, Card, Typography, Button, Input, 
-  InputNumber, Select, Space, Spin, message, Badge, Slider, Image
+  InputNumber, Select, Space, Spin, Badge, Slider, Image
 } from 'antd';
 import { 
   ArrowLeftOutlined, SaveOutlined, 
   UserOutlined, AudioOutlined, EditOutlined, 
   WarningOutlined
 } from '@ant-design/icons';
-import speakingAptisAdminApi from '../../../api/APTIS/speaking/speakingAptisAdminApi';
+
+// Import Custom Hook và các thông số cấu hình
+import { 
+  useSpeakingGradingDetail, 
+  themeColors, 
+  gradingSections 
+} from '../../../hooks/APTIS/speaking/useSpeakingGradingDetail'; // Điều chỉnh lại đường dẫn cho đúng
 
 const { Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
 
-// Standard color palette for each Part
-const themeColors = {
-  blue: { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', hex: '#3b82f6', leftBorder: 'border-l-blue-500' },
-  green: { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-700', hex: '#22c55e', leftBorder: 'border-l-green-500' },
-  orange: { bg: 'bg-orange-50', border: 'border-orange-300', text: 'text-orange-700', hex: '#f97316', leftBorder: 'border-l-orange-500' },
-  purple: { bg: 'bg-purple-50', border: 'border-purple-300', text: 'text-purple-700', hex: '#a855f7', leftBorder: 'border-l-purple-500' },
-};
-
 const SpeakingGradingDetailPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const location = useLocation(); // 🔥 GET STATE TO KNOW WHERE WE CAME FROM
-
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [submission, setSubmission] = useState(null);
-
-  const [grading, setGrading] = useState({
-    p1: 0, p2: 0, p3: 0, p4: 0,
-    feedback: { p1: "", p2: "", p3: "", p4: "" },
-    overall_feedback: "",
-    cefr_level: "A0"
-  });
-
-  useEffect(() => {
-    fetchDetail();
-  }, [id]);
-
-  const fetchDetail = async () => {
-    try {
-      const res = await speakingAptisAdminApi.getSubmissionDetail(id);
-      const data = res.data || res;
-      setSubmission(data);
-      
-      if (data.status === 'GRADED') {
-        const getAnswer = (p) => data.answers?.find(a => a.part_number === p) || {};
-        setGrading({
-          p1: getAnswer(1).part_score || 0, p2: getAnswer(2).part_score || 0,
-          p3: getAnswer(3).part_score || 0, p4: getAnswer(4).part_score || 0,
-          feedback: {
-            p1: getAnswer(1).admin_feedback || "", p2: getAnswer(2).admin_feedback || "",
-            p3: getAnswer(3).admin_feedback || "", p4: getAnswer(4).admin_feedback || "",
-          },
-          overall_feedback: data.overall_feedback || "",
-          cefr_level: data.cefr_level || "A0"
-        });
-      }
-    } catch (error) {
-      message.error("Error loading submission details!", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const totalScore = grading.p1 + grading.p2 + grading.p3 + grading.p4;
-  
-  const autoSuggestCEFR = (score) => {
-    if (score >= 48) return "C"; if (score >= 40) return "B2";
-    if (score >= 26) return "B1"; if (score >= 18) return "A2";
-    if (score >= 6) return "A1"; return "A0";
-  };
-
-  const getCEFRColor = (level) => {
-    const colors = { "A0": "#ff4d4f", "A1": "#ff4d4f", "A2": "#fa8c16", "B1": "#fadb14", "B2": "#1677ff", "C": "#52c41a" };
-    return colors[level] || "#d9d9d9";
-  };
-
-  // 🔥 1. Back navigation logic
-  const handleBack = () => {
-    if (location.state && location.state.fromExamId) {
-      navigate(`/admin/aptis/submissions/${location.state.fromExamId}`);
-    } else {
-      navigate("/admin/aptis/submissions/speaking");
-    }
-  };
-
-  // 🔥 2. Save grade handler
-  const handleSaveGrade = async () => {
-    setSubmitting(true);
-    try {
-      const payload = {
-        total_score: totalScore,
-        cefr_level: grading.cefr_level || autoSuggestCEFR(totalScore),
-        overall_feedback: grading.overall_feedback,
-        part_feedbacks: [
-          { part_number: 1, score: grading.p1, comments: grading.feedback.p1 },
-          { part_number: 2, score: grading.p2, comments: grading.feedback.p2 },
-          { part_number: 3, score: grading.p3, comments: grading.feedback.p3 },
-          { part_number: 4, score: grading.p4, comments: grading.feedback.p4 },
-        ]
-      };
-      await speakingAptisAdminApi.gradeSubmission(id, payload);
-      message.success("Grade saved successfully!");
-      
-      // After saving, automatically call handleBack for smart redirection
-      handleBack();
-
-    } catch (error) {
-      message.error("Error saving grade!", error);
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  // Lấy toàn bộ logic và data từ Hook
+  const {
+    loading,
+    submitting,
+    submission,
+    grading,
+    setGrading,
+    totalScore,
+    autoSuggestCEFR,
+    getCEFRColor,
+    handleBack,
+    handleSaveGrade,
+    location
+  } = useSpeakingGradingDetail();
 
   if (loading) return <div className="flex h-screen items-center justify-center bg-gray-50"><Spin size="large" /></div>;
-
-  const gradingSections = [
-    { key: 'p1', title: 'Part 1: Personal Info', max: 5, colorKey: 'blue' },
-    { key: 'p2', title: 'Part 2: Describe Picture', max: 5, colorKey: 'green' },
-    { key: 'p3', title: 'Part 3: Compare Pictures', max: 15, colorKey: 'orange' },
-    { key: 'p4', title: 'Part 4: Abstract Topic', max: 25, colorKey: 'purple' },
-  ];
 
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
@@ -134,7 +44,6 @@ const SpeakingGradingDetailPage = () => {
       {/* COMPACT HEADER */}
       <div className="bg-white px-5 py-3 rounded-lg shadow-sm mb-4 flex justify-between items-center border border-gray-200">
         <Space size="large">
-          {/* 🔥 3. Apply handleBack to the Back button */}
           <Button icon={<ArrowLeftOutlined />} onClick={handleBack} size="small">Back</Button>
           
           <div className="flex items-center gap-4">
@@ -148,7 +57,6 @@ const SpeakingGradingDetailPage = () => {
               <Text className="text-gray-600">{submission?.test?.title}</Text>
             </Space>
 
-            {/* 🔥 Show Badge if coming from Full Test */}
             {location.state?.fromExamId && (
               <Badge color="purple" text="Full Test Component" className="ml-2 font-semibold" />
             )}
@@ -177,7 +85,6 @@ const SpeakingGradingDetailPage = () => {
           <div className="space-y-4">
             {submission?.test?.parts?.map((part, index) => {
               const studentAnswer = submission?.answers?.find(a => a.part_number === part.part_number);
-              // Apply color based on Part order
               const colorKeys = ['blue', 'green', 'orange', 'purple'];
               const theme = themeColors[colorKeys[index % 4]];
               
@@ -240,7 +147,7 @@ const SpeakingGradingDetailPage = () => {
                           <Slider 
                             min={0} max={sec.max} value={grading[sec.key]} 
                             onChange={v => setGrading({...grading, [sec.key]: v})} 
-                            className="flex-grow m-0"
+                            className="grow m-0"
                             trackStyle={{ backgroundColor: theme.hex }}
                             handleStyle={{ borderColor: theme.hex }}
                           />
