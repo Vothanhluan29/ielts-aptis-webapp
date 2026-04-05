@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Table, Button, Popconfirm, message, Tag, Space, Card, Switch, Tooltip, Typography, Badge
+  Table, Button, Popconfirm, Tag, Space, Card, Switch, Tooltip, Typography, Badge
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, BookFilled
 } from '@ant-design/icons';
-import GrammarVocabAdminApi from '../../../api/APTIS/grammar&vocab/grammar_vocabAdminApi';
 import dayjs from 'dayjs';
+
+// Nhúng Custom Hook
+import { useGramVocabManage } from '../../../hooks/APTIS/grammar_vocab/useGramVocabManage'; // Sửa lại đường dẫn
 
 const { Title, Text } = Typography;
 
@@ -19,52 +21,17 @@ const ROUTES = {
 
 const GramVocabManagePage = () => {
   const navigate = useNavigate();
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
-  const [isMockFilter, setIsMockFilter] = useState(false);
-
-  const fetchTests = useCallback(async (page, pageSize, isMock) => {
-    setLoading(true);
-    try {
-      const response = await GrammarVocabAdminApi.getTests({
-        skip: (page - 1) * pageSize,
-        limit: pageSize,
-        is_mock_selector: isMock,
-      });
-      const data = response.data || response;
-      setTests(data);
-      setPagination(prev => ({ ...prev, current: page, pageSize }));
-    } catch (error) {
-      console.error('Error loading tests:', error);
-      message.error('Failed to load test list!');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTests(1, pagination.pageSize, isMockFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMockFilter]);
-
-  const handleTableChange = (newPagination) => {
-    fetchTests(newPagination.current, newPagination.pageSize, isMockFilter);
-  };
-
-  const handleDelete = async (testId) => {
-    try {
-      await GrammarVocabAdminApi.deleteTest(testId);
-      message.success('Test deleted successfully!');
-      fetchTests(pagination.current, pagination.pageSize, isMockFilter);
-    } catch (error) {
-      if (error.response && error.response.status === 400) {
-        message.error(error.response.data.detail || 'Unable to delete this test as it is currently in use.');
-      } else {
-        message.error('Failed to delete test!');
-      }
-    }
-  };
+  
+  // Bóc tách Data và Function từ Hook
+  const {
+    tests,
+    loading,
+    pagination,
+    isMockFilter,
+    setIsMockFilter,
+    handleTableChange,
+    handleDelete
+  } = useGramVocabManage();
 
   const columns = useMemo(() => [
     {
@@ -118,8 +85,6 @@ const GramVocabManagePage = () => {
       key: 'is_published',
       width: 130,
       align: 'center',
-      // Read-only: reflects is_published set in the edit page.
-      // To change status, edit the test directly.
       render: (isPublished) => (
         <Tooltip title="Edit the test to change its status">
           <Badge
@@ -189,7 +154,7 @@ const GramVocabManagePage = () => {
         </Space>
       ),
     },
-  ], [navigate]);
+  ], [navigate, handleDelete]);
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
@@ -221,7 +186,6 @@ const GramVocabManagePage = () => {
           </Space>
 
           <Space size="middle">
-            {/* Mock filter toggle — preserved from original logic */}
             <Space size="small">
               <Text style={{ fontWeight: 500, color: '#6b7280' }}>Mock only</Text>
               <Switch
