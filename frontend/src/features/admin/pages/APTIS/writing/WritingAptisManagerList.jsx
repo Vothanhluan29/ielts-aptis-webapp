@@ -1,65 +1,32 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Table, Button, Space, Tag, Popconfirm, message, Typography, Card, Tooltip, Badge, Switch } from 'antd';
-import { 
-  EditOutlined, DeleteOutlined, PlusOutlined, 
-  EditFilled, FileTextOutlined, EyeOutlined 
-} from '@ant-design/icons';
+import React, { useMemo } from 'react';
+import { Table, Button, Space, Tag, Popconfirm, Typography, Card, Tooltip, Badge, Switch } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, EditFilled, FileTextOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
-import writingAptisAdminApi from '../../../api/APTIS/writing/writingAptisAdminApi';
+// Nhúng Custom Hook
+import { useWritingAptisManager } from '../../../hooks/APTIS/writing/useWritingAptisManager'; // Đổi đường dẫn theo dự án của bạn
 
 const { Title, Text } = Typography;
 
 const ROUTES = {
   CREATE: '/admin/aptis/writing/create',
   EDIT: (id) => `/admin/aptis/writing/edit/${id}`,
-  SUBMISSIONS: (id) => `/admin/aptis/writing/submissions?test_id=${id}`,
 };
 
 const WritingAptisManagerList = () => {
   const navigate = useNavigate();
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
-  const [isMockFilter, setIsMockFilter] = useState(false);
-
-  const fetchTests = useCallback(async (page, pageSize, isMock = false) => {
-    setLoading(true);
-    try {
-      const res = await writingAptisAdminApi.getAllTests({
-        skip: (page - 1) * pageSize,
-        limit: pageSize,
-        is_mock_selector: isMock,
-      });
-
-      const data = res.items || res.data || res;
-      const total = res.total || (Array.isArray(data) ? data.length : 0);
-
-      setTests(Array.isArray(data) ? data : []);
-      setPagination(prev => ({ ...prev, current: page, pageSize, total }));
-    } catch (error) {
-      message.error('Failed to load Writing tests!');
-      console.error("Fetch Tests Error:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTests(1, pagination.pageSize, isMockFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMockFilter]);
-
-  const handleDelete = async (id) => {
-    try {
-      await writingAptisAdminApi.deleteTest(id);
-      message.success('Test deleted successfully!');
-      fetchTests(pagination.current, pagination.pageSize, isMockFilter);
-    } catch (error) {
-      message.error(error.response?.data?.detail || 'Unable to delete this test.');
-    }
-  };
+  
+  // Bóc tách Data và Function từ Hook
+  const {
+    tests,
+    loading,
+    pagination,
+    isMockFilter,
+    setIsMockFilter,
+    handleTableChange,
+    handleDelete
+  } = useWritingAptisManager();
 
   const columns = useMemo(() => [
     {
@@ -112,8 +79,6 @@ const WritingAptisManagerList = () => {
       key: 'is_published',
       width: 130,
       align: 'center',
-      // Read-only: phản ánh trạng thái is_published từ WritingAptisEditPage,
-      // không cho phép thay đổi trực tiếp tại đây.
       render: (_, record) => (
         <Tooltip title="Edit the test to change its status">
           <Badge
@@ -148,7 +113,7 @@ const WritingAptisManagerList = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 130,
+      width: 100, // Đã giảm chiều rộng vì bớt đi 1 icon
       align: 'center',
       render: (_, record) => (
         <Space size={2}>
@@ -161,14 +126,7 @@ const WritingAptisManagerList = () => {
             />
           </Tooltip>
 
-          <Tooltip title="View submissions">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
-              onClick={() => navigate(ROUTES.SUBMISSIONS(record.id))}
-              style={{ color: '#10b981' }}
-            />
-          </Tooltip>
+          {/* Đã xóa nút View Submissions (EyeOutlined) */}
 
           <Popconfirm
             title="Delete this test?"
@@ -183,7 +141,7 @@ const WritingAptisManagerList = () => {
         </Space>
       ),
     },
-  ], [navigate]);
+  ], [navigate, handleDelete]);
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
@@ -209,13 +167,12 @@ const WritingAptisManagerList = () => {
                 Writing Test Bank
               </Title>
               <Text type="secondary">
-                Manage Aptis Writing test content and student submissions
+                Manage Aptis Writing test content
               </Text>
             </div>
           </Space>
 
           <Space size="middle">
-            {/* Mock filter toggle */}
             <Space size="small">
               <Text style={{ fontWeight: 500, color: '#6b7280' }}>Mock only</Text>
               <Switch
@@ -247,12 +204,14 @@ const WritingAptisManagerList = () => {
           rowKey="id"
           loading={loading}
           pagination={{
-            ...pagination,
+            current: pagination.current,
+            pageSize: pagination.pageSize,
+            total: pagination.total,
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50'],
             showTotal: (total, range) => `${range[0]}–${range[1]} of ${total} tests`,
           }}
-          onChange={(pag) => fetchTests(pag.current, pag.pageSize, isMockFilter)}
+          onChange={handleTableChange}
           rowClassName={() => 'writing-test-row'}
           style={{ marginTop: 8 }}
         />
