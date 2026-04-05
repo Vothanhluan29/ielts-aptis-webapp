@@ -4,7 +4,8 @@ import {
   Spin, Row, Col, Typography, Tag, Divider 
 } from 'antd';
 import { 
-  ArrowLeftOutlined, SaveOutlined, EditOutlined 
+  ArrowLeftOutlined, SaveOutlined, EditOutlined,
+  MessageOutlined, FormOutlined, FileTextOutlined, MailOutlined 
 } from '@ant-design/icons';
 
 // Import Custom Hook và cấu hình
@@ -24,12 +25,21 @@ const WritingAptisEditPage = () => {
     navigate
   } = useWritingAptisEdit();
 
-  // Helper render câu hỏi cho từng Part
+  // 🔥 HÀM LẤY ICON CHUẨN ĐƯỢC CHUYỂN SANG ĐÂY
+  const getPartIcon = (partType) => {
+    switch (partType) {
+      case "PART_1": return <MessageOutlined />;
+      case "PART_2": return <FormOutlined />;
+      case "PART_3": return <FileTextOutlined />;
+      case "PART_4": return <MailOutlined />;
+      default: return null;
+    }
+  };
+
   const renderQuestions = (partType, partName) => {
     if (partType === "PART_4") {
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {/* Ô nhập Email Ngữ cảnh (Scenario) */}
           <Card size="small" title={<Tag color="blue">Scenario / Received Email</Tag>} style={{ background: '#e6f7ff', borderColor: '#91d5ff' }}>
             <Form.Item name={[partName, 'questions', 0, 'question_text']} rules={[{ required: true, message: 'Please enter the scenario email!' }]} style={{ marginBottom: 0 }}>
               <TextArea rows={4} placeholder="e.g. Dear Members, we are writing to inform you that the club meeting has been cancelled due to..." />
@@ -106,7 +116,6 @@ const WritingAptisEditPage = () => {
       </div>
 
       <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
-        {/* GENERAL INFORMATION */}
         <Card variant="borderless" title="1. General Information" style={{ marginBottom: 24, borderRadius: 16, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
           <Row gutter={24}>
             <Col span={10}>
@@ -141,18 +150,18 @@ const WritingAptisEditPage = () => {
 
         <Divider titlePlacement="left"><Title level={4} style={{ margin: 0 }}>Content of 4 Test Parts</Title></Divider>
 
-        {/* NESTED PART LIST */}
         <Form.List name="parts">
           {(fields) => (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {fields.map(({ key, name }, index) => {
                 const config = PART_CONFIGS[index];
-                if (!config) return null; // An toàn dữ liệu
+                if (!config) return null; 
 
                 return (
                   <Card 
                     key={key} size="small"
-                    title={<Space>{config.icon} <Text strong>{config.title}</Text></Space>}
+                    // 🔥 GỌI HÀM LẤY ICON ĐÃ TẠO Ở TRÊN
+                    title={<Space>{getPartIcon(config.type)} <Text strong>{config.title}</Text></Space>}
                     extra={<Tag color="purple">Part {index + 1}</Tag>}
                     style={{ borderLeft: '6px solid #7c3aed', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}
                   >
