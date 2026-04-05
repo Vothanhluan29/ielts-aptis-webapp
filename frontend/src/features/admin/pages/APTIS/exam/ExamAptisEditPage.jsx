@@ -66,7 +66,7 @@ const ExamAptisEditPage = () => {
           />
 
           <div>
-            <Title level={4} className="!m-0 !text-indigo-900 font-bold">
+            <Title level={4} className="m-0! text-indigo-900 font-bold!">
               {isEditMode
                 ? 'Edit Aptis Full Test'
                 : 'Create New Aptis Full Test'}
