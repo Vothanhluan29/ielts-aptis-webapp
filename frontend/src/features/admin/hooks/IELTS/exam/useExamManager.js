@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { message } from 'antd'; // 🔥 Đã đổi sang message của Ant Design
-import { examAdminApi } from '../../api/IELTS/exam/ExamAdminApi';
+import { message } from 'antd'; 
+import { examAdminApi } from '../../../api/IELTS/exam/ExamAdminApi';
 
 export const useExamManager = () => {
   const [exams, setExams] = useState([]);
@@ -29,7 +29,6 @@ export const useExamManager = () => {
 
   // 2. Handle Delete
   const handleDelete = async (id) => {
-    // 🔥 Không dùng window.confirm nữa vì UI đã có Popconfirm
     const hide = message.loading('Deleting exam...', 0);
     try {
       await examAdminApi.deleteTest(id);
