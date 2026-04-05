@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Table, Tag, Button, Space, Card, Typography,
-  Input, Tabs, Badge, Row, Col, message, Avatar, Tooltip
+  Input, Tabs, Badge, Row, Col, Avatar, Tooltip
 } from 'antd';
 import {
   EyeOutlined, UserOutlined, ClockCircleOutlined,
@@ -11,95 +11,27 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
-import examAptisAdminApi from '../../../api/APTIS/exam/examAptisAdminApi';
+// Nhúng Custom Hook
+import { useExamAptisSubmissionsManager } from '../../../hooks/APTIS/exam/useExamAptisSubmissionsManager'; // Sửa lại đường dẫn nếu cần
 
 const { Title, Text } = Typography;
 
 const ExamAptisSubmissionsManager = () => {
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  // Bóc tách data từ Hook
+  const {
+    loading,
+    data,
+    pagination,
+    setPagination,
+    stats,
+    filters,
+    setFilters,
+    fetchSubmissions
+  } = useExamAptisSubmissionsManager();
 
-  // State to store overview statistics
-  const [stats, setStats] = useState({ total: 0, in_progress: 0, pending: 0, completed: 0 });
-
-  const [filters, setFilters] = useState({
-    status: 'PENDING', // Default: show Pending submissions (Needs Grading)
-    searchText: '',
-  });
-
-  // Optimized stats fetching (limit=1 to read total only)
-  const loadOverviewStats = async () => {
-    try {
-      const [inProgressRes, pendingRes, completedRes] = await Promise.all([
-        examAptisAdminApi.getAllSubmissions({ page: 1, limit: 1, status: 'IN_PROGRESS' }),
-        examAptisAdminApi.getAllSubmissions({ page: 1, limit: 1, status: 'PENDING' }),
-        examAptisAdminApi.getAllSubmissions({ page: 1, limit: 1, status: 'COMPLETED' })
-      ]);
-      
-      const ipData = inProgressRes.data || inProgressRes;
-      const pData = pendingRes.data || pendingRes;
-      const cData = completedRes.data || completedRes;
-
-      const ipCount = ipData.total !== undefined ? ipData.total : (ipData.items?.length || ipData.length || 0);
-      const pCount = pData.total !== undefined ? pData.total : (pData.items?.length || pData.length || 0);
-      const cCount = cData.total !== undefined ? cData.total : (cData.items?.length || cData.length || 0);
-      
-      setStats({
-        in_progress: ipCount,
-        pending: pCount,
-        completed: cCount,
-        total: ipCount + pCount + cCount
-      });
-    } catch (error) {
-      console.error("Error fetching statistics:", error);
-    }
-  };
-
-  const fetchSubmissions = async () => {
-    setLoading(true);
-    try {
-      const params = {
-        page: pagination.current,
-        limit: pagination.pageSize,
-        status: filters.status,
-        search: filters.searchText,
-      };
-
-      const res = await examAptisAdminApi.getAllSubmissions(params);
-      const result = res.data || res;
-
-      if (Array.isArray(result)) {
-        setData(result);
-        setPagination(prev => ({ 
-          ...prev, 
-          total: result.length < pagination.pageSize ? (pagination.current - 1) * pagination.pageSize + result.length : 1000 
-        }));
-      } else if (result && result.items) {
-        setData(result.items);
-        setPagination(prev => ({ ...prev, total: result.total || 0 }));
-      }
-    } catch (error) {
-      console.error("Fetch Error:", error);
-      message.error("Unable to load submission list!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Reload list when changing page or filter
-  useEffect(() => {
-    fetchSubmissions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.current, pagination.pageSize, filters.status, filters.searchText]);
-
-  // Reload overview counts on first mount or when tab status changes
-  useEffect(() => {
-    loadOverviewStats();
-  }, [filters.status]);
-
+  // Hàm phụ trợ tạo màu Avatar ngẫu nhiên
   const getAvatarColor = (name) => {
     const colors = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae', '#87d068', '#1677ff'];
     const charCode = name?.charCodeAt(0) || 0;
@@ -137,7 +69,7 @@ const ExamAptisSubmissionsManager = () => {
             <TrophyOutlined />
           </div>
           <Tooltip title={test?.title}>
-            <Text className="text-gray-700 font-medium truncate block max-w-[200px]">
+            <Text className="text-gray-700 font-medium truncate block max-w-50">
               {test?.title || 'Unknown Test'}
             </Text>
           </Tooltip>
@@ -152,7 +84,9 @@ const ExamAptisSubmissionsManager = () => {
             <ClockCircleOutlined className="mr-1 text-gray-400" />
             {dayjs(record.start_time).format('DD/MM/YYYY')}
           </Text>
-          <Text type="secondary" className="text-xs">Started: {dayjs(record.start_time).format('HH:mm')}</Text>
+          <Text type="secondary" className="text-xs">
+            Started: {dayjs(record.start_time).format('HH:mm')}
+          </Text>
         </div>
       ),
     },
@@ -282,7 +216,7 @@ const ExamAptisSubmissionsManager = () => {
       {/* HEADER */}
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <Title level={3} className="!mb-1 !text-indigo-900 font-bold">
+          <Title level={3} className="mb-1 text-indigo-900 font-bold">
             <FileTextOutlined className="mr-2 text-indigo-500" /> Aptis Submission Management
           </Title>
           <Text className="text-gray-500">View progress, overall results and grade open-ended responses (Writing/Speaking)</Text>
