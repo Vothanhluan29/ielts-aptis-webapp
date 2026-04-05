@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useSpeakingEdit } from '../../hooks/speaking/useSpeakingEdit'; 
+import { useSpeakingEdit } from '../../hooks/IELTS/speaking/useSpeakingEdit'; 
 import { 
   ArrowLeftOutlined, SaveOutlined, AudioOutlined, 
   InfoCircleOutlined, LayoutOutlined, AimOutlined
