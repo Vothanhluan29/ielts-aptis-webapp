@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import {
   Table, Tag, Button, Space, Card, Typography,
-  Input, Tabs, Badge, Row, Col, message, Avatar, Tooltip
+  Input, Tabs, Badge, Row, Col, Avatar, Tooltip
 } from 'antd';
 import {
   AudioOutlined, EyeOutlined, SearchOutlined,
@@ -10,86 +10,26 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import speakingAptisAdminApi from '../../../api/APTIS/speaking/speakingAptisAdminApi';
+
+// Import Custom Hook
+import { useSpeakingSubmissionList } from '../../../hooks/APTIS/speaking/useSpeakingSubmissionList'; // Chỉnh lại đường dẫn nếu cần
 
 const { Title, Text } = Typography;
 
 const SpeakingSubmissionListPage = () => {
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
-  
-  // State to store overview statistics
-  const [stats, setStats] = useState({ total: 0, pending: 0, graded: 0 });
-
-  const [filters, setFilters] = useState({
-    status: 'PENDING',
-    searchText: '',
-  });
-
-  // 🔥 ĐÃ THÊM LỌC: is_full_test_only: false
-  const loadOverviewStats = async () => {
-    try {
-      const [pendingRes, gradedRes] = await Promise.all([
-        speakingAptisAdminApi.getAllSubmissionsForAdmin({ page: 1, limit: 1, status: 'PENDING', is_full_test_only: false }),
-        speakingAptisAdminApi.getAllSubmissionsForAdmin({ page: 1, limit: 1, status: 'GRADED', is_full_test_only: false })
-      ]);
-      
-      const pCount = pendingRes.data?.total !== undefined ? pendingRes.data.total : (pendingRes.total || pendingRes.items?.length || pendingRes.length || 0);
-      const gCount = gradedRes.data?.total !== undefined ? gradedRes.data.total : (gradedRes.total || gradedRes.items?.length || gradedRes.length || 0);
-      
-      setStats({
-        pending: pCount,
-        graded: gCount,
-        total: pCount + gCount
-      });
-    } catch (error) {
-      console.error("Error fetching statistics:", error);
-    }
-  };
-
-  const fetchSubmissions = async () => {
-    setLoading(true);
-    try {
-      const params = {
-        page: pagination.current,
-        limit: pagination.pageSize,
-        status: filters.status,
-        search: filters.searchText,
-        is_full_test_only: false, // 🔥 Báo backend CHỈ lấy bài thi lẻ (Practice)
-      };
-
-      const res = await speakingAptisAdminApi.getAllSubmissionsForAdmin(params);
-      const result = res.data || res;
-
-      if (Array.isArray(result)) {
-        setData(result);
-        setPagination(prev => ({ 
-          ...prev, 
-          total: result.length < pagination.pageSize ? (pagination.current - 1) * pagination.pageSize + result.length : 1000 
-        }));
-      } else if (result && result.items) {
-        setData(result.items);
-        setPagination(prev => ({ ...prev, total: result.total || 0 }));
-      }
-    } catch (error) {
-      console.error("Error loading submission list:", error);
-      message.error("Unable to load submission data!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSubmissions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.current, pagination.pageSize, filters.status, filters.searchText]);
-
-  useEffect(() => {
-    loadOverviewStats();
-  }, [filters.status]);
+  // Rút trích data và logic từ Hook
+  const {
+    loading,
+    data,
+    pagination,
+    setPagination,
+    stats,
+    filters,
+    setFilters,
+    fetchSubmissions
+  } = useSpeakingSubmissionList();
 
   const getAvatarColor = (name) => {
     const colors = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae', '#87d068', '#1677ff'];
@@ -97,7 +37,7 @@ const SpeakingSubmissionListPage = () => {
     return colors[charCode % colors.length];
   };
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: 'Student',
       dataIndex: 'user',
@@ -200,7 +140,7 @@ const SpeakingSubmissionListPage = () => {
         );
       },
     },
-  ];
+  ], [navigate]);
 
   const tabItems = [
     {
@@ -221,7 +161,6 @@ const SpeakingSubmissionListPage = () => {
     },
   ];
 
-  // Compact search bar placed inline with Tabs
   const renderTabBarExtraContent = () => (
     <Input
       placeholder="Search by name or email..."
@@ -240,13 +179,13 @@ const SpeakingSubmissionListPage = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="mb-6">
-        <Title level={3} className="!mb-1 !text-indigo-900 font-bold">
+        <Title level={3} className="mb-1 text-indigo-900 font-bold">
           <AudioOutlined className="mr-2 text-indigo-500" /> Speaking Practice Submissions
         </Title>
         <Text className="text-gray-500">Listen to audio recordings and evaluate standalone speaking practice submissions</Text>
       </div>
 
-      {/* STATS CARDS: Displaying correct figures */}
+      {/* STATS CARDS */}
       <Row gutter={24} className="mb-6">
         <Col span={8}>
           <Card variant="borderless" className="shadow-sm rounded-xl border border-gray-200 relative overflow-hidden">
@@ -280,7 +219,7 @@ const SpeakingSubmissionListPage = () => {
             setFilters({ ...filters, status: key });
             setPagination(prev => ({ ...prev, current: 1 }));
           }}
-          tabBarExtraContent={renderTabBarExtraContent()} // 🔥 Search bar inline with Tabs
+          tabBarExtraContent={renderTabBarExtraContent()} 
           className="mb-2"
         />
         
@@ -296,7 +235,7 @@ const SpeakingSubmissionListPage = () => {
             onChange: (page, pageSize) => setPagination({ ...pagination, current: page, pageSize }),
             showTotal: (total) => `Total ${total} records`,
           }}
-          size="middle" // 🔥 Compact row height
+          size="middle" 
           rowClassName="hover:bg-gray-50 transition-colors"
         />
       </Card>
