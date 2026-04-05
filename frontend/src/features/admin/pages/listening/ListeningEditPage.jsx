@@ -6,7 +6,7 @@ import {
 } from '@ant-design/icons';
 
 import { useListeningEdit } from '../../hooks/listening/useListeningEdit';
-import QuestionCard from '../../components/QuestionForms/QuestionCard';
+import QuestionCard from '../../components/IELTS/QuestionForms/QuestionCard';
 import { listeningAdminApi } from '../../api/IELTS/listening/listeningAdminApi'; 
 
 const { Title, Text } = Typography;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import adminApi from '../../api/adminApi';
+import adminApi from '../../api/dashboard/adminApi';
 
 export const useAdminDashboard = () => {
   const [stats, setStats] = useState(null);
