@@ -130,7 +130,7 @@ const ExamManagerPage = () => {
     <div className="p-4 md:p-6 bg-gray-50 min-h-screen font-sans">
       <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <Title level={3} className="!mb-1 !text-indigo-900 !font-bold">
+          <Title level={3} className="mb-1 text-indigo-900 font-bold">
             <AppstoreOutlined className="mr-2 text-indigo-500" /> IELTS Full Test Management
           </Title>
           <Text className="text-gray-500">Manage combination of 4 IELTS skills (Listening, Reading, Writing, Speaking)</Text>
