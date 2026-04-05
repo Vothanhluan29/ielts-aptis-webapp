@@ -4,25 +4,22 @@ import {
   Table, Button, Popconfirm, Tag, Space, Card, Switch, Tooltip, Typography, Badge
 } from 'antd';
 import {
-  PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, BookFilled
+  PlusOutlined, EditOutlined, DeleteOutlined, BookFilled
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
-// Nhúng Custom Hook
-import { useGramVocabManage } from '../../../hooks/APTIS/grammar_vocab/useGramVocabManage'; // Sửa lại đường dẫn
+import { useGramVocabManage } from '../../../hooks/APTIS/grammar_vocab/useGramVocabManage';
 
 const { Title, Text } = Typography;
 
 const ROUTES = {
   CREATE: '/admin/aptis/grammar-vocab/create',
   EDIT: (id) => `/admin/aptis/grammar-vocab/edit/${id}`,
-  SUBMISSIONS: (id) => `/admin/aptis/grammar-vocab/submissions?test_id=${id}`,
 };
 
 const GramVocabManagePage = () => {
   const navigate = useNavigate();
   
-  // Bóc tách Data và Function từ Hook
   const {
     tests,
     loading,
@@ -119,7 +116,7 @@ const GramVocabManagePage = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 130,
+      width: 100,
       align: 'center',
       render: (_, record) => (
         <Space size={2}>
@@ -129,15 +126,6 @@ const GramVocabManagePage = () => {
               icon={<EditOutlined />}
               onClick={() => navigate(ROUTES.EDIT(record.id))}
               style={{ color: '#0891b2' }}
-            />
-          </Tooltip>
-
-          <Tooltip title="View submissions">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
-              onClick={() => navigate(ROUTES.SUBMISSIONS(record.id))}
-              style={{ color: '#10b981' }}
             />
           </Tooltip>
 
@@ -162,7 +150,6 @@ const GramVocabManagePage = () => {
         variant="borderless"
         style={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
       >
-        {/* Header */}
         <div style={{
           display: 'flex', justifyContent: 'space-between',
           alignItems: 'center', marginBottom: 32,
@@ -210,7 +197,6 @@ const GramVocabManagePage = () => {
           </Space>
         </div>
 
-        {/* Table */}
         <Table
           columns={columns}
           dataSource={tests}
