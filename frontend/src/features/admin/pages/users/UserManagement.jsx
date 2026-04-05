@@ -25,7 +25,7 @@ import {
 import { useAdminUsers } from '../../hooks/users/useAdminUsers';
 import { useUserFilter } from '../../hooks/users/useUserFilters';
 
-import UserFilterBar from '../../components/users/UserFilterBar';
+import UserFilterBar from '../../components/users_management/UserFilterBar';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
