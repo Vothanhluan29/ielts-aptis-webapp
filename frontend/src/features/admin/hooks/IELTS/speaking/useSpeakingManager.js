@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
+import { message } from "antd";
 import { adminSpeakingApi } from "../../../api/IELTS/speaking/adminSpeakingApi";
-import toast from "react-hot-toast";
 
 export const useSpeakingManager = (initialMockFilter = false) => {
   const [tests, setTests] = useState([]);
@@ -8,7 +8,6 @@ export const useSpeakingManager = (initialMockFilter = false) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMockOnly, setIsMockOnly] = useState(initialMockFilter);
 
-  // Fetch tests
   const fetchTests = useCallback(async () => {
     try {
       setLoading(true);
@@ -18,7 +17,7 @@ export const useSpeakingManager = (initialMockFilter = false) => {
       setTests(res.data || res || []);
     } catch (error) {
       console.error(error);
-      toast.error("Failed to load speaking tests.");
+      message.error("Failed to load speaking tests.");
     } finally {
       setLoading(false);
     }
@@ -28,7 +27,6 @@ export const useSpeakingManager = (initialMockFilter = false) => {
     fetchTests();
   }, [fetchTests]);
 
-  // Delete test
   const handleDelete = async (id) => {
     if (
       !window.confirm(
@@ -39,17 +37,16 @@ export const useSpeakingManager = (initialMockFilter = false) => {
 
     try {
       await adminSpeakingApi.deleteTest(id);
-      toast.success("Test deleted successfully.");
+      message.success("Test deleted successfully.");
       setTests((prev) => prev.filter((t) => t.id !== id));
     } catch (error) {
       console.error(error);
       const errorMessage =
         error.response?.data?.detail || "Error deleting the test.";
-      toast.error(errorMessage);
+      message.error(errorMessage);
     }
   };
 
-  // Filter tests by title
   const filteredTests = useMemo(
     () =>
       tests.filter((t) =>
