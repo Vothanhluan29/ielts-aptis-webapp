@@ -76,7 +76,7 @@ const Sidebar = ({
         )}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="p-2 rounded-lg bg-white border border-slate-200 hover:bg-sky-100 transition text-slate-600 mx-auto"
+          className="p-2 rounded-lg bg-white border border-slate-200 hover:bg-sky-100 transition text-slate-600 "
         >
           {sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         </button>
