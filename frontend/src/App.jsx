@@ -107,21 +107,22 @@ import UserManagement from './features/admin/pages/users/UserManagement';
 import AdminSubmissions from './features/admin/pages/submissions/AdminSubmissionsPage';
 
 // Exam Management
-import ExamManagerPage from './features/admin/pages/exam/ExamManagerPage';
-import ExamEditPage from './features/admin/pages/exam/ExamEditPage';
+import ExamManagerPage from './features/admin/pages/IELTS/exam/ExamManagerPage';
+import ExamEditPage from './features/admin/pages/IELTS/exam/ExamEditPage';
 
 // Admin Skills
-import ReadingManagerPage from './features/admin/pages/reading/ReadingManagerPage'; 
-import ReadingEditPage from './features/admin/pages/reading/ReadingEditPage';
+import ReadingManagerPage from './features/admin/pages/IELTS/reading/ReadingManagerPage'; 
+import ReadingEditPage from './features/admin/pages/IELTS/reading/ReadingEditPage';
 
-import ListeningManagerPage from './features/admin/pages/listening/ListeningManagerPage';
-import ListeningEditPage from './features/admin/pages/listening/ListeningEditPage';
+import ListeningManagerPage from './features/admin/pages/IELTS/listening/ListeningManagerPage';
+import ListeningEditPage from './features/admin/pages/IELTS/listening/ListeningEditPage';
 
-import WritingManagerPage from './features/admin/pages/writing/WritingManagerPage';
-import WritingEditPage from './features/admin/pages/writing/WritingEditPage';
+import WritingManagerPage from './features/admin/pages/IELTS/writing/WritingManagerPage';
+import WritingEditPage from './features/admin/pages/IELTS/writing/WritingEditPage';
 
-import SpeakingManagerPage from './features/admin/pages/speaking/SpeakingManagerPage';
-import SpeakingEditPage from './features/admin/pages/speaking/SpeakingEditPage';
+import SpeakingManagerPage from './features/admin/pages/IELTS/speaking/SpeakingManagerPage';
+import SpeakingEditPage from './features/admin/pages/IELTS/speaking/SpeakingEditPage';
+
 
 import ExamAptisManagerPage from './features/admin/pages/APTIS/exam/ExamAptisManagerPage';
 import ExamAptisEditPage from './features/admin/pages/APTIS/exam/ExamAptisEditPage';
