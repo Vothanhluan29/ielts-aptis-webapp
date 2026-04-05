@@ -6,9 +6,10 @@ from sqlalchemy.exc import IntegrityError
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_admin_user
 
-# Đảm bảo đường dẫn này khớp viết hoa/thường với thư mục thực tế của bạn nhé
 from app.modules.APTIS.listening import schemas
-from app.modules.APTIS.listening.service import AptisListeningService
+from app.modules.APTIS.listening.services.utils import AptisListeningUtils
+from app.modules.APTIS.listening.services.test_service import AptisListeningTestService
+from app.modules.APTIS.listening.services.submission_service import AptisListeningSubmissionService
 
 router = APIRouter(prefix="/aptis/listening", tags=["Aptis Listening"])
 
@@ -25,7 +26,7 @@ def upload_audio(
     Trả về: {"url": "http://domain/static/audio/aptis_listening/filename.mp3"}
     """
     try:
-        url = AptisListeningService.save_audio_file(file)
+        url = AptisListeningUtils.save_audio_file(file)
         return {"url": url}
     except HTTPException as he:
         raise he
@@ -46,7 +47,7 @@ def get_tests_for_admin(
     admin = Depends(get_admin_user)
 ):
     """Lấy danh sách tất cả bài thi (kể cả chưa publish)"""
-    return AptisListeningService.get_all_tests(
+    return AptisListeningTestService.get_all_tests(
         db, 
         admin_view=True, 
         fetch_mock_only=is_mock_selector
@@ -59,7 +60,7 @@ def create_test(
     admin = Depends(get_admin_user)
 ):
     """Tạo đề thi mới (Kèm Parts -> Groups -> Questions)"""
-    return AptisListeningService.create_test(db, test_data)
+    return AptisListeningTestService.create_test(db, test_data)
 
 @router.get("/admin/tests/{test_id}", response_model=schemas.ListeningTestResponse)
 def get_test_detail_admin(
@@ -68,7 +69,7 @@ def get_test_detail_admin(
     admin = Depends(get_admin_user)
 ):
     """Lấy chi tiết đề thi (Bao gồm đáp án đúng và transcript để Admin sửa)"""
-    test = AptisListeningService.get_test_detail(db, test_id)
+    test = AptisListeningTestService.get_test_detail(db, test_id)
     if not test: 
         raise HTTPException(status_code=404, detail="Test not found")
     return test
@@ -81,7 +82,7 @@ def update_test(
     admin = Depends(get_admin_user)
 ):
     """Cập nhật đề thi (Deep Update)"""
-    test = AptisListeningService.update_test(db, test_id, test_data)
+    test = AptisListeningTestService.update_test(db, test_id, test_data)
     if not test: 
         raise HTTPException(status_code=404, detail="Test not found")
     return test
@@ -93,7 +94,7 @@ def delete_test(
     admin = Depends(get_admin_user)
 ):
     try:
-        if not AptisListeningService.delete_test(db, test_id):
+        if not AptisListeningTestService.delete_test(db, test_id):
             raise HTTPException(status_code=404, detail="Test not found")
     except IntegrityError:
         raise HTTPException(
@@ -117,7 +118,7 @@ def get_public_tests(
     current_user = Depends(get_current_user)
 ):
     """[STUDENT] Lấy danh sách bài thi luyện tập."""
-    return AptisListeningService.get_all_tests(
+    return AptisListeningTestService.get_all_tests(
         db, 
         current_user_id=current_user.id,
         skip=skip,
@@ -133,7 +134,7 @@ def get_test_detail_for_student(
     current_user = Depends(get_current_user)
 ):
     """[STUDENT] Lấy đề để làm bài (Tự động giấu đáp án và transcript)"""
-    test = AptisListeningService.get_test_detail(db, test_id)
+    test = AptisListeningTestService.get_test_detail(db, test_id)
     if not test: 
         raise HTTPException(status_code=404, detail="Test not found")
     
@@ -152,7 +153,7 @@ def submit_test(
     user = Depends(get_current_user)
 ):
     """Nộp bài và chấm điểm CEFR tự động"""
-    result = AptisListeningService.submit_test(db, user.id, submission)
+    result = AptisListeningSubmissionService.submit_test(db, user.id, submission)
     if not result: 
         raise HTTPException(status_code=400, detail="Submission failed")
     return result
@@ -167,7 +168,7 @@ def get_my_history(
     db: Session = Depends(get_db), 
     user = Depends(get_current_user)
 ):
-    return AptisListeningService.get_my_submissions(db, user.id)
+    return AptisListeningSubmissionService.get_my_submissions(db, user.id)
 
 @router.get("/submissions/{submission_id}", response_model=schemas.SubmissionDetail)
 def get_submission_detail(
@@ -176,7 +177,7 @@ def get_submission_detail(
     user = Depends(get_current_user)
 ):
     """Xem lại chi tiết kết quả bài đã làm"""
-    sub = AptisListeningService.get_submission_detail(db, submission_id)
+    sub = AptisListeningSubmissionService.get_submission_detail(db, submission_id)
     if not sub:
         raise HTTPException(status_code=404, detail="Submission not found")
     
@@ -202,7 +203,7 @@ def admin_get_all_submissions(
     admin = Depends(get_admin_user)
 ):
     """[ADMIN] Lấy danh sách tất cả bài nộp Listening của hệ thống"""
-    return AptisListeningService.get_all_submissions_for_admin(db, skip, limit, status)
+    return AptisListeningSubmissionService.get_all_submissions_for_admin(db, skip, limit, status)
 
 @router.get("/admin/users/{target_user_id}/submissions", response_model=List[schemas.AdminListeningSubmissionResponse])
 def admin_get_user_history(
@@ -211,17 +212,4 @@ def admin_get_user_history(
     admin = Depends(get_admin_user)
 ):
     """[ADMIN] Xem lịch sử bài nộp Listening của 1 học viên"""
-    return AptisListeningService.get_user_history_for_admin(db, target_user_id)
-
-@router.put("/admin/submissions/{submission_id}/override", response_model=schemas.SubmissionDetail)
-def admin_override_score(
-    submission_id: int,
-    req: schemas.ListeningScoreOverrideRequest,
-    db: Session = Depends(get_db),
-    admin = Depends(get_admin_user)
-):
-    """[ADMIN] Ghi đè điểm số cho bài nộp Listening"""
-    sub = AptisListeningService.override_submission_score(db, submission_id, req)
-    if not sub:
-        raise HTTPException(status_code=404, detail="Submission not found")
-    return sub
+    return AptisListeningSubmissionService.get_user_history_for_admin(db, target_user_id)
