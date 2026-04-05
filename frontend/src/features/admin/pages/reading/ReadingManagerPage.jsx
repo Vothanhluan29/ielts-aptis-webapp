@@ -23,7 +23,7 @@ import {
   FileProtectOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
-import { useReadingManager } from "../../hooks/reading/useReadingManager";
+import { useReadingManager } from "../../hooks/IELTS/reading/useReadingManager";
 
 const { Title, Text } = Typography;
 
@@ -152,7 +152,7 @@ const ReadingManagerPage = () => {
           <div>
             <Title
               level={2}
-              className="!m-0 flex items-center gap-3 !text-slate-800"
+              className="m-0! flex items-center gap-3 text-slate-800!"
             >
               <div className="p-2 bg-blue-600 text-white rounded-lg">
                 <BookOutlined />
