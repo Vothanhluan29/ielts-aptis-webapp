@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Table, Tag, Button, Space, Card, Typography,
-  Input, Tabs, Badge, Row, Col, message, Avatar, Tooltip
+  Input, Tabs, Badge, Row, Col, Avatar, Tooltip
 } from 'antd';
 import {
   EditOutlined, EyeOutlined, SearchOutlined,
@@ -11,89 +11,26 @@ import {
   FileTextOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import writingAptisAdminApi from '../../../api/APTIS/writing/writingAptisAdminApi';
+
+// Nhúng Custom Hook
+import { useWritingSubmissionList } from '../../../hooks/APTIS/writing/useWritingSubmissionList'; // Cập nhật lại đường dẫn
 
 const { Title, Text } = Typography;
 
 const WritingSubmissionListPage = () => {
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
-
-  // State to store overview statistics
-  const [stats, setStats] = useState({ total: 0, pending: 0, graded: 0 });
-
-  const [filters, setFilters] = useState({
-    status: 'PENDING',
-    searchText: '',
-  });
-
-  // 🔥 ĐÃ THÊM LỌC: is_full_test_only: false
-  const loadOverviewStats = async () => {
-    try {
-      const [pendingRes, gradedRes] = await Promise.all([
-        writingAptisAdminApi.getAllSubmissions({ page: 1, limit: 1, status: 'PENDING', is_full_test_only: false }),
-        writingAptisAdminApi.getAllSubmissions({ page: 1, limit: 1, status: 'GRADED', is_full_test_only: false })
-      ]);
-      
-      const pData = pendingRes.data || pendingRes;
-      const gData = gradedRes.data || gradedRes;
-
-      const pCount = pData.total !== undefined ? pData.total : (pData.items?.length || pData.length || 0);
-      const gCount = gData.total !== undefined ? gData.total : (gData.items?.length || gData.length || 0);
-      
-      setStats({
-        pending: pCount,
-        graded: gCount,
-        total: pCount + gCount
-      });
-    } catch (error) {
-      console.error("Error fetching statistics:", error);
-    }
-  };
-
-  const fetchSubmissions = async () => {
-    setLoading(true);
-    try {
-      const params = {
-        page: pagination.current,
-        limit: pagination.pageSize,
-        status: filters.status,
-        search: filters.searchText,
-        is_full_test_only: false, // 🔥 Báo backend CHỈ lấy bài thi lẻ (Practice)
-      };
-
-      const res = await writingAptisAdminApi.getAllSubmissions(params);
-      const result = res.data || res;
-
-      if (Array.isArray(result)) {
-        setData(result);
-        setPagination(prev => ({ 
-          ...prev, 
-          total: result.length < pagination.pageSize ? (pagination.current - 1) * pagination.pageSize + result.length : 1000 
-        }));
-      } else if (result && result.items) {
-        setData(result.items);
-        setPagination(prev => ({ ...prev, total: result.total || 0 }));
-      }
-    } catch (error) {
-      console.error("Error loading submission list:", error);
-      message.error("Unable to load submission data!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchSubmissions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination.current, pagination.pageSize, filters.status, filters.searchText]);
-
-  useEffect(() => {
-    loadOverviewStats();
-  }, [filters.status]);
+  // Lấy dữ liệu và logic từ Hook
+  const {
+    loading,
+    data,
+    pagination,
+    setPagination,
+    stats,
+    filters,
+    setFilters,
+    fetchSubmissions
+  } = useWritingSubmissionList();
 
   const getAvatarColor = (name) => {
     const colors = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae', '#87d068', '#1677ff'];
@@ -101,7 +38,7 @@ const WritingSubmissionListPage = () => {
     return colors[charCode % colors.length];
   };
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       title: 'Student',
       dataIndex: 'user',
@@ -204,7 +141,7 @@ const WritingSubmissionListPage = () => {
         );
       },
     },
-  ];
+  ], [navigate]);
 
   const tabItems = [
     {
@@ -246,7 +183,7 @@ const WritingSubmissionListPage = () => {
       {/* HEADER */}
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <Title level={3} className="!mb-1 !text-indigo-900 font-bold">
+          <Title level={3} className="mb-1 text-indigo-900 font-bold">
             <FileTextOutlined className="mr-2 text-indigo-500" /> Writing Practice Submissions
           </Title>
           <Text className="text-gray-500">Read and evaluate students' standalone writing practice submissions</Text>
