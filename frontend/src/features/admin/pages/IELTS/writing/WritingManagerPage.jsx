@@ -23,7 +23,7 @@ import {
   FileProtectOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
-import { useWritingManager } from "../../hooks/IELTS/writing/useWritingManager";
+import { useWritingManager } from "../../../hooks/IELTS/writing/useWritingManager";
 
 const { Title, Text } = Typography;
 

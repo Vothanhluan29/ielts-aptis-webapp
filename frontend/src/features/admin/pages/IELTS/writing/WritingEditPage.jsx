@@ -9,7 +9,7 @@ import {
   InfoCircleOutlined, PictureOutlined, CloudUploadOutlined, 
   DeleteOutlined, SafetyCertificateOutlined 
 } from '@ant-design/icons';
-import { useWritingEdit } from '../../hooks/IELTS/writing/useWritingEdit';
+import { useWritingEdit } from '../../../hooks/IELTS/writing/useWritingEdit';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
