@@ -148,7 +148,7 @@ const ExamEditPage = () => {
             className="border-gray-200 hover:text-indigo-600 shadow-sm"
           />
           <div>
-            <Title level={4} className="!m-0 !text-indigo-900 font-bold">
+            <Title level={4} className="m-0 text-indigo-900 font-bold">
               {isEditMode ? `Edit IELTS Full Test #${id}` : 'Create New IELTS Full Test'}
             </Title>
             <Text type="secondary" className="text-xs italic">
