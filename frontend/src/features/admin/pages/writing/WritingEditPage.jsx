@@ -9,7 +9,7 @@ import {
   InfoCircleOutlined, PictureOutlined, CloudUploadOutlined, 
   DeleteOutlined, SafetyCertificateOutlined 
 } from '@ant-design/icons';
-import { useWritingEdit } from '../../hooks/writing/useWritingEdit';
+import { useWritingEdit } from '../../hooks/IELTS/writing/useWritingEdit';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -53,7 +53,7 @@ const WritingEditPage = () => {
         <form onSubmit={handleSubmit}>
           {/* ================= HEADER ================= */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-            <Title level={2} className="!m-0 flex items-center gap-3 !text-slate-800">
+            <Title level={2} className="m-0 flex items-center gap-3 text-slate-800">
               <div className="p-2 bg-pink-600 text-white rounded-lg shadow-sm">
                 <FormOutlined />
               </div>
@@ -186,7 +186,7 @@ const WritingEditPage = () => {
                     onDragOver={onDragOver}
                     onDragLeave={onDragLeave}
                     onDrop={onDrop}
-                    className={`border-2 border-dashed rounded-xl p-4 h-[285px] flex flex-col items-center justify-center relative transition-colors cursor-pointer
+                    className={`border-2 border-dashed rounded-xl p-4 h-71.25 flex flex-col items-center justify-center relative transition-colors cursor-pointer
                       ${isDragging ? 'border-pink-500 bg-pink-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100'}
                     `}
                   >

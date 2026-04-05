@@ -23,7 +23,7 @@ import {
   FileProtectOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
-import { useWritingManager } from "../../hooks/writing/useWritingManager";
+import { useWritingManager } from "../../hooks/IELTS/writing/useWritingManager";
 
 const { Title, Text } = Typography;
 
@@ -157,7 +157,7 @@ const WritingManagerPage = () => {
           <div>
             <Title
               level={2}
-              className="!m-0 flex items-center gap-3 !text-slate-800"
+              className="m-0 flex items-center gap-3 text-slate-800"
             >
               <div className="p-2 bg-pink-600 text-white rounded-lg shadow-sm shadow-pink-200">
                 <FormOutlined />
