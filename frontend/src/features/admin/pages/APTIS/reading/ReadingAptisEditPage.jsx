@@ -1,230 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React from 'react';
 import { 
   Form, Input, Button, Card, Space, Switch, InputNumber, 
-  message, Spin, Row, Col, Typography, Collapse, Popconfirm, Select
+  Spin, Row, Col, Typography, Collapse, Popconfirm, Select
 } from 'antd';
 import { 
   ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, BookOutlined
 } from '@ant-design/icons';
-
-import readingAptisAdminApi from '../../../api/APTIS/reading/readingAptisAdminApi';
 
 import MultipleChoiceAdmin from '../../../components/APTIS/question-types/MultipleChoiceAdmin';
 import MatchingAdmin from '../../../components/APTIS/question-types/MatchingAdmin';
 import FillInBlankAdmin from '../../../components/APTIS/question-types/FillInBlankAdmin';
 import ReorderSentencesAdmin from '../../../components/APTIS/question-types/ReorderSentencesAdmin';
 
+// Import Custom Hook
+import { useReadingAptisEdit } from '../../../hooks/APTIS/reading/useReadingAptisEdit'; // Đổi đường dẫn theo dự án
+
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
 const ReadingAptisEditPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [form] = Form.useForm();
-  
-  const isEditMode = Boolean(id);
-  const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [activePartKeys, setActivePartKeys] = useState(['0']);
-
-  useEffect(() => {
-    if (isEditMode) {
-      fetchTestDetail();
-    } else {
-      form.setFieldsValue({
-        time_limit: 35,
-        is_published: false,
-        is_full_test_only: false,
-        description: '', // 🔥 ĐÃ THÊM: Khởi tạo giá trị rỗng cho description
-        parts: [
-          {
-            part_number: 1,
-            title: 'Part 1: Sentence Comprehension',
-            content: '',
-            questions: [{ question_type: 'FILL_IN_BLANKS', options: [], correct_answer: '' }]
-          }
-        ]
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
-
-  const fetchTestDetail = async () => {
-    setLoading(true);
-    try {
-      const response = await readingAptisAdminApi.getTestDetail(id);
-      const data = response.data || response;
-      
-      const formattedParts = data.parts?.map(part => {
-        // 🔥 GỘP CÂU HỎI TỪ CÁC GROUPS ĐỂ KHÔNG MẤT DATA
-        const allQuestions = part.groups?.reduce((acc, group) => {
-          const mappedQs = (group.questions || []).map(q => {
-            let optionsArray = [];
-            let correctIndex = q.correct_answer; 
-
-            if (q.question_type === 'MULTIPLE_CHOICE') {
-              if (q.options && typeof q.options === 'object' && !Array.isArray(q.options)) {
-                const labels = ["A", "B", "C", "D"];
-                optionsArray = labels.map(l => q.options[l] || '');
-                const foundIdx = optionsArray.findIndex(opt => opt === q.correct_answer);
-                if (foundIdx !== -1) correctIndex = foundIdx.toString();
-              }
-            }  else if (q.question_type === 'REORDER_SENTENCES') {
-              optionsArray = Array.isArray(q.options) ? [...q.options] : [];
-              
-              // 🔥 SỬA Ở ĐÂY: Trả về MẢNG (Array) thay vì Chuỗi (String)
-              if (typeof q.correct_answer === 'string' && /[A-Za-z]/.test(q.correct_answer)) {
-                const letters = ["A", "B", "C", "D", "E", "F", "G", "H"];
-                const parts = q.correct_answer.split(/[-,\s]+/).filter(Boolean);
-                
-                // Đã xóa hàm .join(',') ở cuối để giữ nguyên dạng Mảng
-                correctIndex = parts.map(l => letters.indexOf(l.toUpperCase()).toString());
-              } 
-              // Đề phòng trường hợp DB đang lưu "1,3,0,2" do lỗi cũ
-              else if (typeof q.correct_answer === 'string' && q.correct_answer.includes(',')) {
-                correctIndex = q.correct_answer.split(',');
-              } 
-              else {
-                correctIndex = q.correct_answer;
-              }
-            }
-            else if (q.question_type === 'MATCHING_OPINIONS' || q.question_type === 'MATCHING_HEADINGS') {
-              optionsArray = Array.isArray(q.options) ? [...q.options] : [];
-              const foundIdx = optionsArray.findIndex(opt => opt === q.correct_answer);
-              if (foundIdx !== -1) correctIndex = foundIdx.toString();
-            }
-
-            return { 
-              ...q,
-              options: optionsArray, 
-              correct_answer: correctIndex
-            };
-          });
-          return [...acc, ...mappedQs];
-        }, []) || [];
-
-        return {
-          ...part,
-          questions: allQuestions
-        };
-      }) || [];
-
-      form.setFieldsValue({
-        title: data.title,
-        description: data.description || '', // 🔥 ĐÃ THÊM: Đổ dữ liệu description từ API vào Form
-        time_limit: data.time_limit,
-        is_published: data.is_published,
-        is_full_test_only: data.is_full_test_only,
-        parts: formattedParts,
-      });
-      // Mở hết Collapse
-      setActivePartKeys(formattedParts.map((_, idx) => idx.toString()));
-    } catch (error) {
-      message.error('Failed to load test data!', error);
-      navigate('/admin/aptis/reading');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const onFinishFailed = (errorInfo) => {
-    console.error('Validation Failed:', errorInfo);
-    message.error('❌ Please fill in all required fields (check closed Parts).');
-  };
-
-  const onFinish = async (values) => {
-    setSubmitting(true);
-    try {
-      // 🔥 BIẾN ĐẾM TOÀN CỤC ĐỂ ĐÁNH SỐ TỪ 1 ĐẾN HẾT BÀI THI
-      let globalQuestionNumber = 1;
-
-      const payload = {
-        title: values.title,
-        description: values.description, // 🔥 ĐÃ THÊM: Gửi description lên Backend
-        time_limit: Number(values.time_limit),
-        is_published: Boolean(values.is_published),
-        is_full_test_only: Boolean(values.is_full_test_only),
-        
-        parts: values.parts?.map((part, pIndex) => {
-          const mappedQuestions = part.questions?.map((q) => {
-            let finalOptions;
-            let exactCorrectText = "";
-
-            if (q.question_type === 'REORDER_SENTENCES') {
-              finalOptions = (q.options || []).filter(opt => opt && opt.trim() !== '');
-              let ans = q.correct_answer || "";
-              if (Array.isArray(ans)) ans = ans.join(',');
-              
-              // 🔥 Dịch từ "3,1,0,2" (của UI Component) sang "D-B-A-C" (lưu xuống DB)
-              if (/^[0-9,\s]+$/.test(ans)) {
-                const letters = ["A", "B", "C", "D", "E", "F", "G", "H"];
-                exactCorrectText = ans.split(',').map(idx => letters[Number(idx.trim())]).join('-');
-              } else {
-                exactCorrectText = ans.toUpperCase().replace(/,/g, '-');
-              }
-            }
-            else if (q.question_type === 'MATCHING_OPINIONS' || q.question_type === 'MATCHING_HEADINGS') {
-              finalOptions = (q.options || []).filter(opt => opt && opt.trim() !== '');
-              exactCorrectText = q.options[Number(q.correct_answer)]?.trim() || "";
-            } 
-            else if (q.question_type === 'FILL_IN_BLANKS') {
-              finalOptions = {}; 
-              exactCorrectText = q.correct_answer?.trim() || "";
-            } 
-            else {
-              const optionsDict = {};
-              const labels = ["A", "B", "C", "D"];
-              if (Array.isArray(q.options)) {
-                q.options.forEach((opt, i) => {
-                  if (opt && opt.trim() !== '') optionsDict[labels[i]] = opt.trim();
-                });
-              }
-              finalOptions = optionsDict;
-              exactCorrectText = q.options[Number(q.correct_answer)]?.trim() || "";
-            }
-
-            const currentQuestionNumber = globalQuestionNumber++;
-
-            return {
-              question_number: currentQuestionNumber, // Sắp xếp nối tiếp
-              question_text: q.question_text || "",
-              question_type: q.question_type,
-              options: finalOptions,
-              correct_answer: exactCorrectText,
-              explanation: q.explanation || ""
-            };
-          }) || [];
-
-          return {
-            part_number: pIndex + 1,
-            title: part.title || `Part ${pIndex + 1}`,
-            content: part.content || "",
-            groups: [{
-              instruction: part.title,
-              order: 1,
-              questions: mappedQuestions
-            }]
-          };
-        }) || []
-      };
-
-      if (isEditMode) {
-        await readingAptisAdminApi.updateTest(id, payload);
-        message.success('Test updated successfully!');
-      } else {
-        await readingAptisAdminApi.createTest(payload);
-        message.success('Test created successfully!');
-      }
-      navigate('/admin/aptis/reading');
-    } catch (error) {
-      console.error("Payload error:", error.response?.data);
-      message.error('Save failed! Please check your input data.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const {
+    id,
+    form,
+    isEditMode,
+    loading,
+    submitting,
+    activePartKeys,
+    setActivePartKeys,
+    onFinish,
+    onFinishFailed,
+    navigate
+  } = useReadingAptisEdit();
 
   // 🔥 TÁCH RIÊNG LOGIC HIỂN THỊ ĐỂ CÓ THỂ ĐẾM SỐ CÂU HỎI LIÊN TỤC
   const renderPartItems = (partFields, removePart) => {
@@ -271,7 +78,6 @@ const ReadingAptisEditPage = () => {
                       type="inner"
                       key={qKey}
                       style={{ marginBottom: 16 }}
-                      // 🔥 HIỂN THỊ CHỮ QUESTION 1, 2, 3 NỐI TIẾP NHAU
                       title={
                         <Form.Item shouldUpdate noStyle>
                           {() => {
@@ -354,7 +160,7 @@ const ReadingAptisEditPage = () => {
             Back
           </Button>
           <Title level={4} style={{ margin: 0 }}>
-            <BookOutlined /> {isEditMode ? 'Edit' : 'Create'} Reading Test
+            <BookOutlined /> {isEditMode ? `Edit Reading Test #${id}` : 'Create Reading Test'}
           </Title>
         </Space>
         <Button type="primary" onClick={() => form.submit()} icon={<SaveOutlined />} loading={submitting} size="large">
@@ -366,8 +172,8 @@ const ReadingAptisEditPage = () => {
         form={form} 
         layout="vertical" 
         onFinish={onFinish}
-        onFinishFailed={onFinishFailed} // 🔥 THÊM CẢNH BÁO LỖI
-        preserve={true}                 // 🔥 GIỮ LẠI DỮ LIỆU BỊ ĐÓNG COLLAPSE
+        onFinishFailed={onFinishFailed} 
+        preserve={true}                 
       >
         <Card size="small" title="1. General Settings" style={{ marginBottom: 16 }}>
           <Row gutter={16}>
@@ -383,7 +189,6 @@ const ReadingAptisEditPage = () => {
             </Col>
           </Row>
           
-          {/* 🔥 ĐÃ THÊM: Ô NHẬP LƯU DESCRIPTION */}
           <Form.Item name="description" label="Test Description (Optional)">
             <TextArea 
               rows={3} 
@@ -418,7 +223,6 @@ const ReadingAptisEditPage = () => {
                   ghost
                   onClick={() => {
                     addPart({ title: `Part ${partFields.length + 1}`, content: '', questions: [] });
-                    // Tự động mở Part mới tạo
                     setActivePartKeys([...activePartKeys, partFields.length.toString()]);
                   }}
                   block
