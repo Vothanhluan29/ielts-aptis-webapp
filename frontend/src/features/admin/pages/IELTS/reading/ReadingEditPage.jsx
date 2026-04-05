@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Card, Space, Typography, InputNumber, Switch, Divider, Tabs, message } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, SortAscendingOutlined } from '@ant-design/icons';
-import { useReadingEdit } from '../../hooks/IELTS/reading/useReadingEdit';
+import { useReadingEdit } from '../../../hooks/IELTS/reading/useReadingEdit';
 import QuestionCard from '../../components/IELTS/QuestionForms/QuestionCard';
 
 const { Title, Text } = Typography;
