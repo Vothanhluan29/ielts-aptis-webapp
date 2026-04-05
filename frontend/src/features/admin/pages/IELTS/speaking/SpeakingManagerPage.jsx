@@ -23,7 +23,7 @@ import {
   FileProtectOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
-import { useSpeakingManager } from "../../hooks/IELTS/speaking/useSpeakingManager";
+import { useSpeakingManager } from "../../../hooks/IELTS/speaking/useSpeakingManager";
 
 const { Title, Text } = Typography;
 
