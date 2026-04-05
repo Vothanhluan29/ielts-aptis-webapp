@@ -76,7 +76,7 @@ const AptisSidebar = ({
         )}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="p-2 rounded-lg bg-white/30 hover:bg-white/60 transition text-teal-900 mx-auto"
+          className="p-2 rounded-lg bg-white/30 hover:bg-white/60 transition text-teal-900 "
         >
           {sidebarCollapsed ? <RightOutlined /> : <LeftOutlined />}
         </button>
