@@ -1,63 +1,31 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Table, Button, Space, Tag, Popconfirm, message, Typography, Card, Tooltip, Badge, Switch } from 'antd';
-import { EditOutlined, DeleteOutlined, PlusOutlined, BookOutlined, EyeOutlined } from '@ant-design/icons';
+import React, { useMemo } from 'react';
+import { Table, Button, Space, Tag, Popconfirm, Typography, Card, Tooltip, Badge, Switch } from 'antd';
+import { EditOutlined, DeleteOutlined, PlusOutlined, BookOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
-import readingAptisAdminApi from '../../../api/APTIS/reading/readingAptisAdminApi';
-
+// Nhúng Custom Hook
+import { useReadingAptisManager } from '../../../hooks/APTIS/reading/useReadingAptisManager'; 
 const { Title, Text } = Typography;
 
 const ROUTES = {
   CREATE: '/admin/aptis/reading/create',
   EDIT: (id) => `/admin/aptis/reading/edit/${id}`,
-  SUBMISSIONS: (id) => `/admin/aptis/reading/submissions?test_id=${id}`,
 };
 
 const ReadingAptisManagerList = () => {
   const navigate = useNavigate();
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
-  const [isMockFilter, setIsMockFilter] = useState(false);
-
-  const fetchTests = useCallback(async (page, pageSize, isMock = false) => {
-    setLoading(true);
-    try {
-      const response = await readingAptisAdminApi.getAllTests({
-        skip: (page - 1) * pageSize,
-        limit: pageSize,
-        is_mock_selector: isMock,
-      });
-      const dataList = response.data || response;
-      setTests(dataList);
-      setPagination(prev => ({ ...prev, current: page, pageSize, total: dataList.length > 0 ? 100 : 0 }));
-    } catch (error) {
-      message.error('Failed to load Reading tests!');
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTests(1, pagination.pageSize, isMockFilter);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMockFilter]);
-
-  const handleDelete = async (id) => {
-    try {
-      await readingAptisAdminApi.deleteTest(id);
-      message.success('Test deleted successfully!');
-      fetchTests(pagination.current, pagination.pageSize, isMockFilter);
-    } catch (error) {
-      if (error.response && error.response.status === 400) {
-        message.error(error.response.data.detail || 'Unable to delete this test as it is currently in use.');
-      } else {
-        message.error('Failed to delete test!');
-      }
-    }
-  };
+  
+  // Bóc tách Data và Function từ Hook
+  const {
+    tests,
+    loading,
+    pagination,
+    isMockFilter,
+    setIsMockFilter,
+    handleTableChange,
+    handleDelete
+  } = useReadingAptisManager();
 
   const columns = useMemo(() => [
     {
@@ -110,8 +78,6 @@ const ReadingAptisManagerList = () => {
       key: 'is_published',
       width: 130,
       align: 'center',
-      // Read-only: reflects is_published set in ReadingAptisEditPage.
-      // To change status, edit the test directly.
       render: (_, record) => (
         <Tooltip title="Edit the test to change its status">
           <Badge
@@ -146,7 +112,7 @@ const ReadingAptisManagerList = () => {
     {
       title: 'Actions',
       key: 'actions',
-      width: 130,
+      width: 100, // Đã giảm độ rộng cột Actions
       align: 'center',
       render: (_, record) => (
         <Space size={2}>
@@ -159,14 +125,7 @@ const ReadingAptisManagerList = () => {
             />
           </Tooltip>
 
-          <Tooltip title="View submissions">
-            <Button
-              type="text"
-              icon={<EyeOutlined />}
-              onClick={() => navigate(ROUTES.SUBMISSIONS(record.id))}
-              style={{ color: '#10b981' }}
-            />
-          </Tooltip>
+          {/* Đã loại bỏ nút con mắt (Submissions) */}
 
           <Popconfirm
             title="Delete this test?"
@@ -181,7 +140,7 @@ const ReadingAptisManagerList = () => {
         </Space>
       ),
     },
-  ], [navigate]);
+  ], [navigate, handleDelete]);
 
   return (
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
@@ -207,13 +166,12 @@ const ReadingAptisManagerList = () => {
                 Reading Test Bank
               </Title>
               <Text type="secondary">
-                Manage Aptis Reading test content and student submissions
+                Manage Aptis Reading test content
               </Text>
             </div>
           </Space>
 
           <Space size="middle">
-            {/* Mock filter toggle */}
             <Space size="small">
               <Text style={{ fontWeight: 500, color: '#6b7280' }}>Mock only</Text>
               <Switch
@@ -251,7 +209,7 @@ const ReadingAptisManagerList = () => {
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50'],
             showTotal: (total, range) => `${range[0]}–${range[1]} of ${total} tests`,
-            onChange: (page, pageSize) => fetchTests(page, pageSize, isMockFilter),
+            onChange: handleTableChange, // Dùng onChange trực tiếp cho gọn
           }}
           rowClassName={() => 'reading-test-row'}
           style={{ marginTop: 8 }}
