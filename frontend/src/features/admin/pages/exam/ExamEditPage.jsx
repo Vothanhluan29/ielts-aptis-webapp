@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React from 'react';
+import { useParams } from 'react-router-dom';
 import {
   Card,
   Form,
@@ -17,7 +17,6 @@ import {
 import {
   ArrowLeftOutlined,
   AppstoreAddOutlined,
-  AudioOutlined,
   ReadOutlined,
   EditOutlined,
   MessageOutlined,
@@ -25,107 +24,28 @@ import {
   CloudUploadOutlined,
   CustomerServiceOutlined
 } from '@ant-design/icons';
-import { toast } from 'react-toastify';
 
-// Import API của Exam và 4 kỹ năng
-import { examAdminApi } from '../../api/IELTS/exam/ExamAdminApi';
-import { listeningAdminApi } from '../../api/IELTS/listening/listeningAdminApi';
-import { readingAdminApi } from '../../api/IELTS/reading/readingAdminApi';
-import { adminWritingApi } from '../../api/IELTS/writing/adminWritingApi';
-import { adminSpeakingApi } from '../../api/IELTS/speaking/adminSpeakingApi';
+// Nhúng Custom Hook
+import { useExamEdit } from '../../hooks/IELTS/exam/useExamEdit'; // Đổi đường dẫn cho phù hợp với dự án của bạn
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 const ExamEditPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const [form] = Form.useForm();
   
-  const isEditMode = !!id;
-  
-  // States
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  
-  // States lưu danh sách đề của 4 kỹ năng
-  const [listeningTests, setListeningTests] = useState([]);
-  const [readingTests, setReadingTests] = useState([]);
-  const [writingTests, setWritingTests] = useState([]);
-  const [speakingTests, setSpeakingTests] = useState([]);
-
-  // Fetch dữ liệu ban đầu
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      setLoading(true);
-      try {
-        const filterParams = { is_full_test_only: true };
-
-        const [listenRes, readRes, writeRes, speakRes] = await Promise.all([
-          listeningAdminApi.getAllTests(filterParams),
-          readingAdminApi.getAllTests(filterParams),
-          adminWritingApi.getAllTests(filterParams),
-          adminSpeakingApi.getAllTests(filterParams)
-        ]);
-
-        const extractAndFilter = (res) => {
-          const rawData = res?.data?.items || res?.data || res || [];
-          const dataArray = Array.isArray(rawData) ? rawData : [];
-          return dataArray.filter(test => test.is_full_test_only === true);
-        };
-
-        setListeningTests(extractAndFilter(listenRes));
-        setReadingTests(extractAndFilter(readRes));
-        setWritingTests(extractAndFilter(writeRes));
-        setSpeakingTests(extractAndFilter(speakRes));
-
-        // 2. Nếu là chế độ Edit -> Fetch chi tiết Full Test và fill vào Form
-        if (isEditMode) {
-          const examRes = await examAdminApi.getTestDetail(id);
-          const examData = examRes?.data || examRes;
-          
-          form.setFieldsValue({
-            title: examData?.title,
-            description: examData?.description,
-            is_published: examData?.is_published,
-            
-            // 🔥 BẮT ĐÚNG BỆNH: Móc id từ object con (nested object) do Backend trả về
-            listening_test_id: examData?.listening_test?.id || examData?.listening_test_id,
-            reading_test_id: examData?.reading_test?.id || examData?.reading_test_id,
-            writing_test_id: examData?.writing_test?.id || examData?.writing_test_id,
-            speaking_test_id: examData?.speaking_test?.id || examData?.speaking_test_id,
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        toast.error("Failed to load initial data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInitialData();
-  }, [id, isEditMode, form]);
-
-  // Xử lý Submit Form
-  const onFinish = async (values) => {
-    setSubmitting(true);
-    try {
-      if (isEditMode) {
-        await examAdminApi.updateTest(id, values);
-        toast.success('Exam updated successfully!');
-      } else {
-        await examAdminApi.createTest(values);
-        toast.success('Exam created successfully!');
-      }
-      navigate('/admin/full-tests');
-    } catch (error) {
-      console.error("Error saving exam:", error);
-      toast.error('Failed to save the exam. Please try again.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
+  const {
+    form,
+    isEditMode,
+    loading,
+    submitting,
+    onFinish,
+    listeningTests,
+    readingTests,
+    writingTests,
+    speakingTests,
+    navigate
+  } = useExamEdit(id);
 
   if (loading) {
     return (
