@@ -8,7 +8,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 
-import { useExamManager } from '../../hooks/exam/useExamManager';
+import { useExamManager } from '../../hooks/IELTS/exam/useExamManager';
 
 const { Title, Text } = Typography;
 

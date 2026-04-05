@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, message } from 'antd'; 
-import { examAdminApi } from '../../api/IELTS/exam/ExamAdminApi';
-import { listeningAdminApi } from '../../api/IELTS/listening/listeningAdminApi';
-import { readingAdminApi } from '../../api/IELTS/reading/readingAdminApi';
-import { adminWritingApi } from '../../api/IELTS/writing/adminWritingApi';
-import { adminSpeakingApi } from '../../api/IELTS/speaking/adminSpeakingApi';
+import { examAdminApi } from '../../../api/IELTS/exam/ExamAdminApi';
+import { listeningAdminApi } from '../../../api/IELTS/listening/listeningAdminApi';
+import { readingAdminApi } from '../../../api/IELTS/reading/readingAdminApi';
+import { adminWritingApi } from '../../../api/IELTS/writing/adminWritingApi';
+import { adminSpeakingApi } from '../../../api/IELTS/speaking/adminSpeakingApi';
 
 export const useExamEdit = (id) => {
   const navigate = useNavigate();
