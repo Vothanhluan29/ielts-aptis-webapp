@@ -7,7 +7,7 @@ import {
   EyeOutlined, UserOutlined, AppstoreOutlined, AudioOutlined, 
   EditOutlined, BookOutlined, CustomerServiceOutlined, FilterOutlined
 } from '@ant-design/icons';
-import { useAdminSubmissions } from '../../hooks/submissions/useAdminSubmissions';
+import { useAdminSubmissions } from '../../hooks/IELTS/submissions/useAdminSubmissions';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -80,7 +80,7 @@ const AdminSubmissions = () => {
       title: 'Test Title',
       key: 'test',
       render: (_, record) => (
-        <Text strong className="text-slate-700 truncate max-w-[240px] block" title={record.test?.title || record.full_test?.title}>
+        <Text strong className="text-slate-700 truncate max-w-60 block" title={record.test?.title || record.full_test?.title}>
           {record.test?.title || record.full_test?.title || `Test #${record.test_id || record.full_test_id}`}
         </Text>
       ),
@@ -146,12 +146,12 @@ const AdminSubmissions = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans px-4 py-8 md:px-8 md:py-10 pb-24">
-      <div className="max-w-[1400px] mx-auto space-y-8">
+      <div className="max-w-350 mx-auto space-y-8">
 
         {/* ================= HEADER & TABS ================= */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
           <div>
-            <Title level={2} className="!m-0 !text-slate-800">
+            <Title level={2} className="m-0 text-slate-800">
               Submissions Management
             </Title>
             <Text className="text-slate-500 mt-1 block">
