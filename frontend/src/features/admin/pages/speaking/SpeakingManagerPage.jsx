@@ -154,7 +154,7 @@ const SpeakingManagerPage = () => {
           <div>
             <Title
               level={2}
-              className="!m-0 flex items-center gap-3 !text-slate-800"
+              className="m-0 flex items-center gap-3 text-slate-800"
             >
               <div className="p-2 bg-indigo-600 text-white rounded-lg">
                 <AudioOutlined />

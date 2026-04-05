@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { adminSpeakingApi } from '../../api/IELTS/speaking/adminSpeakingApi';
+import { adminSpeakingApi } from '../../../api/IELTS/speaking/adminSpeakingApi';
 import toast from 'react-hot-toast';
 
 export const useSpeakingEdit = () => {
