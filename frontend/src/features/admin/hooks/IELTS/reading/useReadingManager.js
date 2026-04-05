@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { readingAdminApi } from '../../api/IELTS/reading/readingAdminApi';
+import { readingAdminApi } from '../../../api/IELTS/reading/readingAdminApi';
 import toast from 'react-hot-toast';
 
 export const useReadingManager = () => {
