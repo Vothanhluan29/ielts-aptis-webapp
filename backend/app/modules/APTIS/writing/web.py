@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
@@ -7,30 +7,13 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_admin_user 
 
 from app.modules.APTIS.writing import schemas
-from app.modules.APTIS.writing.service import AptisWritingService
+from app.modules.APTIS.writing.services.test_service import AptisWritingTestService
+from app.modules.APTIS.writing.services.submission_service import AptisWritingSubmissionService
 
 router = APIRouter(prefix="/aptis/writing", tags=["Aptis Writing"])
 
 # =====================================================
-# 🖼️ 1. UPLOAD (ADMIN ONLY)
-# =====================================================
-
-# @router.post("/admin/upload-image", status_code=status.HTTP_201_CREATED)
-# def upload_image(
-#     file: UploadFile = File(...), 
-#     admin = Depends(get_admin_user)
-# ):
-#     try:
-#         url = AptisWritingService.upload_image(file)
-#         if not url:
-#             raise HTTPException(status_code=500, detail="Failed to save image")
-#         return {"url": url}
-#     except Exception as e:
-#         raise HTTPException(status_code=400, detail=str(e))
-
-
-# =====================================================
-# 👑 2. TEST MANAGEMENT (ADMIN CRUD)
+# 1. TEST MANAGEMENT (ADMIN CRUD)
 # =====================================================
 
 @router.get("/admin/tests", response_model=List[schemas.WritingTestListItem])
@@ -41,7 +24,7 @@ def get_tests_for_admin(
     db: Session = Depends(get_db),
     admin = Depends(get_admin_user)
 ):
-    return AptisWritingService.get_all_tests(
+    return AptisWritingTestService.get_all_tests(
         db, skip=skip, limit=limit, admin_view=True, fetch_mock_only=is_mock_selector
     )
 
@@ -51,7 +34,7 @@ def get_test_detail_for_admin(
     db: Session = Depends(get_db), 
     admin = Depends(get_admin_user)
 ):
-    test = AptisWritingService.get_test_detail(db, test_id)
+    test = AptisWritingTestService.get_test_detail(db, test_id)
     if not test: 
         raise HTTPException(status_code=404, detail="Test not found")
     return test
@@ -63,7 +46,7 @@ def create_test(
     admin = Depends(get_admin_user)
 ):
     try:
-        return AptisWritingService.create_test(db, test_in)
+        return AptisWritingTestService.create_test(db, test_in)
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"Lỗi khi tạo đề thi: {str(e)}")
@@ -76,7 +59,7 @@ def update_test(
     admin = Depends(get_admin_user)
 ):
     try:
-        test = AptisWritingService.update_test(db, test_id, test_in)
+        test = AptisWritingTestService.update_test(db, test_id, test_in)
         if not test: 
             raise HTTPException(status_code=404, detail="Test not found")
         return test
@@ -91,7 +74,7 @@ def delete_test(
     admin = Depends(get_admin_user)
 ):
     try:
-        if not AptisWritingService.delete_test(db, test_id): 
+        if not AptisWritingTestService.delete_test(db, test_id): 
             raise HTTPException(status_code=404, detail="Test not found")
     except IntegrityError:
         raise HTTPException(
@@ -102,7 +85,7 @@ def delete_test(
 
 
 # =====================================================
-# 🎓 3. STUDENT ROUTES (PUBLIC)
+# 2. STUDENT ROUTES (PUBLIC)
 # =====================================================
 
 @router.get("/tests", response_model=List[schemas.WritingTestListItem])
@@ -112,7 +95,7 @@ def get_public_tests(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    return AptisWritingService.get_all_tests(
+    return AptisWritingTestService.get_all_tests(
         db, admin_view=False, current_user_id=current_user.id, limit=limit, skip=skip
     )
 
@@ -122,7 +105,7 @@ def get_test_detail_public(
     db: Session = Depends(get_db), 
     current_user = Depends(get_current_user) 
 ):
-    test = AptisWritingService.get_test_detail(db, test_id)
+    test = AptisWritingTestService.get_test_detail(db, test_id)
     if not test: 
         raise HTTPException(status_code=404, detail="Test not found")
     
@@ -134,7 +117,7 @@ def get_test_detail_public(
 
 
 # =====================================================
-# 📝 4. SUBMISSION (Học viên nộp bài)
+# 3. SUBMISSION (Học viên nộp bài)
 # =====================================================
 
 @router.post("/submit", response_model=schemas.WritingSubmissionResponse)
@@ -143,7 +126,7 @@ def submit_test(
     db: Session = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    new_sub = AptisWritingService.create_submission(db, user.id, submission)
+    new_sub = AptisWritingSubmissionService.create_submission(db, user.id, submission)
     return new_sub
 
 @router.get("/submissions/me", response_model=List[schemas.SubmissionHistoryItem])
@@ -151,7 +134,7 @@ def get_my_history(
     db: Session = Depends(get_db), 
     user = Depends(get_current_user)
 ):
-    return AptisWritingService.get_user_history(db, user.id)
+    return AptisWritingSubmissionService.get_user_history(db, user.id)
 
 @router.get("/submissions/{submission_id}", response_model=schemas.WritingSubmissionDetailResponse)
 def get_submission_detail(
@@ -159,7 +142,7 @@ def get_submission_detail(
     db: Session = Depends(get_db), 
     user = Depends(get_current_user)
 ):
-    sub = AptisWritingService.get_submission_detail(db, submission_id)
+    sub = AptisWritingSubmissionService.get_submission_detail(db, submission_id)
     if not sub: 
         raise HTTPException(status_code=404, detail="Submission not found")
     
@@ -171,11 +154,9 @@ def get_submission_detail(
 
 
 # =====================================================
-# 🏆 5. ADMIN: SUBMISSION MANAGEMENT & GRADING
+# 4. ADMIN: SUBMISSION MANAGEMENT & GRADING
 # =====================================================
 
-# 🔥 ĐÃ FIX: Xóa response_model=List[...] để trả về dict {total: int, items: list} từ service
-@router.get("/admin/submissions")
 def admin_get_all_submissions(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
@@ -184,7 +165,7 @@ def admin_get_all_submissions(
     db: Session = Depends(get_db),
     admin = Depends(get_admin_user)
 ):
-    return AptisWritingService.get_all_submissions_for_admin(db, skip, limit, is_full_test_only, status)
+    return AptisWritingSubmissionService.get_all_submissions_for_admin(db, skip, limit, is_full_test_only, status)
 
 @router.get("/admin/users/{user_id}/submissions", response_model=List[schemas.AdminWritingSubmissionResponse])
 def admin_get_user_submissions(
@@ -192,7 +173,7 @@ def admin_get_user_submissions(
     db: Session = Depends(get_db),
     admin = Depends(get_admin_user)
 ):
-    return AptisWritingService.get_user_history_for_admin(db, user_id)
+    return AptisWritingSubmissionService.get_user_history_for_admin(db, user_id)
 
 @router.put("/admin/submissions/{submission_id}/grade", response_model=schemas.AdminWritingSubmissionResponse)
 def admin_grade_submission(
@@ -202,7 +183,7 @@ def admin_grade_submission(
     admin = Depends(get_admin_user)
 ):
     # Truyền thêm admin.id vào để lưu vết giáo viên chấm bài
-    sub = AptisWritingService.grade_submission(db, submission_id, admin.id, req)
+    sub = AptisWritingSubmissionService.grade_submission(db, submission_id, admin.id, req)
     if not sub:
         raise HTTPException(status_code=404, detail="Submission not found")
     return sub
