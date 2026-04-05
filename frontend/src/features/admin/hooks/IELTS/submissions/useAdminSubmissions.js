@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { adminSubmissionApi } from '../../api/IELTS/submissions/adminSubmissionApi'; 
+import { adminSubmissionApi } from '../../../api/IELTS/submissions/adminSubmissionApi'; 
 
 export const useAdminSubmissions = () => {
   const navigate = useNavigate();
