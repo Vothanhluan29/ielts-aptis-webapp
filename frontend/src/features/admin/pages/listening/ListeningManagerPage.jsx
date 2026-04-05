@@ -25,7 +25,7 @@ import {
 } from "@ant-design/icons";
 
 // ⚠️ Nhớ tạo custom hook này tương tự như useReadingManager nhé
-import { useListeningManager } from "../../hooks/listening/useListeningManager";
+import { useListeningManager } from "../../hooks/IELTS/listening/useListeningManager";
 
 const { Title, Text } = Typography;
 
