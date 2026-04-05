@@ -156,7 +156,7 @@ def get_submission_detail(
 # =====================================================
 # 4. ADMIN: SUBMISSION MANAGEMENT & GRADING
 # =====================================================
-
+@router.get("/admin/submissions")
 def admin_get_all_submissions(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
