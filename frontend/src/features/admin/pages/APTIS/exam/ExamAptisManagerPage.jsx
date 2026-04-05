@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Table, Tag, Button, Space, Card, Typography, message, Popconfirm, Tooltip, Empty } from 'antd';
+import React from 'react';
+import { Table, Tag, Button, Space, Card, Typography, Popconfirm, Tooltip, Empty } from 'antd';
 import { 
   PlusOutlined, EditOutlined, DeleteOutlined, 
   AppstoreOutlined, EyeOutlined, EyeInvisibleOutlined,
@@ -7,50 +7,18 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import examAptisAdminApi from '../../../api/APTIS/exam/examAptisAdminApi'; 
+
+// Import Custom Hook
+import { useExamAptisManager } from '../../../hooks/APTIS/exam/useExamAptisManager';
 
 const { Title, Text } = Typography;
 
 const ExamAptisManagerPage = () => {
   const navigate = useNavigate();
-  const [tests, setTests] = useState([]);
-  const [loading, setLoading] = useState(false);
+  
+  const { tests, loading, fetchTests, handleDelete } = useExamAptisManager();
 
-  // 1. Fetch test list (using useCallback for optimization)
-  const fetchTests = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await examAptisAdminApi.getAllFullTests();
-      // Accept both array format or paginated format { items: [...] }
-      const data = res.data?.items || res.data || res || [];
-      setTests(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Fetch Error:", error);
-      message.error("Unable to load Aptis test list!");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTests();
-  }, [fetchTests]);
-
-  // 2. Handle delete test
-  const handleDelete = async (id) => {
-    const hide = message.loading("Deleting test...", 0);
-    try {
-      await examAptisAdminApi.deleteFullTest(id);
-      message.success("Test deleted successfully!");
-      fetchTests();
-    } catch (error) {
-      message.error("Unable to delete this test. Please try again!", error);
-    } finally {
-      hide();
-    }
-  };
-
-  // 3. Render component skill tag
+  // Helper function: Render component skill tag
   const renderComponentTag = (testObj, label, colorClass) => {
     if (!testObj) return (
       <Tag className="bg-gray-50 text-gray-400 border-dashed border-gray-200 rounded-md">
@@ -67,7 +35,7 @@ const ExamAptisManagerPage = () => {
     );
   };
 
-  // 4. Table columns definition
+  // Table columns definition
   const columns = [
     {
       title: 'Full Test Title',
