@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Spin, Tag, message } from 'antd';
+import React from 'react';
+import { Spin, Tag } from 'antd';
 import {
   ArrowLeftOutlined, SyncOutlined, EditOutlined, AudioOutlined,
   ReadOutlined, FontColorsOutlined, ClockCircleOutlined,
-  UserOutlined, SafetyCertificateOutlined, FileTextOutlined,
-  InfoCircleOutlined,
+  UserOutlined, FileTextOutlined, InfoCircleOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import examAptisAdminApi from '../../../api/APTIS/exam/examAptisAdminApi';
+
+// Nhúng Custom Hook
+import { useExamAptisSubmissionDetail } from '../../../hooks/APTIS/exam/useExamAptisSubmissionDetail';
 
 const SKILLS = [
   { key: 'grammar_vocab', label: 'Grammar & Vocab', icon: <FontColorsOutlined />, color: '#3B82F6', bg: '#EFF6FF', manual: false },
   { key: 'listening',     label: 'Listening',        icon: <AudioOutlined />,       color: '#10B981', bg: '#ECFDF5', manual: false },
-  { key: 'reading',       label: 'Reading',           icon: <ReadOutlined />,        color: '#F59E0B', bg: '#FFFBEB', manual: false },
-  { key: 'writing',       label: 'Writing',           icon: <EditOutlined />,        color: '#8B5CF6', bg: '#F5F3FF', manual: true  },
-  { key: 'speaking',      label: 'Speaking',          icon: <AudioOutlined />,       color: '#EF4444', bg: '#FEF2F2', manual: true  },
+  { key: 'reading',       label: 'Reading',          icon: <ReadOutlined />,        color: '#F59E0B', bg: '#FFFBEB', manual: false },
+  { key: 'writing',       label: 'Writing',          icon: <EditOutlined />,        color: '#8B5CF6', bg: '#F5F3FF', manual: true  },
+  { key: 'speaking',      label: 'Speaking',         icon: <AudioOutlined />,       color: '#EF4444', bg: '#FEF2F2', manual: true  },
 ];
 
 const SkillCard = ({ skill, score, submissionId, onGrade }) => {
@@ -67,38 +67,26 @@ const InfoRow = ({ label, value, valueClass = '' }) => (
 );
 
 const ExamAptisSubmissionDetailPage = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
-
-  const fetchDetail = async () => {
-    setLoading(true);
-    try {
-      const res = await examAptisAdminApi.getSubmissionDetail(id);
-      setData(res.data || res);
-    } catch { message.error('Unable to load submission data!'); }
-    finally { setLoading(false); }
-  };
-
-  useEffect(() => { fetchDetail(); }, [id]);
-
-  const handleGrade = (label, subId) => {
-    if (label === 'Writing') navigate(`/admin/aptis/submissions/writing/${subId}`, { state: { fromExamId: data.id } });
-    else if (label === 'Speaking') navigate(`/admin/aptis/submissions/speaking/${subId}`, { state: { fromExamId: data.id } });
-  };
+  // Lấy toàn bộ data và functions từ Hook
+  const {
+    loading,
+    data,
+    isCompleted,
+    overall,
+    circumference,
+    offset,
+    fetchDetail,
+    handleGrade,
+    navigate
+  } = useExamAptisSubmissionDetail();
 
   if (loading) return (
     <div className="flex h-screen items-center justify-center bg-slate-50">
       <Spin size="large" description="Loading submission data..." />
     </div>
   );
+  
   if (!data) return <div className="p-10 text-center text-red-500 font-bold">Submission data not found!</div>;
-
-  const isCompleted = data.status === 'COMPLETED';
-  const overall = data.overall_score || 0;
-  const circumference = 2 * Math.PI * 50;
-  const offset = circumference - (overall / 250) * circumference;
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -142,9 +130,9 @@ const ExamAptisSubmissionDetailPage = () => {
         {/* Body */}
         <div className="p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-          {/* Left */}
+          {/* Left Column */}
           <div className="flex flex-col gap-5">
-            {/* Score */}
+            {/* Score Component */}
             <div className="bg-white rounded-2xl border border-gray-100 p-6 text-center">
               <div className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-1">Overall Result</div>
               <div className="relative w-32 h-32 mx-auto my-5">
@@ -172,7 +160,7 @@ const ExamAptisSubmissionDetailPage = () => {
               </div>
             </div>
 
-            {/* Timeline */}
+            {/* Timeline Component */}
             <div className="bg-white rounded-2xl border border-gray-100 p-5">
               <div className="flex items-center gap-2 text-xs font-medium text-gray-400 uppercase tracking-widest mb-4">
                 <ClockCircleOutlined style={{ fontSize: 12 }} /> Timeline
@@ -187,7 +175,7 @@ const ExamAptisSubmissionDetailPage = () => {
             </div>
           </div>
 
-          {/* Right */}
+          {/* Right Column */}
           <div className="lg:col-span-2 flex flex-col gap-5">
             <div className="bg-white rounded-2xl border border-gray-100 p-6">
               <div className="text-xs font-medium text-gray-400 uppercase tracking-widest mb-5">Skill Breakdown</div>
