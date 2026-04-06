@@ -16,12 +16,12 @@ router = APIRouter(prefix="/writing", tags=["Writing"])
 
 
 @router.post("/admin/upload-image", status_code=status.HTTP_201_CREATED)
-def upload_image(
+async def upload_image(
     file: UploadFile = File(...),
     admin = Depends(get_admin_user)
 ):
     try:
-        url = WritingUtils.upload_image(file)
+        url = await WritingUtils.upload_image(file)
         if not url:
              raise HTTPException(status_code=500, detail="Failed to save image")
         return {"url": url}

@@ -1,9 +1,5 @@
 from fastapi import UploadFile
-import os
-import shutil
-import uuid
-
-BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8000")
+from app.core.cloudinary import upload_smart_file
 
 class WritingUtils:
     @staticmethod
@@ -12,23 +8,18 @@ class WritingUtils:
         return len(text.strip().split())
 
     @staticmethod
-    def upload_image(file: UploadFile) -> str:
-        """Lưu ảnh đề bài Task 1"""
-        UPLOAD_DIR = "static/writing_images"
-        os.makedirs(UPLOAD_DIR, exist_ok=True)
+    async def upload_image(file: UploadFile) -> str: # Thêm async
+        """Lưu ảnh đề bài Task 1 (lên Cloudinary hoặc Local)"""
         
-        ext = file.filename.split('.')[-1]
-        filename = f"{uuid.uuid4()}.{ext}"
-        file_path = os.path.join(UPLOAD_DIR, filename)
+        # 🔥 Đẩy thẳng file vào hàm xử lý chung, lưu trong thư mục "ielts_writing_images"
+        image_url = await upload_smart_file(file, folder_name="ielts_writing_images")
         
-        try:
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-        except Exception as e:
-            print(f"Error saving image: {e}")
+        # Ở code cũ bạn trả về chuỗi rỗng "" nếu lỗi, mình giữ nguyên logic này
+        if not image_url:
+            print("Error saving Writing Task 1 image.")
             return ""
             
-        return f"{BASE_URL}/{UPLOAD_DIR}/{filename}"
+        return image_url
 
     @staticmethod
     def round_ielts_score(score: float) -> float:
