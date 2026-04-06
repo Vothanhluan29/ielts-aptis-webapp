@@ -1,14 +1,24 @@
+# Web Framework
 fastapi
-httpx
 uvicorn[standard]
+httpx
+
+# Database
 sqlalchemy
 psycopg2-binary
+alembic
+
+# Security & Auth
 python-dotenv
 pydantic-settings
 python-multipart
 python-jose[cryptography]
 passlib[argon2]
 argon2-cffi
+
+# AI & Tasks
 google-generativeai
 apscheduler
+
+# Validation
 email-validator
