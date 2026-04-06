@@ -1,12 +1,13 @@
 import os
+import urllib.request # Dùng để tải file từ URL
+import tempfile       # Dùng để tạo file rác tạm thời
 from sqlalchemy.orm import joinedload
 from datetime import datetime
 
 from app.core.database import SessionLocal
 from app.core.AI.speaking_grading import IELTS_Speaking_Grader
 from app.modules.IELTS.speaking.models import SpeakingSubmission, SpeakingQuestionAnswer, SpeakingQuestion, SpeakingStatus
-from .utils import SpeakingUtils, BASE_URL
-
+from .utils import SpeakingUtils 
 
 class SpeakingGradingService:
     @staticmethod
@@ -30,7 +31,6 @@ class SpeakingGradingService:
 
             total_fluency, total_lexical, total_grammar, total_pron = 0.0, 0.0, 0.0, 0.0
             question_count = 0
-
             combined_feedback = ""
 
             for answer in sub.answers:
@@ -41,21 +41,39 @@ class SpeakingGradingService:
                     print(f"[ERROR] Audio URL empty for Question {answer.question_id}")
                     continue
 
-                relative_path = answer.audio_url.split(f"{BASE_URL}/")[-1]
+                # ==========================================
+                # 🔥 TRICK XỬ LÝ FILE ĐỂ AI CHẤM ĐIỂM
+                # ==========================================
+                temp_path = ""
+                try:
+                    # 1. Tạo một file tạm thời trên hệ thống (đuôi .webm hoặc mp3)
+                    fd, temp_path = tempfile.mkstemp(suffix=".webm")
+                    os.close(fd)
 
-                if not os.path.exists(relative_path):
-                    answer.transcript = "(System Error: Audio file missing)"
-                    answer.feedback = "We couldn't locate your audio file. Please try recording again."
+                    # 2. Tải file âm thanh từ URL (Cloudinary hoặc Localhost) về file tạm
+                    urllib.request.urlretrieve(answer.audio_url, temp_path)
+
+                    # 3. Ném đường dẫn file tạm cho AI chấm
+                    ai_result = grader.grade_single_part(
+                        audio_path=temp_path,
+                        question_text=question_text,
+                        part_number=part_number
+                    )
+
+                    # 4. Xóa file tạm ngay sau khi AI chấm xong để dọn dẹp
+                    os.remove(temp_path)
+
+                except Exception as e:
+                    print(f"[ERROR] Could not download/grade audio: {e}")
+                    answer.transcript = "(System Error: Could not process audio)"
+                    answer.feedback = "We couldn't process your audio file. Please try recording again."
+                    # Dọn dẹp file rác nếu lỡ bị lỗi giữa chừng
+                    if temp_path and os.path.exists(temp_path):
+                        os.remove(temp_path)
                     continue
-
-                ai_result = grader.grade_single_part(
-                    audio_path=relative_path,
-                    question_text=question_text,
-                    part_number=part_number
-                )
+                # ==========================================
 
                 answer.transcript = ai_result.get("transcript", "")
-
                 ans_feedback = ai_result.get("feedback", "")
                 answer.feedback = ans_feedback
                 combined_feedback += f"**Part {part_number} - Q:** {question_text}\n{ans_feedback}\n\n"
