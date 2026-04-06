@@ -1,36 +1,31 @@
 from fastapi import UploadFile, HTTPException
 import os
-import shutil
-import uuid
-
-BASE_URL = os.getenv("BASE_URL", "http://127.0.0.1:8000")
+from app.core.cloudinary import upload_smart_file
 
 class SpeakingUtils:
     @staticmethod
-    def save_audio_file(file: UploadFile) -> str:
+    async def save_audio_file(file: UploadFile) -> str: # 🔥 Thêm async
+        # Giữ nguyên logic check file rỗng/lỗi mic của bạn
         file.file.seek(0, os.SEEK_END)
         file_size = file.file.tell()
         file.file.seek(0) 
         
         if file_size < 8192: 
-            raise HTTPException(status_code=400, detail="Audio file is empty or corrupted. Please check your microphone.")
+            raise HTTPException(
+                status_code=400, 
+                detail="Audio file is empty or corrupted. Please check your microphone."
+            )
 
-        UPLOAD_DIR = "static/speaking_audio"
-        os.makedirs(UPLOAD_DIR, exist_ok=True)
+        # 🔥 Đẩy thẳng file vào hàm xử lý chung, lưu trong thư mục "ielts_speaking_audio"
+        audio_url = await upload_smart_file(file, folder_name="ielts_speaking_audio")
         
-        filename_orig = file.filename.lower()
-        ext = filename_orig.split('.')[-1] if '.' in filename_orig else 'webm'
-        filename = f"{uuid.uuid4()}.{ext}"
-        file_path = os.path.join(UPLOAD_DIR, filename)
+        if not audio_url:
+            raise HTTPException(
+                status_code=500, 
+                detail="Could not save the audio file on server."
+            )
         
-        try:
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-        except Exception as e:
-            print(f"Error saving audio: {e}")
-            raise HTTPException(status_code=500, detail="Could not save the audio file on server.")
-        
-        return f"{BASE_URL}/{UPLOAD_DIR}/{filename}"
+        return audio_url
 
     @staticmethod
     def round_ielts_score(score: float) -> float:

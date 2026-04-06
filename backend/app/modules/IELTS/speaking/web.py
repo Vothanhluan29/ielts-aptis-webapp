@@ -16,7 +16,7 @@ router = APIRouter(prefix="/speaking", tags=["Speaking"])
 
 
 @router.post("/upload")
-def upload_audio_file(
+async def upload_audio_file(
     file: UploadFile = File(...),
     user = Depends(get_current_user)
 ):
@@ -27,7 +27,7 @@ def upload_audio_file(
     if not file.content_type.startswith("audio/") and not file.content_type == "application/octet-stream":
         raise HTTPException(status_code=400, detail="Invalid file type. Only audio files are allowed.")
 
-    public_url = SpeakingUtils.save_audio_file(file)
+    public_url = await SpeakingUtils.save_audio_file(file)
     if not public_url:
         raise HTTPException(status_code=500, detail="Failed to save audio file")
 
