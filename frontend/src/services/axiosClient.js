@@ -2,7 +2,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast'; // Import thư viện toast để thông báo đẹp hơn
 
 const axiosClient = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE_URL_LOCAL,
   headers: {
     'Content-Type': 'application/json',
   },
