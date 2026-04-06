@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter
+from fastapi import FastAPI, APIRouter, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
@@ -82,6 +82,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response = await call_next(request)
+    # Cho phép ứng dụng giao tiếp với các cửa sổ popup (Login Google, Facebook...)
+    response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+    # Hoặc nếu vẫn lỗi, bạn dùng dòng dưới này (kém bảo mật hơn chút nhưng sửa triệt để):
+    # response.headers["Cross-Origin-Opener-Policy"] = "unsafe-none" 
+    return response
 
 # ==========================================
 # 5. Static Files Configuration
