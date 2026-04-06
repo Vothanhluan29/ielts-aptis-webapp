@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str
     GOOGLE_CLIENT_ID: str
 
+    USE_CLOUDINARY: bool = True
     CLOUDINARY_CLOUD_NAME: str
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
