@@ -1,50 +1,43 @@
 from fastapi import UploadFile
 import os
-import shutil
-import uuid
+from app.core.cloudinary import upload_smart_file
 
 class ListeningUtils:
     @staticmethod
-    def save_image_file(file: UploadFile) -> str:
-        """Save an image file to the local directory and return the URL path"""
+    async def save_image_file(file: UploadFile) -> str: # Thêm async
+        """Save an image file to Cloudinary/Local and return the URL"""
         try:
-            allowed_extensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"]
+            allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
             ext = os.path.splitext(file.filename)[1].lower()
             if ext not in allowed_extensions:
                 raise ValueError(f"Invalid image format. Supported formats: {', '.join(allowed_extensions)}")
 
-            upload_dir = "static/images"
-            os.makedirs(upload_dir, exist_ok=True)
+            # 🔥 Gọi hàm upload, lưu vào thư mục "ielts_listening_images"
+            image_url = await upload_smart_file(file, folder_name="ielts_listening_images")
+            
+            if not image_url:
+                raise ValueError("Could not save the image file.")
 
-            new_filename = f"{uuid.uuid4().hex}{ext}"
-            file_path = os.path.join(upload_dir, new_filename)
-
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-
-            return f"/{upload_dir}/{new_filename}"
+            return image_url
         except Exception as e:
             raise ValueError(f"Error saving image: {str(e)}")
 
     @staticmethod
-    def save_audio_file(file: UploadFile) -> str:
-        """Save an audio file to the local directory and return the URL path"""
+    async def save_audio_file(file: UploadFile) -> str: # Thêm async
+        """Save an audio file to Cloudinary/Local and return the URL"""
         try:
-            allowed_extensions = [".mp3", ".wav", ".m4a", ".ogg", ".aac"]
+            allowed_extensions = {".mp3", ".wav", ".m4a", ".ogg", ".aac"}
             ext = os.path.splitext(file.filename)[1].lower()
             if ext not in allowed_extensions:
                 raise ValueError(f"Invalid format. Supported formats: {', '.join(allowed_extensions)}")
 
-            upload_dir = "static/audio"
-            os.makedirs(upload_dir, exist_ok=True)
+            # 🔥 Gọi hàm upload, lưu vào thư mục "ielts_listening_audio"
+            audio_url = await upload_smart_file(file, folder_name="ielts_listening_audio")
+            
+            if not audio_url:
+                raise ValueError("Could not save the audio file.")
 
-            new_filename = f"{uuid.uuid4().hex}{ext}"
-            file_path = os.path.join(upload_dir, new_filename)
-
-            with open(file_path, "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-
-            return f"/{upload_dir}/{new_filename}"
+            return audio_url
         except Exception as e:
             raise ValueError(f"Error saving file: {str(e)}")
 

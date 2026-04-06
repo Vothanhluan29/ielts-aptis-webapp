@@ -15,7 +15,7 @@ router = APIRouter(prefix="/listening", tags=["Listening"])
 
 
 @router.post("/upload", status_code=status.HTTP_201_CREATED)
-def upload_audio(
+async def upload_audio(
     file: UploadFile = File(...),
     admin = Depends(get_admin_user)
 ):
@@ -24,7 +24,7 @@ def upload_audio(
     Returns: {"url": "http://domain/static/audio/filename.mp3"}
     """
     try:
-        url = ListeningUtils.save_audio_file(file)
+        url = await ListeningUtils.save_audio_file(file)
         return {"url": url}
     except HTTPException as he:
         raise he
@@ -33,7 +33,7 @@ def upload_audio(
 
 
 @router.post("/upload-image", status_code=status.HTTP_201_CREATED)
-def upload_image(
+async def upload_image(
     file: UploadFile = File(...),
     admin = Depends(get_admin_user)
 ):
@@ -42,7 +42,7 @@ def upload_image(
     Returns: {"url": "/static/images/filename.png"}
     """
     try:
-        url = ListeningUtils.save_image_file(file)
+        url = await ListeningUtils.save_image_file(file)
         return {"url": url}
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
