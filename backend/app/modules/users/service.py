@@ -1,11 +1,9 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, UploadFile
-import os
-import shutil
-import uuid
 from app.modules.users.models import User, UserRole
 from app.modules.users import schemas
 from app.core.security import get_password_hash, verify_password
+from app.core.cloudinary import upload_smart_file
 
 class UserService:
     @staticmethod
@@ -30,30 +28,22 @@ class UserService:
         db.refresh(db_user)
         return db_user
     
+    # ==========================================
+    # 🔥 CẬP NHẬT: UPLOAD AVATAR LÊN CLOUD
+    # ==========================================
     @staticmethod
-    def upload_avatar(db: Session, user: User, file: UploadFile):
-        # 1. Validate file (Optional: Chỉ cho phép ảnh)
+    async def upload_avatar(db: Session, user: User, file: UploadFile): # Thêm async
+        # 1. Validate file
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="File must be an image")
 
-        # 2. Cấu hình thư mục
-        AVATAR_DIR = "static/avatars"
-        os.makedirs(AVATAR_DIR, exist_ok=True)
+        # 2. Đẩy thẳng ảnh cho hàm xử lý chung, lưu trong thư mục "avatars"
+        avatar_url = await upload_smart_file(file, folder_name="avatars")
         
-        # 3. Tạo tên file unique
-        file_extension = file.filename.split(".")[-1]
-        new_filename = f"{user.id}_{uuid.uuid4()}.{file_extension}" # Gắn thêm ID user để dễ quản lý
-        file_path = os.path.join(AVATAR_DIR, new_filename)
+        if not avatar_url:
+            raise HTTPException(status_code=500, detail="Failed to upload avatar")
         
-        # 4. Lưu file
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-            
-        # 5. Tạo URL (Nên dùng biến môi trường cho domain, tạm thời hardcode localhost hoặc lấy tương đối)
-        # Cách tốt nhất là lưu đường dẫn tương đối hoặc full URL từ config
-        avatar_url = f"http://127.0.0.1:8000/static/avatars/{new_filename}"
-        
-        # 6. Update DB
+        # 3. Update DB với URL mới (Dù là localhost hay Cloudinary đều dùng được luôn)
         user.avatar_url = avatar_url
         db.add(user)
         db.commit()
@@ -72,10 +62,6 @@ class UserService:
 
     @staticmethod
     def get_user_with_stats(db: Session, user: User):
-        """
-        Chỉ thực hiện làm mới dữ liệu từ Database để đảm bảo 
-        thông tin user luôn là dữ liệu mới nhất.
-        """
         db.refresh(user)
         return user
 
@@ -83,7 +69,6 @@ class UserService:
 
     @staticmethod
     def update_user(db: Session, user: User, user_in: schemas.UserUpdate | schemas.UserUpdateAdmin):
-        """Dùng chung cho cả User tự sửa mình và Admin sửa người khác"""
         update_data = user_in.model_dump(exclude_unset=True)
         
         for key, value in update_data.items():

@@ -23,13 +23,13 @@ def get_users_me(
     return UserService.get_user_with_stats(db, current_user)
 
 @router.patch("/me/avatar", response_model=schemas.UserResponse)
-def update_avatar(
+async def update_avatar(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
     """Cập nhật ảnh đại diện người dùng."""
-    return UserService.upload_avatar(db, current_user, file)
+    return await   UserService.upload_avatar(db, current_user, file)
 
 @router.patch("/me", response_model=schemas.UserResponse)
 def update_user_me(
