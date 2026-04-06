@@ -17,7 +17,7 @@ router = APIRouter(prefix="/aptis/listening", tags=["Aptis Listening"])
 # 1. UPLOAD AUDIO FILE (ADMIN ONLY)
 # ====================================================
 @router.post("/upload", status_code=status.HTTP_201_CREATED)
-def upload_audio(
+async def upload_audio(
     file: UploadFile = File(...), 
     admin = Depends(get_admin_user)
 ):
@@ -26,7 +26,7 @@ def upload_audio(
     Trả về: {"url": "http://domain/static/audio/aptis_listening/filename.mp3"}
     """
     try:
-        url = AptisListeningUtils.save_audio_file(file)
+        url = await AptisListeningUtils.save_audio_file(file)
         return {"url": url}
     except HTTPException as he:
         raise he
