@@ -19,7 +19,7 @@ router = APIRouter(prefix="/aptis/speaking", tags=["Aptis Speaking"])
 # 1. UPLOAD AUDIO & IMAGE
 # =================================================================
 @router.post("/upload")
-def upload_aptis_audio_file(
+async def upload_aptis_audio_file(
     file: UploadFile = File(...),
     user = Depends(get_current_user)
 ):
@@ -30,20 +30,20 @@ def upload_aptis_audio_file(
     if not file.content_type.startswith("audio/") and not file.content_type == "application/octet-stream":
         pass
 
-    public_url = AptisSpeakingUtils.save_audio_file(file)
+    public_url = await AptisSpeakingUtils.save_audio_file(file)
     if not public_url:
         raise HTTPException(status_code=500, detail="Failed to save audio file")
     return {"url": public_url}
 
 
 @router.post("/admin/upload-image", status_code=status.HTTP_201_CREATED)
-def upload_aptis_image(
+async def upload_aptis_image(
     file: UploadFile = File(...),
     admin = Depends(get_admin_user)
 ):
     """Upload image files (Part 2, 3, 4)."""
     try:
-        url = AptisSpeakingUtils.upload_image(file)
+        url = await AptisSpeakingUtils.upload_image(file)
         if not url:
             raise HTTPException(status_code=500, detail="Failed to save image")
         return {"url": url}
