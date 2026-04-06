@@ -23,4 +23,5 @@ apscheduler
 # Validation
 email-validator
 
-cloudinary python-multipart
+cloudinary 
+python-multipart
