@@ -2,11 +2,11 @@ import os
 import shutil
 import uuid
 import cloudinary
-from cloudinary import uploader # Đã sửa cách import để VS Code không báo lỗi
+from cloudinary import uploader
 from fastapi import UploadFile
 from app.core.config import settings
 
-# Cấu hình Cloudinary
+# Cấu hình thông số Cloudinary từ settings
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
     api_key=settings.CLOUDINARY_API_KEY,
@@ -16,13 +16,12 @@ cloudinary.config(
 
 async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
     """
-    Hàm upload thông minh: Tự động chọn lưu Local hoặc lên Cloudinary
-    dựa vào biến môi trường USE_CLOUDINARY.
+    Hàm upload thông minh: 
+    - USE_CLOUDINARY=False (Local): Lưu vào thư mục static/
+    - USE_CLOUDINARY=True (Prod): Đẩy lên Cloudinary
     """
     
-    # ==========================================
-    # 1. CHẠY Ở LOCAL (Lưu vào thư mục static)
-    # ==========================================
+    # --- TRƯỜNG HỢP 1: LƯU LOCAL (Để test ở máy) ---
     if not settings.USE_CLOUDINARY:
         file_ext = os.path.splitext(file.filename)[1].lower()
         upload_dir = f"static/{folder_name}"
@@ -32,23 +31,27 @@ async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
         file_path = os.path.join(upload_dir, filename)
         
         try:
+            # Di chuyển con trỏ file về đầu trước khi đọc/lưu
+            await file.seek(0)
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
-            # Trả về link localhost: http://localhost:8000/static/folder/...
-            return f"{settings.BASE_URL.rstrip('/')}/{upload_dir}/{filename}"
+            
+            # Trả về link localhost
+            base_url = settings.BASE_URL.rstrip('/')
+            return f"{base_url}/{upload_dir}/{filename}"
         except Exception as e:
-            print(f"❌ Lỗi lưu file Local: {e}")
+            print(f"❌ Lỗi lưu Local: {e}")
             return ""
 
-    # ==========================================
-    # 2. CHẠY TRÊN PRODUCTION (Đẩy lên Cloudinary)
-    # ==========================================
+    # --- TRƯỜNG HỢP 2: LƯU CLOUDINARY (Khi deploy Render) ---
     try:
+        await file.seek(0) # Đảm bảo đọc từ đầu file
         file_content = await file.read()
+        
         result = uploader.upload(
             file_content, 
             folder=folder_name,
-            resource_type="auto" # Tự động nhận diện ảnh hay audio/video
+            resource_type="auto"
         )
         return result.get("secure_url")
     except Exception as e:
