@@ -11,7 +11,7 @@ export const useAdminDashboard = () => {
       const data = await adminApi.getStats();
       setStats(data);
     } catch (err) {
-      console.error('Lỗi tải dashboard admin', err);
+      console.error('Error loading admin dashboard', err);
     } finally {
       setLoading(false);
     }
