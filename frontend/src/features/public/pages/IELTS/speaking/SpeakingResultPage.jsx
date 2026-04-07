@@ -10,7 +10,9 @@ import {
   TrendingUp,
   MessageSquare,
   HelpCircle,
-  FileText
+  FileText,
+  Bot,      
+  RefreshCw    
 } from 'lucide-react';
 
 // --- HELPER: XÁC ĐỊNH MÀU SẮC DỰA TRÊN LOẠI LỖI ---
@@ -89,7 +91,7 @@ const SpeakingResultPage = () => {
     loading,
     activePart,
     setActivePart,
-    activePartData, // Gọi đúng biến từ Hook mới
+    activePartData, 
     navigate
   } = useSpeakingResult();
 
@@ -113,12 +115,15 @@ const SpeakingResultPage = () => {
       </div>
     );
 
+  const isGrading = submission.status === 'GRADING';
+
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 text-slate-800" style={{fontFamily:"'DM Sans', system-ui, sans-serif"}}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700;900&family=DM+Serif+Display:ital@0;1&display=swap');
         .serif { font-family: 'DM Serif Display', Georgia, serif; }
         @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
         .fu  { animation: fadeUp 0.45s ease both; }
         .fu1 { animation: fadeUp 0.45s 0.08s ease both; }
         .fu2 { animation: fadeUp 0.45s 0.16s ease both; }
@@ -149,25 +154,33 @@ const SpeakingResultPage = () => {
                 <span className="text-sm text-white/60">
                   {new Date(submission.submitted_at).toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'})}
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-300 bg-white/10 border border-white/20 px-2.5 py-1 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 inline-block"></span>
-                  {submission.status}
+                
+                {/* Thay đổi màu Badge dựa trên trạng thái */}
+                <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full border ${
+                  isGrading 
+                    ? 'text-blue-300 bg-white/10 border-blue-300/30 animate-pulse' 
+                    : 'text-emerald-300 bg-white/10 border-white/20'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full inline-block ${isGrading ? 'bg-blue-300' : 'bg-emerald-300'}`}></span>
+                  {submission.status || 'GRADED'}
                 </span>
               </div>
             </div>
 
             {/* Right: scores */}
-            <div className="flex items-center gap-6 bg-white/10 border border-white/20 rounded-2xl px-7 py-5">
-              <div className="text-center">
+            <div className="flex items-center gap-6 bg-white/10 border border-white/20 rounded-2xl px-7 py-5 relative overflow-hidden">
+              {isGrading && <div className="absolute inset-0 bg-white/5 animate-pulse z-0"></div>}
+              
+              <div className="text-center relative z-10">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-white/40 mb-0.5">Overall Band</div>
                 <div className="serif text-6xl font-normal text-white leading-none">
                   {submission.band_score || '–'}
                 </div>
               </div>
 
-              <div className="w-px h-16 bg-white/20"></div>
+              <div className="w-px h-16 bg-white/20 relative z-10"></div>
 
-              <div className="grid grid-cols-2 gap-x-5 gap-y-4">
+              <div className="grid grid-cols-2 gap-x-5 gap-y-4 relative z-10">
                 <ScoreRing label="Fluency"  value={submission.score_fluency} />
                 <ScoreRing label="Lexical"  value={submission.score_lexical} />
                 <ScoreRing label="Grammar"  value={submission.score_grammar} />
@@ -177,8 +190,33 @@ const SpeakingResultPage = () => {
           </div>
         </div>
 
+        {isGrading && (
+          <div className="fu1 mb-8 bg-blue-50 border border-blue-200 rounded-3xl p-5 md:p-6 flex flex-col sm:flex-row items-center gap-5 shadow-sm relative overflow-hidden">
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+            
+            <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center shrink-0 relative z-10">
+              <Bot size={28} className="text-blue-500 animate-bounce" />
+            </div>
+            
+            <div className="text-center sm:text-left relative z-10">
+              <h4 className="text-blue-800 font-bold text-lg mb-1">AI Examiner is analyzing your recording...</h4>
+              <p className="text-blue-600/80 text-sm font-medium">Please refresh the page after <span className="font-bold">2-3 minutes</span> to view your results.</p>
+            </div>
+            
+            <div className="sm:ml-auto relative z-10 w-full sm:w-auto mt-4 sm:mt-0">
+              <button 
+                onClick={() => window.location.reload()}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl text-sm font-bold transition shadow-md active:scale-95"
+              >
+                <RefreshCw size={16} />
+                Refresh Now
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* --- MAIN CONTENT (SIDEBAR + CHI TIẾT PART) --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className={`grid grid-cols-1 lg:grid-cols-4 gap-6 ${isGrading ? 'opacity-60 pointer-events-none' : ''}`}>
 
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-2 fu1">
@@ -215,7 +253,9 @@ const SpeakingResultPage = () => {
                 <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center">
                   <AlertTriangle size={22} className="text-slate-300" />
                 </div>
-                <p className="text-slate-400 text-sm font-medium">No recording data available for this part.</p>
+                <p className="text-slate-400 text-sm font-medium">
+                  {isGrading ? 'Waiting for AI processing...' : 'No recording data available for this part.'}
+                </p>
               </div>
             ) : (
               <>
@@ -313,7 +353,9 @@ const SpeakingResultPage = () => {
                                       corrections={answerDetail.parsedCorrections || []}
                                     />
                                   ) : (
-                                    <span className="italic text-slate-400">Transcribing audio...</span>
+                                    <span className="italic text-slate-400">
+                                      {isGrading ? 'AI is transcribing your audio...' : 'Transcribing audio...'}
+                                    </span>
                                   )}
                                 </div>
                               </div>
