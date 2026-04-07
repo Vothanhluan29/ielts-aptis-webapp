@@ -90,8 +90,6 @@ async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
     # Cho phép ứng dụng giao tiếp với các cửa sổ popup (Login Google, Facebook...)
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
-    # Hoặc nếu vẫn lỗi, bạn dùng dòng dưới này (kém bảo mật hơn chút nhưng sửa triệt để):
-    # response.headers["Cross-Origin-Opener-Policy"] = "unsafe-none" 
     return response
 
 # ==========================================
