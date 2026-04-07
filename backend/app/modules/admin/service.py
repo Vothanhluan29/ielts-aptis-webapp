@@ -13,6 +13,8 @@ from app.modules.IELTS.writing.models import WritingTest
 from app.modules.IELTS.speaking.models import SpeakingTest
 
 # Import models APTIS (Lưu ý: Bạn hãy kiểm tra lại tên class Model nếu có sai lệch nhẹ nhé)
+from app.modules.APTIS.exam.models import  AptisFullTest, AptisExamSubmission
+
 from app.modules.APTIS.grammar_vocab.models import AptisGrammarVocabTest 
 from app.modules.APTIS.reading.models import AptisReadingTest
 from app.modules.APTIS.listening.models import AptisListeningTest
@@ -22,17 +24,16 @@ from app.modules.APTIS.speaking.models import AptisSpeakingTest
 class AdminService:
     @staticmethod
     def get_system_stats(db: Session):
-        # Lấy ngày hôm nay để tính toán tăng trưởng
         today = date.today()
 
         return {
-            # 1. Tổng quan (Dùng func.count để tối ưu tốc độ)
             "total_users": db.query(func.count(User.id)).scalar() or 0,
             "new_users_today": db.query(func.count(User.id)).filter(func.date(User.created_at) == today).scalar() or 0,
             
-            # Tạm thời đếm lượt nộp bài của Full Test IELTS (sau này có thể cộng dồn thêm bài lẻ nếu cần)
             "total_submissions": db.query(func.count(ExamSubmission.id)).scalar() or 0,
             "total_full_tests": db.query(func.count(FullTest.id)).scalar() or 0,
+            "total_aptis_full_tests": db.query(func.count(AptisFullTest.id)).scalar() or 0,
+            "total_aptis_submissions": db.query(func.count(AptisExamSubmission.id)).scalar() or 0,
 
             # 2. Phân bổ kỹ năng IELTS 
             "ielts_skills": {
