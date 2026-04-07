@@ -84,7 +84,7 @@ class UserService:
     @staticmethod
     def get_all(db: Session, skip: int = 0, limit: int = 10):
         total_count = db.query(User).count()
-        users = db.query(User).offset(skip).limit(limit).all()
+        users = db.query(User).order_by(User.id.desc()).offset(skip).limit(limit).all()
     
         return {
         "items": users,
