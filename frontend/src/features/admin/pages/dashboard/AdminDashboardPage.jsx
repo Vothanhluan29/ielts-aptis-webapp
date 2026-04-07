@@ -177,12 +177,6 @@ const AdminDashboardPage = () => {
         <Text style={{ color: '#f0f0f0' }}>
           Overview of platform performance
         </Text>
-
-        <div style={{ marginTop: 12 }}>
-          <Tag color="gold" style={{ fontWeight: 600 }}>
-            +{stats?.new_users_today || 0} new users today
-          </Tag>
-        </div>
       </div>
 
       {/* STATS */}
