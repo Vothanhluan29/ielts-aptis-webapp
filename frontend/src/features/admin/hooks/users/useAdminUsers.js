@@ -7,13 +7,12 @@ export const useAdminUsers = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const skip = (currentPage - 1) * pageSize;
-      const response = await adminUserApi.getAllUsers(skip, pageSize);
+      const response = await adminUserApi.getAllUsers(0,1000);
 
       setUsers(response.items || []);
       setTotalUsers(response.total || 0);
@@ -23,7 +22,7 @@ export const useAdminUsers = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage]);
+  }, []);
 
   useEffect(() => {
     fetchUsers();
@@ -67,7 +66,6 @@ export const useAdminUsers = () => {
     }
   };
 
-  const totalPages = Math.ceil(totalUsers / pageSize);
 
   return {
     users,
@@ -76,7 +74,6 @@ export const useAdminUsers = () => {
     handleDeleteUser,
     currentPage,
     setCurrentPage,
-    totalPages,
     totalUsers
   };
 };
