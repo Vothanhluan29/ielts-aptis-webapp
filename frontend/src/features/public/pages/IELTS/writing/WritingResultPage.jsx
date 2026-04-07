@@ -111,7 +111,7 @@ const WritingResultPage = () => {
           <div className="absolute inset-0 rounded-full border-t-2 border-rose-500 animate-spin"></div>
           <div className="absolute inset-2 rounded-full border-t-2 border-pink-400 animate-spin" style={{animationDuration:'1.4s',animationDirection:'reverse'}}></div>
         </div>
-        <p className="text-slate-400 text-sm font-bold tracking-widest uppercase animate-pulse">Analyzing your writing</p>
+        <p className="text-slate-400 text-sm font-bold tracking-widest uppercase animate-pulse">Loading results</p>
       </div>
     );
   }
@@ -130,7 +130,7 @@ const WritingResultPage = () => {
     );
   }
 
-  // 🔥 THÊM FALLBACK: Phòng ngừa lỗi khi taskData chưa load xong lúc đang GRADING
+  const isGrading = submission.status === 'GRADING';
   const { scoreOverall, content, feedback, corrections = [], scores = [] } = taskData || {};
 
   return (
@@ -173,11 +173,11 @@ const WritingResultPage = () => {
                 
                 {/* Đổi màu Badge tùy theo trạng thái */}
                 <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full border ${
-                  submission.status === 'GRADING' 
+                  isGrading 
                     ? 'text-blue-300 bg-white/10 border-blue-300/30 animate-pulse' 
                     : 'text-emerald-300 bg-white/10 border-white/20'
                 }`}>
-                  <span className={`w-1.5 h-1.5 rounded-full inline-block ${submission.status === 'GRADING' ? 'bg-blue-300' : 'bg-emerald-300'}`}></span>
+                  <span className={`w-1.5 h-1.5 rounded-full inline-block ${isGrading ? 'bg-blue-300' : 'bg-emerald-300'}`}></span>
                   {submission.status || 'GRADED'}
                 </span>
               </div>
@@ -185,8 +185,8 @@ const WritingResultPage = () => {
 
             {/* Right: scores */}
             <div className="flex items-center gap-6 bg-white/10 border border-white/20 rounded-2xl px-7 py-5 relative overflow-hidden">
-              {submission.status === 'GRADING' && (
-                <div className="absolute inset-0 bg-white/5 animate-pulse"></div>
+              {isGrading && (
+                <div className="absolute inset-0 bg-white/5 animate-pulse z-0"></div>
               )}
               <div className="text-center relative z-10">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-0.5">Overall Band</div>
@@ -213,28 +213,33 @@ const WritingResultPage = () => {
         </div>
 
         {/* 🔥 THÔNG BÁO AI ĐANG CHẤM (Chỉ hiện khi GRADING) */}
-        {submission.status === 'GRADING' && (
-          <div className="fu1 mb-8 bg-blue-50 border border-blue-200 rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-4 shadow-sm relative overflow-hidden">
-            {/* Hiệu ứng quét sáng (Shimmer) */}
+        {isGrading && (
+          <div className="fu1 mb-8 bg-blue-50 border border-blue-200 rounded-3xl p-5 md:p-6 flex flex-col sm:flex-row items-center gap-5 shadow-sm relative overflow-hidden">
             <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
             
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0 relative z-10">
-              <Bot size={24} className="text-blue-500 animate-bounce" />
+            <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center shrink-0 relative z-10">
+              <Bot size={28} className="text-blue-500 animate-bounce" />
             </div>
             
             <div className="text-center sm:text-left relative z-10">
-              <h4 className="text-blue-800 font-bold text-base">AI Examiner is analyzing your essay...</h4>
-              <p className="text-blue-600/80 text-sm mt-0.5 font-medium">This usually takes 1-2 minutes. Results will be updated automatically.</p>
+              <h4 className="text-blue-800 font-bold text-lg mb-1">AI Examiner is analyzing your essay...</h4>
+              <p className="text-blue-600/80 text-sm font-medium">Please refresh the page after <span className="font-bold">2-3 minutes</span> to view your results.</p>
             </div>
             
-            <div className="sm:ml-auto relative z-10">
-              <RefreshCw className="text-blue-400 animate-spin" size={20} />
+            <div className="sm:ml-auto relative z-10 w-full sm:w-auto mt-4 sm:mt-0">
+              <button 
+                onClick={() => window.location.reload()}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl text-sm font-bold transition shadow-md active:scale-95"
+              >
+                <RefreshCw size={16} />
+                Refresh Now
+              </button>
             </div>
           </div>
         )}
 
         {/* --- CONTENT AREA --- */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${isGrading ? 'opacity-60 pointer-events-none' : ''}`}>
 
           {/* LEFT */}
           <div className="lg:col-span-2 space-y-5">
@@ -267,13 +272,17 @@ const WritingResultPage = () => {
                 </div>
               </div>
               
-              <div className={`bg-slate-50/80 rounded-2xl p-6 md:p-8 border border-slate-100 leading-[2.2] text-[17px] text-slate-800 font-serif whitespace-pre-wrap ${submission.status === 'GRADING' ? 'opacity-50 pointer-events-none' : ''}`}>
-                <CorrectionHighlighter content={content} corrections={corrections} />
+              <div className="bg-slate-50/80 rounded-2xl p-6 md:p-8 border border-slate-100 leading-[2.2] text-[17px] text-slate-800 font-serif whitespace-pre-wrap">
+                {isGrading ? (
+                  <span className="italic text-slate-400">Waiting for AI processing...</span>
+                ) : (
+                  <CorrectionHighlighter content={content} corrections={corrections} />
+                )}
               </div>
             </div>
 
             {/* Feedback */}
-            <div className={`fu3 rounded-3xl p-6 md:p-8 border border-indigo-100 overflow-hidden relative bg-linear-to-br from-indigo-50 to-blue-50 ${submission.status === 'GRADING' ? 'opacity-50' : ''}`}>
+            <div className="fu3 rounded-3xl p-6 md:p-8 border border-indigo-100 overflow-hidden relative bg-linear-to-br from-indigo-50 to-blue-50">
               <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full bg-indigo-200/40 blur-2xl pointer-events-none"></div>
               <div className="flex items-center gap-2 mb-4">
                 <MessageSquare size={13} className="text-indigo-500" />
@@ -282,7 +291,7 @@ const WritingResultPage = () => {
                 </span>
               </div>
               <p className="font-serif italic text-slate-700 leading-relaxed text-[15px] whitespace-pre-wrap relative z-10">
-                {submission.status === 'GRADING' ? 'Waiting for AI feedback...' : (feedback || 'No specific feedback available for this task.')}
+                {isGrading ? 'Waiting for AI feedback...' : (feedback || 'No specific feedback available for this task.')}
               </p>
             </div>
           </div>
@@ -290,7 +299,7 @@ const WritingResultPage = () => {
           {/* RIGHT */}
           <div className="space-y-5">
             {/* Score Breakdown */}
-            <div className={`fu2 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm ${submission.status === 'GRADING' ? 'opacity-50' : ''}`}>
+            <div className="fu2 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6 pb-5 border-b border-slate-100">
                 <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center">
                   <Star size={15} className="text-amber-500 fill-amber-400" />
@@ -323,7 +332,7 @@ const WritingResultPage = () => {
             </div>
 
             {/* Review List */}
-            <div className={`fu3 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col max-h-150 ${submission.status === 'GRADING' ? 'opacity-50' : ''}`}>
+            <div className="fu3 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col max-h-150">
               <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100 shrink-0">
                 <div className="w-8 h-8 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center">
                   <Lightbulb size={15} className="text-violet-500" />
@@ -335,7 +344,7 @@ const WritingResultPage = () => {
               </div>
 
               <div className="overflow-y-auto custom-scrollbar pr-2 flex-1 space-y-3">
-                {submission.status === 'GRADING' ? (
+                {isGrading ? (
                   <div className="text-center py-10 text-sm text-slate-400 italic">Analyzing your grammar and vocabulary...</div>
                 ) : !corrections || corrections.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-10 gap-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
