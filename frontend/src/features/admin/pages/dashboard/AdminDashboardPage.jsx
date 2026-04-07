@@ -12,12 +12,14 @@ import {
 
 import {
   UserOutlined,
+  UserAddOutlined, // Icon cho user mới
   FileTextOutlined,
   BarChartOutlined,
   BookOutlined,
   SoundOutlined,
   EditOutlined,
-  MessageOutlined
+  MessageOutlined,
+  TrophyOutlined
 } from '@ant-design/icons';
 
 import { useAdminDashboard } from '../../hooks/dashboard/useAdminDashboard';
@@ -29,25 +31,46 @@ const { Title, Text } = Typography;
 
 const STAT_CARDS = [
   {
-    title: 'Enrolled Users',
+    title: 'Total Users',
     key: 'total_users',
     icon: <UserOutlined />,
     color: '#1677ff',
     bg: 'linear-gradient(135deg, #e6f4ff, #ffffff)'
   },
   {
-    title: 'Total Attempts',
+    title: 'IELTS Tests',
+    key: 'total_full_tests',
+    icon: <BookOutlined />,
+    color: '#fa541c',
+    bg: 'linear-gradient(135deg, #fff2e8, #ffffff)'
+  },
+  {
+    title: 'IELTS Attempts',
     key: 'total_submissions',
     icon: <FileTextOutlined />,
+    color: '#faad14',
+    bg: 'linear-gradient(135deg, #fffbe6, #ffffff)'
+  },
+  {
+    title: 'New Users Today',
+    key: 'new_users_today',
+    icon: <UserAddOutlined />,
     color: '#52c41a',
     bg: 'linear-gradient(135deg, #f6ffed, #ffffff)'
   },
   {
-    title: 'Assessments',
-    key: 'total_full_tests',
+    title: 'APTIS Tests',
+    key: 'total_aptis_full_tests', // Dữ liệu mới 1
+    icon: <TrophyOutlined />,
+    color: '#722ed1',
+    bg: 'linear-gradient(135deg, #f9f0ff, #ffffff)'
+  },
+  {
+    title: 'APTIS Attempts',
+    key: 'total_aptis_submissions', // Dữ liệu mới 2
     icon: <BarChartOutlined />,
-    color: '#fa541c',
-    bg: 'linear-gradient(135deg, #fff2e8, #ffffff)'
+    color: '#eb2f96',
+    bg: 'linear-gradient(135deg, #fff0f6, #ffffff)'
   }
 ];
 
@@ -165,7 +188,8 @@ const AdminDashboardPage = () => {
       {/* STATS */}
       <Row gutter={[16, 16]}>
         {STAT_CARDS.map((item) => (
-          <Col xs={24} md={8} key={item.key}>
+          /* 🔥 Đổi thành lg=8 để chia thành 3 cột, tạo thành lưới 2 hàng cực đẹp */
+          <Col xs={24} sm={12} lg={8} key={item.key}>
             <Card
               bordered={false}
               style={{

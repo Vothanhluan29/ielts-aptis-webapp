@@ -26,7 +26,8 @@ class SystemStats(BaseModel):
     # Tạm thời chỉ đếm Full Test của IELTS
     total_full_tests: int 
     
-    total_aptis_full_tests: int 
+    total_aptis_full_tests: int
+    total_aptis_submissions: int 
     
     # Phân bổ chi tiết từng kỹ năng
     ielts_skills: IELTSSkillDistribution
