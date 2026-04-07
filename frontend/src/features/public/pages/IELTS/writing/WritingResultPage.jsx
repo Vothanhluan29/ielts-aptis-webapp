@@ -4,19 +4,17 @@ import { useWritingResult } from '../../../hooks/IELTS/writing/useWritingResult'
 import { 
   ArrowLeft, CheckCircle, Lightbulb, 
   BookOpen, Star, MessageSquare, 
-  Info, AlertTriangle, SpellCheck, Link, PenTool
+  Info, AlertTriangle, SpellCheck, Link, PenTool,
+  Bot, RefreshCw
 } from 'lucide-react';
 
-// --- HELPER: MAP THEME THEO TỪNG LOẠI LỖI TỪ AI ---
 const getCorrectionTheme = (type = '') => {
   const t = type.toLowerCase();
   
-  // 1. Lỗi Ngữ pháp (Grammar) - Lỗi nặng, cảnh báo đỏ/hồng nhạt
   if (t === 'grammar') {
     return {
       type: 'Grammar',
       card: 'bg-rose-50 border-rose-200 hover:border-rose-300',
-      // 🔥 Thay đổi: Gạch ngang mờ (decoration-rose-300) trên nền nhạt
       textOriginal: 'text-rose-700 font-semibold bg-rose-100/50 px-1 rounded line-through decoration-rose-300',
       badge: 'border-rose-200 text-rose-600 bg-rose-100',
       fixBg: 'bg-white border-rose-100 text-emerald-600',
@@ -26,12 +24,10 @@ const getCorrectionTheme = (type = '') => {
     };
   }
 
-  // 2. Lỗi Từ vựng (Vocabulary / Awkward Phrasing) - Màu cam/vàng
   if (t === 'vocabulary' || t.includes('phrase')) {
     return {
       type: 'Vocabulary',
       card: 'bg-amber-50 border-amber-200 hover:border-amber-300',
-      // 🔥 Thay đổi: Gạch ngang mờ (decoration-amber-300) trên nền nhạt
       textOriginal: 'text-amber-700 font-semibold bg-amber-100/50 px-1 rounded line-through decoration-amber-300',
       badge: 'border-amber-200 text-amber-600 bg-amber-100',
       fixBg: 'bg-white border-amber-100 text-emerald-600',
@@ -41,7 +37,6 @@ const getCorrectionTheme = (type = '') => {
     };
   }
 
-  // 3. Lỗi Mạch lạc (Coherence / Cohesion) - Màu tím/Indigo
   if (t === 'coherence') {
     return {
       type: 'Coherence',
@@ -55,12 +50,10 @@ const getCorrectionTheme = (type = '') => {
     };
   }
   
-  // 4. Lỗi Chính tả / Dấu câu (Spelling / Punctuation) - Lỗi nhỏ, màu xanh dương
   if (t === 'spelling' || t === 'punctuation') {
     return {
       type: t.charAt(0).toUpperCase() + t.slice(1),
       card: 'bg-blue-50 border-blue-200 hover:border-blue-300',
-      // 🔥 Thay đổi: Lỗi chính tả cực nhẹ, chỉ gạch đứt nét (dashed)
       textOriginal: 'text-blue-700 font-semibold bg-blue-100/50 px-1 rounded line-through decoration-dashed decoration-blue-400',
       badge: 'border-blue-200 text-blue-600 bg-blue-100',
       fixBg: 'bg-white border-blue-100 text-emerald-600',
@@ -70,7 +63,6 @@ const getCorrectionTheme = (type = '') => {
     };
   }
 
-  // 5. Fallback (Các lỗi khác)
   return {
     type: 'Suggestion',
     card: 'bg-slate-50 border-slate-200 hover:border-slate-300',
@@ -138,12 +130,14 @@ const WritingResultPage = () => {
     );
   }
 
-  const { scoreOverall, content, feedback, corrections, scores } = taskData;
+  // 🔥 THÊM FALLBACK: Phòng ngừa lỗi khi taskData chưa load xong lúc đang GRADING
+  const { scoreOverall, content, feedback, corrections = [], scores = [] } = taskData || {};
 
   return (
     <div className="min-h-screen bg-slate-50 py-10 px-4 text-slate-800 font-sans">
       <style>{`
         @keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes shimmer { 100% { transform: translateX(100%); } }
         .fu  { animation: fadeUp 0.45s ease both; }
         .fu1 { animation: fadeUp 0.45s 0.08s ease both; }
         .fu2 { animation: fadeUp 0.45s 0.16s ease both; }
@@ -176,25 +170,34 @@ const WritingResultPage = () => {
                 <span className="text-sm text-white/60 font-medium">
                   {new Date(submission.submitted_at).toLocaleDateString('en-GB', {day:'2-digit', month:'long', year:'numeric'})}
                 </span>
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-emerald-300 bg-white/10 border border-white/20 px-2.5 py-1 rounded-full">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 inline-block"></span>
-                  graded
+                
+                {/* Đổi màu Badge tùy theo trạng thái */}
+                <span className={`inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] px-2.5 py-1 rounded-full border ${
+                  submission.status === 'GRADING' 
+                    ? 'text-blue-300 bg-white/10 border-blue-300/30 animate-pulse' 
+                    : 'text-emerald-300 bg-white/10 border-white/20'
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full inline-block ${submission.status === 'GRADING' ? 'bg-blue-300' : 'bg-emerald-300'}`}></span>
+                  {submission.status || 'GRADED'}
                 </span>
               </div>
             </div>
 
             {/* Right: scores */}
-            <div className="flex items-center gap-6 bg-white/10 border border-white/20 rounded-2xl px-7 py-5">
-              <div className="text-center">
+            <div className="flex items-center gap-6 bg-white/10 border border-white/20 rounded-2xl px-7 py-5 relative overflow-hidden">
+              {submission.status === 'GRADING' && (
+                <div className="absolute inset-0 bg-white/5 animate-pulse"></div>
+              )}
+              <div className="text-center relative z-10">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-white/50 mb-0.5">Overall Band</div>
                 <div className="font-serif text-6xl text-white leading-none">
                   {submission.band_score || '–'}
                 </div>
               </div>
 
-              <div className="w-px h-16 bg-white/20"></div>
+              <div className="w-px h-16 bg-white/20 relative z-10"></div>
 
-              <div className="space-y-3">
+              <div className="space-y-3 relative z-10">
                 <div className="flex items-center justify-between gap-6">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">Task 1</span>
                   <span className="text-white font-black text-lg">{submission.score_t1_overall || '–'}</span>
@@ -208,6 +211,27 @@ const WritingResultPage = () => {
             </div>
           </div>
         </div>
+
+        {/* 🔥 THÔNG BÁO AI ĐANG CHẤM (Chỉ hiện khi GRADING) */}
+        {submission.status === 'GRADING' && (
+          <div className="fu1 mb-8 bg-blue-50 border border-blue-200 rounded-2xl p-5 flex flex-col sm:flex-row items-center gap-4 shadow-sm relative overflow-hidden">
+            {/* Hiệu ứng quét sáng (Shimmer) */}
+            <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
+            
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center shrink-0 relative z-10">
+              <Bot size={24} className="text-blue-500 animate-bounce" />
+            </div>
+            
+            <div className="text-center sm:text-left relative z-10">
+              <h4 className="text-blue-800 font-bold text-base">AI Examiner is analyzing your essay...</h4>
+              <p className="text-blue-600/80 text-sm mt-0.5 font-medium">This usually takes 1-2 minutes. Results will be updated automatically.</p>
+            </div>
+            
+            <div className="sm:ml-auto relative z-10">
+              <RefreshCw className="text-blue-400 animate-spin" size={20} />
+            </div>
+          </div>
+        )}
 
         {/* --- CONTENT AREA --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -243,13 +267,13 @@ const WritingResultPage = () => {
                 </div>
               </div>
               
-              <div className="bg-slate-50/80 rounded-2xl p-6 md:p-8 border border-slate-100 leading-[2.2] text-[17px] text-slate-800 font-serif whitespace-pre-wrap">
+              <div className={`bg-slate-50/80 rounded-2xl p-6 md:p-8 border border-slate-100 leading-[2.2] text-[17px] text-slate-800 font-serif whitespace-pre-wrap ${submission.status === 'GRADING' ? 'opacity-50 pointer-events-none' : ''}`}>
                 <CorrectionHighlighter content={content} corrections={corrections} />
               </div>
             </div>
 
             {/* Feedback */}
-            <div className="fu3 rounded-3xl p-6 md:p-8 border border-indigo-100 overflow-hidden relative bg-linear-to-br from-indigo-50 to-blue-50">
+            <div className={`fu3 rounded-3xl p-6 md:p-8 border border-indigo-100 overflow-hidden relative bg-linear-to-br from-indigo-50 to-blue-50 ${submission.status === 'GRADING' ? 'opacity-50' : ''}`}>
               <div className="absolute -top-6 -right-6 w-32 h-32 rounded-full bg-indigo-200/40 blur-2xl pointer-events-none"></div>
               <div className="flex items-center gap-2 mb-4">
                 <MessageSquare size={13} className="text-indigo-500" />
@@ -258,7 +282,7 @@ const WritingResultPage = () => {
                 </span>
               </div>
               <p className="font-serif italic text-slate-700 leading-relaxed text-[15px] whitespace-pre-wrap relative z-10">
-                {feedback || 'No specific feedback available for this task.'}
+                {submission.status === 'GRADING' ? 'Waiting for AI feedback...' : (feedback || 'No specific feedback available for this task.')}
               </p>
             </div>
           </div>
@@ -266,7 +290,7 @@ const WritingResultPage = () => {
           {/* RIGHT */}
           <div className="space-y-5">
             {/* Score Breakdown */}
-            <div className="fu2 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+            <div className={`fu2 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm ${submission.status === 'GRADING' ? 'opacity-50' : ''}`}>
               <div className="flex items-center gap-3 mb-6 pb-5 border-b border-slate-100">
                 <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center">
                   <Star size={15} className="text-amber-500 fill-amber-400" />
@@ -278,9 +302,13 @@ const WritingResultPage = () => {
               </div>
 
               <div className="space-y-5">
-                {scores.map((cri, idx) => (
-                  <ScoreBar key={idx} label={cri.label} score={cri.score} />
-                ))}
+                {scores.length > 0 ? (
+                  scores.map((cri, idx) => (
+                    <ScoreBar key={idx} label={cri.label} score={cri.score} />
+                  ))
+                ) : (
+                  <div className="text-sm text-slate-400 italic text-center py-4">Criteria scores pending...</div>
+                )}
               </div>
 
               <div className="mt-7 pt-6 border-t border-slate-100 flex items-center justify-between">
@@ -289,13 +317,13 @@ const WritingResultPage = () => {
                   <div className="text-[10px] font-medium text-slate-300">Average of criteria</div>
                 </div>
                 <div className="font-serif text-5xl text-transparent bg-clip-text bg-linear-to-br from-rose-500 to-pink-500">
-                  {scoreOverall || 0}
+                  {scoreOverall || '–'}
                 </div>
               </div>
             </div>
 
             {/* Review List */}
-            <div className="fu3 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col max-h-140">
+            <div className={`fu3 bg-white border border-slate-100 rounded-3xl p-6 shadow-sm flex flex-col max-h-150 ${submission.status === 'GRADING' ? 'opacity-50' : ''}`}>
               <div className="flex items-center gap-3 mb-5 pb-4 border-b border-slate-100 shrink-0">
                 <div className="w-8 h-8 rounded-xl bg-violet-50 border border-violet-100 flex items-center justify-center">
                   <Lightbulb size={15} className="text-violet-500" />
@@ -307,7 +335,9 @@ const WritingResultPage = () => {
               </div>
 
               <div className="overflow-y-auto custom-scrollbar pr-2 flex-1 space-y-3">
-                {!corrections || corrections.length === 0 ? (
+                {submission.status === 'GRADING' ? (
+                  <div className="text-center py-10 text-sm text-slate-400 italic">Analyzing your grammar and vocabulary...</div>
+                ) : !corrections || corrections.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-10 gap-4 bg-emerald-50 border border-emerald-100 rounded-2xl">
                     <div className="w-12 h-12 rounded-2xl bg-emerald-100 border border-emerald-200 flex items-center justify-center">
                       <CheckCircle size={22} className="text-emerald-500" />
@@ -351,7 +381,6 @@ const CorrectionHighlighter = ({ content, corrections }) => {
   if (!content) return <span className="text-slate-400 italic">No essay content available.</span>;
   if (!corrections || corrections.length === 0) return <span>{content}</span>;
 
-  // Lọc mảng lỗi, ưu tiên thay thế cụm từ dài trước để tránh lỗi lồng nhau
   const sortedCorrections = [...corrections].sort((a, b) => b.text.length - a.text.length);
   const escapeRegExp = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const regex = new RegExp(`(${sortedCorrections.map(c => escapeRegExp(c.text)).join('|')})`, 'gi');
@@ -370,7 +399,6 @@ const CorrectionHighlighter = ({ content, corrections }) => {
               <span className={`border-b-2 border-dotted px-1 py-0.5 rounded transition-all duration-150 font-medium ${theme.highlighter}`}>
                 {part}
               </span>
-              {/* Tooltip */}
               <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-64 opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none z-50 group-hover:-translate-y-1 font-sans">
                 <span className="block bg-slate-800 rounded-xl shadow-2xl p-4 text-center border border-slate-700">
                   <span className="block text-emerald-400 font-bold text-sm border-b border-slate-600 pb-2 mb-2">
