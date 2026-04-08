@@ -51,7 +51,7 @@ const ReadingAptisExamPage = ({
           </div>
         )}
 
-        <div className="space-y-8 pl-2">
+        <div className="space-y-8 pr-2">
           {group.questions?.map((q, idx) => {
             const qType = q.question_type?.toUpperCase() || "";
             const pType = q.part_type?.toUpperCase() || "";
@@ -169,7 +169,7 @@ const ReadingAptisExamPage = ({
         </div>
       )}
 
-      <div className="flex flex-col flex-1 w-full max-w-400 mx-auto p-4 sm:p-6 overflow-hidden">
+      <div className="flex flex-col flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 overflow-hidden">
         
         {/* TABS NAVIGATION */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-2 custom-scrollbar shrink-0">
@@ -191,7 +191,7 @@ const ReadingAptisExamPage = ({
         
         {/* DYNAMIC CONTENT (Split Screen or Single Column) */}
         {hasReadingPassage ? (
-          <div className="flex flex-col lg:flex-row gap-6 flex-1 overflow-hidden animation-fade-in">
+          <div className="flex flex-col lg:flex-row gap-8 flex-1 overflow-hidden animation-fade-in">
             {/* LEFT PANEL: READING PASSAGE */}
             <div className="w-full lg:w-1/2 bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
               <div className="bg-slate-50 border-b border-slate-200 p-4 shrink-0 flex items-center gap-2">
@@ -226,32 +226,35 @@ const ReadingAptisExamPage = ({
               </div>
             </div>
 
-            {/* RIGHT PANEL: QUESTIONS */}
-            <div className="w-full lg:w-1/2 bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
-              <div className="bg-slate-50 border-b border-slate-200 p-4 shrink-0 flex items-center justify-between">
+            {/* RIGHT PANEL: QUESTIONS (Thoát khỏi border) */}
+            <div className="w-full lg:w-1/2 flex flex-col overflow-hidden">
+              {/* Tiêu đề bay (Floating Header) */}
+              <div className="shrink-0 flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <ReadOutlined className="text-orange-500 text-lg" />
-                  <Text strong className="text-slate-700">Questions</Text>
+                  <ReadOutlined className="text-orange-500 text-xl" />
+                  <Text strong className="text-slate-700 text-lg">Questions</Text>
                 </div>
-                <Tag className="rounded-full bg-slate-200 text-slate-600 border-0 m-0">
+                <Tag className="rounded-full bg-orange-100 text-orange-700 font-bold border-0 px-3 py-1 m-0 text-sm">
                   {activePart?.groups?.reduce((acc, g) => acc + (g.questions?.length || 0), 0) || 0} questions
                 </Tag>
               </div>
-              <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-slate-50/50">
+              
+              {/* Vùng cuộn tự do */}
+              <div className="overflow-y-auto custom-scrollbar flex-1 pb-10">
                 {renderQuestionsList(activePart.groups)}
               </div>
             </div>
           </div>
         ) : (
-          /* SINGLE COLUMN (NO PASSAGE) */
-          <div className="flex-1 overflow-y-auto custom-scrollbar bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-10 animation-fade-in">
-            <div className="max-w-4xl mx-auto">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-8">
+          /* SINGLE COLUMN (NO PASSAGE - Bỏ border) */
+          <div className="flex-1 overflow-y-auto custom-scrollbar pb-10 pt-2 animation-fade-in">
+            <div className="max-w-3xl mx-auto">
+              <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-2">
                   <ReadOutlined className="text-orange-500 text-2xl" />
                   <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Question List</Title>
                 </div>
-                <Tag className="rounded-full bg-orange-50 text-orange-600 font-bold border-orange-200 px-3 py-1 m-0 text-sm">
+                <Tag className="rounded-full bg-orange-100 text-orange-700 font-bold border-0 px-3 py-1 m-0 text-sm">
                   {activePart?.groups?.reduce((acc, g) => acc + (g.questions?.length || 0), 0) || 0} questions
                 </Tag>
               </div>
@@ -307,6 +310,10 @@ const ReadingAptisExamPage = ({
           from { opacity: 0; transform: translateY(5px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
       `}</style>
     </Layout>
   );
