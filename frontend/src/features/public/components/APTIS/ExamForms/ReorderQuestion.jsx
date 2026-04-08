@@ -153,7 +153,7 @@ const ReorderQuestion = ({
              </div>
              
              {/* Ký tự chữ cái (A, B, C...) */}
-             <div className="flex items-center justify-center min-w-[36px] h-9 font-bold text-orange-600 bg-orange-100 rounded-lg shrink-0">
+             <div className="flex items-center justify-center min-w-9 h-9 font-bold text-orange-600 bg-orange-100 rounded-lg shrink-0">
                 {item.letter}
              </div>
              
