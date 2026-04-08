@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Button, Typography, Spin, Card, Tag, Divider } from 'antd'; 
+import { Layout, Button, Typography, Spin, Card, Tag } from 'antd'; 
 import { 
   ClockCircleOutlined, ExclamationCircleOutlined, SendOutlined, 
   LeftOutlined, RightOutlined, ReadOutlined, FileTextOutlined
@@ -13,7 +13,7 @@ import FillInBlankQuestion from '../../../components/APTIS/ExamForms/FillInBlank
 // Nhúng Custom Hook
 import { useReadingAptisExam } from '../../../hooks/APTIS/reading/useReadingAptisExam';
 
-const { Header, Footer } = Layout;
+const { Header, Content, Footer } = Layout;
 const { Title, Text, Paragraph } = Typography;
 
 const ReadingAptisExamPage = ({ 
@@ -40,9 +40,19 @@ const ReadingAptisExamPage = ({
     handleGoBackEmpty
   } = useReadingAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
+  // ==========================================
+  // RENDER DANH SÁCH CÂU HỎI
+  // ==========================================
   const renderQuestionsList = (groups) => {
-    return groups?.map((group) => (
-      <div key={group.id} className="mb-10 last:mb-0">
+    if (!groups || groups.length === 0) {
+      return <div className="text-center py-10 text-slate-400">No questions in this section.</div>;
+    }
+
+    return groups.map((group) => (
+      // Khoảng cách và dải phân cách y hệt trang Listening
+      <div key={group.id} className="mb-14 last:mb-0 pb-8 border-b border-slate-100 last:border-0 last:pb-0">
+        
+        {/* Hướng dẫn riêng của từng Group (nếu có) */}
         {!hasReadingPassage && group.instruction && (
           <div className="mb-6 p-4 bg-orange-50 rounded-xl border-l-4 border-orange-500">
             <Text className="text-orange-800 font-bold text-base whitespace-pre-wrap">
@@ -51,7 +61,7 @@ const ReadingAptisExamPage = ({
           </div>
         )}
 
-        <div className="space-y-8 pr-2">
+        <div className="pl-2 space-y-8">
           {group.questions?.map((q, idx) => {
             const qType = q.question_type?.toUpperCase() || "";
             const pType = q.part_type?.toUpperCase() || "";
@@ -63,59 +73,45 @@ const ReadingAptisExamPage = ({
             if (isReorder) {
               return (
                 <ReorderQuestion 
-                  key={q.id}
-                  questionId={q.id}
-                  questionNumber={q.question_number || idx + 1}
-                  questionText={q.question_text}
-                  options={q.options}
-                  selectedValue={answers[q.id]}
+                  key={q.id} questionId={q.id} questionNumber={q.question_number || idx + 1}
+                  questionText={q.question_text} options={q.options} selectedValue={answers[q.id]}
                   onChange={handleAnswerChange}
                 />
               );
             } else if (isFillInBlank) {
               return (
                 <FillInBlankQuestion 
-                  key={q.id}
-                  questionId={q.id}
-                  questionNumber={q.question_number || idx + 1}
-                  questionText={q.question_text}
-                  selectedValue={answers[q.id]}
+                  key={q.id} questionId={q.id} questionNumber={q.question_number || idx + 1}
+                  questionText={q.question_text} selectedValue={answers[q.id]}
                   onChange={handleAnswerChange}
                 />
               );
             } else if (isDropdown) {
               return (
                 <DropdownQuestion 
-                  key={q.id}
-                  questionId={q.id}
-                  questionNumber={q.question_number || idx + 1}
-                  questionText={q.question_text}
-                  options={q.options}
-                  selectedValue={answers[q.id]}
+                  key={q.id} questionId={q.id} questionNumber={q.question_number || idx + 1}
+                  questionText={q.question_text} options={q.options} selectedValue={answers[q.id]}
                   onChange={handleAnswerChange}
                 />
               );
             } else {
               return (
                 <MultipleChoiceQuestion 
-                  key={q.id}
-                  questionId={q.id}
-                  questionNumber={q.question_number || idx + 1}
-                  questionText={q.question_text}
-                  options={q.options}
-                  selectedValue={answers[q.id]}
+                  key={q.id} questionId={q.id} questionNumber={q.question_number || idx + 1}
+                  questionText={q.question_text} options={q.options} selectedValue={answers[q.id]}
                   onChange={handleAnswerChange}
                 />
               );
             }
           })}
         </div>
-        {!hasReadingPassage && <Divider dashed className="my-8 border-slate-200" />}
       </div>
     ));
   };
 
-  // LOADING STATE
+  // ==========================================
+  // LOADING & EMPTY STATES
+  // ==========================================
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -127,26 +123,29 @@ const ReadingAptisExamPage = ({
     );
   }
 
-  // EMPTY STATE
   if (parts.length === 0) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
         <Card className="text-center rounded-3xl shadow-sm border-0 py-10 px-8">
           <ExclamationCircleOutlined className="text-red-400 text-5xl mb-4 block" />
           <Title level={4}>Empty Test</Title>
-          <Text type="secondary">No content has been added to this Reading test yet.</Text>
+          <Text type="secondary">No content has been added to this test yet.</Text>
           <Button type="primary" onClick={handleGoBackEmpty} className="mt-6 bg-orange-500 border-none">Go Back</Button>
         </Card>
       </div>
     );
   }
 
-  // MAIN EXAM RENDER
+  // ==========================================
+  // MAIN LAYOUT
+  // ==========================================
   return (
-    <Layout style={{ height: isFullTest ? 'calc(100vh - 64px)' : '100vh', overflow: 'hidden', backgroundColor: '#f8fafc' }}>
+    // Dùng minHeight 100vh để trang có thể cuộn giống hệt Listening
+    <Layout style={{ minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh', backgroundColor: '#f8fafc' }}>
       
+      {/* HEADER TƯƠNG TỰ LISTENING */}
       {!isFullTest && (
-        <Header style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', zIndex: 10 }}>
+        <Header style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 40 }}>
           <div className="flex items-center gap-3">
             <Tag color="orange" className="px-3 py-1 font-bold rounded-lg border-0 bg-orange-100 text-orange-700 m-0">
               <ReadOutlined className="mr-1"/> Reading
@@ -161,7 +160,7 @@ const ReadingAptisExamPage = ({
       )}
 
       {isFullTest && (
-        <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center z-10 shadow-sm shrink-0">
+        <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center sticky top-0 z-40 shadow-sm">
           <Text strong className="text-lg text-slate-700">Section: Reading</Text>
           <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-lg transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-orange-50 border-orange-200 text-orange-600'}`}>
             <ClockCircleOutlined /> Time remaining: {formatTime(timeLeft)}
@@ -169,10 +168,11 @@ const ReadingAptisExamPage = ({
         </div>
       )}
 
-      <div className="flex flex-col flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 overflow-hidden">
+      {/* CONTENT (Độ rộng thay đổi linh hoạt tùy có đoạn văn hay không) */}
+      <Content style={{ padding: '24px', maxWidth: hasReadingPassage ? 1280 : 900, margin: '0 auto', width: '100%' }}>
         
-        {/* TABS NAVIGATION */}
-        <div className="flex gap-2 mb-4 overflow-x-auto pb-2 custom-scrollbar shrink-0">
+        {/* TABS (Thiết kế giống Listening nhưng màu cam) */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 custom-scrollbar">
           {parts.map((p, idx) => (
             <Button 
               key={p.id} 
@@ -180,7 +180,7 @@ const ReadingAptisExamPage = ({
               onClick={() => setCurrentPartId(p.id)} 
               className={`flex-1 min-w-35 h-12 font-bold rounded-xl transition-all ${
                 currentPartId === p.id 
-                  ? 'bg-orange-500 hover:bg-orange-400 border-none shadow-md shadow-orange-200 text-white' 
+                  ? 'bg-orange-600 hover:bg-orange-500 border-none shadow-md shadow-orange-200 text-white' 
                   : 'text-slate-500 border-slate-200 hover:text-orange-500 hover:border-orange-300 bg-white'
               }`}
             >
@@ -188,86 +188,99 @@ const ReadingAptisExamPage = ({
             </Button>
           ))}
         </div>
-        
-        {/* DYNAMIC CONTENT (Split Screen or Single Column) */}
+
+        {/* ================= KHU VỰC CÂU HỎI VÀ ĐOẠN VĂN ================= */}
         {hasReadingPassage ? (
-          <div className="flex flex-col lg:flex-row gap-8 flex-1 overflow-hidden animation-fade-in">
-            {/* LEFT PANEL: READING PASSAGE */}
-            <div className="w-full lg:w-1/2 bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
-              <div className="bg-slate-50 border-b border-slate-200 p-4 shrink-0 flex items-center gap-2">
-                <FileTextOutlined className="text-orange-500 text-lg" />
-                <Text strong className="text-slate-700">Reading Passage</Text>
-              </div>
-              
-              <div className="p-6 md:p-8 overflow-y-auto custom-scrollbar flex-1 bg-white">
-                {activePart?.content && (
-                  <div className="text-slate-700 text-base leading-loose whitespace-pre-wrap text-justify bg-orange-50/30 p-6 rounded-2xl border border-orange-100/50 mb-8">
-                    {activePart.content}
-                  </div>
-                )}
-
-                {activePart?.groups?.map((group, idx) => {
-                  const groupContent = group.transcript || group.content || group.text;
-                  if (!group.instruction && !group.image_url && !groupContent) return null;
-                  
-                  return (
-                    <div key={group.id} className="mb-10 last:mb-0">
-                      {group.image_url && <img src={group.image_url} alt="Reading Resource" className="max-w-full rounded-xl mb-6 shadow-sm border border-slate-100" />}
-                      {group.instruction && <Paragraph className="text-slate-800 font-bold text-lg mb-4 whitespace-pre-wrap">{group.instruction}</Paragraph>}
-                      {groupContent && (
-                        <div className="text-slate-700 text-base leading-loose whitespace-pre-wrap text-justify bg-orange-50/30 p-6 rounded-2xl border border-orange-100/50">
-                          {groupContent}
-                        </div>
-                      )}
-                      {idx < activePart.groups.length - 1 && <Divider dashed className="my-8 border-slate-300" />}
+          // CHẾ ĐỘ SPLIT SCREEN (Có đoạn văn dài)
+          <div className="flex flex-col lg:flex-row gap-6 animation-fade-in relative items-start">
+            
+            {/* CỘT TRÁI: BÀI ĐỌC (Sử dụng sticky top để ghim lại khi cuộn chuột) */}
+            <div className="w-full lg:w-1/2 lg:sticky lg:top-24 h-fit">
+              <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200 bg-white" styles={{ body: { padding: '32px 24px' } }}>
+                <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+                  <FileTextOutlined className="text-orange-500 text-2xl" />
+                  <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Reading Passage</Title>
+                </div>
+                
+                <div className="max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
+                  {activePart?.content && (
+                    <div className="text-slate-700 text-base leading-loose whitespace-pre-wrap text-justify bg-orange-50/30 p-6 rounded-2xl border border-orange-100/50 mb-8">
+                      {activePart.content}
                     </div>
-                  )
-                })}
-              </div>
+                  )}
+
+                  {activePart?.groups?.map((group) => {
+                    const groupContent = group.transcript || group.content || group.text;
+                    if (!group.instruction && !group.image_url && !groupContent) return null;
+                    return (
+                      <div key={group.id} className="mb-8">
+                        {group.image_url && <img src={group.image_url} alt="Reading Resource" className="max-w-full rounded-xl mb-6 shadow-sm border border-slate-100" />}
+                        {group.instruction && <Paragraph className="text-slate-800 font-bold text-lg mb-4 whitespace-pre-wrap">{group.instruction}</Paragraph>}
+                        {groupContent && (
+                          <div className="text-slate-700 text-base leading-loose whitespace-pre-wrap text-justify bg-orange-50/30 p-6 rounded-2xl border border-orange-100/50">
+                            {groupContent}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </Card>
             </div>
 
-            {/* RIGHT PANEL: QUESTIONS (Thoát khỏi border) */}
-            <div className="w-full lg:w-1/2 flex flex-col overflow-hidden">
-              {/* Tiêu đề bay (Floating Header) */}
-              <div className="shrink-0 flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <ReadOutlined className="text-orange-500 text-xl" />
-                  <Text strong className="text-slate-700 text-lg">Questions</Text>
+            {/* CỘT PHẢI: CÂU HỎI */}
+            <div className="w-full lg:w-1/2">
+              <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200 bg-white" styles={{ body: { padding: '32px 24px' } }}>
+                <div className="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
+                  <div className="flex items-center gap-2">
+                    <ReadOutlined className="text-orange-500 text-2xl" />
+                    <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Questions</Title>
+                  </div>
+                  <Tag className="rounded-full bg-slate-100 text-slate-600 font-bold border-0 px-3 py-1 m-0 text-sm">
+                    {activePart?.groups?.reduce((acc, g) => acc + (g.questions?.length || 0), 0) || 0} questions
+                  </Tag>
                 </div>
-                <Tag className="rounded-full bg-orange-100 text-orange-700 font-bold border-0 px-3 py-1 m-0 text-sm">
-                  {activePart?.groups?.reduce((acc, g) => acc + (g.questions?.length || 0), 0) || 0} questions
-                </Tag>
-              </div>
-              
-              {/* Vùng cuộn tự do */}
-              <div className="overflow-y-auto custom-scrollbar flex-1 pb-10">
+
+                <div className="mb-8 p-4 bg-orange-50/50 rounded-xl border-l-4 border-orange-500 text-slate-700 font-medium flex items-start gap-3">
+                  <ReadOutlined className="text-orange-600 text-xl mt-0.5" />
+                  <div>
+                    Read the text carefully and select the most accurate answers for the questions below.
+                  </div>
+                </div>
+
                 {renderQuestionsList(activePart.groups)}
-              </div>
+              </Card>
             </div>
           </div>
+
         ) : (
-          /* SINGLE COLUMN (NO PASSAGE - Bỏ border) */
-          <div className="flex-1 overflow-y-auto custom-scrollbar pb-10 pt-2 animation-fade-in">
-            <div className="max-w-3xl mx-auto">
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center gap-2">
-                  <ReadOutlined className="text-orange-500 text-2xl" />
-                  <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Question List</Title>
-                </div>
-                <Tag className="rounded-full bg-orange-100 text-orange-700 font-bold border-0 px-3 py-1 m-0 text-sm">
-                  {activePart?.groups?.reduce((acc, g) => acc + (g.questions?.length || 0), 0) || 0} questions
-                </Tag>
+
+          // CHẾ ĐỘ SINGLE COLUMN (Giống hệt Listening)
+          <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200 bg-white animation-fade-in" styles={{ body: { padding: '32px 24px' } }}>
+            <div className="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
+              <div className="flex items-center gap-2">
+                <ReadOutlined className="text-orange-500 text-2xl" />
+                <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Questions</Title>
               </div>
-              
-              {renderQuestionsList(activePart.groups)}
+              <Tag className="rounded-full bg-slate-100 text-slate-600 font-bold border-0 px-3 py-1 m-0 text-sm">
+                {activePart?.groups?.reduce((acc, g) => acc + (g.questions?.length || 0), 0) || 0} questions
+              </Tag>
             </div>
-          </div>
+
+            <div className="mb-8 p-4 bg-orange-50/50 rounded-xl border-l-4 border-orange-500 text-slate-700 font-medium flex items-start gap-3">
+              <ReadOutlined className="text-orange-600 text-xl mt-0.5" />
+              <div>
+                Read the instructions carefully and answer the questions below.
+              </div>
+            </div>
+
+            {renderQuestionsList(activePart.groups)}
+          </Card>
         )}
+      </Content>
 
-      </div>
-
-      {/* FOOTER */}
-      <Footer style={{ backgroundColor: '#fff', borderTop: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10, shrink: 0 }}>
+      {/* FOOTER (Sticky dưới cùng, giống hệt Listening) */}
+      <Footer style={{ backgroundColor: '#fff', borderTop: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', bottom: 0, zIndex: 40 }}>
         <Button
           size="large"
           className="rounded-xl font-semibold text-slate-600 border-slate-300"
@@ -292,7 +305,7 @@ const ReadingAptisExamPage = ({
           <Button
             type="primary"
             size="large"
-            className="rounded-xl font-bold px-10 bg-orange-500 hover:bg-orange-400 border-none shadow-lg shadow-orange-200 text-white"
+            className="rounded-xl font-bold px-10 bg-orange-600 hover:bg-orange-500 border-none shadow-lg shadow-orange-200 text-white"
             onClick={confirmSubmit}
             loading={submitting}
             icon={<SendOutlined />}
