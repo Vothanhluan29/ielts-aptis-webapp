@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Typography, Button } from 'antd';
-import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined, ArrowDownOutlined, HolderOutlined } from '@ant-design/icons';
 
 const { Paragraph } = Typography;
 
@@ -14,7 +14,11 @@ const ReorderQuestion = ({
   selectedValue, 
   onChange 
 }) => {
-  
+  // References để lưu vị trí phần tử đang kéo và phần tử bị kéo đè lên
+  const dragItem = useRef(null);
+  const dragOverItem = useRef(null);
+  const [draggingIndex, setDraggingIndex] = useState(null);
+
   if (!options || !Array.isArray(options) || options.length === 0) return null;
 
   let currentOrder = [];
@@ -36,6 +40,7 @@ const ReorderQuestion = ({
     text: options[idx]
   }));
 
+  // Logic cũ: Sắp xếp bằng nút bấm
   const moveItem = (index, direction) => {
     const newItems = [...items];
     
@@ -47,6 +52,48 @@ const ReorderQuestion = ({
       return;
     }
     
+    updateAnswer(newItems);
+  };
+
+  // Logic mới: Kéo thả (Drag & Drop)
+  const handleDragStart = (e, index) => {
+    dragItem.current = index;
+    setDraggingIndex(index);
+    // Thay đổi hiệu ứng con trỏ chuột
+    e.dataTransfer.effectAllowed = "move";
+    // Thêm một chút delay để UI mượt hơn khi element bị nhấc lên
+    setTimeout(() => {
+      e.target.classList.add('opacity-40', 'border-dashed', 'border-orange-400');
+    }, 0);
+  };
+
+  const handleDragEnter = (e, index) => {
+    dragOverItem.current = index;
+  };
+
+  const handleDragEnd = (e) => {
+    // Gỡ bỏ style khi thả tay ra
+    e.target.classList.remove('opacity-40', 'border-dashed', 'border-orange-400');
+    setDraggingIndex(null);
+
+    // Nếu vị trí kéo và thả hợp lệ và có sự thay đổi
+    if (dragItem.current !== null && dragOverItem.current !== null && dragItem.current !== dragOverItem.current) {
+      const newItems = [...items];
+      // Cắt phần tử đang kéo ra khỏi mảng
+      const draggedItemContent = newItems.splice(dragItem.current, 1)[0];
+      // Chèn phần tử đó vào vị trí mới
+      newItems.splice(dragOverItem.current, 0, draggedItemContent);
+      
+      updateAnswer(newItems);
+    }
+
+    // Reset references
+    dragItem.current = null;
+    dragOverItem.current = null;
+  };
+
+  // Hàm gọi onChange để cập nhật state tổng
+  const updateAnswer = (newItems) => {
     if (onChange) {
       const newAnswerString = newItems.map(item => item.letter).join('-');
       onChange(questionId, newAnswerString);
@@ -70,9 +117,22 @@ const ReorderQuestion = ({
       <div className="flex flex-col gap-3 pl-0 md:pl-14">
         {items.map((item, idx) => (
           <div 
-            key={item.originalIndex} 
-            className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl transition-all hover:bg-orange-50/50 hover:border-orange-200"
+            key={item.originalIndex}
+            draggable
+            onDragStart={(e) => handleDragStart(e, idx)}
+            onDragEnter={(e) => handleDragEnter(e, idx)}
+            onDragEnd={handleDragEnd}
+            onDragOver={(e) => e.preventDefault()} // Bắt buộc phải có để cho phép Drop
+            className={`flex items-center gap-3 p-3 bg-slate-50 border rounded-xl transition-all hover:bg-orange-50/50 hover:border-orange-200 cursor-move ${
+              draggingIndex === idx ? 'opacity-40 border-dashed border-orange-400 bg-orange-50' : 'border-slate-200'
+            }`}
           >
+             {/* Icon Tay cầm để kéo thả */}
+             <div className="flex items-center justify-center px-1 text-slate-300 hover:text-orange-500 shrink-0">
+                <HolderOutlined className="text-lg" />
+             </div>
+
+             {/* Cột Nút bấm điều hướng (Giữ lại cho Mobile / Khả năng truy cập) */}
              <div className="flex flex-col gap-1 shrink-0">
                 <Button 
                   size="small" 
@@ -92,11 +152,13 @@ const ReorderQuestion = ({
                 />
              </div>
              
-             <div className="flex items-center justify-center min-w-9 h-9 font-bold text-orange-600 bg-orange-100 rounded-lg shrink-0">
+             {/* Ký tự chữ cái (A, B, C...) */}
+             <div className="flex items-center justify-center min-w-[36px] h-9 font-bold text-orange-600 bg-orange-100 rounded-lg shrink-0">
                 {item.letter}
              </div>
              
-             <div className="flex-1 text-slate-700 text-sm md:text-base leading-relaxed">
+             {/* Nội dung câu */}
+             <div className="flex-1 text-slate-700 text-sm md:text-base leading-relaxed select-none">
                 {item.text}
              </div>
           </div>
