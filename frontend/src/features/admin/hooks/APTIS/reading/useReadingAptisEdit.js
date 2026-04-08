@@ -14,7 +14,7 @@ export const useReadingAptisEdit = () => {
   const [activePartKeys, setActivePartKeys] = useState(['0']);
 
   // ==========================================
-  // FETCH DATA VÀ ĐỔ VÀO FORM
+  // FETCH DATA AND LOAD INTO FORM
   // ==========================================
   const fetchTestDetail = useCallback(async () => {
     setLoading(true);
@@ -78,7 +78,8 @@ export const useReadingAptisEdit = () => {
         is_full_test_only: data.is_full_test_only,
         parts: formattedParts,
       });
-      // Mở hết Collapse
+
+      // Expand all Collapse panels
       setActivePartKeys(formattedParts.map((_, idx) => idx.toString()));
     } catch (error) {
       message.error('Failed to load test data!', error.message);
@@ -110,14 +111,35 @@ export const useReadingAptisEdit = () => {
   }, [isEditMode, fetchTestDetail, form]);
 
   // ==========================================
-  // XỬ LÝ SUBMIT LÊN SERVER
+  // HANDLE SUBMIT TO SERVER
   // ==========================================
   const onFinishFailed = (errorInfo) => {
     console.error('Validation Failed:', errorInfo);
-    message.error('❌ Please fill in all required fields (check closed Parts).');
+    message.error('Please fill in all required fields (check closed parts).');
   };
 
   const onFinish = async (values) => {
+    // Check part and question limits before submitting
+    const partsCount = values.parts?.length || 0;
+    if (partsCount > 4) {
+      message.error(`Limit exceeded: Reading test can contain a maximum of 4 parts (Current: ${partsCount}).`);
+      return;
+    }
+
+    const totalQuestions = values.parts?.reduce((total, part) => {
+      return total + (part.questions?.length || 0);
+    }, 0) || 0;
+
+    if (totalQuestions > 25) {
+      message.error(`Limit exceeded: Reading test can contain a maximum of 25 questions (Current: ${totalQuestions}).`);
+      return;
+    }
+
+    if (totalQuestions === 0) {
+      message.warning('Please add at least one question before saving the test.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       let globalQuestionNumber = 1;
@@ -155,7 +177,6 @@ export const useReadingAptisEdit = () => {
               exactCorrectText = q.correct_answer?.trim() || "";
             } 
             else {
-              // MULTIPLE CHOICE
               const optionsDict = {};
               const labels = ["A", "B", "C", "D"];
               if (Array.isArray(q.options)) {
@@ -199,6 +220,7 @@ export const useReadingAptisEdit = () => {
         await readingAptisAdminApi.createTest(payload);
         message.success('Test created successfully!');
       }
+
       navigate('/admin/aptis/reading');
     } catch (error) {
       console.error("Payload error:", error);
