@@ -121,7 +121,7 @@ export const useReadingAptisEdit = () => {
   const onFinish = async (values) => {
     // Check part and question limits before submitting
     const partsCount = values.parts?.length || 0;
-    if (partsCount > 4) {
+    if (partsCount > 5) {
       message.error(`Limit exceeded: Reading test can contain a maximum of 4 parts (Current: ${partsCount}).`);
       return;
     }
