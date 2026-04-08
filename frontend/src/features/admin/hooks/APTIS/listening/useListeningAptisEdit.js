@@ -15,7 +15,7 @@ export const useListeningAptisEdit = () => {
   const [activePartKeys, setActivePartKeys] = useState(['0']);
 
   // ==========================================
-  // FETCH DATA VÀ FORMAT VÀO FORM
+  // FETCH DATA AND FORMAT INTO FORM
   // ==========================================
   const fetchTestDetail = useCallback(async () => {
     setLoading(true);
@@ -24,7 +24,7 @@ export const useListeningAptisEdit = () => {
       const data = response.data || response;
       
       const formattedParts = data.parts?.map(part => {
-        // Gộp tất cả câu hỏi từ các groups lại
+        // Merge all questions from groups
         const allQuestions = part.groups?.reduce((acc, group) => {
           const mappedQs = (group.questions || []).map(q => {
             let optionsArray = ['', '', '', '', '']; 
@@ -32,13 +32,13 @@ export const useListeningAptisEdit = () => {
 
             if (q.question_type !== 'SHORT_ANSWER') {
               if (q.options && typeof q.options === 'object' && !Array.isArray(q.options)) {
-                // Xử lý Multiple Choice Object (A, B, C...)
+                // Handle Multiple Choice Object (A, B, C...)
                 const keys = ["A", "B", "C", "D", "E"];
                 optionsArray = keys.map(k => q.options[k] || '');
                 const foundIndex = keys.findIndex(k => q.options[k] === q.correct_answer);
                 if (foundIndex !== -1) correctIndex = foundIndex.toString();
               } else if (Array.isArray(q.options)) {
-                // Xử lý Array cho Matching
+                // Handle Array for Matching
                 optionsArray = [...q.options];
                 const foundIdx = optionsArray.findIndex(opt => opt === q.correct_answer);
                 if(foundIdx !== -1) correctIndex = foundIdx.toString();
@@ -73,7 +73,7 @@ export const useListeningAptisEdit = () => {
         parts: formattedParts,
       });
       
-      // Tự động mở tất cả Panel để Form Validation nhận diện được
+      // Automatically expand all panels for form validation
       setActivePartKeys(formattedParts.map((_, idx) => idx.toString()));
     } catch (error) {
       message.error('Failed to load Listening test details!', error.response?.data?.message || error.message);
@@ -83,7 +83,7 @@ export const useListeningAptisEdit = () => {
     }
   }, [id, form, navigate]);
 
-  // Khởi tạo dữ liệu
+  // Initialize data
   useEffect(() => {
     if (isEditMode) {
       fetchTestDetail();
@@ -106,14 +106,35 @@ export const useListeningAptisEdit = () => {
   }, [isEditMode, fetchTestDetail, form]);
 
   // ==========================================
-  // XỬ LÝ SUBMIT DATA
+  // HANDLE SUBMIT DATA
   // ==========================================
   const onFinishFailed = (errorInfo) => {
     console.error('Validation Failed:', errorInfo);
-    message.error(' Update failed! Please complete all required fields.');
+    message.error('Update failed! Please complete all required fields.');
   };
 
   const onFinish = async (values) => {
+    // Check part and question limits before submitting
+    const partsCount = values.parts?.length || 0;
+    if (partsCount > 4) {
+      message.error(`Limit exceeded: Listening test can only contain a maximum of 4 parts (Current: ${partsCount}).`);
+      return;
+    }
+
+    const totalQuestions = values.parts?.reduce((total, part) => {
+      return total + (part.questions?.length || 0);
+    }, 0) || 0;
+
+    if (totalQuestions > 25) {
+      message.error(`Limit exceeded: Listening test can only contain a maximum of 25 questions (Current: ${totalQuestions}).`);
+      return;
+    }
+
+    if (totalQuestions === 0) {
+      message.warning('Please add at least one question before saving the test.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       let globalQuestionNumber = 1;
@@ -139,7 +160,6 @@ export const useListeningAptisEdit = () => {
               exactCorrectText = q.correct_answer?.trim() || "";
             } 
             else {
-              // MULTIPLE_CHOICE
               const optionsDict = {};
               const labels = ["A", "B", "C", "D", "E"]; 
               if (q.options && q.options.length > 0) {
@@ -184,6 +204,7 @@ export const useListeningAptisEdit = () => {
         await listeningAptisAdminApi.createTest(payload);
         message.success('New Listening test created successfully!');
       }
+
       navigate('/admin/aptis/listening');
     } catch (error) {
       console.error(error.response?.data);
@@ -194,7 +215,7 @@ export const useListeningAptisEdit = () => {
   };
 
   // ==========================================
-  // XỬ LÝ UPLOAD AUDIO
+  // HANDLE AUDIO UPLOAD
   // ==========================================
   const handleUploadAudio = async (options, partName, qName = null) => {
     const { file, onSuccess, onError } = options;
