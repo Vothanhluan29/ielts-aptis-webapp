@@ -5,10 +5,11 @@ import {
 } from 'antd';
 import { 
   ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined,
-  FontSizeOutlined, BookOutlined
+  FontSizeOutlined, BookOutlined, CopyOutlined
 } from '@ant-design/icons';
 
 import MultipleChoiceAdmin from '../../../components/APTIS/question-types/MultipleChoiceAdmin';
+import MatchingAdmin from '../../../components/APTIS/question-types/MatchingAdmin';
 
 // Import Custom Hook
 import { useGramVocabEdit } from '../../../hooks/APTIS/grammar_vocab/useGramVocabEdit';
@@ -34,11 +35,11 @@ const GramVocabEditPage = () => {
   } = useGramVocabEdit();
 
   // Helper render danh sách câu hỏi trong Collapse (Tái sử dụng cho cả 2 Tabs)
-  const getCollapseItems = (fields, remove, listName, isVocab) => {
+  const getCollapseItems = (fields, add, remove, listName, isVocab) => {
     return fields.map(({ key, name, ...restField }, index) => ({
       key: key.toString(),
       label: (
-        <strong style={{ color: '#4f46e5' }}>
+        <strong style={{ color: isVocab ? '#059669' : '#4f46e5' }}>
           Question {index + 1}
           <span style={{ color: '#64748b', fontWeight: 'normal', marginLeft: 10 }}>
             {form.getFieldValue([listName, name, 'question_text']) 
@@ -48,15 +49,41 @@ const GramVocabEditPage = () => {
         </strong>
       ),
       extra: (
-        <Popconfirm
-          title="Delete this question?"
-          onConfirm={(e) => { e.stopPropagation(); remove(name); }}
-          onCancel={(e) => e.stopPropagation()}
-          okText="Delete"
-          cancelText="Cancel"
-        >
-          <DeleteOutlined style={{ color: '#ef4444', fontSize: 16 }} onClick={(e) => e.stopPropagation()} />
-        </Popconfirm>
+        <Space size="middle" onClick={(e) => e.stopPropagation()}>
+          {/* NÚT DUPLICATE: Giữ nguyên options (từ vựng), làm trống text và answer */}
+          <Button 
+            type="text" 
+            size="small"
+            icon={<CopyOutlined style={{ color: '#10b981', fontSize: 16 }} />} 
+            onClick={() => {
+              const currentData = form.getFieldValue([listName, name]);
+              const duplicatedData = {
+                ...currentData,
+                question_text: '', // Trống để nhập định nghĩa mới
+                correct_answer: undefined, // Trống để chọn đáp án mới
+              };
+              add(duplicatedData, index + 1); // Chèn ngay dưới câu hiện tại
+              
+              // Tự động mở collapse mới được thêm
+              const newKey = fields.length.toString();
+              if (isVocab) {
+                setActiveVocabKeys([...activeVocabKeys, newKey]);
+              } else {
+                setActiveGrammarKeys([...activeGrammarKeys, newKey]);
+              }
+            }}
+          />
+
+          <Popconfirm
+            title="Delete this question?"
+            onConfirm={(e) => { e.stopPropagation(); remove(name); }}
+            onCancel={(e) => e.stopPropagation()}
+            okText="Delete"
+            cancelText="Cancel"
+          >
+            <Button type="text" size="small" danger icon={<DeleteOutlined style={{ fontSize: 16 }} />} />
+          </Popconfirm>
+        </Space>
       ),
       children: (
         <>
@@ -78,32 +105,45 @@ const GramVocabEditPage = () => {
             )}
 
             <Col span={isVocab ? 17 : 24}>
-              <Form.Item label="Question Text" required style={{ marginBottom: 12 }}>
+              <Form.Item label={isVocab ? "Definition / Meaning" : "Question Text"} required style={{ marginBottom: 12 }}>
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <Form.Item {...restField} name={[name, 'question_text']} rules={[{ required: true, message: 'Please enter question text!' }]} style={{ flex: 1, marginBottom: 0 }}>
-                    <Input placeholder={isVocab ? "Example: What is the synonym of 'happy'?" : "Example: He ___ to the store yesterday."} />
+                    <Input placeholder={isVocab ? "Example: A large fruit with a green shell and red flesh..." : "Example: He ___ to the store yesterday."} />
                   </Form.Item>
 
-                  <Button 
-                    type="dashed"
-                    onClick={() => {
-                      const currentText = form.getFieldValue([listName, name, 'question_text']) || '';
-                      form.setFieldValue([listName, name, 'question_text'], currentText + ' ___ ');
-                    }}
-                  >
-                    Insert Blank (___)
-                  </Button>
+                  {/* Chỉ hiện nút Insert Blank (___) cho Grammar */}
+                  {!isVocab && (
+                    <Button 
+                      type="dashed"
+                      onClick={() => {
+                        const currentText = form.getFieldValue([listName, name, 'question_text']) || '';
+                        form.setFieldValue([listName, name, 'question_text'], currentText + ' ___ ');
+                      }}
+                    >
+                      Insert Blank (___)
+                    </Button>
+                  )}
                 </div>
               </Form.Item>
             </Col>
           </Row>
 
-          <MultipleChoiceAdmin 
-            relativePath={[name]} 
-            absolutePath={[listName, name]} 
-            restField={restField} 
-            form={form} 
-          />
+          {/* RENDER DỰA THEO LOẠI TAB */}
+          {isVocab ? (
+            <MatchingAdmin 
+              relativePath={[name]} 
+              absolutePath={[listName, name]} 
+              restField={restField} 
+              form={form} 
+            />
+          ) : (
+            <MultipleChoiceAdmin 
+              relativePath={[name]} 
+              absolutePath={[listName, name]} 
+              restField={restField} 
+              form={form} 
+            />
+          )}
 
           <Form.Item {...restField} name={[name, 'explanation']} label="Explanation (Optional)" style={{ marginTop: 12 }}>
             <Input.TextArea rows={1} placeholder="Explain why this option is correct..." />
@@ -125,7 +165,7 @@ const GramVocabEditPage = () => {
           <Form.List name="grammar_questions">
             {(fields, { add, remove }) => (
               <>
-                <Collapse activeKey={activeGrammarKeys} onChange={setActiveGrammarKeys} items={getCollapseItems(fields, remove, 'grammar_questions', false)} />
+                <Collapse activeKey={activeGrammarKeys} onChange={setActiveGrammarKeys} items={getCollapseItems(fields, add, remove, 'grammar_questions', false)} />
                 <Button 
                   type="dashed" block size="large" icon={<PlusOutlined />} style={{ marginTop: 16, borderColor: '#4f46e5', color: '#4f46e5' }}
                   onClick={() => {
@@ -149,11 +189,12 @@ const GramVocabEditPage = () => {
           <Form.List name="vocab_questions">
             {(fields, { add, remove }) => (
               <>
-                <Collapse activeKey={activeVocabKeys} onChange={setActiveVocabKeys} items={getCollapseItems(fields, remove, 'vocab_questions', true)} />
+                <Collapse activeKey={activeVocabKeys} onChange={setActiveVocabKeys} items={getCollapseItems(fields, add, remove, 'vocab_questions', true)} />
                 <Button 
                   type="dashed" block size="large" icon={<PlusOutlined />} style={{ marginTop: 16, borderColor: '#059669', color: '#059669' }}
                   onClick={() => {
-                    add({ part_type: 'VOCAB_WORD_DEFINITION', options: ['', '', ''], correct_answer: '0' });
+                    // Vocab mặc định để mảng options trống để Admin xài Quick Paste
+                    add({ part_type: 'VOCAB_WORD_DEFINITION', options: [], correct_answer: undefined });
                     setActiveVocabKeys([...activeVocabKeys, fields.length.toString()]);
                   }}
                 >
