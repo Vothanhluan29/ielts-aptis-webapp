@@ -38,6 +38,7 @@ const GramVocabEditPage = () => {
   const getCollapseItems = (fields, add, remove, listName, isVocab) => {
     return fields.map(({ key, name, ...restField }, index) => ({
       key: key.toString(),
+      forceRender: true, // Đảm bảo nội dung luôn được render để tránh lỗi khi thêm mới
       label: (
         <strong style={{ color: isVocab ? '#059669' : '#4f46e5' }}>
           Question {index + 1}
@@ -159,6 +160,7 @@ const GramVocabEditPage = () => {
   const tabItems = [
     {
       key: 'grammar',
+      forceRender: true, // Đảm bảo nội dung luôn được render để tránh lỗi khi thêm mới
       label: <span style={{ fontSize: 15, fontWeight: 500 }}><FontSizeOutlined /> Part 1: Grammar</span>,
       children: (
         <div style={{ padding: '24px', backgroundColor: '#fff', borderRadius: '0 0 12px 12px', border: '1px solid #f0f0f0', borderTop: 'none' }}>
@@ -183,6 +185,7 @@ const GramVocabEditPage = () => {
     },
     {
       key: 'vocab',
+      forceRender: true,
       label: <span style={{ fontSize: 15, fontWeight: 500 }}><BookOutlined /> Part 2: Vocabulary</span>,
       children: (
         <div style={{ padding: '24px', backgroundColor: '#fff', borderRadius: '0 0 12px 12px', border: '1px solid #f0f0f0', borderTop: 'none' }}>
