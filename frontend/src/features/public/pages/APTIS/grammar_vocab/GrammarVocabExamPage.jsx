@@ -6,7 +6,7 @@ import {
 } from '@ant-design/icons';
 
 import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion'; 
-// import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion';
+import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion'; // Make sure this path is correct
 
 // Gọi Custom Hook
 import { useGrammarVocabExam, TABS } from '../../../hooks/APTIS/grammar_vocab/useGrammarVocabExam';
@@ -84,7 +84,7 @@ const GrammarVocabExamPage = ({
               key={tab} 
               type={currentTab === tab ? 'primary' : 'default'} 
               onClick={() => setCurrentTab(tab)} 
-              className={`flex-1 min-w-[35 h-12 font-bold rounded-xl ${
+              className={`flex-1 min-w-30 h-12 font-bold rounded-xl ${
                 currentTab === tab 
                   ? 'bg-emerald-600 hover:bg-emerald-500 border-none' 
                   : 'text-slate-500'
@@ -99,21 +99,37 @@ const GrammarVocabExamPage = ({
           <div className="mb-8 p-4 bg-slate-50 rounded-xl border-l-4 border-emerald-500 text-slate-700 font-medium">
             {currentTab === 'GRAMMAR' 
               ? "Choose the best answer to complete the sentence." 
-              : "Choose the most appropriate word or phrase."}
+              : "Select the correct word from the dropdown menu to match the definition."}
           </div>
 
           {currentQuestions.map((q, index) => {
-            return (
-              <MultipleChoiceQuestion 
-                key={q.id}
-                questionId={q.id}
-                questionNumber={index + 1}
-                questionText={q.question_text}
-                options={q.options}
-                selectedValue={answers[q.id]}
-                onChange={handleAnswerChange}
-              />
-            );
+            // CONDITIONAL RENDERING BASED ON TAB (or q.part_type)
+            if (currentTab === 'GRAMMAR' || q.part_type === 'GRAMMAR') {
+               return (
+                 <MultipleChoiceQuestion 
+                   key={q.id}
+                   questionId={q.id}
+                   questionNumber={index + 1}
+                   questionText={q.question_text}
+                   options={q.options}
+                   selectedValue={answers[q.id]}
+                   onChange={handleAnswerChange}
+                 />
+               );
+            } else {
+               // RENDER DROPDOWN FOR VOCABULARY
+               return (
+                 <DropdownQuestion 
+                   key={q.id}
+                   questionId={q.id}
+                   questionNumber={index + 1}
+                   questionText={q.question_text} // This is now the definition
+                   options={q.options}            // This is the array of short vocabulary words
+                   selectedValue={answers[q.id]}
+                   onChange={handleAnswerChange}
+                 />
+               );
+            }
           })}
         </Card>
       </Content>
