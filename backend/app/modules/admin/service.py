@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, date
 
-# Import models Tổng quan
 from app.modules.users.models import User
 from app.modules.IELTS.exam.models import FullTest, ExamSubmission 
 
@@ -11,8 +10,6 @@ from app.modules.IELTS.reading.models import ReadingTest
 from app.modules.IELTS.listening.models import ListeningTest
 from app.modules.IELTS.writing.models import WritingTest
 from app.modules.IELTS.speaking.models import SpeakingTest
-
-# Import models APTIS (Lưu ý: Bạn hãy kiểm tra lại tên class Model nếu có sai lệch nhẹ nhé)
 from app.modules.APTIS.exam.models import  AptisFullTest, AptisExamSubmission
 
 from app.modules.APTIS.grammar_vocab.models import AptisGrammarVocabTest 
@@ -35,7 +32,7 @@ class AdminService:
             "total_aptis_full_tests": db.query(func.count(AptisFullTest.id)).scalar() or 0,
             "total_aptis_submissions": db.query(func.count(AptisExamSubmission.id)).scalar() or 0,
 
-            # 2. Phân bổ kỹ năng IELTS 
+            # 2.  IELTS Skills Distribution
             "ielts_skills": {
                 "Reading": db.query(func.count(ReadingTest.id)).scalar() or 0,
                 "Listening": db.query(func.count(ListeningTest.id)).scalar() or 0,
@@ -43,7 +40,7 @@ class AdminService:
                 "Speaking": db.query(func.count(SpeakingTest.id)).scalar() or 0,
             },
             
-            # 3. Phân bổ kỹ năng APTIS
+            # 3. APTIS Skill Distribution
             "aptis_skills": {
                 "GrammarVocab": db.query(func.count(AptisGrammarVocabTest.id)).scalar() or 0,
                 "Reading": db.query(func.count(AptisReadingTest.id)).scalar() or 0,
