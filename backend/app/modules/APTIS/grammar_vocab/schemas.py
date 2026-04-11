@@ -3,66 +3,85 @@ from typing import List, Dict, Optional, Any
 from datetime import datetime
 from app.modules.APTIS.grammar_vocab.models import AptisQuestionPart, AptisGrammarVocabStatus
 
-
 # =====================================================
 # 1. QUESTION SCHEMAS
 # =====================================================
 class QuestionBase(BaseModel):
-    part_type: AptisQuestionPart
     question_number: int
     question_text: str
-    
-    # Dùng Dict để linh hoạt. VD: {"A": "went", "B": "go"}
-    options: Dict[str, str]
+    options: Optional[Dict[str, str]] = None 
 
 class QuestionCreate(QuestionBase):
     correct_answer: str
     explanation: Optional[str] = None
 
 class QuestionUpdate(BaseModel):
-    part_type: Optional[AptisQuestionPart] = None
     question_number: Optional[int] = None
     question_text: Optional[str] = None
-    
     options: Optional[Dict[str, str]] = None 
-    
     correct_answer: Optional[str] = None
     explanation: Optional[str] = None
 
 # Dành cho Học viên (Đã giấu đáp án)
 class QuestionForUser(QuestionBase):
     id: int
-    test_id: int
+    group_id: int
     class Config: from_attributes = True
 
 # Dành cho Admin (Hiển thị tất cả)
 class QuestionAdminResponse(QuestionCreate):
     id: int
-    test_id: int
+    group_id: int
     class Config: from_attributes = True
 
+class GroupBase(BaseModel):
+    part_type: AptisQuestionPart
+    instruction: str
+    shared_options: Optional[Any] = None
+
+class GroupCreate(GroupBase):
+    questions: List[QuestionCreate] = []
+
+class GroupUpdate(BaseModel):
+    part_type: Optional[AptisQuestionPart] = None
+    instruction: Optional[str] = None
+    shared_options: Optional[Any] = None
+    questions: Optional[List[QuestionUpdate]] = None
+
+class GroupForUser(GroupBase):
+    id: int
+    test_id : int
+    questions: List[QuestionForUser] = []
+    class Config: from_attributes = True
+
+
+class GroupAdminResponse(GroupBase):
+    id: int
+    test_id : int
+    questions: List[QuestionAdminResponse]
+    class Config:
+        from_attributes = True
 
 # =====================================================
 # 2. TEST SCHEMAS
 # =====================================================
 class TestBase(BaseModel):
     title: str
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: Thêm mô tả, hướng dẫn cho đề thi Grammar & Vocab
+    description: Optional[str] = None # 
     time_limit: int = 25
     is_published: bool = False
     is_full_test_only: bool = False 
 
 class TestCreate(TestBase):
-    questions: Optional[List[QuestionCreate]] = []
+    groups : Optional[List[GroupCreate]] = []
 
 class TestUpdate(BaseModel):
     title: Optional[str] = None
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: Cho phép cập nhật mô tả
+    description: Optional[str] = None # 
     time_limit: Optional[int] = None
     is_published: Optional[bool] = None
     is_full_test_only: Optional[bool] = None
-    
-    questions: Optional[List[QuestionCreate]] = None
+    groups : Optional[List[GroupUpdate]] = None
 
 class TestResponse(TestBase):
     id: int
@@ -75,22 +94,17 @@ class TestListItem(TestResponse):
     class Config: from_attributes = True
 
 class TestTakeResponse(TestResponse):
-    questions: List[QuestionForUser]
+    groups : List[GroupForUser]
 
 class TestAdminDetailResponse(TestResponse):
-    questions: List[QuestionAdminResponse]
-
+    groups : List[GroupAdminResponse]
 
 # =====================================================
 # 3. SUBMISSION SCHEMAS
 # =====================================================
 class SubmissionCreate(BaseModel):
     test_id: int
-    
-    # Ép kiểu Key là String nhưng đại diện cho ID của Database
-    # VD: {"15": "A", "16": "B"}
     user_answers: Dict[str, Optional[str]]
-    
     is_full_test_only: bool = False
 
 class SubmissionResponse(BaseModel):
@@ -98,13 +112,10 @@ class SubmissionResponse(BaseModel):
     user_id: int
     test_id: int
     is_full_test_only: bool = False
-
-    # Điểm số tách bạch
     grammar_score: int
     vocab_score: int
     total_score: int
 
-    # 🟢 DÙNG ENUM: Đảm bảo API chỉ trả về GRADED hoặc NOT_STARTED
     status: AptisGrammarVocabStatus
 
     user_answers: Dict[str, Optional[str]]
@@ -123,7 +134,6 @@ class SubmissionHistoryItem(BaseModel):
     vocab_score: int
     total_score: int
     
-    # 🟢 DÙNG ENUM Ở ĐÂY LUÔN
     status: AptisGrammarVocabStatus
     
     submitted_at: datetime
