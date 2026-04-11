@@ -57,23 +57,23 @@ class GrammarVocabTestService:
         db.flush()
         
         for group_data in test_data.groups:
-            db_groups = models.AptisGrammarVocabGroup(
-                test_id= test_id,
-                part_type = group_data.part_type,
-                instruction = group_data.instruction,
-                shared_options = group_data.shared_options)
-            db.add(db_groups)
-            db.flush()
+                db_groups = models.AptisGrammarVocabGroup(
+                    test_id= test_id,
+                    part_type = group_data.part_type,
+                    instruction = group_data.instruction,
+                    shared_options = group_data.shared_options)
+                db.add(db_groups)
+                db.flush()
 
-            if group_data.questions:
-                db_questions = [
-                    models.AptisGrammarVocabQuestion(
-                        group_id = db_groups.id,
-                        **q.model_dump(exclude_unset=True)
-                    )
-                    for q in group_data.questions
-                ]
-                db.add_all(db_questions)
+                if group_data.questions:
+                    db_questions = [
+                        models.AptisGrammarVocabQuestion(
+                            group_id = db_groups.id,
+                            **q.model_dump(exclude_unset=True)
+                        )
+                        for q in group_data.questions
+                    ]
+                    db.add_all(db_questions)
         db.commit()
         return GrammarVocabTestService.get_test_detail_admin(db, test_id)
 
