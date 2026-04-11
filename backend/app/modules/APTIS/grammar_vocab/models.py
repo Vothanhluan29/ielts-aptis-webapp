@@ -34,9 +34,8 @@ class AptisGrammarVocabTest(Base):
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Cascade ensures questions/submissions are removed if test is deleted
-    questions = relationship(
-        "AptisGrammarVocabQuestion",
+    groups = relationship(
+        "AptisGrammarVocabGroup",
         back_populates="test",
         cascade="all, delete-orphan"
     )
@@ -47,6 +46,18 @@ class AptisGrammarVocabTest(Base):
         cascade="all, delete-orphan"
     )
 
+class AptisGrammarVocabGroup(Base):
+    __tablename__ = "aptis_grammar_vocab_groups"
+    id = Column(Integer, primary_key=True, index=True)
+    test_id = Column(Integer,ForeignKey("aptis_grammar_vocab_tests.id", ondelete="CASCADE"))
+    part_type = Column(Enum(AptisQuestionPart), nullable=False)
+    instruction = Column(Text, nullable=False)
+
+    shared_options = Column(JSON, nullable=True) # for parts that have shared options VOCAB (like VOCAB_WORD_DEFINITION, VOCAB_WORD_PAIRS, etc.)
+    
+    test = relationship("AptisGrammarVocabTest", back_populates="groups")    
+    questions = relationship( "AptisGrammarVocabQuestion", back_populates="group", cascade="all, delete-orphan")
+
 # =====================================================
 # 3. QUESTION MODEL
 # =====================================================
@@ -54,21 +65,22 @@ class AptisGrammarVocabQuestion(Base):
     __tablename__ = "aptis_grammar_vocab_questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    test_id = Column(
+    group_id = Column(
         Integer,
-        ForeignKey("aptis_grammar_vocab_tests.id", ondelete="CASCADE")
+        ForeignKey("aptis_grammar_vocab_groups.id", ondelete="CASCADE")
     )
 
-    part_type = Column(Enum(AptisQuestionPart), nullable=False)
     question_number = Column(Integer)
 
     question_text = Column(Text, nullable=False)
-    options = Column(JSON, nullable=False)
+
+    # For GRAMMAR part, options are stored at question level (because each question has different options)
+    options = Column(JSON, nullable=True) # for parts that have individual options (like GRAMMAR)
 
     correct_answer = Column(String(255), nullable=False)
     explanation = Column(Text)
 
-    test = relationship("AptisGrammarVocabTest", back_populates="questions")
+    group = relationship("AptisGrammarVocabGroup", back_populates="questions")
 
 # =====================================================
 # 4. SUBMISSION MODEL
