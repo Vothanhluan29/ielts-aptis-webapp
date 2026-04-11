@@ -10,11 +10,11 @@ class GrammarVocabSubmissionService:
     def submit_test(db: Session, user_id: int, submission_data: schemas.SubmissionCreate) -> models.AptisGrammarVocabSubmission:
         test = (
             db.query(models.AptisGrammarVocabTest)
-            .options(joinedload(models.AptisGrammarVocabTest.questions))
+            .options(joinedload(models.AptisGrammarVocabTest.groups)
+                     .joinedload(models.AptisGrammarVocabGroup.questions))
             .filter(models.AptisGrammarVocabTest.id == submission_data.test_id)
             .first()
         )
-
         if not test:
             raise HTTPException(status_code=404, detail="Test not found")
 
@@ -22,32 +22,41 @@ class GrammarVocabSubmissionService:
         vocab_score = 0
         answer_details = {}
 
-        for question in test.questions:
-            q_id = str(question.id)
-            q_num = str(question.question_number)
-
-            user_choice = submission_data.user_answers.get(q_id)
-            if user_choice is None:
-                user_choice = submission_data.user_answers.get(q_num)
+        for group in test.groups:
+            part_type_val = group.part_type.value if hasattr(group.part_type, 'value') else str(group.part_type)
             
-            is_correct = False
+            for question in group.questions:
+                q_id = str(question.id)
+                q_num = str(question.question_number)
+
+                user_choice = submission_data.user_answers.get(q_id)
+                if user_choice is None:
+                    user_choice = submission_data.user_answers.get(q_num)
+                is_correct = False
+
 
             if user_choice is not None and question.correct_answer is not None:
                 user_key_str = str(user_choice).strip().upper()
                 correct_raw_str = str(question.correct_answer).strip().upper()
 
+
                 if user_key_str == correct_raw_str:
                     is_correct = True
                 else:
-                    options = GrammarVocabUtils.parse_options(question.options)
+                    raw_options = question.options or group.shared_options
+                    options = GrammarVocabUtils.parse_options(raw_options)
                     
                     if isinstance(options, dict):
                         mapped_value = options.get(user_choice) or options.get(user_key_str)
                         if mapped_value and str(mapped_value).strip().upper() == correct_raw_str:
                             is_correct = True
 
+                        elif user_key_str in [str(v).strip().upper() for v in options.values()]:
+                            if user_key_str == correct_raw_str:
+                                is_correct = True
+
+
             if is_correct:
-                part_type_val = question.part_type.value if hasattr(question.part_type, 'value') else str(question.part_type)
                 if "GRAMMAR" in part_type_val.upper():
                     grammar_score += 1
                 else:
@@ -55,7 +64,8 @@ class GrammarVocabSubmissionService:
 
             answer_details[q_id] = {
                 "question_id": question.id,
-                "part_type": question.part_type.value if hasattr(question.part_type, 'value') else question.part_type,
+                "group_id": group.id,
+                "part_type": part_type_val,
                 "user_choice": user_choice,
                 "correct_answer": question.correct_answer,
                 "is_correct": is_correct,
@@ -95,5 +105,7 @@ class GrammarVocabSubmissionService:
     @staticmethod
     def get_submission_detail(db: Session, sub_id: int):
         return db.query(models.AptisGrammarVocabSubmission).options(
-            joinedload(models.AptisGrammarVocabSubmission.test).joinedload(models.AptisGrammarVocabTest.questions)
+            joinedload(models.AptisGrammarVocabSubmission.test)
+            .joinedload(models.AptisGrammarVocabTest.groups)
+            .joinedload(models.AptisGrammarVocabTest.questions)
         ).filter(models.AptisGrammarVocabSubmission.id == sub_id).first()
