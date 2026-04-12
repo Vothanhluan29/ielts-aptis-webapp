@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import grammarVocabAptisStudentApi from '../../../api/APTIS/grammar_vocab/grammarvocabAptisStudentApi';
 
-// Helper parse JSON an toàn dùng nội bộ trong hook
+// Helper parse JSON
 const safeParse = (data, defaultVal = {}) => {
   if (!data) return defaultVal;
   if (typeof data === 'object') return data;
@@ -10,28 +10,27 @@ const safeParse = (data, defaultVal = {}) => {
 };
 
 export const useGrammarVocabResult = () => {
-  const { id } = useParams();
+  const { id: testId } = useParams(); 
   const navigate = useNavigate();
 
-  // 1. States
   const [loading, setLoading] = useState(true);
   const [submission, setSubmission] = useState(null);
-  const [testDetail, setTestDetail] = useState(null);
-  const [activeTab, setActiveTab] = useState('GRAMMAR'); // 'GRAMMAR' | 'VOCABULARY'
+  const [testDetail, setTestDetail] = useState(null); // Lấy lại state này
+  const [activeTab, setActiveTab] = useState('GRAMMAR');
 
-  // 2. Fetch Data bọc trong useCallback
   const fetchResult = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Lấy chi tiết đề thi
-      const testRes = await grammarVocabAptisStudentApi.getTestDetail(id);
-      setTestDetail(testRes.data || testRes);
+      // 1. Tự gọi API lấy chi tiết Đề thi (Để lấy Instruction và Questions)
+      const testRes = await grammarVocabAptisStudentApi.getTestDetail(testId);
+      const testData = testRes.data || testRes;
+      setTestDetail(testData);
 
-      // Quét lịch sử để lấy bài nộp mới nhất của đề này
+      // 2. Quét lịch sử lấy bài nộp
       const historyRes = await grammarVocabAptisStudentApi.getMyHistory();
       const historyList = historyRes.data || historyRes || [];
-      const testSubmissions = historyList.filter(item => item.test_id === parseInt(id));
+      const testSubmissions = historyList.filter(item => item.test_id === parseInt(testId));
 
       if (testSubmissions.length > 0) {
         const latestSub = testSubmissions.sort((a, b) => b.id - a.id)[0];
@@ -45,22 +44,24 @@ export const useGrammarVocabResult = () => {
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [testId]);
 
-  // 3. Mount Effect
   useEffect(() => {
-    if (id) fetchResult();
-  }, [id, fetchResult]);
+    if (testId) fetchResult();
+  }, [testId, fetchResult]);
 
-  // 4. Data Processing (Tính toán điểm, đếm câu, lọc Tab bằng useMemo)
+  // ─── XỬ LÝ DỮ LIỆU ───
   const computedData = useMemo(() => {
+    // 🔥 Chỉ chạy khi đã load xong cả Đề thi và Bài nộp
     if (!submission || !testDetail) return null;
 
-    const questions = testDetail.questions || [];
+    const groups = testDetail.groups || []; 
     const userAnswers = safeParse(submission.user_answers, {});
-    const answerDetails = submission.answer_details || {};
+    const answerDetails = safeParse(submission.answer_details, {});
 
-    const totalQuestions = questions.length;
+    const allQuestions = groups.flatMap(g => g.questions || []);
+    const totalQuestions = allQuestions.length;
+
     const scoreVal = submission.total_score || submission.score || 0;
     
     let correctCount = 0;
@@ -73,36 +74,38 @@ export const useGrammarVocabResult = () => {
       ? new Date(dateStr).toLocaleDateString('en-GB', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
       : 'N/A';
 
-    // Phân loại câu hỏi
-    const grammarQuestions = questions.filter(q => (q.part_type?.toUpperCase() || '').includes('GRAMMAR'));
-    const vocabQuestions = questions.filter(q => (q.part_type?.toUpperCase() || '').includes('VOCAB'));
+    // Phân loại nhóm
+    const grammarGroups = groups.filter(g => (g.part_type?.toUpperCase() || '') === 'GRAMMAR');
+    const vocabGroups = groups.filter(g => (g.part_type?.toUpperCase() || '').includes('VOCAB'));
 
-    const activeQuestions = activeTab === 'GRAMMAR' ? grammarQuestions : vocabQuestions;
+    const activeGroups = activeTab === 'GRAMMAR' ? grammarGroups : vocabGroups;
+
+    const grammarCount = grammarGroups.flatMap(g => g.questions || []).length;
+    const vocabCount = vocabGroups.flatMap(g => g.questions || []).length;
 
     const tabsConfig = [
-      { id: 'GRAMMAR', label: 'Grammar', count: grammarQuestions.length },
-      { id: 'VOCABULARY', label: 'Vocabulary', count: vocabQuestions.length }
+      { id: 'GRAMMAR', label: 'Grammar', count: grammarCount },
+      { id: 'VOCABULARY', label: 'Vocabulary', count: vocabCount }
     ];
 
     return {
+      testDetail,
       userAnswers,
       answerDetails,
       totalQuestions,
       scoreVal,
       correctCount,
       submitDate,
-      activeQuestions,
+      activeGroups, 
       tabsConfig
     };
   }, [submission, testDetail, activeTab]);
 
-  // 5. Handlers
   const handleGoBack = () => navigate('/aptis/grammar-vocab');
 
   return {
     loading,
     submission,
-    testDetail,
     activeTab,
     setActiveTab,
     computedData,

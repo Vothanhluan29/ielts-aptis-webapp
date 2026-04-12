@@ -2,14 +2,14 @@ import React from 'react';
 import { Spin, Result, Button, Typography, Layout, Row, Col, Card } from 'antd';
 import {
   ArrowLeftOutlined, CheckCircleFilled, CloseCircleFilled,
-  BookOutlined, BulbOutlined, ClockCircleOutlined, AimOutlined
+  BookOutlined, BulbOutlined, ClockCircleOutlined, AimOutlined,
+  InfoCircleOutlined
 } from '@ant-design/icons';
 
-// Nhúng Custom Hook
 import { useGrammarVocabResult } from '../../../hooks/APTIS/grammar_vocab/useGrammarVocabResult';
 
 const { Content } = Layout;
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 const safeParse = (data, defaultVal = {}) => {
   if (!data) return defaultVal;
@@ -24,7 +24,8 @@ const getOptionLabel = (optionsObj, key) => {
 };
 
 /* ─── Question Review Card (Thu gọn UI) ──────────────── */
-const QuestionReviewCard = ({ q, index, userAnswerKey, answerDetail }) => {
+// 🔥 FIX 1: Truyền questionNumber thay vì index
+const QuestionReviewCard = ({ q, questionNumber, userAnswerKey, answerDetail }) => {
   const correctAnswerRaw = answerDetail?.correct_answer || q.correct_answer;
   const isCorrect = answerDetail?.is_correct || false;
   const isSkipped = !userAnswerKey;
@@ -48,7 +49,7 @@ const QuestionReviewCard = ({ q, index, userAnswerKey, answerDetail }) => {
     <div className={`border rounded-xl p-3.5 mb-3 flex gap-3 animate-in fade-in slide-in-from-bottom-2 ${cardStyle}`}>
       {/* Số thứ tự câu hỏi */}
       <div className={`min-w-7 h-7 rounded-md text-white flex items-center justify-center text-xs font-bold mt-0.5 ${badgeStyle}`}>
-        {index + 1}
+        {questionNumber}
       </div>
 
       <div className="flex-1 min-w-0">
@@ -84,7 +85,6 @@ const QuestionReviewCard = ({ q, index, userAnswerKey, answerDetail }) => {
 
 /* ─── Main Page ──────────────────────────── */
 const GrammarVocabResultPage = () => {
-  // 🔥 Lấy toàn bộ State và Hàm từ Hook
   const {
     loading,
     submission,
@@ -95,7 +95,8 @@ const GrammarVocabResultPage = () => {
     handleGoBack
   } = useGrammarVocabResult();
 
-  if (loading) return (
+  // 🛑 CHẶN LẠI: Chờ data load xong để tránh lỗi destructuring "null"
+  if (loading || !computedData) return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <div className="text-center">
         <Spin size="large" />
@@ -115,10 +116,10 @@ const GrammarVocabResultPage = () => {
     </div>
   );
 
-  // Giải nén các biến đã được Hook tính toán
+  // 🔥 FIX 2: Giải nén biến `activeGroups` thay vì `activeQuestions`
   const {
     userAnswers, answerDetails, totalQuestions, scoreVal, correctCount, 
-    submitDate, activeQuestions, tabsConfig
+    submitDate, activeGroups, tabsConfig
   } = computedData;
 
   return (
@@ -141,7 +142,6 @@ const GrammarVocabResultPage = () => {
         {/* ── SCORE CARD ── */}
         <Card variant="borderless" className="rounded-3xl mb-6 shadow-sm border-slate-200" styles={{ body: { padding: '24px 32px' } }}>
           <Row gutter={[24, 24]} align="middle" justify="center">
-
             {/* Col 1: Aptis Score */}
             <Col xs={12} md={12} className="text-center md:border-r border-slate-200">
               <AimOutlined className="text-2xl text-emerald-500 mb-1 block" />
@@ -159,7 +159,6 @@ const GrammarVocabResultPage = () => {
               </div>
               <Text strong className="text-slate-500 uppercase tracking-widest text-[10px] mt-1.5 block">Correct Answers</Text>
             </Col>
-
           </Row>
 
           <div className="mt-6 pt-4 border-t border-slate-100 text-center text-slate-400 text-xs flex items-center justify-center gap-1.5">
@@ -190,20 +189,35 @@ const GrammarVocabResultPage = () => {
           Reviewing <strong>{activeTab === 'GRAMMAR' ? 'Grammar' : 'Vocabulary'}</strong> section. Check your mistakes and read the explanations below.
         </div>
 
-        {/* ── QUESTIONS REVIEW ── */}
+        {/* ── QUESTIONS REVIEW (Phân rã theo Group) ── */}
         <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200" styles={{ body: { padding: '24px 32px' } }}>
           <div className="animate-in fade-in slide-in-from-bottom-2">
-            {activeQuestions.length === 0 ? (
+            {activeGroups.length === 0 ? (
               <div className="text-center py-10 text-slate-400">No data available for this part.</div>
             ) : (
-              activeQuestions.map((q, idx) => (
-                <QuestionReviewCard
-                  key={q.id}
-                  q={q}
-                  index={idx}
-                  userAnswerKey={userAnswers[q.id]}
-                  answerDetail={answerDetails[q.id]}
-                />
+              // 🔥 FIX 3: Vòng lặp 2 tầng (Group -> Question)
+              activeGroups.map((group, groupIdx) => (
+                <div key={group.id} className={groupIdx !== activeGroups.length - 1 ? "mb-10 border-b border-slate-100 pb-6" : ""}>
+                  
+                  {/* Hiển thị Lời chỉ dẫn (Instruction) */}
+                  {group.instruction && (
+                    <div className="mb-4 p-3 bg-indigo-50/50 rounded-lg border border-indigo-100 text-indigo-800 text-[13px] flex gap-2 items-start">
+                      <InfoCircleOutlined className="mt-0.5 text-indigo-600" />
+                      <span className="font-medium">{group.instruction}</span>
+                    </div>
+                  )}
+
+                  {/* Render danh sách câu hỏi trong Nhóm */}
+                  {group.questions.map((q) => (
+                    <QuestionReviewCard
+                      key={q.id}
+                      q={q}
+                      questionNumber={q.question_number} // Sử dụng số thứ tự chuẩn từ DB
+                      userAnswerKey={userAnswers[q.id]}
+                      answerDetail={answerDetails[q.id]}
+                    />
+                  ))}
+                </div>
               ))
             )}
           </div>
