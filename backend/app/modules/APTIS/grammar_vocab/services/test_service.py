@@ -23,20 +23,19 @@ class GrammarVocabTestService:
                 db_groups = models.AptisGrammarVocabGroup(
                     test_id=db_test.id,
                     part_type = group_data.part_type,
-                    instruction = group_data.instruction,
-                    shared_options = group_data.shared_options)
+                    instruction = group_data.instruction)
                 db.add(db_groups)
                 db.flush()
                 
         if group_data.questions:
-            db_questions = [
-                models.AptisGrammarVocabQuestion(
+            for q in group_data.questions:
+                db_q = models.AptisGrammarVocabQuestion(
                     group_id = db_groups.id,
-                    **q.model_dump(exclude_unset=True)
+                    **q.model_dump(exclude_unset=True, exclude_none = True)
                 )
-                for q in group_data.questions
-            ]
-            db.add_all(db_questions)
+                db.add(db_q)
+                db.flush()
+
         db.commit()
         return GrammarVocabTestService.get_test_detail_admin(db,db_test.id)
 
@@ -60,20 +59,18 @@ class GrammarVocabTestService:
                 db_groups = models.AptisGrammarVocabGroup(
                     test_id= test_id,
                     part_type = group_data.part_type,
-                    instruction = group_data.instruction,
-                    shared_options = group_data.shared_options)
+                    instruction = group_data.instruction)
                 db.add(db_groups)
                 db.flush()
 
                 if group_data.questions:
-                    db_questions = [
-                        models.AptisGrammarVocabQuestion(
-                            group_id = db_groups.id,
-                            **q.model_dump(exclude_unset=True)
+                    for q in group_data.questions:
+                        db_q = models.AptisGrammarVocabQuestion(
+                            group_id=db_groups.id,
+                            **q.model_dump(exclude_unset=True, exclude_none=True)
                         )
-                        for q in group_data.questions
-                    ]
-                    db.add_all(db_questions)
+                        db.add(db_q)
+                        db.flush()
         db.commit()
         return GrammarVocabTestService.get_test_detail_admin(db, test_id)
 
