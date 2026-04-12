@@ -60,7 +60,7 @@ export const useGrammarVocabHistory = () => {
   const handleGoBack = () => navigate('/aptis/grammar-vocab');
   
   // Đã fix lỗi kinh điển: Truyền record.id thay vì record.test_id
-  const handleViewResult = (testId) => navigate(`/aptis/grammar-vocab/result/${testId}`);
+  const handleViewResult = (submissionId) => navigate(`/aptis/grammar-vocab/result/${submissionId}`);
 
   return {
     loading,

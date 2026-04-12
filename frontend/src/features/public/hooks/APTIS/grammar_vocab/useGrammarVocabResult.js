@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import grammarVocabAptisStudentApi from '../../../api/APTIS/grammar_vocab/grammarvocabAptisStudentApi';
 
-// Helper parse JSON
+// Helper parse JSON an toàn
 const safeParse = (data, defaultVal = {}) => {
   if (!data) return defaultVal;
   if (typeof data === 'object') return data;
@@ -10,49 +10,49 @@ const safeParse = (data, defaultVal = {}) => {
 };
 
 export const useGrammarVocabResult = () => {
-  const { id: testId } = useParams(); 
+  const { id: submissionId } = useParams(); 
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
   const [submission, setSubmission] = useState(null);
-  const [testDetail, setTestDetail] = useState(null); // Lấy lại state này
+  const [testDetail, setTestDetail] = useState(null);
   const [activeTab, setActiveTab] = useState('GRAMMAR');
 
+  // ─── LƯỒNG FETCH DATA TỐI ƯU ───
   const fetchResult = useCallback(async () => {
     try {
       setLoading(true);
 
-      // 1. Tự gọi API lấy chi tiết Đề thi (Để lấy Instruction và Questions)
-      const testRes = await grammarVocabAptisStudentApi.getTestDetail(testId);
-      const testData = testRes.data || testRes;
-      setTestDetail(testData);
+      // 1. Gọi API lấy Bài Nộp (truyền submissionId)
+      const detailsRes = await grammarVocabAptisStudentApi.getSubmissionDetail(submissionId);
+      const subData = detailsRes.data || detailsRes;
+      setSubmission(subData);
 
-      // 2. Quét lịch sử lấy bài nộp
-      const historyRes = await grammarVocabAptisStudentApi.getMyHistory();
-      const historyList = historyRes.data || historyRes || [];
-      const testSubmissions = historyList.filter(item => item.test_id === parseInt(testId));
-
-      if (testSubmissions.length > 0) {
-        const latestSub = testSubmissions.sort((a, b) => b.id - a.id)[0];
-        const detailsRes = await grammarVocabAptisStudentApi.getSubmissionDetail(latestSub.id);
-        setSubmission(detailsRes.data || detailsRes);
+      // 2. Từ Bài Nộp, lấy ra test_id để gọi API lấy Đề Thi
+      if (subData && subData.test_id) {
+        const testRes = await grammarVocabAptisStudentApi.getTestDetail(subData.test_id);
+        const testData = testRes.data || testRes;
+        setTestDetail(testData);
       } else {
-        setSubmission(null);
+        setTestDetail(null);
       }
+
     } catch (err) {
       console.error('Error fetching result:', err);
+      setSubmission(null);
+      setTestDetail(null);
     } finally {
       setLoading(false);
     }
-  }, [testId]);
+  }, [submissionId]);
 
   useEffect(() => {
-    if (testId) fetchResult();
-  }, [testId, fetchResult]);
+    if (submissionId) fetchResult();
+  }, [submissionId, fetchResult]);
 
-  // ─── XỬ LÝ DỮ LIỆU ───
+  // ─── XỬ LÝ DỮ LIỆU & SẮP XẾP CÂU HỎI ───
   const computedData = useMemo(() => {
-    // 🔥 Chỉ chạy khi đã load xong cả Đề thi và Bài nộp
+    // Chỉ chạy khi đã load xong cả Đề thi và Bài nộp
     if (!submission || !testDetail) return null;
 
     const groups = testDetail.groups || []; 
@@ -74,7 +74,7 @@ export const useGrammarVocabResult = () => {
       ? new Date(dateStr).toLocaleDateString('en-GB', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
       : 'N/A';
 
-    // Phân loại nhóm
+    // Phân loại nhóm và ép sắp xếp câu hỏi theo question_number tăng dần
     const grammarGroups = groups
       .filter(g => (g.part_type?.toUpperCase() || '') === 'GRAMMAR')
       .map(g => ({
