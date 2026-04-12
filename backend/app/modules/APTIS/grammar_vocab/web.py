@@ -18,7 +18,7 @@ router = APIRouter(prefix="/aptis/grammar-vocab", tags=["Aptis Grammar & Vocabul
 # ADMIN: TEST MANAGEMENT
 # =====================================================
 
-@router.post("/admin/tests", response_model=schemas.TestResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/admin/tests", response_model=schemas.TestAdminDetailResponse, status_code=status.HTTP_201_CREATED)
 def create_test(
     test_in: schemas.TestCreate, 
     db: Session = Depends(get_db), 
@@ -44,7 +44,6 @@ def get_tests_for_admin(
         fetch_mock_only=is_mock_selector
     )
 
-
 @router.get("/admin/tests/{test_id}", response_model=schemas.TestAdminDetailResponse)
 def get_test_detail_admin(
     test_id: int, 
@@ -55,7 +54,7 @@ def get_test_detail_admin(
     return GrammarVocabTestService.get_test_detail_admin(db, test_id)
 
 
-@router.put("/admin/tests/{test_id}", response_model=schemas.TestResponse)
+@router.put("/admin/tests/{test_id}", response_model=schemas.TestAdminDetailResponse)
 def update_test(
     test_id: int, 
     test_in: schemas.TestUpdate, 
@@ -148,7 +147,6 @@ def get_submission_detail(
     
     user_role = str(getattr(user, "role", "")).upper()
     is_admin = user_role == "ADMIN"
-    
     if not is_admin and sub.user_id != user.id: 
         raise HTTPException(status_code=403, detail="Not authorized to view this submission")
         
