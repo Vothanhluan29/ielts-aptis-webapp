@@ -131,13 +131,22 @@ export const useGrammarVocabExam = ({ isFullTest, testIdFromProps, onSkillFinish
    * Grammar  → groups có part_type = "GRAMMAR"
    * Vocabulary → groups có part_type chứa "VOCAB"
    */
-  const currentGroups = useMemo(() => {
+const currentGroups = useMemo(() => {
     const groups = testDetail?.groups || [];
+    
     return groups.filter(group => {
       const type = group.part_type?.toUpperCase() || '';
       if (currentTab === 'GRAMMAR')    return type === 'GRAMMAR';
       if (currentTab === 'VOCABULARY') return type.includes('VOCAB');
       return false;
+    }).map(group => {
+      // 🔥 FIX LỖI ĐẾM NGƯỢC: Ép mảng câu hỏi sắp xếp theo question_number tăng dần
+      const sortedQuestions = [...(group.questions || [])].sort(
+        (a, b) => a.question_number - b.question_number
+      );
+      
+      // Trả về group với mảng câu hỏi đã được xếp lại chuẩn chỉ
+      return { ...group, questions: sortedQuestions };
     });
   }, [testDetail, currentTab]);
 
