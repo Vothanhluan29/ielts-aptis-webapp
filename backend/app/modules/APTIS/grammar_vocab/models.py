@@ -46,14 +46,13 @@ class AptisGrammarVocabTest(Base):
         cascade="all, delete-orphan"
     )
 
+#=====Grooup Model====
 class AptisGrammarVocabGroup(Base):
     __tablename__ = "aptis_grammar_vocab_groups"
     id = Column(Integer, primary_key=True, index=True)
     test_id = Column(Integer,ForeignKey("aptis_grammar_vocab_tests.id", ondelete="CASCADE"))
     part_type = Column(Enum(AptisQuestionPart), nullable=False)
-    instruction = Column(Text, nullable=False)
-
-    shared_options = Column(JSON, nullable=True) # for parts that have shared options VOCAB (like VOCAB_WORD_DEFINITION, VOCAB_WORD_PAIRS, etc.)
+    instruction = Column(Text, nullable=False)  
     
     test = relationship("AptisGrammarVocabTest", back_populates="groups")    
     questions = relationship( "AptisGrammarVocabQuestion", back_populates="group", cascade="all, delete-orphan")
@@ -73,9 +72,7 @@ class AptisGrammarVocabQuestion(Base):
     question_number = Column(Integer)
 
     question_text = Column(Text, nullable=False)
-
-    # For GRAMMAR part, options are stored at question level (because each question has different options)
-    options = Column(JSON, nullable=True) # for parts that have individual options (like GRAMMAR)
+    options = Column(JSON, nullable=True) # save options as JSON array
 
     correct_answer = Column(String(255), nullable=False)
     explanation = Column(Text)
