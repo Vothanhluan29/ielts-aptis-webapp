@@ -279,6 +279,9 @@ const GramVocabEditPage = () => {
               </Form.Item>
             </Col>
             <Col span={24}>
+              <Form.Item name="description" label="Description (Optional)" style={{ marginBottom: 0 }}>
+                <Input.TextArea rows={2} placeholder="Short description..." />
+              </Form.Item>
             </Col>
           </Row>
         </Card>
