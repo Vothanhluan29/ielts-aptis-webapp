@@ -84,7 +84,7 @@ const GrammarVocabHistoryPage = () => {
           type="primary"
           icon={<EyeOutlined />}
           className="bg-emerald-600 hover:bg-emerald-500 border-none rounded-lg font-semibold"
-          onClick={() => handleViewResult(record.test_id)} // 🔥 Đã được sửa lỗi
+          onClick={() => handleViewResult(record.id)}
         >
           View Details
         </Button>
