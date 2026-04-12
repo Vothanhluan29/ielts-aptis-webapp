@@ -32,45 +32,43 @@ class GrammarVocabSubmissionService:
                 user_choice = submission_data.user_answers.get(q_id)
                 if user_choice is None:
                     user_choice = submission_data.user_answers.get(q_num)
+                
                 is_correct = False
 
+               
+                if user_choice is not None and question.correct_answer is not None:
+                    user_key_str = str(user_choice).strip().upper()
+                    correct_raw_str = str(question.correct_answer).strip().upper()
 
-            if user_choice is not None and question.correct_answer is not None:
-                user_key_str = str(user_choice).strip().upper()
-                correct_raw_str = str(question.correct_answer).strip().upper()
-
-
-                if user_key_str == correct_raw_str:
-                    is_correct = True
-                else:
-                    raw_options = question.options or group.shared_options
-                    options = GrammarVocabUtils.parse_options(raw_options)
-                    
-                    if isinstance(options, dict):
-                        mapped_value = options.get(user_choice) or options.get(user_key_str)
-                        if mapped_value and str(mapped_value).strip().upper() == correct_raw_str:
-                            is_correct = True
-
-                        elif user_key_str in [str(v).strip().upper() for v in options.values()]:
-                            if user_key_str == correct_raw_str:
+                    if user_key_str == correct_raw_str:
+                        is_correct = True
+                    else:
+                        raw_options = question.options 
+                        options = GrammarVocabUtils.parse_options(raw_options)
+                        
+                        if isinstance(options, dict):
+                            mapped_value = options.get(user_choice) or options.get(user_key_str)
+                            if mapped_value and str(mapped_value).strip().upper() == correct_raw_str:
                                 is_correct = True
+                            elif user_key_str in [str(v).strip().upper() for v in options.values()]:
+                                if user_key_str == correct_raw_str:
+                                    is_correct = True
 
+                if is_correct:
+                    if "GRAMMAR" in part_type_val.upper():
+                        grammar_score += 1
+                    else:
+                        vocab_score += 1
 
-            if is_correct:
-                if "GRAMMAR" in part_type_val.upper():
-                    grammar_score += 1
-                else:
-                    vocab_score += 1
-
-            answer_details[q_id] = {
-                "question_id": question.id,
-                "group_id": group.id,
-                "part_type": part_type_val,
-                "user_choice": user_choice,
-                "correct_answer": question.correct_answer,
-                "is_correct": is_correct,
-                "explanation": question.explanation,
-            }
+                answer_details[q_id] = {
+                    "question_id": question.id,
+                    "group_id": group.id,
+                    "part_type": part_type_val,
+                    "user_choice": user_choice,
+                    "correct_answer": question.correct_answer,
+                    "is_correct": is_correct,
+                    "explanation": question.explanation,
+                }
 
         total_score = grammar_score + vocab_score
 
@@ -107,5 +105,5 @@ class GrammarVocabSubmissionService:
         return db.query(models.AptisGrammarVocabSubmission).options(
             joinedload(models.AptisGrammarVocabSubmission.test)
             .joinedload(models.AptisGrammarVocabTest.groups)
-            .joinedload(models.AptisGrammarVocabTest.questions)
+            .joinedload(models.AptisGrammarVocabGroup.questions)
         ).filter(models.AptisGrammarVocabSubmission.id == sub_id).first()
