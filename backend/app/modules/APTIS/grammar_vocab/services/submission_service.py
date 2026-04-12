@@ -29,9 +29,9 @@ class GrammarVocabSubmissionService:
                 q_id = str(question.id)
                 q_num = str(question.question_number)
 
-                user_choice = submission_data.user_answers.get(q_id)
+                user_choice = submission_data.user_answers.get(q_num)
                 if user_choice is None:
-                    user_choice = submission_data.user_answers.get(q_num)
+                    user_choice = submission_data.user_answers.get(q_id)
                 
                 is_correct = False
 

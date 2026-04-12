@@ -4,7 +4,12 @@ from typing import Optional
 
 from app.modules.APTIS.grammar_vocab import schemas, models
 
+
 class GrammarVocabTestService:
+
+    # =====================================================
+    # CREATE TEST
+    # =====================================================
     @staticmethod
     def create_test(db: Session, test_data: schemas.TestCreate) -> models.AptisGrammarVocabTest:
         db_test = models.AptisGrammarVocabTest(
@@ -15,66 +20,73 @@ class GrammarVocabTestService:
             is_full_test_only=test_data.is_full_test_only
         )
         db.add(db_test)
-        db.flush() 
-
+        db.flush()
 
         if test_data.groups:
             for group_data in test_data.groups:
-                db_groups = models.AptisGrammarVocabGroup(
+                db_group = models.AptisGrammarVocabGroup(
                     test_id=db_test.id,
-                    part_type = group_data.part_type,
-                    instruction = group_data.instruction)
-                db.add(db_groups)
-                db.flush()
-                
-        if group_data.questions:
-            for q in group_data.questions:
-                db_q = models.AptisGrammarVocabQuestion(
-                    group_id = db_groups.id,
-                    **q.model_dump(exclude_unset=True, exclude_none = True)
+                    part_type=group_data.part_type,
+                    instruction=group_data.instruction
                 )
-                db.add(db_q)
-                db.flush()
-
-        db.commit()
-        return GrammarVocabTestService.get_test_detail_admin(db,db_test.id)
-
-
-
-    @staticmethod
-    def update_test(db: Session, test_id: int, test_data: schemas.TestUpdate) -> models.AptisGrammarVocabTest:
-        test = GrammarVocabTestService.get_test_detail_admin(db, test_id)
-
-        update_data = test_data.model_dump(exclude_unset=True, exclude={"questions"})
-        for key, value in update_data.items():
-            setattr(test, key, value)
-
-        if test_data.groups is not None: 
-            db.query(models.AptisGrammarVocabGroup).filter(
-                models.AptisGrammarVocabGroup.test_id == test_id
-        ).delete(synchronize_session=False)
-        db.flush()
-        
-        for group_data in test_data.groups:
-                db_groups = models.AptisGrammarVocabGroup(
-                    test_id= test_id,
-                    part_type = group_data.part_type,
-                    instruction = group_data.instruction)
-                db.add(db_groups)
+                db.add(db_group)
                 db.flush()
 
                 if group_data.questions:
                     for q in group_data.questions:
                         db_q = models.AptisGrammarVocabQuestion(
-                            group_id=db_groups.id,
+                            group_id=db_group.id,
                             **q.model_dump(exclude_unset=True, exclude_none=True)
                         )
                         db.add(db_q)
-                        db.flush()
+
+            db.flush()
+
+        db.commit()
+        return GrammarVocabTestService.get_test_detail_admin(db, db_test.id)
+
+    # =====================================================
+    # UPDATE TEST
+    # =====================================================
+    @staticmethod
+    def update_test(db: Session, test_id: int, test_data: schemas.TestUpdate) -> models.AptisGrammarVocabTest:
+        test = GrammarVocabTestService.get_test_detail_admin(db, test_id)
+
+        update_data = test_data.model_dump(exclude_unset=True, exclude={"groups"})
+        for key, value in update_data.items():
+            setattr(test, key, value)
+
+        if test_data.groups is not None:
+            db.query(models.AptisGrammarVocabGroup).filter(
+                models.AptisGrammarVocabGroup.test_id == test_id
+            ).delete(synchronize_session=False)
+            db.flush()
+
+            for group_data in test_data.groups:
+                db_group = models.AptisGrammarVocabGroup(
+                    test_id=test_id,
+                    part_type=group_data.part_type,
+                    instruction=group_data.instruction
+                )
+                db.add(db_group)
+                db.flush()
+
+                if group_data.questions:
+                    for q in group_data.questions:
+                        db_q = models.AptisGrammarVocabQuestion(
+                            group_id=db_group.id,
+                            **q.model_dump(exclude_unset=True, exclude_none=True)
+                        )
+                        db.add(db_q)
+
+            db.flush()
+
         db.commit()
         return GrammarVocabTestService.get_test_detail_admin(db, test_id)
 
-
+    # =====================================================
+    # DELETE TEST
+    # =====================================================
     @staticmethod
     def delete_test(db: Session, test_id: int):
         test = GrammarVocabTestService.get_test_detail_admin(db, test_id)
@@ -82,8 +94,18 @@ class GrammarVocabTestService:
         db.commit()
         return {"message": "Test deleted successfully"}
 
+    # =====================================================
+    # GET ALL TESTS
+    # =====================================================
     @staticmethod
-    def get_all_tests(db: Session, current_user_id: Optional[int] = None, skip: int = 0, limit: int = 100, admin_view: bool = False, fetch_mock_only: bool = False):
+    def get_all_tests(
+        db: Session,
+        current_user_id: Optional[int] = None,
+        skip: int = 0,
+        limit: int = 100,
+        admin_view: bool = False,
+        fetch_mock_only: bool = False
+    ):
         query = db.query(models.AptisGrammarVocabTest)
 
         if admin_view:
@@ -95,21 +117,25 @@ class GrammarVocabTestService:
                 models.AptisGrammarVocabTest.is_full_test_only == False
             )
 
-        tests = query.order_by(models.AptisGrammarVocabTest.created_at.desc()).offset(skip).limit(limit).all()
+        tests = query.order_by(
+            models.AptisGrammarVocabTest.created_at.desc()
+        ).offset(skip).limit(limit).all()
 
         result_list = []
         for test in tests:
             status_val = models.AptisGrammarVocabStatus.NOT_STARTED
-            
+
             if current_user_id:
                 latest_sub = db.query(models.AptisGrammarVocabSubmission).filter(
                     models.AptisGrammarVocabSubmission.test_id == test.id,
                     models.AptisGrammarVocabSubmission.user_id == current_user_id,
                     models.AptisGrammarVocabSubmission.is_full_test_only == False
-                ).order_by(models.AptisGrammarVocabSubmission.submitted_at.desc()).first()
+                ).order_by(
+                    models.AptisGrammarVocabSubmission.submitted_at.desc()
+                ).first()
 
                 if latest_sub:
-                    status_val = latest_sub.status 
+                    status_val = latest_sub.status
 
             test_dict = schemas.TestListItem.model_validate(test).model_dump()
             test_dict['status'] = status_val
@@ -117,12 +143,17 @@ class GrammarVocabTestService:
 
         return result_list
 
+    # =====================================================
+    # GET TEST DETAIL (ADMIN)
+    # =====================================================
     @staticmethod
     def get_test_detail_admin(db: Session, test_id: int) -> models.AptisGrammarVocabTest:
         test = (
             db.query(models.AptisGrammarVocabTest)
-            .options(joinedload(models.AptisGrammarVocabTest.groups)
-                     .joinedload(models.AptisGrammarVocabGroup.questions))
+            .options(
+                joinedload(models.AptisGrammarVocabTest.groups)
+                .joinedload(models.AptisGrammarVocabGroup.questions)
+            )
             .filter(models.AptisGrammarVocabTest.id == test_id)
             .first()
         )
@@ -130,14 +161,17 @@ class GrammarVocabTestService:
             raise HTTPException(status_code=404, detail="Test not found")
         return test
 
-
-
+    # =====================================================
+    # GET TEST FOR USER
+    # =====================================================
     @staticmethod
     def get_test_for_user(db: Session, test_id: int) -> models.AptisGrammarVocabTest:
         test = (
             db.query(models.AptisGrammarVocabTest)
-            .options(joinedload(models.AptisGrammarVocabTest.groups)
-                     .joinedload(models.AptisGrammarVocabGroup.questions))
+            .options(
+                joinedload(models.AptisGrammarVocabTest.groups)
+                .joinedload(models.AptisGrammarVocabGroup.questions)
+            )
             .filter(
                 models.AptisGrammarVocabTest.id == test_id,
                 models.AptisGrammarVocabTest.is_published == True
