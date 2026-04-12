@@ -37,7 +37,6 @@ class QuestionAdminResponse(QuestionCreate):
 class GroupBase(BaseModel):
     part_type: AptisQuestionPart
     instruction: str
-    shared_options: Optional[Any] = None
 
 class GroupCreate(GroupBase):
     questions: List[QuestionCreate] = []
@@ -45,7 +44,6 @@ class GroupCreate(GroupBase):
 class GroupUpdate(BaseModel):
     part_type: Optional[AptisQuestionPart] = None
     instruction: Optional[str] = None
-    shared_options: Optional[Any] = None
     questions: Optional[List[QuestionUpdate]] = None
 
 class GroupForUser(GroupBase):
