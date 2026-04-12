@@ -19,6 +19,10 @@ class GrammarVocabTestService:
 
 
         if test_data.groups:
+            print("=======================")
+            print(f"👉 Đang xử lý Nhóm: {group_data.part_type}")    
+            print(f"👉 Số lượng câu hỏi nhận được từ Swagger: {len(group_data.questions)}")
+            print("=======================")
             for group_data in test_data.groups:
                 db_groups = models.AptisGrammarVocabGroup(
                     test_id=db_test.id,
