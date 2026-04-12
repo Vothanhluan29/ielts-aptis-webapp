@@ -75,8 +75,19 @@ export const useGrammarVocabResult = () => {
       : 'N/A';
 
     // Phân loại nhóm
-    const grammarGroups = groups.filter(g => (g.part_type?.toUpperCase() || '') === 'GRAMMAR');
-    const vocabGroups = groups.filter(g => (g.part_type?.toUpperCase() || '').includes('VOCAB'));
+    const grammarGroups = groups
+      .filter(g => (g.part_type?.toUpperCase() || '') === 'GRAMMAR')
+      .map(g => ({
+        ...g, 
+        questions: [...(g.questions || [])].sort((a, b) => a.question_number - b.question_number)
+      }));
+
+    const vocabGroups = groups
+      .filter(g => (g.part_type?.toUpperCase() || '').includes('VOCAB'))
+      .map(g => ({
+        ...g, 
+        questions: [...(g.questions || [])].sort((a, b) => a.question_number - b.question_number)
+      }));
 
     const activeGroups = activeTab === 'GRAMMAR' ? grammarGroups : vocabGroups;
 
