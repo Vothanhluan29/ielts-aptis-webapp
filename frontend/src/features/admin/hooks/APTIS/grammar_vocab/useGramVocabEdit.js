@@ -3,6 +3,49 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Form, message } from 'antd';
 import GrammarVocabAdminApi from '../../../api/APTIS/grammar&vocab/grammar_vocabAdminApi';
 
+// Helper: format questions từ backend về dạng form
+const formatQuestionsFromBackend = (questions = []) => {
+  return questions.map((q) => {
+    let optionsArray = [];
+    let correctIndex = '0';
+
+    if (q.options && typeof q.options === 'object' && !Array.isArray(q.options)) {
+      const keys = Object.keys(q.options).sort();
+      optionsArray = keys.map((k) => q.options[k] || '');
+      const foundIndex = keys.findIndex((k) => q.options[k] === q.correct_answer);
+      if (foundIndex !== -1) correctIndex = foundIndex.toString();
+    } else if (Array.isArray(q.options)) {
+      optionsArray = [...q.options];
+      const foundIdx = optionsArray.findIndex((opt) => opt === q.correct_answer);
+      if (foundIdx !== -1) correctIndex = foundIdx.toString();
+    }
+
+    return { ...q, options: optionsArray, correct_answer: correctIndex };
+  });
+};
+
+// Helper: format questions từ form về dạng payload backend
+const formatQuestionsToPayload = (questions = [], startIndex = 0) => {
+  return questions.map((q, index) => {
+    const optionsDict = {};
+    if (Array.isArray(q.options)) {
+      q.options.forEach((opt, i) => {
+        if (opt && opt.trim() !== '') {
+          optionsDict[String.fromCharCode(65 + i)] = opt.trim();
+        }
+      });
+    }
+    const correctText = q.options?.[Number(q.correct_answer)]?.trim() || '';
+    return {
+      question_number: startIndex + index + 1,
+      question_text: q.question_text || '',
+      options: optionsDict,
+      correct_answer: correctText,
+      explanation: q.explanation || '',
+    };
+  });
+};
+
 export const useGramVocabEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -11,7 +54,6 @@ export const useGramVocabEdit = () => {
   const isEditMode = Boolean(id);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
   const [activeGrammarKeys, setActiveGrammarKeys] = useState(['0']);
   const [activeVocabKeys, setActiveVocabKeys] = useState(['0']);
 
@@ -21,28 +63,20 @@ export const useGramVocabEdit = () => {
       const response = await GrammarVocabAdminApi.getTestDetail(id);
       const data = response.data || response;
 
-      const formattedQuestions =
-        data.questions?.map((q) => {
-          let optionsArray = [];
-          let correctIndex = '0';
+      // ✅ Đọc đúng cấu trúc groups
+      const grammarGroup = data.groups?.find((g) => g.part_type === 'GRAMMAR');
+      const vocabGroups = data.groups?.filter((g) => g.part_type !== 'GRAMMAR') || [];
 
-          if (q.options && typeof q.options === 'object' && !Array.isArray(q.options)) {
-            const keys = Object.keys(q.options).sort();
-            optionsArray = keys.map((k) => q.options[k] || '');
+      const grammarQuestions = formatQuestionsFromBackend(grammarGroup?.questions || []);
 
-            const foundIndex = keys.findIndex((k) => q.options[k] === q.correct_answer);
-            if (foundIndex !== -1) correctIndex = foundIndex.toString();
-          } else if (Array.isArray(q.options)) {
-            optionsArray = [...q.options];
-            const foundIdx = optionsArray.findIndex((opt) => opt === q.correct_answer);
-            if (foundIdx !== -1) correctIndex = foundIdx.toString();
-          }
-
-          return { ...q, options: optionsArray, correct_answer: correctIndex };
-        }) || [];
-
-      const grammarQuestions = formattedQuestions.filter((q) => q.part_type === 'GRAMMAR');
-      const vocabQuestions = formattedQuestions.filter((q) => q.part_type !== 'GRAMMAR');
+      // ✅ Mỗi vocab group giữ riêng part_type và instruction
+      const vocabQuestions = vocabGroups.flatMap((g) =>
+        formatQuestionsFromBackend(g.questions || []).map((q) => ({
+          ...q,
+          part_type: g.part_type,
+          instruction: g.instruction,
+        }))
+      );
 
       setActiveGrammarKeys(grammarQuestions.map((_, idx) => idx.toString()));
       setActiveVocabKeys(vocabQuestions.map((_, idx) => idx.toString()));
@@ -53,6 +87,7 @@ export const useGramVocabEdit = () => {
         time_limit: data.time_limit,
         is_published: data.is_published,
         is_full_test_only: data.is_full_test_only,
+        grammar_instruction: grammarGroup?.instruction || '',
         grammar_questions: grammarQuestions,
         vocab_questions: vocabQuestions,
       });
@@ -74,9 +109,10 @@ export const useGramVocabEdit = () => {
         is_published: false,
         is_full_test_only: false,
         description: '',
-        grammar_questions: [{ part_type: 'GRAMMAR', options: ['', '', ''], correct_answer: '0' }],
+        grammar_instruction: '',
+        grammar_questions: [{ options: ['', '', ''], correct_answer: '0' }],
         vocab_questions: [
-          { part_type: 'VOCAB_WORD_DEFINITION', options: ['', '', ''], correct_answer: '0' },
+          { part_type: 'VOCAB_WORD_DEFINITION', instruction: '', options: ['', '', ''], correct_answer: '0' },
         ],
       });
     }
@@ -95,21 +131,47 @@ export const useGramVocabEdit = () => {
       message.error(`Grammar section limit exceeded: max 25 questions (current: ${gramCount}).`);
       return;
     }
-
     if (vocabCount > 25) {
       message.error(`Vocabulary section limit exceeded: max 25 questions (current: ${vocabCount}).`);
       return;
     }
-
     if (gramCount === 0 && vocabCount === 0) {
       message.warning('Please add at least one question.');
       return;
     }
 
     setSubmitting(true);
-
     try {
-      const allQuestions = [...(values.grammar_questions || []), ...(values.vocab_questions || [])];
+      const groups = [];
+
+      // ✅ Grammar group
+      if (gramCount > 0) {
+        groups.push({
+          part_type: 'GRAMMAR',
+          instruction: values.grammar_instruction || '',
+          questions: formatQuestionsToPayload(values.grammar_questions, 0),
+        });
+      }
+
+      // ✅ Vocab groups - group theo part_type
+      if (vocabCount > 0) {
+        const vocabGroupMap = {};
+        values.vocab_questions.forEach((q) => {
+          const pt = q.part_type || 'VOCAB_WORD_DEFINITION';
+          if (!vocabGroupMap[pt]) {
+            vocabGroupMap[pt] = { part_type: pt, instruction: q.instruction || '', questions: [] };
+          }
+          vocabGroupMap[pt].questions.push(q);
+        });
+
+        Object.values(vocabGroupMap).forEach((group, idx) => {
+          groups.push({
+            part_type: group.part_type,
+            instruction: group.instruction,
+            questions: formatQuestionsToPayload(group.questions, gramCount + idx),
+          });
+        });
+      }
 
       const payload = {
         title: values.title,
@@ -117,30 +179,7 @@ export const useGramVocabEdit = () => {
         time_limit: Number(values.time_limit),
         is_published: Boolean(values.is_published),
         is_full_test_only: Boolean(values.is_full_test_only),
-
-        questions: allQuestions.map((q, index) => {
-          const optionsDict = {};
-
-          if (Array.isArray(q.options)) {
-            q.options.forEach((opt, i) => {
-              if (opt && opt.trim() !== '') {
-                const letter = String.fromCharCode(65 + i);
-                optionsDict[letter] = opt.trim();
-              }
-            });
-          }
-
-          const exactCorrectText = q.options[Number(q.correct_answer)]?.trim() || '';
-
-          return {
-            part_type: q.part_type || 'GRAMMAR',
-            question_number: index + 1,
-            question_text: q.question_text || '',
-            options: optionsDict,
-            correct_answer: exactCorrectText,
-            explanation: q.explanation || '',
-          };
-        }),
+        groups, // ✅ Đúng cấu trúc backend
       };
 
       if (isEditMode) {
