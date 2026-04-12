@@ -76,7 +76,7 @@ export const useGrammarVocabExam = ({ isFullTest, testIdFromProps, onSkillFinish
         onSkillFinish(submissionData.id);
       } else {
         // ✅ Navigate bằng submissionId (không phải testId) để xem kết quả đúng
-        navigate(`/aptis/grammar-vocab/result/${submissionData.id}`);
+        navigate(`/aptis/grammar-vocab/result/${testId}`);
       }
     } catch (error) {
       console.error('Submit error:', error);

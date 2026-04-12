@@ -2,13 +2,13 @@ import React from 'react';
 import { Layout, Button, Typography, Spin, Space, Card, Tag } from 'antd'; 
 import { 
   ClockCircleOutlined, SendOutlined, 
-  LeftOutlined, RightOutlined, BookOutlined 
+  LeftOutlined, RightOutlined, BookOutlined,
+  InfoCircleOutlined // Đã thêm icon này cho phần Instruction
 } from '@ant-design/icons';
 
 import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion'; 
-import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion'; // Make sure this path is correct
+import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion'; 
 
-// Gọi Custom Hook
 import { useGrammarVocabExam, TABS } from '../../../hooks/APTIS/grammar_vocab/useGrammarVocabExam';
 
 const { Header, Content, Footer } = Layout;
@@ -19,7 +19,6 @@ const GrammarVocabExamPage = ({
   testIdFromProps = null,
   onSkillFinish = null 
 }) => {
-  // 🔥 Lấy toàn bộ vũ khí từ Hook
   const {
     loading,
     submitting,
@@ -28,7 +27,7 @@ const GrammarVocabExamPage = ({
     setCurrentTab,
     timeLeft,
     answers,
-    currentQuestions,
+    currentGroups, // 🔥 Thay vì currentQuestions, chúng ta sẽ render từ currentGroups
     currentTabIndex,
     isTimeRunningOut,
     handleAnswerChange,
@@ -50,7 +49,6 @@ const GrammarVocabExamPage = ({
   return (
     <Layout style={{ minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh', backgroundColor: '#f8fafc' }}>
       
-      {/* HEADER Ẩn đi nếu là Full Test vì Layout mẹ đã có Header rồi */}
       {!isFullTest && (
         <Header style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 10 }}>
           <Space>
@@ -66,7 +64,6 @@ const GrammarVocabExamPage = ({
         </Header>
       )}
 
-      {/* Nếu ĐANG LÀ FULL TEST thì vẫn phải hiện đồng hồ đếm ngược nội bộ */}
       {isFullTest && (
         <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center sticky top-0 z-10 shadow-sm">
           <Text strong className="text-lg text-slate-700">Section: Grammar & Vocabulary</Text>
@@ -96,41 +93,61 @@ const GrammarVocabExamPage = ({
         </div>
 
         <Card variant="borderless" className="rounded-2xl shadow-sm border-slate-200" styles={{ body: { padding: '32px 24px' } }}>
-          <div className="mb-8 p-4 bg-slate-50 rounded-xl border-l-4 border-emerald-500 text-slate-700 font-medium">
-            {currentTab === 'GRAMMAR' 
-              ? "Choose the best answer to complete the sentence." 
-              : "Select the correct word from the dropdown menu to match the definition."}
-          </div>
+          
+          {/* 🔥 VÒNG LẶP NGOÀI: Render từng Group */}
+          {currentGroups.map((group, groupIndex) => (
+            <div key={group.id} className={groupIndex !== currentGroups.length - 1 ? "mb-12 border-b border-slate-100 pb-8" : ""}>
+              
+              {/* Hiển thị Instruction chung cho Nhóm (cực kỳ quan trọng với Vocab) */}
+              {group.instruction && (
+                <div className="mb-6 p-4 bg-indigo-50 rounded-xl border-l-4 border-indigo-500 text-indigo-900 font-medium text-base shadow-sm flex items-start gap-3">
+                  <InfoCircleOutlined className="mt-1 text-indigo-600" />
+                  <span>{group.instruction}</span>
+                </div>
+              )}
 
-          {currentQuestions.map((q, index) => {
-            // CONDITIONAL RENDERING BASED ON TAB (or q.part_type)
-            if (currentTab === 'GRAMMAR' || q.part_type === 'GRAMMAR') {
-               return (
-                 <MultipleChoiceQuestion 
-                   key={q.id}
-                   questionId={q.id}
-                   questionNumber={index + 1}
-                   questionText={q.question_text}
-                   options={q.options}
-                   selectedValue={answers[q.id]}
-                   onChange={handleAnswerChange}
-                 />
-               );
-            } else {
-               // RENDER DROPDOWN FOR VOCABULARY
-               return (
-                 <DropdownQuestion 
-                   key={q.id}
-                   questionId={q.id}
-                   questionNumber={index + 1}
-                   questionText={q.question_text} // This is now the definition
-                   options={q.options}            // This is the array of short vocabulary words
-                   selectedValue={answers[q.id]}
-                   onChange={handleAnswerChange}
-                 />
-               );
-            }
-          })}
+              {/* 🔥 VÒNG LẶP TRONG: Render các Câu hỏi thuộc Nhóm đó */}
+              <div className="flex flex-col gap-6">
+                {group.questions.map((q) => {
+                  const isGrammarGroup = group.part_type === 'GRAMMAR';
+
+                  if (isGrammarGroup) {
+                     return (
+                       <MultipleChoiceQuestion 
+                         key={q.id}
+                         questionId={q.id}
+                         questionNumber={q.question_number} // Dùng chuẩn số thứ tự từ Database
+                         questionText={q.question_text}
+                         options={q.options}
+                         selectedValue={answers[q.id]}
+                         onChange={handleAnswerChange}
+                       />
+                     );
+                  } else {
+                     return (
+                       <DropdownQuestion 
+                         key={q.id}
+                         questionId={q.id}
+                         questionNumber={q.question_number}
+                         questionText={q.question_text} 
+                         options={q.options}            
+                         selectedValue={answers[q.id]}
+                         onChange={handleAnswerChange}
+                       />
+                     );
+                  }
+                })}
+              </div>
+            </div>
+          ))}
+
+          {/* Nếu không có dữ liệu hiển thị thông báo */}
+          {currentGroups.length === 0 && (
+             <div className="text-center py-10 text-slate-400">
+               No questions available for this section.
+             </div>
+          )}
+
         </Card>
       </Content>
 
