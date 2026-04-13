@@ -189,14 +189,6 @@ const UserManagement = () => {
         <Text style={{ color: '#e6f4ff' }}>
           Manage student accounts, roles and status
         </Text>
-
-        <div style={{ marginTop: 10 }}>
-          <Tag color="cyan">
-            {filteredUsers.length} / {rawUsers.length} Students
-
-
-          </Tag>
-        </div>
       </div>
 
       {/* ================= FILTER ================= */}
