@@ -153,12 +153,6 @@ const AptisSideBar = ({ layoutProps }) => {
           )}
         </div>
 
-        {/* ACCOUNT */}
-        {!isCollapsed && <p className={`${titleClass} mt-4`}>Account</p>}
-        <NavLink to="/admin/aptis/profile" className={linkClass}>
-          <UserCog size={20} className="shrink-0" />
-          {!isCollapsed && <span className="text-sm whitespace-nowrap">Profile Settings</span>}
-        </NavLink>
 
       </nav>
 
