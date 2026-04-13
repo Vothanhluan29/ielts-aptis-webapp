@@ -1,10 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Typography, Spin, Button, Tooltip, Tag } from 'antd';
+import { Typography, Spin, Button, Tag } from 'antd';
 import { 
   ArrowLeftOutlined, 
   CalendarOutlined, 
-  ArrowRightOutlined,
   CustomerServiceOutlined,
   ReadOutlined,
   EditOutlined,
@@ -18,7 +17,8 @@ const { Title, Text } = Typography;
 
 const ExamResultPage = () => {
   const navigate = useNavigate();
-  const { result, loading, overallBand, handleReviewSkill } = useExamResult();
+  // 🔥 Lược bỏ handleReviewSkill vì không còn dùng đến
+  const { result, loading, overallBand } = useExamResult();
 
   // ============================
   // EARLY RETURNS (LOADING)
@@ -45,10 +45,6 @@ const ExamResultPage = () => {
     reading_score,
     writing_score,
     speaking_score,
-    listening_submission_id,
-    reading_submission_id,
-    writing_submission_id,
-    speaking_submission_id,
     completed_at,
     start_time,
     created_at
@@ -105,8 +101,9 @@ const ExamResultPage = () => {
                 {full_test?.title || "IELTS Mock Test"}
               </Title>
 
+              {/* 🔥 Đã sửa lại câu thông báo cho phù hợp vì không còn click được nữa */}
               <p className="text-indigo-100 text-lg max-w-xl leading-relaxed m-0">
-                Congratulations on completing your test! Here is your overall band score. Click on each individual skill below to review your detailed performance.
+                Congratulations on completing your test! Here is your overall band score and the breakdown of your performance across all four skills.
               </p>
             </div>
 
@@ -133,32 +130,24 @@ const ExamResultPage = () => {
               score={listening_score}
               icon={<CustomerServiceOutlined />}
               colorClass="text-blue-600 bg-blue-50"
-              hoverClass="hover:border-blue-300"
-              onClick={() => handleReviewSkill('listening', listening_submission_id)}
             />
             <SkillCard
               title="Reading"
               score={reading_score}
               icon={<ReadOutlined />}
               colorClass="text-purple-600 bg-purple-50"
-              hoverClass="hover:border-purple-300"
-              onClick={() => handleReviewSkill('reading', reading_submission_id)}
             />
             <SkillCard
               title="Writing"
               score={writing_score}
               icon={<EditOutlined />}
               colorClass="text-rose-600 bg-rose-50"
-              hoverClass="hover:border-rose-300"
-              onClick={() => handleReviewSkill('writing', writing_submission_id)}
             />
             <SkillCard
               title="Speaking"
               score={speaking_score}
               icon={<AudioOutlined />}
               colorClass="text-orange-600 bg-orange-50"
-              hoverClass="hover:border-orange-300"
-              onClick={() => handleReviewSkill('speaking', speaking_submission_id)}
             />
           </div>
         </div>
@@ -169,31 +158,20 @@ const ExamResultPage = () => {
 };
 
 // ============================
-// SUB-COMPONENT: SKILL CARD
+// SUB-COMPONENT: SKILL CARD (STATIC)
 // ============================
-const SkillCard = ({ title, score, icon, colorClass, hoverClass, onClick }) => {
-  // Cho phép nhận điểm 0 (score >= 0)
-
+const SkillCard = ({ title, score, icon, colorClass }) => {
   const hasScore = score !== null && score !== undefined && score >= 0;
 
   return (
     <div 
-      onClick={hasScore ? onClick : undefined}
-      className={`group bg-white border border-slate-200 rounded-3xl p-6 shadow-sm transition-all duration-300 flex flex-col h-full relative overflow-hidden
-        ${hasScore ? `cursor-pointer hover:shadow-xl hover:-translate-y-1 ${hoverClass}` : 'opacity-90 cursor-not-allowed'}`}
+      className={`bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col h-full relative overflow-hidden transition-all duration-300
+        ${hasScore ? 'hover:shadow-md' : 'opacity-90'}`}
     >
       <div className="flex justify-between items-start mb-6">
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-sm transition-transform group-hover:scale-110 ${colorClass}`}>
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-sm ${colorClass}`}>
           {icon}
         </div>
-        
-        {hasScore && (
-          <Tooltip title="Review Answers">
-            <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-              <ArrowRightOutlined className="text-sm" />
-            </div>
-          </Tooltip>
-        )}
       </div>
 
       <Text className="text-slate-500 text-sm font-bold uppercase tracking-wider block mb-1">
