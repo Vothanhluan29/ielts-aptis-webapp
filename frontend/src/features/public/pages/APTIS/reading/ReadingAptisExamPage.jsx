@@ -41,6 +41,23 @@ const ReadingAptisExamPage = ({
   } = useReadingAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
   // ==========================================
+  // HÀM TÍNH TỔNG SỐ CÂU THỰC TẾ (Hỗ trợ Reorder)
+  // ==========================================
+  const getTrueQuestionCount = (groups) => {
+    if (!groups || groups.length === 0) return 0;
+    return groups.reduce((acc, group) => {
+      const groupCount = (group.questions || []).reduce((sum, q) => {
+        if (q.question_type === 'REORDER_SENTENCES') {
+          const optCount = Array.isArray(q.options) ? q.options.length : 0;
+          return sum + (optCount > 0 ? optCount : 1);
+        }
+        return sum + 1;
+      }, 0);
+      return acc + groupCount;
+    }, 0);
+  };
+
+  // ==========================================
   // RENDER DANH SÁCH CÂU HỎI
   // ==========================================
   const renderQuestionsList = (groups) => {
@@ -49,7 +66,6 @@ const ReadingAptisExamPage = ({
     }
 
     return groups.map((group) => (
-      // Khoảng cách và dải phân cách y hệt trang Listening
       <div key={group.id} className="mb-14 last:mb-0 pb-8 border-b border-slate-100 last:border-0 last:pb-0">
         
         {/* Hướng dẫn riêng của từng Group (nếu có) */}
@@ -70,10 +86,19 @@ const ReadingAptisExamPage = ({
             const isReorder = qType === 'REORDER_SENTENCES';
             const isFillInBlank = qType === 'FILL_IN_BLANKS'; 
 
+            // Tính toán hiển thị dải số câu (Vd: 6 - 10) cho câu Reorder
+            const baseNumber = Number(q.question_number) || (idx + 1);
+            let questionNumberDisplay = baseNumber.toString();
+
+            if (isReorder && Array.isArray(q.options) && q.options.length > 1) {
+              const endNumber = baseNumber + q.options.length - 1;
+              questionNumberDisplay = `${baseNumber} - ${endNumber}`;
+            }
+
             if (isReorder) {
               return (
                 <ReorderQuestion 
-                  key={q.id} questionId={q.id} questionNumber={q.question_number || idx + 1}
+                  key={q.id} questionId={q.id} questionNumber={questionNumberDisplay}
                   questionText={q.question_text} options={q.options} selectedValue={answers[q.id]}
                   onChange={handleAnswerChange}
                 />
@@ -81,7 +106,7 @@ const ReadingAptisExamPage = ({
             } else if (isFillInBlank) {
               return (
                 <FillInBlankQuestion 
-                  key={q.id} questionId={q.id} questionNumber={q.question_number || idx + 1}
+                  key={q.id} questionId={q.id} questionNumber={questionNumberDisplay}
                   questionText={q.question_text} selectedValue={answers[q.id]}
                   onChange={handleAnswerChange}
                 />
@@ -89,7 +114,7 @@ const ReadingAptisExamPage = ({
             } else if (isDropdown) {
               return (
                 <DropdownQuestion 
-                  key={q.id} questionId={q.id} questionNumber={q.question_number || idx + 1}
+                  key={q.id} questionId={q.id} questionNumber={questionNumberDisplay}
                   questionText={q.question_text} options={q.options} selectedValue={answers[q.id]}
                   onChange={handleAnswerChange}
                 />
@@ -97,7 +122,7 @@ const ReadingAptisExamPage = ({
             } else {
               return (
                 <MultipleChoiceQuestion 
-                  key={q.id} questionId={q.id} questionNumber={q.question_number || idx + 1}
+                  key={q.id} questionId={q.id} questionNumber={questionNumberDisplay}
                   questionText={q.question_text} options={q.options} selectedValue={answers[q.id]}
                   onChange={handleAnswerChange}
                 />
@@ -136,11 +161,13 @@ const ReadingAptisExamPage = ({
     );
   }
 
+  // Đếm tổng số câu hỏi thực tế để hiển thị trên UI
+  const currentPartTrueQCount = getTrueQuestionCount(activePart?.groups);
+
   // ==========================================
   // MAIN LAYOUT
   // ==========================================
   return (
-    // Dùng minHeight 100vh để trang có thể cuộn giống hệt Listening
     <Layout style={{ minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh', backgroundColor: '#f8fafc' }}>
       
       {/* HEADER TƯƠNG TỰ LISTENING */}
@@ -237,7 +264,7 @@ const ReadingAptisExamPage = ({
                     <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Questions</Title>
                   </div>
                   <Tag className="rounded-full bg-slate-100 text-slate-600 font-bold border-0 px-3 py-1 m-0 text-sm">
-                    {activePart?.groups?.reduce((acc, g) => acc + (g.questions?.length || 0), 0) || 0} questions
+                    {currentPartTrueQCount} questions
                   </Tag>
                 </div>
 
@@ -263,7 +290,7 @@ const ReadingAptisExamPage = ({
                 <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Questions</Title>
               </div>
               <Tag className="rounded-full bg-slate-100 text-slate-600 font-bold border-0 px-3 py-1 m-0 text-sm">
-                {activePart?.groups?.reduce((acc, g) => acc + (g.questions?.length || 0), 0) || 0} questions
+                {currentPartTrueQCount} questions
               </Tag>
             </div>
 
