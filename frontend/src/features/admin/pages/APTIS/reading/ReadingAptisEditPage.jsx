@@ -51,7 +51,7 @@ const ReadingAptisEditPage = () => {
 
   // Giới hạn hệ thống (Đã đồng bộ với hook)
   const MAX_PARTS = 5; 
-  const MAX_QUESTIONS = 35; 
+  const MAX_QUESTIONS = 30; 
 
   if (loading) return <div style={{ textAlign: 'center', padding: 50 }}><Spin size="large" /></div>;
 
