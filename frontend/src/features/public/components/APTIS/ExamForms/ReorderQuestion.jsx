@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useMemo } from 'react';
 import { Typography, Button } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, HolderOutlined } from '@ant-design/icons';
 
@@ -14,24 +14,47 @@ const ReorderQuestion = ({
   selectedValue, 
   onChange 
 }) => {
-  // References để lưu vị trí phần tử đang kéo và phần tử bị kéo đè lên
   const dragItem = useRef(null);
   const dragOverItem = useRef(null);
   const [draggingIndex, setDraggingIndex] = useState(null);
 
+  // 1. Tạo một thứ tự lộn xộn ngẫu nhiên (chỉ chạy 1 lần khi load options)
+  const initialShuffledOrder = useMemo(() => {
+    if (!options || !Array.isArray(options)) return [];
+    const order = options.map((_, i) => i);
+    // Thuật toán xáo trộn ngẫu nhiên Fisher-Yates
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    return order;
+  }, [options]);
+
+  // 2. Gửi ngay đáp án lộn xộn này lên Form State (để nếu hs nộp luôn thì sẽ bị sai)
+  useEffect(() => {
+    if ((!selectedValue || selectedValue.trim() === '') && initialShuffledOrder.length > 0) {
+      const shuffledString = initialShuffledOrder.map(idx => LETTERS[idx]).join('-');
+      if (onChange) {
+        onChange(questionId, shuffledString);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialShuffledOrder]); // Chỉ chạy khi initialShuffledOrder được tạo ra
+
   if (!options || !Array.isArray(options) || options.length === 0) return null;
 
+  // 3. Logic lấy currentOrder: Lấy từ Form (nếu có) hoặc dùng mảng lộn xộn
   let currentOrder = [];
-  
   if (selectedValue && typeof selectedValue === 'string' && selectedValue.includes('-')) {
     const selectedLetters = selectedValue.split('-');
     currentOrder = selectedLetters.map(letter => LETTERS.indexOf(letter.toUpperCase()));
     
+    // Nếu dữ liệu bị lỗi, fallback về mảng lộn xộn
     if (currentOrder.some(idx => idx === -1 || idx >= options.length)) {
-       currentOrder = options.map((_, i) => i);
+       currentOrder = initialShuffledOrder;
     }
   } else {
-    currentOrder = options.map((_, i) => i);
+    currentOrder = initialShuffledOrder; // 🔥 Thay thế logic cũ (options.map)
   }
 
   const items = currentOrder.map(idx => ({
@@ -40,10 +63,9 @@ const ReorderQuestion = ({
     text: options[idx]
   }));
 
-  // Logic cũ: Sắp xếp bằng nút bấm
+  // Logic sắp xếp bằng nút bấm
   const moveItem = (index, direction) => {
     const newItems = [...items];
-    
     if (direction === 'UP' && index > 0) {
       [newItems[index - 1], newItems[index]] = [newItems[index], newItems[index - 1]];
     } else if (direction === 'DOWN' && index < newItems.length - 1) {
@@ -51,17 +73,14 @@ const ReorderQuestion = ({
     } else {
       return;
     }
-    
     updateAnswer(newItems);
   };
 
-  // Logic mới: Kéo thả (Drag & Drop)
+  // Logic kéo thả (Drag & Drop)
   const handleDragStart = (e, index) => {
     dragItem.current = index;
     setDraggingIndex(index);
-    // Thay đổi hiệu ứng con trỏ chuột
     e.dataTransfer.effectAllowed = "move";
-    // Thêm một chút delay để UI mượt hơn khi element bị nhấc lên
     setTimeout(() => {
       e.target.classList.add('opacity-40', 'border-dashed', 'border-orange-400');
     }, 0);
@@ -72,27 +91,20 @@ const ReorderQuestion = ({
   };
 
   const handleDragEnd = (e) => {
-    // Gỡ bỏ style khi thả tay ra
     e.target.classList.remove('opacity-40', 'border-dashed', 'border-orange-400');
     setDraggingIndex(null);
 
-    // Nếu vị trí kéo và thả hợp lệ và có sự thay đổi
     if (dragItem.current !== null && dragOverItem.current !== null && dragItem.current !== dragOverItem.current) {
       const newItems = [...items];
-      // Cắt phần tử đang kéo ra khỏi mảng
       const draggedItemContent = newItems.splice(dragItem.current, 1)[0];
-      // Chèn phần tử đó vào vị trí mới
       newItems.splice(dragOverItem.current, 0, draggedItemContent);
-      
       updateAnswer(newItems);
     }
 
-    // Reset references
     dragItem.current = null;
     dragOverItem.current = null;
   };
 
-  // Hàm gọi onChange để cập nhật state tổng
   const updateAnswer = (newItems) => {
     if (onChange) {
       const newAnswerString = newItems.map(item => item.letter).join('-');
@@ -122,17 +134,15 @@ const ReorderQuestion = ({
             onDragStart={(e) => handleDragStart(e, idx)}
             onDragEnter={(e) => handleDragEnter(e, idx)}
             onDragEnd={handleDragEnd}
-            onDragOver={(e) => e.preventDefault()} // Bắt buộc phải có để cho phép Drop
+            onDragOver={(e) => e.preventDefault()}
             className={`flex items-center gap-3 p-3 bg-slate-50 border rounded-xl transition-all hover:bg-orange-50/50 hover:border-orange-200 cursor-move ${
               draggingIndex === idx ? 'opacity-40 border-dashed border-orange-400 bg-orange-50' : 'border-slate-200'
             }`}
           >
-             {/* Icon Tay cầm để kéo thả */}
              <div className="flex items-center justify-center px-1 text-slate-300 hover:text-orange-500 shrink-0">
                 <HolderOutlined className="text-lg" />
              </div>
 
-             {/* Cột Nút bấm điều hướng (Giữ lại cho Mobile / Khả năng truy cập) */}
              <div className="flex flex-col gap-1 shrink-0">
                 <Button 
                   size="small" 
@@ -152,12 +162,10 @@ const ReorderQuestion = ({
                 />
              </div>
              
-             {/* Ký tự chữ cái (A, B, C...) */}
              <div className="flex items-center justify-center min-w-9 h-9 font-bold text-orange-600 bg-orange-100 rounded-lg shrink-0">
                 {item.letter}
              </div>
              
-             {/* Nội dung câu */}
              <div className="flex-1 text-slate-700 text-sm md:text-base leading-relaxed select-none">
                 {item.text}
              </div>
