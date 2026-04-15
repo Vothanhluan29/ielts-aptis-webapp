@@ -49,7 +49,7 @@ const buildGrammarItems = (fields, add, remove, form, activeKeys, setActiveKeys,
         <Form.Item {...rf} name={[name, 'part_type']} initialValue="GRAMMAR" hidden><Input /></Form.Item>
         <Form.Item label="Question Text" required>
           <div style={{ display: 'flex', gap: 8 }}>
-            <Form.Item {...rf} name={[name, 'question_text']} rules={[{ required: true }]} style={{ flex: 1, marginBottom: 0 }}>
+            <Form.Item {...rf} name={[name, 'question_text']} label="" rules={[{ required: true, message: 'Question text is required' }]} style={{ flex: 1, marginBottom: 0 }}>
               <Input placeholder="He ___ to the store yesterday." />
             </Form.Item>
             <Button type="dashed" onClick={() => {
@@ -88,7 +88,7 @@ const buildVocabQItems = (fields, add, remove, form, gName, refreshCounts, isMax
     ),
     children: (
       <>
-        <Form.Item {...rf} name={[name, 'question_text']} label="Definition / Meaning" rules={[{ required: true }]}>
+        <Form.Item {...rf} name={[name, 'question_text']} label="Definition / Meaning" rules={[{ required: true, message: 'Definition is required' }]}>
           <Input placeholder="A large fruit with a green shell..." />
         </Form.Item>
         <MatchingAdmin relativePath={[name]} absolutePath={['vocab_groups', gName, 'questions', name]} restField={rf} form={form} />
@@ -125,7 +125,7 @@ const VocabGroupCard = ({ gKey, gName, removeGroup, form, totalCount, refreshCou
     >
       <Row gutter={16}>
         <Col span={8}>
-          <Form.Item name={[gName, 'part_type']} label="Type" rules={[{ required: true }]}>
+          <Form.Item name={[gName, 'part_type']} label="Type" rules={[{ required: true, message: 'Question type is required' }]}>
             <Select onChange={refreshCounts}>
               {Object.entries(VOCAB_TYPES).map(([val, lbl]) => <Option key={val} value={val}>{lbl}</Option>)}
             </Select>
@@ -134,7 +134,7 @@ const VocabGroupCard = ({ gKey, gName, removeGroup, form, totalCount, refreshCou
         <Col span={16}>
           <Form.Item name={[gName, 'instruction']}
             label={<><InfoCircleOutlined /> Instruction (shown to students)</>}
-            rules={[{ required: true, message: 'Please enter instruction!' }]}>
+            rules={[{ required: true, message: 'Instruction is required' }]}>
             <Input.TextArea rows={2} placeholder="Choose the word that best matches the definition..." />
           </Form.Item>
         </Col>
@@ -237,7 +237,6 @@ const GramVocabEditPage = () => {
           </Title>
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {/* ✅ Chỉ hiện 1 counter tổng */}
           <span style={{
             padding: '6px 14px', borderRadius: 8,
             border: `1px solid ${isMaxed ? '#fca5a5' : '#e2e8f0'}`,
@@ -259,12 +258,12 @@ const GramVocabEditPage = () => {
         <Card size="small" title="General Settings" style={{ marginBottom: 16, borderRadius: 12 }}>
           <Row gutter={16}>
             <Col span={10}>
-              <Form.Item name="title" label="Title" rules={[{ required: true }]}>
+              <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Title is required' }]}>
                 <Input placeholder="Aptis Core Practice 01" />
               </Form.Item>
             </Col>
             <Col span={4}>
-              <Form.Item name="time_limit" label="Duration (mins)" rules={[{ required: true }]}>
+              <Form.Item name="time_limit" label="Duration (mins)" rules={[{ required: true, message: 'Duration is required' }]}>
                 <InputNumber min={5} max={120} style={{ width: '100%' }} />
               </Form.Item>
             </Col>
