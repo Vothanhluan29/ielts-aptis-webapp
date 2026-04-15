@@ -18,11 +18,10 @@ const ReorderQuestion = ({
   const dragOverItem = useRef(null);
   const [draggingIndex, setDraggingIndex] = useState(null);
 
-  // 1. Tạo một thứ tự lộn xộn ngẫu nhiên (chỉ chạy 1 lần khi load options)
+  // 1. Tạo một thứ tự lộn xộn ngẫu nhiên
   const initialShuffledOrder = useMemo(() => {
     if (!options || !Array.isArray(options)) return [];
     const order = options.map((_, i) => i);
-    // Thuật toán xáo trộn ngẫu nhiên Fisher-Yates
     for (let i = order.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [order[i], order[j]] = [order[j], order[i]];
@@ -30,7 +29,7 @@ const ReorderQuestion = ({
     return order;
   }, [options]);
 
-  // 2. Gửi ngay đáp án lộn xộn này lên Form State (để nếu hs nộp luôn thì sẽ bị sai)
+  // 2. Gửi ngay đáp án lộn xộn lên Form State
   useEffect(() => {
     if ((!selectedValue || selectedValue.trim() === '') && initialShuffledOrder.length > 0) {
       const shuffledString = initialShuffledOrder.map(idx => LETTERS[idx]).join('-');
@@ -39,22 +38,21 @@ const ReorderQuestion = ({
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialShuffledOrder]); // Chỉ chạy khi initialShuffledOrder được tạo ra
+  }, [initialShuffledOrder]);
 
   if (!options || !Array.isArray(options) || options.length === 0) return null;
 
-  // 3. Logic lấy currentOrder: Lấy từ Form (nếu có) hoặc dùng mảng lộn xộn
+  // 3. Logic lấy currentOrder
   let currentOrder = [];
   if (selectedValue && typeof selectedValue === 'string' && selectedValue.includes('-')) {
     const selectedLetters = selectedValue.split('-');
     currentOrder = selectedLetters.map(letter => LETTERS.indexOf(letter.toUpperCase()));
     
-    // Nếu dữ liệu bị lỗi, fallback về mảng lộn xộn
     if (currentOrder.some(idx => idx === -1 || idx >= options.length)) {
        currentOrder = initialShuffledOrder;
     }
   } else {
-    currentOrder = initialShuffledOrder; // 🔥 Thay thế logic cũ (options.map)
+    currentOrder = initialShuffledOrder;
   }
 
   const items = currentOrder.map(idx => ({
@@ -63,7 +61,7 @@ const ReorderQuestion = ({
     text: options[idx]
   }));
 
-  // Logic sắp xếp bằng nút bấm
+  // Nút bấm di chuyển
   const moveItem = (index, direction) => {
     const newItems = [...items];
     if (direction === 'UP' && index > 0) {
@@ -76,7 +74,7 @@ const ReorderQuestion = ({
     updateAnswer(newItems);
   };
 
-  // Logic kéo thả (Drag & Drop)
+  // Kéo thả
   const handleDragStart = (e, index) => {
     dragItem.current = index;
     setDraggingIndex(index);
@@ -115,18 +113,20 @@ const ReorderQuestion = ({
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 md:p-6 mb-6 shadow-sm transition-all hover:border-orange-200 hover:shadow-md">
       
-      <div className="flex gap-4 items-start mb-6">
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-orange-100 text-orange-600 font-black text-lg shrink-0">
+      {/* KHU VỰC ĐÃ ĐƯỢC REDESIGN */}
+      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center mb-6 border-b border-slate-100 pb-4">
+        <div className="flex items-center justify-center min-w-[40px] h-10 px-3.5 rounded-xl bg-orange-100 border border-orange-200 text-orange-600 font-black text-base shrink-0 whitespace-nowrap shadow-sm">
           {questionNumber}
         </div>
-        <div className="flex-1 mt-1">
-          <Paragraph className="text-slate-800 text-base md:text-lg font-bold m-0 leading-relaxed">
+        <div className="flex-1">
+          <Paragraph className="text-slate-800 text-base font-bold m-0 leading-relaxed">
             {questionText || "Arrange the following sentences in the correct order to form a meaningful paragraph:"}
           </Paragraph>
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 pl-0 md:pl-14">
+      {/* DANH SÁCH LỰA CHỌN */}
+      <div className="flex flex-col gap-3 pl-0 md:pl-2">
         {items.map((item, idx) => (
           <div 
             key={item.originalIndex}
@@ -162,7 +162,7 @@ const ReorderQuestion = ({
                 />
              </div>
              
-             <div className="flex items-center justify-center min-w-9 h-9 font-bold text-orange-600 bg-orange-100 rounded-lg shrink-0">
+             <div className="flex items-center justify-center min-w-9 h-9 font-bold text-orange-600 bg-white border border-orange-200 shadow-sm rounded-lg shrink-0">
                 {item.letter}
              </div>
              
