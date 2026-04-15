@@ -2,7 +2,7 @@ import React from 'react';
 import { Spin, Result, Button, Typography, Layout, Row, Col, Card, Divider } from 'antd';
 import {
   ArrowLeftOutlined, CheckCircleFilled, CloseCircleFilled,
-  ReadOutlined, ClockCircleOutlined, TrophyFilled, AimOutlined
+  ReadOutlined, ClockCircleOutlined, TrophyFilled, AimOutlined, ExclamationCircleFilled
 } from '@ant-design/icons';
 
 // Nhúng Custom Hook
@@ -32,13 +32,50 @@ const getCefrColor = (level) => {
   return '#94a3b8'; 
 };
 
-const QuestionReviewCard = ({ q, index, qResult }) => {
+/* ─── Component hiển thị từng câu hỏi ─── */
+const QuestionReviewCard = ({ q, qResult, questionNumberDisplay }) => {
   const userAnswerKey = qResult?.user_answer;
   const correctAnswerRaw = qResult?.correct_answer || q.correct_answer;
   const isCorrect = qResult?.is_correct || false;
   const isSkipped = !userAnswerKey;
   const explanation = qResult?.explanation || q.explanation;
   const parsedOptions = safeParse(q.options);
+  const qType = q.question_type?.toUpperCase();
+
+  // 🔥 LOGIC XỬ LÝ ĐIỂM TỪNG PHẦN (PARTIAL CORRECT) CHO REORDER
+  let isPartial = false;
+  let partialScore = 0;
+  let totalPositions = 0;
+
+  if (qType === 'REORDER_SENTENCES' && userAnswerKey && correctAnswerRaw && !isCorrect) {
+    const userArr = String(userAnswerKey).split('-');
+    const correctArr = String(correctAnswerRaw).split('-');
+    
+    if (userArr.length === correctArr.length) {
+      totalPositions = correctArr.length;
+      for (let i = 0; i < correctArr.length; i++) {
+        if (userArr[i] === correctArr[i]) partialScore++;
+      }
+      if (partialScore > 0) isPartial = true;
+    }
+  }
+
+  // Khai báo Style tùy theo trạng thái
+  const cardStyle = isCorrect 
+    ? 'bg-green-50/50 border-green-200' 
+    : isPartial 
+      ? 'bg-orange-50/50 border-orange-200' // Thêm màu cam cho Partial
+      : isSkipped 
+        ? 'bg-slate-50 border-slate-200' 
+        : 'bg-red-50/50 border-red-200';
+
+  const badgeStyle = isCorrect 
+    ? 'bg-green-500' 
+    : isPartial 
+      ? 'bg-orange-500' // Huy hiệu màu cam
+      : isSkipped 
+        ? 'bg-slate-400' 
+        : 'bg-red-500';
 
   const getCorrectDisplay = () => {
     if (!correctAnswerRaw) return 'N/A';
@@ -51,39 +88,46 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
     return found ? `${found[0]}. ${found[1]}` : correctAnswerRaw;
   };
 
-  const cardStyle = isCorrect ? 'bg-green-50/50 border-green-200' : isSkipped ? 'bg-slate-50 border-slate-200' : 'bg-red-50/50 border-red-200';
-  const badgeStyle = isCorrect ? 'bg-green-500' : isSkipped ? 'bg-slate-400' : 'bg-red-500';
-
   return (
     <div className={`border rounded-xl p-3.5 mb-3 flex gap-3 animate-in fade-in slide-in-from-bottom-2 ${cardStyle}`}>
-      {/* Số thứ tự câu hỏi */}
-      <div className={`min-w-7 h-7 rounded-md text-white flex items-center justify-center text-xs font-bold mt-0.5 ${badgeStyle}`}>
-        {q.question_number || index + 1}
+      {/* Số thứ tự câu hỏi (Đã hỗ trợ dải 6 - 10) */}
+      <div className={`px-2 min-w-7 h-7 rounded-md text-white flex items-center justify-center text-xs font-bold mt-0.5 whitespace-nowrap ${badgeStyle}`}>
+        {questionNumberDisplay}
       </div>
 
       <div className="flex-1 min-w-0">
-        {/* Câu hỏi */}
         <div className="text-[13px] font-semibold text-slate-800 mb-2 leading-snug">{q.question_text}</div>
 
-        {/* Khối hiển thị đáp án thu gọn (Inline Tags) */}
         <div className="flex flex-wrap items-center gap-2 mb-1.5">
-          <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs ${isCorrect ? 'bg-green-100 border-green-300 text-green-800' : 'bg-red-100 border-red-300 text-red-800'}`}>
-            {isCorrect ? <CheckCircleFilled /> : <CloseCircleFilled />}
+          {/* Tag câu trả lời của user */}
+          <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs ${
+            isCorrect ? 'bg-green-100 border-green-300 text-green-800' : 
+            isPartial ? 'bg-orange-100 border-orange-300 text-orange-800' : 
+            'bg-red-100 border-red-300 text-red-800'
+          }`}>
+            {isCorrect ? <CheckCircleFilled /> : isPartial ? <ExclamationCircleFilled /> : <CloseCircleFilled />}
             <span><strong>Yours:</strong> {isSkipped ? "Skipped" : getOptionLabel(q.options, userAnswerKey)}</span>
           </div>
 
-          {!isCorrect && correctAnswerRaw && (
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-orange-100 border border-orange-300 text-orange-800 text-xs">
+          {/* Tag báo lỗi Partial Correct */}
+          {isPartial && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white border border-orange-300 text-orange-600 text-xs font-semibold shadow-sm">
+              ✨ Partial Score: {partialScore}/{totalPositions} correct positions
+            </div>
+          )}
+
+          {/* Tag câu trả lời đúng */}
+          {(!isCorrect && correctAnswerRaw) && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs">
               <CheckCircleFilled />
               <span><strong>Correct:</strong> {getCorrectDisplay()}</span>
             </div>
           )}
         </div>
 
-        {/* Giải thích (Nhỏ gọn hơn) */}
         {explanation && (
-          <div className="mt-2 bg-orange-50/50 border border-orange-100 rounded-md p-2 text-xs text-orange-900 leading-relaxed">
-            <strong className="text-orange-600 block mb-0.5 uppercase tracking-wide text-[10px]">Explanation</strong>
+          <div className="mt-2 bg-white/60 border border-slate-200 rounded-md p-2 text-xs text-slate-700 leading-relaxed">
+            <strong className="text-slate-500 block mb-0.5 uppercase tracking-wide text-[10px]">Explanation</strong>
             {explanation}
           </div>
         )}
@@ -117,6 +161,24 @@ const ReadingAptisResultPage = () => {
   const cefrColor = getCefrColor(cefrLevel);
 
   const renderReviewQuestions = (groups) => {
+    // 🔥 Tính toán số thứ tự câu hỏi nối tiếp cho Part hiện tại
+    let globalQNum = 1;
+
+    // Cộng dồn các câu của các Part trước đó để có số bắt đầu chuẩn
+    const currentPartIndex = parts.findIndex(p => p.id === activePartId);
+    for (let i = 0; i < currentPartIndex; i++) {
+      parts[i].groups?.forEach(g => {
+        (g.questions || []).forEach(q => {
+          if (q.question_type === 'REORDER_SENTENCES') {
+            const optCount = Array.isArray(q.options) ? q.options.length : 0;
+            globalQNum += (optCount > 0 ? optCount : 1);
+          } else {
+            globalQNum += 1;
+          }
+        });
+      });
+    }
+
     return groups?.map((group) => (
       <div key={group.id} className="mb-8 last:mb-0">
         {group.instruction && (
@@ -125,9 +187,26 @@ const ReadingAptisResultPage = () => {
           </div>
         )}
         <div className="space-y-3 pl-1">
-          {group.questions?.map((q, idx) => {
+          {group.questions?.map((q) => {
             const qResult = resultsArray.find(r => r.id === q.id || String(r.question_number) === String(q.question_number));
-            return <QuestionReviewCard key={q.id} q={q} index={idx} qResult={qResult} />;
+            
+            // 🔥 Xử lý Label dải số câu cho Reorder (VD: "6 - 10")
+            let qNumDisplay = globalQNum.toString();
+            let stepsToAdvance = 1;
+
+            if (q.question_type === 'REORDER_SENTENCES') {
+               const optCount = Array.isArray(q.options) ? q.options.length : 0;
+               if (optCount > 1) {
+                 const endNum = globalQNum + optCount - 1;
+                 qNumDisplay = `${globalQNum} - ${endNum}`;
+                 stepsToAdvance = optCount;
+               }
+            }
+
+            // Tiến số thứ tự lên cho câu vòng lặp tiếp theo
+            globalQNum += stepsToAdvance;
+
+            return <QuestionReviewCard key={q.id} q={q} qResult={qResult} questionNumberDisplay={qNumDisplay} />;
           })}
         </div>
         <Divider dashed className="my-6 border-slate-200" />
@@ -170,8 +249,9 @@ const ReadingAptisResultPage = () => {
 
             <Col xs={12} md={8} className="text-center">
               <CheckCircleFilled className="text-2xl text-green-500 mb-1 block" />
+              {/* Hiển thị correctCount / totalQuestions (Vd: 27.5 / 35) */}
               <div className="text-3xl font-black text-slate-800 leading-none">{correctCount} <span className="text-lg text-slate-400">/ {totalQuestions}</span></div>
-              <Text strong className="text-slate-500 uppercase tracking-widest text-[10px] mt-1.5 block">Correct Answers</Text>
+              <Text strong className="text-slate-500 uppercase tracking-widest text-[10px] mt-1.5 block">Correct Points</Text>
             </Col>
           </Row>
 
@@ -180,7 +260,7 @@ const ReadingAptisResultPage = () => {
           </div>
         </Card>
 
-        {/* ── PART TABS (ĐÃ BỎ ĐẾM SỐ CÂU) ── */}
+        {/* ── PART TABS ── */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-2 custom-scrollbar animate-in fade-in slide-in-from-bottom-2">
           {parts.map((p, i) => {
             const isActive = activePartId === p.id;
