@@ -65,6 +65,24 @@ const ReadingAptisExamPage = ({
       return <div className="text-center py-10 text-slate-400">No questions in this section.</div>;
     }
 
+    // 🔥 LOGIC MỚI: TÍNH TOÁN SỐ THỨ TỰ CÂU HỎI ĐỘNG (Dynamic Numbering)
+    let globalQNum = 1;
+    const currentPartIndex = parts.findIndex(p => p.id === currentPartId);
+
+    // Cộng dồn số câu của các Part phía trước để lấy mốc xuất phát chuẩn
+    for (let i = 0; i < currentPartIndex; i++) {
+      parts[i].groups?.forEach(g => {
+        (g.questions || []).forEach(q => {
+          if (q.question_type === 'REORDER_SENTENCES') {
+            const optCount = Array.isArray(q.options) ? q.options.length : 0;
+            globalQNum += (optCount > 0 ? optCount : 1);
+          } else {
+            globalQNum += 1;
+          }
+        });
+      });
+    }
+
     return groups.map((group) => (
       <div key={group.id} className="mb-14 last:mb-0 pb-8 border-b border-slate-100 last:border-0 last:pb-0">
         
@@ -78,7 +96,7 @@ const ReadingAptisExamPage = ({
         )}
 
         <div className="pl-2 space-y-8">
-          {group.questions?.map((q, idx) => {
+          {group.questions?.map((q) => {
             const qType = q.question_type?.toUpperCase() || "";
             const pType = q.part_type?.toUpperCase() || "";
             
@@ -86,15 +104,23 @@ const ReadingAptisExamPage = ({
             const isReorder = qType === 'REORDER_SENTENCES';
             const isFillInBlank = qType === 'FILL_IN_BLANKS'; 
 
-            // Tính toán hiển thị dải số câu (Vd: 6 - 10) cho câu Reorder
-            const baseNumber = Number(q.question_number) || (idx + 1);
-            let questionNumberDisplay = baseNumber.toString();
+            // 🔥 Định hình chuỗi số câu hỏi hiển thị ra màn hình (VD: "12" hoặc "12 - 16")
+            let questionNumberDisplay = globalQNum.toString();
+            let stepsToAdvance = 1;
 
-            if (isReorder && Array.isArray(q.options) && q.options.length > 1) {
-              const endNumber = baseNumber + q.options.length - 1;
-              questionNumberDisplay = `${baseNumber} - ${endNumber}`;
+            if (isReorder && Array.isArray(q.options)) {
+              const optCount = q.options.length;
+              if (optCount > 1) {
+                const endNumber = globalQNum + optCount - 1;
+                questionNumberDisplay = `${globalQNum} - ${endNumber}`;
+                stepsToAdvance = optCount; // Cắm cờ nhảy cóc số thứ tự
+              }
             }
 
+            // Tiến số thứ tự lên để dành cho vòng lặp của câu hỏi tiếp theo
+            globalQNum += stepsToAdvance;
+
+            // Render giao diện theo loại câu
             if (isReorder) {
               return (
                 <ReorderQuestion 
