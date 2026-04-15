@@ -54,12 +54,22 @@ export const useReadingAptisResult = () => {
     
     const cefrLevel = submission.cefr_level || "N/A";
     const scoreVal = submission.score || submission.total_score || 0;
+    
+    // correctCount bây giờ đại diện cho Điểm thô (có thể là số thập phân do partial scoring)
     const correctCount = submission.correct_count || 0;
     
+    // TỐI ƯU: Tính tổng điểm thô/số câu thực tế để match với correctCount
     let totalQuestions = 0;
     parts.forEach(p => {
       p.groups?.forEach(g => {
-        totalQuestions += g.questions?.length || 0;
+        (g.questions || []).forEach(q => {
+          if (q.question_type === 'REORDER_SENTENCES') {
+            const optCount = Array.isArray(q.options) ? q.options.length : 0;
+            totalQuestions += (optCount > 0 ? optCount : 1);
+          } else {
+            totalQuestions += 1;
+          }
+        });
       });
     });
 
