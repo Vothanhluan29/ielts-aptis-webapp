@@ -31,21 +31,27 @@ const ReadingAptisEditPage = () => {
     navigate
   } = useReadingAptisEdit();
 
-  // State quản lý Tab hiện tại
   const [activeTabKey, setActiveTabKey] = useState('0');
 
-  // Lắng nghe sự thay đổi của Form để đếm số lượng câu hỏi/part real-time
+  // Lắng nghe sự thay đổi của Form
   const partsValues = Form.useWatch('parts', form) || [];
   const currentPartsCount = partsValues.length;
   
-  // Tính tổng số câu hỏi hiện có trong tất cả các Part
   const totalQuestionsCount = partsValues.reduce((total, part) => {
-    return total + (part?.questions?.length || 0);
+    const partQs = part?.questions || [];
+    const partTotal = partQs.reduce((sum, q) => {
+      if (q?.question_type === 'REORDER_SENTENCES') {
+        const optCount = Array.isArray(q?.options) ? q.options.length : 0;
+        return sum + (optCount > 0 ? optCount : 1); 
+      }
+      return sum + 1; 
+    }, 0);
+    return total + partTotal;
   }, 0);
 
-  // Giới hạn hệ thống cho Reading Aptis
+  // Giới hạn hệ thống (Đã đồng bộ với hook)
   const MAX_PARTS = 5; 
-  const MAX_QUESTIONS = 25;
+  const MAX_QUESTIONS = 35; 
 
   if (loading) return <div style={{ textAlign: 'center', padding: 50 }}><Spin size="large" /></div>;
 
@@ -118,7 +124,7 @@ const ReadingAptisEditPage = () => {
                   Parts: <b>{currentPartsCount}/{MAX_PARTS}</b>
                 </span>
                 <span style={{ color: totalQuestionsCount >= MAX_QUESTIONS ? '#ef4444' : '#64748b' }}>
-                  Questions: <b>{totalQuestionsCount}/{MAX_QUESTIONS}</b>
+                  Questions (Points): <b>{totalQuestionsCount}/{MAX_QUESTIONS}</b>
                 </span>
               </div>
             </div>
@@ -127,11 +133,8 @@ const ReadingAptisEditPage = () => {
           <Form.List name="parts">
             {(partFields, { add: addPart, remove: removePart }) => {
               
-              // Map các Part thành danh sách các Tabs
               const tabItems = partFields.map(({ key: partKey, name: partName }, pIndex) => {
                 const partTitle = form.getFieldValue(['parts', partName, 'title']) || `Part ${pIndex + 1}`;
-                
-                // Điều kiện để hiện thẻ Passage (Chỉ ở Part 4 và 5 -> tương đương pIndex là 3 và 4)
                 const showPassage = pIndex === 3 || pIndex === 4;
 
                 return {
@@ -139,7 +142,6 @@ const ReadingAptisEditPage = () => {
                   label: <span style={{ fontWeight: 'bold' }}>{partTitle}</span>,
                   children: (
                     <div style={{ padding: '0 4px' }}>
-                      {/* --- PART HEADER CONTROLS --- */}
                       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
                         <Popconfirm
                           title="Delete this entire Part?"
@@ -160,7 +162,6 @@ const ReadingAptisEditPage = () => {
                         <Input placeholder="e.g. Part 1 - Sentence Comprehension" />
                       </Form.Item>
 
-                      {/* --- READING PASSAGE (Chỉ hiện ở Part 4 và Part 5) --- */}
                       {showPassage && (
                         <Form.Item name={[partName, 'content']} label={<Text strong style={{ color: '#ea580c' }}>Reading Passage</Text>}>
                           <TextArea 
@@ -171,7 +172,6 @@ const ReadingAptisEditPage = () => {
                         </Form.Item>
                       )}
 
-                      {/* --- QUESTIONS INSIDE PART --- */}
                       <div style={{ padding: 16, backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8 }}>
                         <Text strong style={{ display: 'block', marginBottom: 16, color: '#475569' }}>
                           Questions List
@@ -181,12 +181,50 @@ const ReadingAptisEditPage = () => {
                           {(qFields, { add: addQ, remove: removeQ }) => (
                             <>
                               {qFields.map(({ key: qKey, name: qName, ...restQField }, qIndex) => {
-                                // Logic tính toán số thứ tự câu hỏi liên tục toàn bài
-                                let globalQNum = 0;
+                                // 🔥 TỐI ƯU: Logic tính toán số thứ tự câu hỏi ĐỘNG (Dynamic Question Number)
+                                let startQNum = 1;
+
+                                // 1. Cộng dồn số câu hỏi từ các Part trước
                                 for (let i = 0; i < pIndex; i++) {
-                                  globalQNum += (partsValues[i]?.questions?.length || 0);
+                                  const prevPartQs = partsValues[i]?.questions || [];
+                                  prevPartQs.forEach(q => {
+                                    if (q?.question_type === 'REORDER_SENTENCES') {
+                                      const optCount = Array.isArray(q?.options) ? q.options.length : 0;
+                                      startQNum += (optCount > 0 ? optCount : 1);
+                                    } else {
+                                      startQNum += 1;
+                                    }
+                                  });
                                 }
-                                globalQNum += (qIndex + 1);
+
+                                // 2. Cộng dồn từ các câu hỏi trước trong CÙNG 1 Part
+                                const currentPartQs = partsValues[pIndex]?.questions || [];
+                                for (let j = 0; j < qIndex; j++) {
+                                  const q = currentPartQs[j];
+                                  if (q?.question_type === 'REORDER_SENTENCES') {
+                                    const optCount = Array.isArray(q?.options) ? q.options.length : 0;
+                                    startQNum += (optCount > 0 ? optCount : 1);
+                                  } else {
+                                    startQNum += 1;
+                                  }
+                                }
+
+                                // 3. Tính khoảng hiển thị (Ví dụ: Câu 6 hay Câu 6 - 10)
+                                const currentQ = currentPartQs[qIndex];
+                                let endQNum = startQNum;
+                                let isMulti = false;
+
+                                if (currentQ?.question_type === 'REORDER_SENTENCES') {
+                                  const optCount = Array.isArray(currentQ?.options) ? currentQ.options.length : 0;
+                                  if (optCount > 1) {
+                                    endQNum = startQNum + optCount - 1;
+                                    isMulti = true;
+                                  }
+                                }
+
+                                const questionTitle = isMulti 
+                                  ? `Questions ${startQNum} - ${endQNum}` 
+                                  : `Question ${startQNum}`;
 
                                 return (
                                   <Card
@@ -194,7 +232,7 @@ const ReadingAptisEditPage = () => {
                                     type="inner"
                                     key={qKey}
                                     style={{ marginBottom: 16, borderColor: '#cbd5e1', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}
-                                    title={<strong style={{ color: '#ea580c' }}>Question {globalQNum}</strong>}
+                                    title={<strong style={{ color: '#ea580c' }}>{questionTitle}</strong>}
                                     extra={<Button danger type="text" size="small" onClick={() => removeQ(qName)}>Remove</Button>}
                                   >
                                     <Row gutter={16} style={{ marginBottom: 12 }}>
@@ -236,8 +274,7 @@ const ReadingAptisEditPage = () => {
                                 );
                               })}
 
-                              {/* NÚT THÊM CÂU HỎI */}
-                              <Tooltip title={totalQuestionsCount >= MAX_QUESTIONS ? "Maximum 25 questions reached for this test" : ""}>
+                              <Tooltip title={totalQuestionsCount >= MAX_QUESTIONS ? "Maximum 35 points/questions reached for this test" : ""}>
                                 <Button
                                   type="dashed"
                                   disabled={totalQuestionsCount >= MAX_QUESTIONS}
@@ -275,7 +312,6 @@ const ReadingAptisEditPage = () => {
                     </div>
                   )}
 
-                  {/* NÚT THÊM PART */}
                   <Space style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: 8 }}>
                     <Tooltip title={currentPartsCount >= MAX_PARTS ? "Maximum 5 parts reached" : ""}>
                       <Button
