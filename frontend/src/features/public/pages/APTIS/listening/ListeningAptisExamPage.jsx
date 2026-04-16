@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Layout, Button, Typography, Spin, Card, Tag, message, Progress } from 'antd'; 
 import { 
   ClockCircleOutlined, ExclamationCircleOutlined, SendOutlined, 
@@ -15,18 +15,32 @@ const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
 // ==========================================
-// COMPONENT: AUDIO PLAYER (Giữ nguyên)
+// COMPONENT: AUDIO PLAYER (Đã nâng cấp hỗ trợ Start/End Time)
 // ==========================================
-const AptisAudioPlayer = ({ src }) => {
+const AptisAudioPlayer = ({ src, startTime, endTime }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playCount, setPlayCount] = useState(0);
   const [progress, setProgress] = useState(0);
   const MAX_PLAYS = 2;
 
+  // Khởi tạo thời gian bắt đầu khi render
+  useEffect(() => {
+    if (audioRef.current && startTime !== undefined && startTime !== null) {
+      audioRef.current.currentTime = startTime;
+    }
+  }, [startTime]);
+
   const handlePlay = () => {
     if (playCount >= MAX_PLAYS || isPlaying) return;
     if (audioRef.current) {
+      // Đảm bảo audio luôn bắt đầu đúng mốc nếu bị tua lố
+      if (startTime !== undefined && startTime !== null) {
+        if (audioRef.current.currentTime < startTime || (endTime && audioRef.current.currentTime >= endTime)) {
+          audioRef.current.currentTime = startTime;
+        }
+      }
+
       audioRef.current.play().catch(e => {
          console.error("Audio playback error:", e);
          message.error("Audio playback error. Please check your speakers/browser!");
@@ -35,17 +49,42 @@ const AptisAudioPlayer = ({ src }) => {
     }
   };
 
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      const current = audioRef.current.currentTime;
+
+      // 1. Logic tự động DỪNG khi chạm mốc endTime
+      if (endTime && current >= endTime) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+        // Trả về vị trí bắt đầu để sẵn sàng cho lần nghe thứ 2
+        audioRef.current.currentTime = (startTime !== undefined && startTime !== null) ? startTime : 0;
+        setProgress(0);
+        setPlayCount(prev => prev + 1);
+        return;
+      }
+
+      // 2. Logic tính toán thanh Progress Bar theo đoạn (Segment)
+      const start = (startTime !== undefined && startTime !== null) ? startTime : 0;
+      const end = endTime || audioRef.current.duration || 0;
+      const duration = end - start;
+
+      if (duration > 0) {
+        let currentProgress = ((current - start) / duration) * 100;
+        // Chặn progress bar không bị tràn số âm hoặc quá 100%
+        if (currentProgress < 0) currentProgress = 0;
+        if (currentProgress > 100) currentProgress = 100;
+        setProgress(currentProgress);
+      }
+    }
+  };
+
   const handleEnded = () => {
     setIsPlaying(false);
     setProgress(0);
     setPlayCount(prev => prev + 1);
-  };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      const current = audioRef.current.currentTime;
-      const total = audioRef.current.duration;
-      setProgress(total > 0 ? (current / total) * 100 : 0);
+    if (startTime !== undefined && startTime !== null) {
+      audioRef.current.currentTime = startTime;
     }
   };
 
@@ -113,7 +152,6 @@ const ListeningAptisExamPage = ({
   testIdFromProps = null,
   onSkillFinish = null 
 }) => {
-  // 🔥 Rút vũ khí từ Hook ra sử dụng
   const {
     loading,
     submitting,
@@ -193,7 +231,7 @@ const ListeningAptisExamPage = ({
               onClick={() => setCurrentPartId(p.id)} 
               className={`flex-1 min-w-35 h-12 font-bold rounded-xl transition-all ${
                 currentPartId === p.id 
-                  ? 'bg-blue-600 hover:bg-blue-500 border-none shadow-md shadow-blue-200' 
+                  ? 'bg-blue-600 hover:bg-blue-500 border-none shadow-md shadow-blue-200 text-white' 
                   : 'text-slate-500 border-slate-200 hover:text-blue-500 hover:border-blue-300'
               }`}
             >
@@ -217,8 +255,11 @@ const ListeningAptisExamPage = ({
             activePart.groups.map((group) => (
               <div key={group.id} className="mb-14 last:mb-0 pb-8 border-b border-slate-100 last:border-0 last:pb-0">
                 
+                {/* 🔥 CƠ CHẾ FALLBACK 3 LỚP (Ưu tiên File câu hỏi -> File của Part -> File của Đề thi) */}
                 <AptisAudioPlayer 
-                  src={group.audio_url || group.media_url || group.audio_file || group.attached_audio} 
+                  src={group.audio_url || group.media_url || group.audio_file || group.attached_audio || activePart?.audio_url || testDetail?.audio_url} 
+                  startTime={group.start_time}
+                  endTime={group.end_time}
                 />
                 
                 <div className="pl-2 space-y-8">
@@ -287,7 +328,7 @@ const ListeningAptisExamPage = ({
           <Button
             type="primary"
             size="large"
-            className="rounded-xl font-bold bg-slate-800 hover:bg-slate-700 border-none shadow-md shadow-slate-300"
+            className="rounded-xl font-bold bg-slate-800 hover:bg-slate-700 border-none shadow-md shadow-slate-300 text-white"
             onClick={() => setCurrentPartId(parts[currentTabIndex + 1]?.id)}
             disabled={submitting}
           >
@@ -297,7 +338,7 @@ const ListeningAptisExamPage = ({
           <Button
             type="primary"
             size="large"
-            className="rounded-xl font-bold px-10 bg-blue-600 hover:bg-blue-500 border-none shadow-lg shadow-blue-200"
+            className="rounded-xl font-bold px-10 bg-blue-600 hover:bg-blue-500 border-none shadow-lg shadow-blue-200 text-white"
             onClick={confirmSubmit}
             loading={submitting}
             icon={<SendOutlined />}
