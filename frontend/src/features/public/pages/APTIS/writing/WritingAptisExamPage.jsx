@@ -53,7 +53,8 @@ const WritingAptisExamPage = ({ isFullTest = false, testIdFromProps = null, onSk
       
       {/* HEADER: Chế độ thi đơn */}
       {!isFullTest && (
-        <Header className="bg-white border-b border-slate-200 flex justify-between items-center px-6 z-10 shrink-0">
+        <Header className="bg-white border-b border-slate-200 flex justify-between items-center px-6 z-10 shrink-0"
+        style={{backgroundColor: '#ffffff', lineHeight: 'normal'}}>
           <Space>
             <Tag color="indigo" className="text-sm px-3 py-1 font-bold rounded-md m-0 border-0 bg-indigo-50 text-indigo-600">
               <EditOutlined className="mr-1"/> Aptis Writing
@@ -68,7 +69,8 @@ const WritingAptisExamPage = ({ isFullTest = false, testIdFromProps = null, onSk
 
       {/* HEADER: Chế độ Full Test */}
       {isFullTest && (
-        <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center z-10 shadow-sm shrink-0">
+        <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center z-10 shadow-sm shrink-0"
+        style={{backgroundColor: '#ffffff', lineHeight: 'normal'}}>
           <Text strong className="text-lg text-slate-700">Skill: Writing</Text>
           <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-base transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}>
             <ClockCircleOutlined /> Time remaining: {formatTime(timeLeft)}
