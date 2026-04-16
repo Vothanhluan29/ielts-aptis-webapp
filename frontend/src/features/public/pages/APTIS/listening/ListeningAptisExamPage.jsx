@@ -8,14 +8,13 @@ import {
 import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion'; 
 import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion'; 
 
-// Gọi Custom Hook vào
 import { useListeningAptisExam } from '../../../hooks/APTIS/listening/useListeningAptisExam';
 
 const { Header, Content, Footer } = Layout;
 const { Title, Text } = Typography;
 
 // ==========================================
-// COMPONENT: AUDIO PLAYER (Đã nâng cấp hỗ trợ Start/End Time)
+// COMPONENT: AUDIO PLAYER
 // ==========================================
 const AptisAudioPlayer = ({ src, startTime, endTime }) => {
   const audioRef = useRef(null);
@@ -24,7 +23,6 @@ const AptisAudioPlayer = ({ src, startTime, endTime }) => {
   const [progress, setProgress] = useState(0);
   const MAX_PLAYS = 2;
 
-  // Khởi tạo thời gian bắt đầu khi render
   useEffect(() => {
     if (audioRef.current && startTime !== undefined && startTime !== null) {
       audioRef.current.currentTime = startTime;
@@ -34,13 +32,11 @@ const AptisAudioPlayer = ({ src, startTime, endTime }) => {
   const handlePlay = () => {
     if (playCount >= MAX_PLAYS || isPlaying) return;
     if (audioRef.current) {
-      // Đảm bảo audio luôn bắt đầu đúng mốc nếu bị tua lố
       if (startTime !== undefined && startTime !== null) {
         if (audioRef.current.currentTime < startTime || (endTime && audioRef.current.currentTime >= endTime)) {
           audioRef.current.currentTime = startTime;
         }
       }
-
       audioRef.current.play().catch(e => {
          console.error("Audio playback error:", e);
          message.error("Audio playback error. Please check your speakers/browser!");
@@ -52,26 +48,20 @@ const AptisAudioPlayer = ({ src, startTime, endTime }) => {
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       const current = audioRef.current.currentTime;
-
-      // 1. Logic tự động DỪNG khi chạm mốc endTime
       if (endTime && current >= endTime) {
         audioRef.current.pause();
         setIsPlaying(false);
-        // Trả về vị trí bắt đầu để sẵn sàng cho lần nghe thứ 2
         audioRef.current.currentTime = (startTime !== undefined && startTime !== null) ? startTime : 0;
         setProgress(0);
         setPlayCount(prev => prev + 1);
         return;
       }
-
-      // 2. Logic tính toán thanh Progress Bar theo đoạn (Segment)
       const start = (startTime !== undefined && startTime !== null) ? startTime : 0;
       const end = endTime || audioRef.current.duration || 0;
       const duration = end - start;
 
       if (duration > 0) {
         let currentProgress = ((current - start) / duration) * 100;
-        // Chặn progress bar không bị tràn số âm hoặc quá 100%
         if (currentProgress < 0) currentProgress = 0;
         if (currentProgress > 100) currentProgress = 100;
         setProgress(currentProgress);
@@ -170,6 +160,15 @@ const ListeningAptisExamPage = ({
     handleGoBackEmpty
   } = useListeningAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
+  // 🐞 BẮT LỖI (DEBUG): Dòng này sẽ in ra Console (F12) dữ liệu thật
+  useEffect(() => {
+    if (!loading && activePart) {
+      console.log("=== THÔNG TIN AUDIO ĐANG TÌM ĐƯỢC ===");
+      console.log("Audio tổng của Test:", testDetail?.audio_url);
+      console.log("Chi tiết Part hiện tại:", activePart);
+    }
+  }, [loading, activePart, testDetail]);
+
   if (loading) {
     return (
       <div className="flex h-screen items-center justify-center bg-slate-50">
@@ -187,7 +186,6 @@ const ListeningAptisExamPage = ({
         <Card className="text-center rounded-3xl shadow-sm border-0 py-10 px-8">
           <ExclamationCircleOutlined className="text-red-400 text-5xl mb-4 block" />
           <Title level={4}>Empty Test</Title>
-          <Text type="secondary">No questions have been added to this test yet.</Text>
           <Button type="primary" onClick={handleGoBackEmpty} className="mt-6">Go Back</Button>
         </Card>
       </div>
@@ -205,7 +203,6 @@ const ListeningAptisExamPage = ({
             </Tag>
             <Text strong className="text-base hidden sm:block text-slate-800">{testDetail?.title}</Text>
           </div>
-          
           <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-lg transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
             <ClockCircleOutlined /> {formatTime(timeLeft)}
           </div>
@@ -252,62 +249,69 @@ const ListeningAptisExamPage = ({
           {!activePart?.groups || activePart.groups.length === 0 ? (
              <div className="text-center py-10 text-slate-400">No questions in this section.</div>
           ) : (
-            activePart.groups.map((group) => (
-              <div key={group.id} className="mb-14 last:mb-0 pb-8 border-b border-slate-100 last:border-0 last:pb-0">
-                
-                {/* 🔥 CƠ CHẾ FALLBACK 3 LỚP (Ưu tiên File câu hỏi -> File của Part -> File của Đề thi) */}
-                <AptisAudioPlayer 
-                  src={group.audio_url || group.media_url || group.audio_file || group.attached_audio || activePart?.audio_url || testDetail?.audio_url} 
-                  startTime={group.start_time}
-                  endTime={group.end_time}
-                />
-                
-                <div className="pl-2 space-y-8">
-                  {group.questions?.map((q, idx) => {
-                    const qType = q.question_type?.toUpperCase() || "";
-                    const pType = q.part_type?.toUpperCase() || "";
-                    
-                    const isDropdown = qType === 'DROPDOWN' || 
-                                       qType === 'MATCHING' || 
-                                       pType.includes('PART_4');
+            activePart.groups.map((group) => {
+              // Kiểm tra xem Group có lấy được Audio từ cấp độ chung không
+              const groupAudioSrc = group.audio_url || group.media_url || activePart?.audio_url || testDetail?.audio_url;
+              
+              // Kiểm tra xem các câu hỏi lẻ bên trong có tự gắn Audio riêng không (Trường hợp Part 1)
+              const hasQuestionLevelAudio = group.questions?.some(q => q.audio_url || q.media_url);
 
-                    const qKey = String(q.question_number || idx + 1);
+              return (
+                <div key={group.id} className="mb-14 last:mb-0 pb-8 border-b border-slate-100 last:border-0 last:pb-0">
+                  
+                  {/* HIỂN THỊ AUDIO CẤP ĐỘ GROUP: Chỉ hiện nếu có audio chung, hoặc CẢ group VÀ question đều không có audio (để báo lỗi màu đỏ) */}
+                  {(groupAudioSrc || !hasQuestionLevelAudio) && (
+                    <AptisAudioPlayer 
+                      src={groupAudioSrc} 
+                      startTime={group.start_time}
+                      endTime={group.end_time}
+                    />
+                  )}
+                  
+                  <div className="pl-2 space-y-8 mt-6">
+                    {group.questions?.map((q, idx) => {
+                      const qType = q.question_type?.toUpperCase() || "";
+                      const pType = q.part_type?.toUpperCase() || "";
+                      const isDropdown = qType === 'DROPDOWN' || qType === 'MATCHING' || pType.includes('PART_4');
+                      const qKey = String(q.question_number || idx + 1);
 
-                    if (isDropdown) {
+                      // Lấy Audio riêng của câu hỏi (nếu có)
+                      const questionAudioSrc = q.audio_url || q.media_url;
+
                       return (
-                        <DropdownQuestion 
-                          key={q.id}
-                          questionId={q.id}
-                          questionNumber={q.question_number || idx + 1}
-                          questionText={q.question_text}
-                          options={q.options}
-                          selectedValue={answers[qKey]} 
-                          onChange={(arg1, arg2) => {
-                            const val = arg2 !== undefined ? arg2 : arg1;
-                            handleAnswerChange(qKey, val);
-                          }} 
-                        />
+                        <div key={q.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm mb-6">
+                          
+                          {/* 🔥 HIỂN THỊ AUDIO CẤP ĐỘ CÂU HỎI (Dành riêng cho Part 1) */}
+                          {questionAudioSrc && (
+                            <AptisAudioPlayer src={questionAudioSrc} />
+                          )}
+
+                          {isDropdown ? (
+                            <DropdownQuestion 
+                              questionId={q.id}
+                              questionNumber={q.question_number || idx + 1}
+                              questionText={q.question_text}
+                              options={q.options}
+                              selectedValue={answers[qKey]} 
+                              onChange={(arg1, arg2) => handleAnswerChange(qKey, arg2 !== undefined ? arg2 : arg1)} 
+                            />
+                          ) : (
+                            <MultipleChoiceQuestion 
+                              questionId={q.id}
+                              questionNumber={q.question_number || idx + 1}
+                              questionText={q.question_text}
+                              options={q.options}
+                              selectedValue={answers[qKey]} 
+                              onChange={(arg1, arg2) => handleAnswerChange(qKey, arg2 !== undefined ? arg2 : arg1)} 
+                            />
+                          )}
+                        </div>
                       );
-                    } else {
-                      return (
-                        <MultipleChoiceQuestion 
-                          key={q.id}
-                          questionId={q.id}
-                          questionNumber={q.question_number || idx + 1}
-                          questionText={q.question_text}
-                          options={q.options}
-                          selectedValue={answers[qKey]} 
-                          onChange={(arg1, arg2) => {
-                            const val = arg2 !== undefined ? arg2 : arg1;
-                            handleAnswerChange(qKey, val);
-                          }} 
-                        />
-                      );
-                    }
-                  })}
+                    })}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
 
         </Card>
