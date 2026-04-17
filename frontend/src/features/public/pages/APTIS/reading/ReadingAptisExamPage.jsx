@@ -363,7 +363,7 @@ const ReadingAptisExamPage = ({
             loading={submitting}
             icon={<SendOutlined />}
           >
-            {isFullTest ? 'Submit & Go to Listening' : 'Submit Test'}
+            {isFullTest ? 'Submit & Go to Writing' : 'Submit Test'}
           </Button>
         )}
       </Footer>

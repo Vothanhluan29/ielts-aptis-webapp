@@ -182,7 +182,7 @@ const GrammarVocabExamPage = ({
             loading={submitting}
             icon={<SendOutlined />}
           >
-             {isFullTest ? 'Submit and move to Reading' : 'Submit & Grade'}
+             {isFullTest ? 'Submit and move to Listening' : 'Submit & Grade'}
           </Button>
         )}
       </Footer>
