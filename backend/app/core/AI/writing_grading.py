@@ -5,17 +5,16 @@ import httpx #type: ignore
 import logging
 from app.core.config import settings
 
-# Cấu hình Logging
+# Logging setting
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-# Cấu hình API Key
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 class IELTS_Writing_Grader:
     def __init__(self):
         generation_config = {
-            "temperature": 0.1, # Giữ temperature thấp để AI tập trung bắt lỗi chính xác
+            "temperature": 0.1, 
             "top_p": 0.95,
             "top_k": 40,
             "max_output_tokens": 8192,
@@ -101,10 +100,10 @@ class IELTS_Writing_Grader:
         t1_text = task1_answer if has_t1 else "CANDIDATE DID NOT ATTEMPT THIS TASK."
         t2_text = task2_answer if has_t2 else "CANDIDATE DID NOT ATTEMPT THIS TASK."
 
-        # Tải ảnh Task 1 nếu có
+        # upload image if provided
         task1_image_data = self._load_image_from_url(task1_image_url) if task1_image_url else None
         
-        # Xây dựng Prompt
+        # Construct the prompt for Gemini
         text_prompt = f"""
         You are grading an IELTS Writing Test. Use the provided RUBRICS strictly. Do not give the benefit of the doubt.
 
@@ -171,7 +170,6 @@ class IELTS_Writing_Grader:
         }}
         """
 
-        # Tạo payload gửi Gemini
         request_content = [text_prompt]
         if task1_image_data:
             request_content.append(task1_image_data)
@@ -189,7 +187,6 @@ class IELTS_Writing_Grader:
             
         except Exception as e:
             logger.error("System error during AI grading: %s", e)
-            # Trả về default error để không crash app
             return {
                 "task1": {"ta": 0, "cc": 0, "lr": 0, "gra": 0, "feedback": "AI Grading Error", "correction": []},
                 "task2": {"tr": 0, "cc": 0, "lr": 0, "gra": 0, "feedback": "AI Grading Error", "correction": []},
