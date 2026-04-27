@@ -33,7 +33,7 @@ export const useExamAptisManager = () => {
     try {
       await examAptisAdminApi.deleteFullTest(id);
       message.success("Test deleted successfully!");
-      fetchTests(); // Refresh lại danh sách sau khi xóa
+      fetchTests(); 
     } catch (error) {
       console.error("Delete Error:", error);
       message.error("Unable to delete this test. Please try again!");
