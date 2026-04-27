@@ -66,7 +66,7 @@ export const useExamEdit = (id) => {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-        // 🔥 Thay thế bằng message.error của Antd
+
         message.error("Failed to load initial data.");
       } finally {
         setLoading(false);
