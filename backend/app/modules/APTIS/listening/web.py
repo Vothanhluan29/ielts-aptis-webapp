@@ -21,10 +21,7 @@ async def upload_audio(
     file: UploadFile = File(...), 
     admin = Depends(get_admin_user)
 ):
-    """
-    [ADMIN] Upload file MP3 cho bài nghe Aptis.
-    Trả về: {"url": "http://domain/static/audio/aptis_listening/filename.mp3"}
-    """
+
     try:
         url = await AptisListeningUtils.save_audio_file(file)
         return {"url": url}
@@ -35,7 +32,7 @@ async def upload_audio(
 
 
 # ====================================================
-# 2. QUẢN LÝ TEST (ADMIN) - CRUD
+# 2.  TEST (ADMIN) - CRUD
 # ====================================================
 
 @router.get("/admin/tests", response_model=List[schemas.ListeningTestListItem])
@@ -46,7 +43,6 @@ def get_tests_for_admin(
     db: Session = Depends(get_db),
     admin = Depends(get_admin_user)
 ):
-    """Lấy danh sách tất cả bài thi (kể cả chưa publish)"""
     return AptisListeningTestService.get_all_tests(
         db, 
         admin_view=True, 
@@ -59,7 +55,6 @@ def create_test(
     db: Session = Depends(get_db),
     admin = Depends(get_admin_user)
 ):
-    """Tạo đề thi mới (Kèm Parts -> Groups -> Questions)"""
     return AptisListeningTestService.create_test(db, test_data)
 
 @router.get("/admin/tests/{test_id}", response_model=schemas.ListeningTestResponse)
@@ -68,7 +63,7 @@ def get_test_detail_admin(
     db: Session = Depends(get_db), 
     admin = Depends(get_admin_user)
 ):
-    """Lấy chi tiết đề thi (Bao gồm đáp án đúng và transcript để Admin sửa)"""
+
     test = AptisListeningTestService.get_test_detail(db, test_id)
     if not test: 
         raise HTTPException(status_code=404, detail="Test not found")
@@ -81,7 +76,7 @@ def update_test(
     db: Session = Depends(get_db),
     admin = Depends(get_admin_user)
 ):
-    """Cập nhật đề thi (Deep Update)"""
+
     test = AptisListeningTestService.update_test(db, test_id, test_data)
     if not test: 
         raise HTTPException(status_code=404, detail="Test not found")
@@ -117,7 +112,7 @@ def get_public_tests(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    """[STUDENT] Lấy danh sách bài thi luyện tập."""
+
     return AptisListeningTestService.get_all_tests(
         db, 
         current_user_id=current_user.id,
@@ -133,7 +128,7 @@ def get_test_detail_for_student(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    """[STUDENT] Lấy đề để làm bài (Tự động giấu đáp án và transcript)"""
+  
     test = AptisListeningTestService.get_test_detail(db, test_id)
     if not test: 
         raise HTTPException(status_code=404, detail="Test not found")
@@ -152,7 +147,6 @@ def submit_test(
     db: Session = Depends(get_db),
     user = Depends(get_current_user)
 ):
-    """Nộp bài và chấm điểm CEFR tự động"""
     result = AptisListeningSubmissionService.submit_test(db, user.id, submission)
     if not result: 
         raise HTTPException(status_code=400, detail="Submission failed")
@@ -176,7 +170,7 @@ def get_submission_detail(
     db: Session = Depends(get_db), 
     user = Depends(get_current_user)
 ):
-    """Xem lại chi tiết kết quả bài đã làm"""
+
     sub = AptisListeningSubmissionService.get_submission_detail(db, submission_id)
     if not sub:
         raise HTTPException(status_code=404, detail="Submission not found")
@@ -198,11 +192,11 @@ def get_submission_detail(
 def admin_get_all_submissions(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
-    status: Optional[str] = Query(None, description="Lọc theo trạng thái bài nộp"),
+    status: Optional[str] = Query(None, description="Filter by submission status"),
     db: Session = Depends(get_db),
     admin = Depends(get_admin_user)
 ):
-    """[ADMIN] Lấy danh sách tất cả bài nộp Listening của hệ thống"""
+
     return AptisListeningSubmissionService.get_all_submissions_for_admin(db, skip, limit, status)
 
 @router.get("/admin/users/{target_user_id}/submissions", response_model=List[schemas.AdminListeningSubmissionResponse])
@@ -211,5 +205,5 @@ def admin_get_user_history(
     db: Session = Depends(get_db),
     admin = Depends(get_admin_user)
 ):
-    """[ADMIN] Xem lịch sử bài nộp Listening của 1 học viên"""
+
     return AptisListeningSubmissionService.get_user_history_for_admin(db, target_user_id)
