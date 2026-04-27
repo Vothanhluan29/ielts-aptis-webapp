@@ -6,21 +6,20 @@ from app.core.cloudinary import upload_smart_file
 class AptisListeningUtils:
     @staticmethod
     async def save_audio_file(file: UploadFile) -> str:
-        # Kiểm tra định dạng file
         allowed_extensions = {".mp3", ".wav", ".ogg", ".m4a"}
         file_ext = os.path.splitext(file.filename)[1].lower()
         
         if file_ext not in allowed_extensions:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Định dạng file không hợp lệ. Chỉ chấp nhận: {', '.join(allowed_extensions)}"
+                detail=f"File format is not allowed. Only accepts: {', '.join(allowed_extensions)}"
             )
         audio_url = await upload_smart_file(file, folder_name="aptis_listening")
         
         if not audio_url:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Lỗi trong quá trình lưu file audio."
+                detail="Error occurred while saving the audio file."
             )
             
         return audio_url
