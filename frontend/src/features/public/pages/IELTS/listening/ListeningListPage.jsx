@@ -29,8 +29,8 @@ const ListeningListPage = () => {
         tagColor: 'success',
         text: 'Completed',
         icon: <CheckCircle size={14} className="mr-1" />,
-        mainBtnText: 'View Result',
-        mainBtnAction: () => navigate(`/listening/result/${testId}`),
+        mainBtnText: 'View History',
+        mainBtnAction: () => navigate(`/listening/history`),
         isStartBtn: false,
         showRetry: true,
         // Emerald
@@ -48,8 +48,8 @@ const ListeningListPage = () => {
         tagColor: 'warning',
         text: 'Pending Review',
         icon: <Clock size={14} className="mr-1" />,
-        mainBtnText: 'Review Submission',
-        mainBtnAction: () => navigate(`/listening/result/${testId}`),
+        mainBtnText: 'View History',
+        mainBtnAction: () => navigate(`/listening/history`),
         isStartBtn: false,
         showRetry: true,
         // Amber
