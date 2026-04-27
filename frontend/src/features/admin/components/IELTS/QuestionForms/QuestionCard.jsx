@@ -9,7 +9,7 @@ import FillInBlank from './FillInBlank';
 
 const { TextArea } = Input;
 
-// 1. TÁCH BIỆT ENUM CHO READING
+
 const READING_TYPES = [
   { value: 'MULTIPLE_CHOICE', label: 'Multiple Choice' },
   { value: 'MULTIPLE_ANSWER', label: 'Multiple Answer' },
@@ -22,7 +22,7 @@ const READING_TYPES = [
   { value: 'MATCHING_PARAGRAPH_INFORMATION', label: 'Matching Paragraph Info' }
 ];
 
-// 2. TÁCH BIỆT ENUM CHO LISTENING
+
 const LISTENING_TYPES = [
   { value: 'MULTIPLE_CHOICE', label: 'Multiple Choice' },
   { value: 'MULTIPLE_ANSWER', label: 'Multiple Answer' },
@@ -38,7 +38,7 @@ const LISTENING_TYPES = [
   { value: 'SHORT_ANSWER', label: 'Short Answer Questions' }
 ];
 
-// Thêm prop "module" (mặc định là 'reading' để không làm lỗi code cũ)
+
 const QuestionCard = ({ field, remove, namePath, module = 'reading' }) => {
   const form = Form.useFormInstance();
   
@@ -48,12 +48,12 @@ const QuestionCard = ({ field, remove, namePath, module = 'reading' }) => {
 
   const currentType = Form.useWatch(typePath, form);
 
-  // Chọn đúng danh sách type dựa vào module truyền vào
+
   const currentOptions = module === 'listening' ? LISTENING_TYPES : READING_TYPES;
 
   const renderSpecificForm = (type) => {
     switch (type) {
-      // Nhóm dùng giao diện trắc nghiệm (Tạo Options A, B, C, D)
+  
       case 'MULTIPLE_CHOICE':
       case 'MULTIPLE_ANSWER':
       case 'MATCHING_HEADINGS':
@@ -64,13 +64,13 @@ const QuestionCard = ({ field, remove, namePath, module = 'reading' }) => {
       case 'DIAGRAM_LABELING':
         return <MultipleChoice field={field} namePath={namePath} />;
         
-      // Nhóm dùng giao diện True/False
+
       case 'TRUE_FALSE_NOT_GIVEN':
         return <TrueFalse field={field} isYesNo={false} namePath={namePath} />;
       case 'YES_NO_NOT_GIVEN':
         return <TrueFalse field={field} isYesNo={true} namePath={namePath} />;
         
-      // Nhóm dùng giao diện điền từ (Chỉ nhập list Correct Answers)
+
       case 'SENTENCE_COMPLETION':
       case 'SUMMARY_COMPLETION':
       case 'FORM_COMPLETION':
@@ -102,7 +102,7 @@ const QuestionCard = ({ field, remove, namePath, module = 'reading' }) => {
 
         <Form.Item name={[field.name, 'question_type']} label="Question Type" className="md:col-span-5 mb-0" rules={[{ required: true }]}>
           <Select 
-            options={currentOptions} // Đã đổi sang biến động
+            options={currentOptions} 
             placeholder="Select question type" 
             size="large" 
           />
