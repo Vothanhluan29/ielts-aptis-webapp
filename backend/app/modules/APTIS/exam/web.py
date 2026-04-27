@@ -7,16 +7,16 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_admin_user
 from app.modules.users.models import User
 
-# Import Schemas
+
 from app.modules.APTIS.exam import schemas
 from app.modules.APTIS.exam.services.test_service import AptisExamTestService
 from app.modules.APTIS.exam.services.submission_service import AptisExamSubmissionService
 
-# 🔥 Đổi prefix thành /aptis/exam để tách biệt với IELTS
+
 router = APIRouter(prefix="/aptis/exam", tags=["Aptis Exam (Full Test)"])
 
 # =========================
-# 👑 ADMIN - FULL TEST
+# ADMIN - FULL TEST
 # =========================
 
 @router.get("/admin/tests", response_model=List[schemas.AptisFullTestListItem]) 
@@ -24,7 +24,6 @@ def admin_get_all_tests(
     db: Session = Depends(get_db),
     admin: User = Depends(get_admin_user),
 ):
-    # Service trả về list các object đã được joinedload
     return AptisExamTestService.get_all_full_tests(db, admin_view=True)
 
 
@@ -75,7 +74,7 @@ def delete_full_test(
 
 
 # =========================
-# 📑 ADMIN - SUBMISSIONS
+# ADMIN - SUBMISSIONS
 # =========================
 
 @router.get(
@@ -93,7 +92,7 @@ def admin_get_all_submissions(
 
 
 # =========================
-# 🎓 STUDENT - TEST LIBRARY
+# STUDENT - TEST LIBRARY
 # =========================
 
 @router.get("/tests", response_model=List[schemas.AptisFullTestListItem])
@@ -126,7 +125,7 @@ def get_library_test_detail(
 
 
 # =========================
-# 🚀 STUDENT - EXAM FLOW
+# STUDENT - EXAM FLOW
 # =========================
 
 @router.post("/start", response_model=schemas.AptisExamSubmissionResponse)
@@ -178,7 +177,7 @@ def submit_skill_step(
 
 
 # =========================
-# 📜 STUDENT - HISTORY & RESULT
+# STUDENT - HISTORY & RESULT
 # =========================
 
 @router.get(
