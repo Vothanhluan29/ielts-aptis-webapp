@@ -4,7 +4,7 @@ import { Form, message } from 'antd';
 import readingAptisAdminApi from '../../../api/APTIS/reading/readingAptisAdminApi';
 
 const MAX_PARTS = 5;
-const MAX_QUESTIONS = 30; // Đã nâng lên 35 để phù hợp cấu trúc Aptis thực tế
+const MAX_QUESTIONS = 30; 
 
 export const useReadingAptisEdit = () => {
   const { id } = useParams();
@@ -17,7 +17,7 @@ export const useReadingAptisEdit = () => {
   const [activePartKeys, setActivePartKeys] = useState(['0']);
 
   // ==========================================
-  // 1. FETCH DỮ LIỆU ĐỀ THI (EDIT MODE)
+  // 1. Fetch Test Detail (EDIT MODE)
   // ==========================================
   const fetchTestDetail = useCallback(async () => {
     setLoading(true);
@@ -32,7 +32,7 @@ export const useReadingAptisEdit = () => {
             let optionsArray = [];
             let correctIndex = q.correct_answer;
 
-            // Xử lý Multiple Choice
+            // Multiple Choice
             if (q.question_type === 'MULTIPLE_CHOICE') {
               if (q.options && typeof q.options === 'object' && !Array.isArray(q.options)) {
                 const keys = Object.keys(q.options).sort();
@@ -41,13 +41,11 @@ export const useReadingAptisEdit = () => {
                 if (foundIdx !== -1) correctIndex = foundIdx.toString();
               }
             } 
-            // 🔥 TỐI ƯU XỬ LÝ REORDER_SENTENCES (Decode từ "A-B-C" -> ["0", "1", "2"])
             else if (q.question_type === 'REORDER_SENTENCES') {
               optionsArray = Array.isArray(q.options) ? [...q.options] : [];
 
               if (typeof q.correct_answer === 'string' && /[A-Za-z]/.test(q.correct_answer)) {
                 const parts = q.correct_answer.split(/[-,\s]+/).filter(Boolean);
-                // Dùng mã ASCII (A=65) thay vì mảng hardcode, tránh lỗi thiếu chữ cái
                 correctIndex = parts.map((l) => (l.toUpperCase().charCodeAt(0) - 65).toString());
               } else if (typeof q.correct_answer === 'string' && q.correct_answer.includes(',')) {
                 correctIndex = q.correct_answer.split(',').map(item => item.trim());
@@ -55,7 +53,7 @@ export const useReadingAptisEdit = () => {
                 correctIndex = q.correct_answer;
               }
             } 
-            // Xử lý Matching
+            //  Matching
             else if (q.question_type === 'MATCHING_OPINIONS' || q.question_type === 'MATCHING_HEADINGS') {
               optionsArray = Array.isArray(q.options) ? [...q.options] : [];
               const foundIdx = optionsArray.findIndex((opt) => opt === q.correct_answer);
@@ -144,7 +142,6 @@ export const useReadingAptisEdit = () => {
 
     const totalQuestions = values.parts?.reduce((total, part) => total + (part.questions?.length || 0), 0) || 0;
 
-    // 🔥 TỐI ƯU: Cho phép lên tới 35 câu (Max thực tế)
     if (totalQuestions > MAX_QUESTIONS) {
       message.error(`Limit exceeded: Reading test can contain a maximum of ${MAX_QUESTIONS} questions (Current: ${totalQuestions}).`);
       return;
@@ -172,7 +169,6 @@ export const useReadingAptisEdit = () => {
             let finalOptions;
             let exactCorrectText = '';
 
-            // 🔥 TỐI ƯU XỬ LÝ REORDER_SENTENCES (Encode ra dạng chuẩn "A-B-C")
             if (q.question_type === 'REORDER_SENTENCES') {
               finalOptions = (q.options || []).filter((opt) => opt && opt.trim() !== '');
 
@@ -180,31 +176,31 @@ export const useReadingAptisEdit = () => {
               if (Array.isArray(ans)) ans = ans.join(',');
 
               if (/^[0-9,\s]+$/.test(ans)) {
-                // Biến đổi index từ component ("0, 1, 2") thành "A-B-C"
+
                 exactCorrectText = ans
                   .split(',')
                   .map((idx) => String.fromCharCode(65 + Number(idx.trim())))
                   .join('-');
               } else {
-                // Xử lý Admin nhập tay ("A, B, C", "a b c"...) -> Ép kiểu về "A-B-C" sạch
+
                 exactCorrectText = ans
                   .toUpperCase()
-                  .replace(/[^A-Z]/g, '') // Càn quét mọi ký tự không phải chữ cái
+                  .replace(/[^A-Z]/g, '')
                   .split('')
                   .join('-'); 
               }
             } 
-            // Xử lý Matching Opinions / Headings
+            // Matching Opinions / Headings
             else if (q.question_type === 'MATCHING_OPINIONS' || q.question_type === 'MATCHING_HEADINGS') {
               finalOptions = (q.options || []).filter((opt) => opt && opt.trim() !== '');
               exactCorrectText = q.options[Number(q.correct_answer)]?.trim() || '';
             } 
-            // Xử lý Fill in the blanks
+            // Fill in the blanks
             else if (q.question_type === 'FILL_IN_BLANKS') {
               finalOptions = {};
               exactCorrectText = q.correct_answer?.trim() || '';
             } 
-            // Xử lý Multiple Choice
+            // Multiple Choice
             else {
               const optionsDict = {};
               if (Array.isArray(q.options)) {

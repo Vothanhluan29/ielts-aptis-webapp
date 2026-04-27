@@ -20,7 +20,6 @@ export const useReadingAptisManager = () => {
       });
       const dataList = response.data || response;
       setTests(dataList);
-      // Fallback pagination nếu API không trả về total
       setPagination(prev => ({ 
         ...prev, 
         total: dataList.length > 0 ? page * pageSize + 10 : page * pageSize 
