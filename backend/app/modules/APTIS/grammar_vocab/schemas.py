@@ -22,13 +22,13 @@ class QuestionUpdate(BaseModel):
     correct_answer: Optional[str] = None
     explanation: Optional[str] = None
 
-# Dành cho Học viên (Đã giấu đáp án)
+
 class QuestionForUser(QuestionBase):
     id: int
     group_id: int
     class Config: from_attributes = True
 
-# Dành cho Admin (Hiển thị tất cả)
+
 class QuestionAdminResponse(QuestionCreate):
     id: int
     group_id: int
@@ -86,7 +86,7 @@ class TestResponse(TestBase):
     created_at: datetime
     class Config: from_attributes = True
 
-# Lớp rút gọn để trả về Danh sách (List) cho nhẹ server
+
 class TestListItem(TestResponse):
     status: Optional[AptisGrammarVocabStatus] = AptisGrammarVocabStatus.NOT_STARTED 
     class Config: from_attributes = True
@@ -121,7 +121,7 @@ class SubmissionResponse(BaseModel):
     submitted_at: datetime
     class Config: from_attributes = True
 
-# Dành cho trang Lịch sử làm bài (Gọn nhẹ)
+
 class SubmissionHistoryItem(BaseModel):
     id: int
     test_id: int
