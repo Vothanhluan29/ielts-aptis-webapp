@@ -5,9 +5,9 @@ from enum import Enum
 import json
 
 class AptisListeningQuestionType(str, Enum):
-    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"     # Trắc nghiệm 3 đáp án (A, B, C) - Dùng nhiều nhất
-    MATCHING = "MATCHING"                   # Nghe 4 người và nối quan điểm (Part 3)
-    SHORT_ANSWER = "SHORT_ANSWER"           # Trả lời ngắn
+    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"   
+    MATCHING = "MATCHING"                  
+    SHORT_ANSWER = "SHORT_ANSWER"          
 
 # =======================================================
 # 1. BASE SCHEMAS
@@ -34,23 +34,22 @@ class QuestionBase(BaseModel):
             return v
         return v 
 
-# --- GROUP (🔥 Đã chuyển Audio và Transcript xuống đây) ---
+# --- GROUP ---
 class GroupBase(BaseModel):
     instruction: Optional[str] = None
     image_url: Optional[str] = None
     audio_url: Optional[str] = None 
-    transcript: Optional[str] = None # Transcript nằm cùng audio
+    transcript: Optional[str] = None 
     order: int = 1
 
-# --- PART (Bây giờ chỉ còn mỗi part_number) ---
+# --- PART  ---
 class PartBase(BaseModel):
     part_number: int
-    title: Optional[str] = None  # Thêm title cho Part để dễ quản lý, có thể dùng để hiển thị trên UI
-
+    title: Optional[str] = None  
 # --- TEST ---
 class TestBase(BaseModel):
     title: str
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: Mô tả chung cho đề thi Listening
+    description: Optional[str] = None 
     time_limit: int = 40
     is_published: bool = False 
     is_full_test_only: bool = False
@@ -64,15 +63,15 @@ class QuestionCreate(QuestionBase):
     correct_answer: str
     explanation: Optional[str] = None
 
-# Group (Chứa Questions)
+# Group 
 class GroupCreate(GroupBase):
     questions: List[QuestionCreate] = []
 
-# Part (Chứa Groups)
+# Part 
 class PartCreate(PartBase):
     groups: List[GroupCreate] = []
 
-# Test (Chứa Parts)
+# Test 
 class ListeningTestCreate(TestBase):
     parts: List[PartCreate] = []
 
@@ -96,8 +95,8 @@ class GroupUpdate(BaseModel):
     id: Optional[int] = None
     instruction: Optional[str] = None
     image_url: Optional[str] = None
-    audio_url: Optional[str] = None   # Cho phép update audio mới
-    transcript: Optional[str] = None  # Cho phép update transcript
+    audio_url: Optional[str] = None   
+    transcript: Optional[str] = None 
     order: Optional[int] = None
     questions: Optional[List[QuestionUpdate]] = None
 
@@ -109,7 +108,7 @@ class PartUpdate(BaseModel):
 
 class ListeningTestUpdate(BaseModel):
     title: Optional[str] = None
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: Cho phép cập nhật description
+    description: Optional[str] = None
     time_limit: Optional[int] = None
     is_published: Optional[bool] = None
     is_full_test_only: Optional[bool] = None
@@ -117,22 +116,21 @@ class ListeningTestUpdate(BaseModel):
 
 
 # =======================================================
-# 3. OUTPUT SCHEMAS - STUDENT (Public / Đang làm bài)
+# 3. OUTPUT SCHEMAS - STUDENT 
 # =======================================================
 
 class QuestionStudent(QuestionBase):
     id: int
-    # 🚨 Không trả correct_answer và explanation
     class Config: from_attributes = True
 
-class GroupStudent(BaseModel): # Dùng BaseModel mới thay vì kế thừa GroupBase để che giấu Transcript
+class GroupStudent(BaseModel): 
     id: int
     instruction: Optional[str] = None
     image_url: Optional[str] = None
     audio_url: Optional[str] = None 
     order: int
     questions: List[QuestionStudent]
-    # 🚨 Không trả transcript khi đang thi
+
     class Config: from_attributes = True
 
 class PartStudent(PartBase):
@@ -148,7 +146,7 @@ class ListeningTestStudent(TestBase):
 class ListeningTestListItem(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: Để hiển thị mô tả ngắn ngoài màn hình danh sách Lobby
+    description: Optional[str] = None 
     time_limit: int
     is_published: bool
     is_full_test_only: bool
@@ -158,7 +156,7 @@ class ListeningTestListItem(BaseModel):
 
 
 # =======================================================
-# 4. SUBMISSION & SCORING (Thay đổi điểm số)
+# 4. SUBMISSION & SCORING 
 # =======================================================
 
 class SubmitAnswer(BaseModel):
@@ -178,7 +176,7 @@ class ResultDetailItem(BaseModel):
 class TestTitleOnly(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: Để màn hình lịch sử hiển thị được description nếu cần
+    description: Optional[str] = None 
     class Config: from_attributes = True
 
 class SubmissionSummary(BaseModel):
@@ -188,7 +186,7 @@ class SubmissionSummary(BaseModel):
     is_full_test_only: bool
     status: str
     
-    # 🔥 Aptis Scoring
+  
     correct_count: int
     score: int
     cefr_level: Optional[str] = None
@@ -201,7 +199,7 @@ class SubmissionDetail(BaseModel):
     test_id: int
     user_id: int
     
-    # 🔥 Aptis Scoring
+
     correct_count: int
     score: int
     cefr_level: Optional[str] = None
@@ -255,7 +253,7 @@ class AdminListeningSubmissionResponse(SubmissionDetail):
     user: Optional[UserBasicInfo] = None
 
 class ListeningScoreOverrideRequest(BaseModel):
-    # 🔥 Đổi theo Aptis
+  
     score: int
     correct_count: Optional[int] = None
     cefr_level: Optional[str] = None
