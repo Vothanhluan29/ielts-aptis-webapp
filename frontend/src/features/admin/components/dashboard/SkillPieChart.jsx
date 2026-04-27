@@ -52,7 +52,7 @@ const SkillPieChart = ({ skills }) => {
     <div
       style={{
         width: '100%',
-        height: 300, // ✅ FIX recharts bug
+        height: 300,
         position: 'relative'
       }}
     >
