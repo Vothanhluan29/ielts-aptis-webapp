@@ -8,10 +8,12 @@ import {
 } from '@ant-design/icons';
 
 const { Header, Content, Footer } = Layout;
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
 const MIN_WORDS_TASK_1 = 150;
 const MIN_WORDS_TASK_2 = 250;
+
+const fontStyle = { fontFamily: "'Times New Roman', Times, serif" };
 
 const WritingExamPage = ({ testId, onFinish }) => {
   const {
@@ -23,7 +25,7 @@ const WritingExamPage = ({ testId, onFinish }) => {
 
   if (loading || !test) {
     return (
-      <div className="h-screen flex items-center justify-center bg-slate-50">
+      <div className="h-screen flex items-center justify-center bg-slate-50" style={fontStyle}>
         <Spin size="large" description={<span className="font-bold text-slate-500 mt-2 block">Loading Exam Environment...</span>} />
       </div>
     );
@@ -32,14 +34,13 @@ const WritingExamPage = ({ testId, onFinish }) => {
   const currentTaskData = test.tasks?.find((t) => t.task_type === activeTask);
   const currentWordCount = wordCounts[activeTask];
   const minWords = activeTask === 'TASK_1' ? MIN_WORDS_TASK_1 : MIN_WORDS_TASK_2;
-  const isCurrentTaskValid = activeTask === 'TASK_1' ? isTask1Valid : isTask2Valid;
 
   const goToTask = (task) => {
     setActiveTask(task);
   };
 
   return (
-    <Layout className="h-screen bg-slate-50 font-sans overflow-hidden">
+    <Layout className="h-screen bg-slate-50 overflow-hidden" style={fontStyle}>
       
       {/* ================= HEADER ================= */}
       {!isFullTestMode && (
@@ -51,31 +52,20 @@ const WritingExamPage = ({ testId, onFinish }) => {
           <Space size="middle">
             <div className="w-1.5 h-8 bg-blue-600 rounded-full" />
             <div className="flex flex-col justify-center">
-              <Text className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight">
+              <Text className="text-[11px] font-bold text-slate-400 uppercase tracking-widest leading-tight" style={fontStyle}>
                 IELTS Writing Practice
               </Text>
-              <Text strong className="text-slate-800 text-base truncate max-w-sm mt-1 leading-tight">
+              <Text strong className="text-slate-800 text-base truncate max-w-sm mt-1 leading-tight" style={fontStyle}>
                 {test.title}
               </Text>
             </div>
           </Space>
 
-          {/* Right: Timer & Submit */}
+          {/* Right: Timer (Đã gỡ nút Submit) */}
           <Space size="large" align="center">
             <div className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 font-mono font-bold text-lg transition-colors ${timeLeft < 300 ? 'bg-red-50 text-red-600 border-red-200 animate-pulse' : 'bg-white text-slate-700 border-slate-200'}`}>
               <ClockCircleOutlined /> {formatTime(timeLeft)}
             </div>
-            <Button 
-              type="primary" 
-              size="large"
-              icon={<SendOutlined />}
-              onClick={handleSubmit} 
-              disabled={submitting || isQuotaFull} 
-              loading={submitting}
-              className={`font-bold tracking-wide shadow-sm px-8 ${canSubmit ? 'bg-blue-600 hover:bg-blue-500' : 'bg-slate-400'}`}
-            >
-              Submit Test
-            </Button>
           </Space>
         </Header>
       )}
@@ -87,6 +77,7 @@ const WritingExamPage = ({ testId, onFinish }) => {
           type="error" 
           banner 
           className="font-bold text-center"
+          style={fontStyle}
         />
       )}
 
@@ -107,16 +98,16 @@ const WritingExamPage = ({ testId, onFinish }) => {
                   {activeTask === 'TASK_1' ? '1' : '2'}
                 </div>
                 <div>
-                  <Title level={3} className="m-0! font-serif! text-slate-800">
+                  <Title level={3} className="m-0! text-slate-800" style={fontStyle}>
                     Writing Task {activeTask === 'TASK_1' ? '1' : '2'}
                   </Title>
-                  <Text type="secondary" className="uppercase font-bold tracking-wide text-xs">
+                  <Text type="secondary" className="uppercase font-bold tracking-wide text-xs" style={fontStyle}>
                     {activeTask === 'TASK_1' ? 'Report / Letter' : 'Essay'}
                   </Text>
                 </div>
               </Space>
 
-              <Tag color="default" icon={<InfoCircleOutlined />} className="px-3 py-1 text-sm font-semibold border-slate-200 bg-slate-50 text-slate-600 m-0">
+              <Tag color="default" icon={<InfoCircleOutlined />} className="px-3 py-1 text-sm font-semibold border-slate-200 bg-slate-50 text-slate-600 m-0" style={fontStyle}>
                 Minimum: {minWords} words
               </Tag>
             </div>
@@ -135,12 +126,13 @@ const WritingExamPage = ({ testId, onFinish }) => {
             {/* Question Text */}
             <div 
               ref={questionContainerRef}
-              className="font-serif text-[17px] leading-loose text-justify text-slate-800 whitespace-pre-wrap bg-slate-50/50 p-6 rounded-xl border border-slate-100"
+              className="text-[17px] leading-loose text-justify text-slate-800 whitespace-pre-wrap bg-slate-50/50 p-6 rounded-xl border border-slate-100"
+              style={fontStyle}
             >
               {currentTaskData?.question_text ? (
                 currentTaskData.question_text
               ) : (
-                <Text type="secondary" italic>No question content available.</Text>
+                <Text type="secondary" italic style={fontStyle}>No question content available.</Text>
               )}
             </div>
 
@@ -163,10 +155,10 @@ const WritingExamPage = ({ testId, onFinish }) => {
         >
           {/* Editor Header */}
           <div className="px-8 py-4 border-b border-slate-100 bg-[#f8f9fa] flex justify-between items-center shrink-0">
-            <Text strong className="uppercase tracking-widest text-xs text-slate-500 flex items-center">
+            <Text strong className="uppercase tracking-widest text-xs text-slate-500 flex items-center" style={fontStyle}>
               <EditOutlined className="mr-2 text-blue-500" /> Your Answer Sheet
             </Text>
-            <div className={`px-4 py-1 rounded-full font-bold text-sm transition-colors border ${isCurrentTaskValid ? 'bg-green-50 text-green-700 border-green-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`}>
+            <div className={`px-4 py-1 rounded-full font-bold text-sm transition-colors border ${currentWordCount >= minWords ? 'bg-green-50 text-green-700 border-green-200' : 'bg-orange-50 text-orange-700 border-orange-200'}`} style={fontStyle}>
               <FileTextOutlined className="mr-1" /> {currentWordCount} / {minWords} words
             </div>
           </div>
@@ -175,7 +167,8 @@ const WritingExamPage = ({ testId, onFinish }) => {
           <div className="flex-1 relative bg-white">
             <textarea
               ref={editorRef}
-              className="w-full h-full p-8 text-[18px] text-slate-800 leading-[2.2] outline-none resize-none font-serif transition-colors custom-scrollbar"
+              className="w-full h-full p-8 text-[18px] text-slate-800 leading-[2.2] outline-none resize-none transition-colors custom-scrollbar"
+              style={fontStyle}
               placeholder="Start typing your answer here..."
               value={answers[activeTask]}
               onChange={(e) => handleContentChange(e.target.value, activeTask)}
@@ -201,6 +194,7 @@ const WritingExamPage = ({ testId, onFinish }) => {
             onClick={() => activeTask === 'TASK_2' && goToTask('TASK_1')}
             disabled={activeTask === 'TASK_1'}
             className="font-semibold text-slate-500 hover:text-blue-600"
+            style={fontStyle}
           >
             Previous Task
           </Button>
@@ -212,6 +206,7 @@ const WritingExamPage = ({ testId, onFinish }) => {
               size="large"
               onClick={() => goToTask('TASK_1')}
               className={`font-bold w-36 rounded-lg transition-all ${activeTask === 'TASK_1' ? 'bg-blue-600 shadow-md' : 'text-slate-600 hover:bg-white'}`}
+              style={fontStyle}
             >
               Task 1
               <div className={`w-2 h-2 rounded-full ml-2 inline-block ${isTask1Valid ? 'bg-green-400' : 'bg-orange-400'}`} />
@@ -222,14 +217,15 @@ const WritingExamPage = ({ testId, onFinish }) => {
               size="large"
               onClick={() => goToTask('TASK_2')}
               className={`font-bold w-36 rounded-lg transition-all ${activeTask === 'TASK_2' ? 'bg-blue-600 shadow-md' : 'text-slate-600 hover:bg-white'}`}
+              style={fontStyle}
             >
               Task 2
               <div className={`w-2 h-2 rounded-full ml-2 inline-block ${isTask2Valid ? 'bg-green-400' : 'bg-orange-400'}`} />
             </Button>
           </Space>
 
-          {/* Right: Next Task hoặc Finish Section */}
-          {isFullTestMode && activeTask === 'TASK_2' ? (
+          {/* Right: Next Task / Submit Section */}
+          {activeTask === 'TASK_2' ? (
             <Button
               type="primary"
               size="large"
@@ -237,17 +233,18 @@ const WritingExamPage = ({ testId, onFinish }) => {
               onClick={handleSubmit}
               disabled={submitting || isQuotaFull}
               loading={submitting}
-              className="font-bold px-6 bg-blue-600 hover:bg-blue-500 shadow-md"
+              className={`font-bold px-8 shadow-md ${canSubmit ? 'bg-blue-600 hover:bg-blue-500' : 'bg-slate-400'}`}
+              style={fontStyle}
             >
-              Finish Section
+              {isFullTestMode ? 'Finish Section' : 'Submit Test'}
             </Button>
           ) : (
             <Button 
               type="text" 
               size="large"
-              onClick={() => activeTask === 'TASK_1' && goToTask('TASK_2')}
-              disabled={activeTask === 'TASK_2'}
+              onClick={() => goToTask('TASK_2')}
               className="font-semibold text-slate-500 hover:text-blue-600"
+              style={fontStyle}
             >
               Next Task <RightOutlined />
             </Button>
