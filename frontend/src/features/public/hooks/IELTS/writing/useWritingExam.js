@@ -6,16 +6,17 @@ import toast from 'react-hot-toast';
 
 const MIN_WORDS_TASK_1 = 150;
 const MIN_WORDS_TASK_2 = 250; 
+const FALLBACK_TIME_LIMIT = 60 * 60; // 60 minutes in seconds
 
 export const useWritingExam = (propsTestId, propsOnFinish) => {
   const { id: paramId } = useParams();
   const navigate = useNavigate();
   
-  // 🔥 CORE LOGIC: Ưu tiên lấy ID từ Props (Full Test) -> Nếu không có mới lấy từ URL (Single Test)
+  // CORE LOGIC: Prioritize props ID (Full Test Mode) over URL params (Single Test Mode)
   const testId = propsTestId || paramId;
   const isFullTestMode = !!propsTestId;
 
-  // 1. User Usage Hook (Kiểm tra lượt chấm)
+  // 1. User Usage Hook (Check grading quotas)
   const { usage } = useUserUsage();
   
   // 2. Local State - Test Data & Exam Status
@@ -25,7 +26,7 @@ export const useWritingExam = (propsTestId, propsOnFinish) => {
   const [activeTask, setActiveTask] = useState('TASK_1');
   const [answers, setAnswers] = useState({ TASK_1: '', TASK_2: '' });
   const [wordCounts, setWordCounts] = useState({ TASK_1: 0, TASK_2: 0 });
-  const [timeLeft, setTimeLeft] = useState(60 * 60); // Default 60 mins fallback
+  const [timeLeft, setTimeLeft] = useState(FALLBACK_TIME_LIMIT);
 
   // 3. UI State - Editor & Resizer
   const questionContainerRef = useRef(null);
@@ -70,21 +71,24 @@ export const useWritingExam = (propsTestId, propsOnFinish) => {
   // ==========================================
   useEffect(() => {
     if (loading) return;
+    
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          toast("Time is up!", { icon: '⏰' });
+          toast("Time is up! Auto-submitting...", { icon: '⏰' });
+          // Optional: Trigger handleSubmit() here if you want strict auto-submit
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
+    
     return () => clearInterval(interval);
   }, [loading]);
 
   // ==========================================
-  // UI LOGIC: FOCUS & SCROLL KHI CHUYỂN TASK
+  // UI LOGIC: FOCUS & SCROLL ON TASK SWITCH
   // ==========================================
   useEffect(() => {
     if (questionContainerRef.current) questionContainerRef.current.scrollTop = 0;
@@ -92,13 +96,14 @@ export const useWritingExam = (propsTestId, propsOnFinish) => {
   }, [activeTask]);
 
   // ==========================================
-  // UI LOGIC: RESIZER (KÉO THẢ CHIA MÀN HÌNH)
+  // UI LOGIC: DRAGGABLE RESIZER
   // ==========================================
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!isDragging) return;
       const containerWidth = window.innerWidth;
       const newLeftWidth = (e.clientX / containerWidth) * 100;
+      
       if (newLeftWidth >= 30 && newLeftWidth <= 70) {
         setLeftWidth(newLeftWidth);
       }
@@ -134,19 +139,11 @@ export const useWritingExam = (propsTestId, propsOnFinish) => {
     setWordCounts(prev => ({ ...prev, [taskType]: count }));
   }, []);
 
+  // Direct Submit Handler (No confirmations/modals)
   const handleSubmit = async () => {
     if (!isFullTestMode && isQuotaFull) {
-        toast.error("You have reached your daily writing grading limit.");
-        return;
-    }
-    
-    if (!canSubmit) {
-      const confirmUnderLength = window.confirm(
-        `WARNING: You are under the word count limit!\n\nTask 1: ${wordCounts.TASK_1}/${MIN_WORDS_TASK_1} words.\nTask 2: ${wordCounts.TASK_2}/${MIN_WORDS_TASK_2} words.\n\nSubmitting now will result in a heavy penalty. Are you sure you want to submit?`
-      );
-      if (!confirmUnderLength) return;
-    } else {
-      if (!window.confirm("Are you sure you want to submit your test?")) return;
+      toast.error("You have reached your daily writing grading limit.");
+      return;
     }
 
     try {
@@ -162,12 +159,11 @@ export const useWritingExam = (propsTestId, propsOnFinish) => {
       const submissionId = res.data?.id || res.id;
 
       if (isFullTestMode && propsOnFinish) {
-          propsOnFinish(submissionId);
+        propsOnFinish(submissionId);
       } else {
-          toast.success("Test submitted successfully! AI is grading your writing...", { duration: 4000 });
-          navigate(`/writing/result/${submissionId}`, { replace: true });
+        toast.success("Test submitted successfully! AI is grading your writing...", { duration: 4000 });
+        navigate(`/writing/result/${submissionId}`, { replace: true });
       }
-
     } catch (error) {
       console.error("Submit Error:", error);
       const msg = error.response?.data?.detail || "An error occurred while submitting.";
@@ -190,12 +186,15 @@ export const useWritingExam = (propsTestId, propsOnFinish) => {
     wordCounts, timeLeft, formatTime,
     isTask1Valid, isTask2Valid, canSubmit,
     isQuotaFull, usage,
-    handleSubmit,
     isFullTestMode,
-    // Trả thêm các giá trị UI ra ngoài cho component
+    
+    // UI Refs & States
     questionContainerRef,
     editorRef,
     leftWidth,
-    setIsDragging
+    setIsDragging,
+
+    // Submit Handler
+    handleSubmit
   };
 };
