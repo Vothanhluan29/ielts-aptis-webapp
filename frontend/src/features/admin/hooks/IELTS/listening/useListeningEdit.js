@@ -59,7 +59,7 @@ export const useListeningEdit = () => {
         time_limit: 40,
         is_published: false,
         is_full_test_only: false,
-        description: '', // 🔥 ENSURE THE FORM STRUCTURE INCLUDES DESCRIPTION
+        description: '',
         parts: [
           {
             part_number: 1,
@@ -83,7 +83,6 @@ export const useListeningEdit = () => {
           p.groups.forEach(g => {
             if (g?.questions) {
               g.questions.forEach(q => {
-                // 🔥 FIXED: Convert string to Number for correct counting (avoid "2" > "10" issue)
                 const currentNum = parseInt(q?.question_number, 10);
                 if (!isNaN(currentNum) && currentNum > maxNum) {
                   maxNum = currentNum;
@@ -97,9 +96,8 @@ export const useListeningEdit = () => {
     return maxNum + 1;
   }, [form]);
 
-  // --- 3. RECALCULATE NUMBERS (Reference Issue Fixed) ---
+  // --- 3. RECALCULATE NUMBERS ---
   const recalculateAllQuestionNumbers = useCallback(() => {
-    // 🔥 FIXED: Deep clone to avoid directly mutating Ant Design Form DOM state
     const currentValues = JSON.parse(JSON.stringify(form.getFieldsValue()));
     let counter = 1;
     
@@ -123,13 +121,10 @@ export const useListeningEdit = () => {
     message.success(`Question numbers have been recalculated from 1 to ${counter - 1}`);
   }, [form]);
 
-  // --- 4. SUBMIT FUNCTION (FastAPI Null Error Fixed) ---
+  // --- 4. SUBMIT FUNCTION  ---
   const handleSave = async (values) => {
     setLoading(true);
     try {
-      
-      // 🔥 IMPORTANT STEP: "Clean" the payload before sending to FastAPI
-      // (Ant Design Form.List often leaves null values when deleting Group/Question)
       let cleanPayload = { ...values };
 
       if (cleanPayload.parts) {
