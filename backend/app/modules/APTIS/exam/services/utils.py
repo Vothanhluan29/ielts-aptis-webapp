@@ -4,7 +4,6 @@ from app.modules.APTIS.exam.models import AptisExamSubmission, AptisExamStatus
 class AptisExamUtils:
     @staticmethod
     def calculate_aptis_cefr(total_score: int) -> str:
-        """Quy đổi CEFR cho Aptis dựa trên tổng 250 điểm (5 kỹ năng x 50)"""
         if total_score >= 210: return "C"
         if total_score >= 170: return "B2"
         if total_score >= 120: return "B1"
@@ -41,11 +40,11 @@ class AptisExamUtils:
         if sub.speaking_submission and sub.speaking_submission.status != 'GRADED':
             is_fully_graded = False
 
-        # Tự động chuyển trạng thái PENDING -> COMPLETED nếu giáo viên chấm xong
+
         if sub.status == AptisExamStatus.PENDING.value and is_fully_graded:
             sub.status = AptisExamStatus.COMPLETED.value
 
-        # Cập nhật CEFR
+
         if sub.status == AptisExamStatus.COMPLETED.value:
             final_cefr = AptisExamUtils.calculate_aptis_cefr(current_overall)
             if sub.overall_score != current_overall or sub.overall_cefr_level != final_cefr:

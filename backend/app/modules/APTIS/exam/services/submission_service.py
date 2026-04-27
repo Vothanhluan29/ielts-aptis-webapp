@@ -43,7 +43,6 @@ class AptisExamSubmissionService:
         if not sub:
             raise HTTPException(404, "Exam submission not found")
 
-        # Hệ thống điều hướng luồng bài thi Aptis
         if current_step == AptisExamStep.GRAMMAR_VOCAB.value:
             sub.grammar_vocab_submission_id = skill_submission_id
             sub.current_step = AptisExamStep.LISTENING.value
@@ -70,7 +69,7 @@ class AptisExamSubmissionService:
         db.commit()
         db.refresh(sub)
         
-        # Cập nhật điểm ngay khi có thay đổi
+   
         if sub.status in [AptisExamStatus.COMPLETED.value, AptisExamStatus.PENDING.value]:
             AptisExamUtils.recalculate_overall_score(db, sub)
 
