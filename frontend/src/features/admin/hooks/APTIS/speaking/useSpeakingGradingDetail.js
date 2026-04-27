@@ -86,7 +86,6 @@ export const useSpeakingGradingDetail = () => {
     return colors[level] || "#d9d9d9";
   };
 
-  // Logic điều hướng quay lại
   const handleBack = useCallback(() => {
     if (location.state && location.state.fromExamId) {
       navigate(`/admin/aptis/submissions/${location.state.fromExamId}`);
@@ -95,7 +94,7 @@ export const useSpeakingGradingDetail = () => {
     }
   }, [location.state, navigate]);
 
-  // Logic lưu điểm
+
   const handleSaveGrade = async () => {
     setSubmitting(true);
     try {

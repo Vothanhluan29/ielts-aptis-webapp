@@ -13,7 +13,6 @@ export const useSpeakingSubmissionList = () => {
     searchText: '',
   });
 
-  // Bóc tách primitive variables để tránh warning useEffect/useCallback loop
   const { current: page, pageSize } = pagination;
   const { status, searchText } = filters;
 
@@ -45,7 +44,7 @@ export const useSpeakingSubmissionList = () => {
         limit: pageSize,
         status: status,
         search: searchText,
-        is_full_test_only: false, // Báo backend CHỈ lấy bài thi lẻ (Practice)
+        is_full_test_only: false,
       };
 
       const res = await speakingAptisAdminApi.getAllSubmissionsForAdmin(params);
