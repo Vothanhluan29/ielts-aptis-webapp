@@ -101,10 +101,8 @@ class AptisGrammarVocabSubmission(Base):
     vocab_score = Column(Integer, default=0)
     total_score = Column(Integer, default=0)
 
-    # Đánh dấu bài nộp này thuộc thi lẻ hay thi Full Mock
     is_full_test_only = Column(Boolean, default=False)
     
-    # Trạng thái bài nộp (Mặc định là GRADED vì chấm trắc nghiệm bằng thuật toán tức thì)
     status = Column(Enum(AptisGrammarVocabStatus), default=AptisGrammarVocabStatus.GRADED)
 
     # Raw answers submitted by the user (JSON)
@@ -116,4 +114,4 @@ class AptisGrammarVocabSubmission(Base):
     submitted_at = Column(DateTime, default=datetime.utcnow)
 
     test = relationship("AptisGrammarVocabTest", back_populates="submissions")
-    user = relationship("User") # Đảm bảo bạn có model User trong hệ thống
+    user = relationship("User") 
