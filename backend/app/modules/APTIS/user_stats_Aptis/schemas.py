@@ -3,7 +3,6 @@ from typing import List, Optional
 from datetime import datetime
 import enum
 
-# 1. Định nghĩa Enum loại kỹ năng (Chuẩn form 5 kỹ năng Aptis)
 class SkillType(str, enum.Enum):
     GRAMMAR_VOCAB = "GRAMMAR_VOCAB"
     READING = "READING"
@@ -12,29 +11,27 @@ class SkillType(str, enum.Enum):
     SPEAKING = "SPEAKING"
     FULLTEST = "FULLTEST"
 
-# 2. Thống kê từng kỹ năng lẻ (Thang 0-50)
+
 class SkillStats(BaseModel):
     skill: SkillType
     average_score: float = 0.0
     total_tests: int = 0
-
-# 3. Thống kê Full Mock Test (Thang 0-250)
 class FullTestStats(BaseModel):
     total_exams: int = 0         
     average_overall: float = 0.0 
     highest_overall: float = 0.0 
-    highest_cefr: Optional[str] = None # Dành riêng cho Aptis
+    highest_cefr: Optional[str] = None 
 
-# 4. Chi tiết một hoạt động (ActivityItem)
+# 4. ActivityItem
 class ActivityItem(BaseModel):
     id: int               
     type: SkillType       
     title: str            
     score: Optional[float] = None  
-    cefr_level: Optional[str] = None # Ví dụ: B1, B2, C
+    cefr_level: Optional[str] = None 
     date: datetime        
 
-# 5. Dữ liệu vẽ biểu đồ (Chart Data Point) - 5 đường kỹ năng + 1 đường Full Test
+
 class ChartDataPoint(BaseModel):
     date: str             
     grammar_vocab: Optional[float] = None
@@ -44,13 +41,12 @@ class ChartDataPoint(BaseModel):
     speaking: Optional[float] = None
     full_test: Optional[float] = None 
 
-# 6. Thông tin chuỗi ngày học tập (Streak)
 class StreakInfo(BaseModel):
     current_streak: int      
     activity_map: List[bool] 
 
 # =================================================================
-# CÁC RESPONSE SCHEMAS CHO MICRO-ENDPOINTS APTIS
+# RESPONSE SCHEMAS FOR MICRO-ENDPOINTS APTIS
 # =================================================================
 
 class AptisOverviewStatsResponse(BaseModel):
