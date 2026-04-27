@@ -7,7 +7,7 @@ export const MAX_QUESTIONS = 50;
 export const MAX_GRAMMAR   = 25;
 export const MAX_VOCAB     = 25;
 
-// ─── Helper: format questions từ backend → form ──────────────────────────────
+// ─── Helper: format questions ──────────────────────────────
 const formatQuestionsFromBackend = (questions = []) =>
   questions.map((q) => {
     let optionsArray = [];
@@ -25,7 +25,6 @@ const formatQuestionsFromBackend = (questions = []) =>
     return { ...q, options: optionsArray, correct_answer: correctIndex };
   });
 
-// ─── Helper: format questions từ form → payload backend ──────────────────────
 const formatQuestionsToPayload = (questions = [], startIndex = 0) =>
   questions.map((q, idx) => {
     const optionsDict = {};
@@ -54,12 +53,12 @@ export const useGramVocabEdit = () => {
   const [submitting, setSubmitting] = useState(false);
   const [activeGrammarKeys, setActiveGrammarKeys] = useState(['0']);
 
-  // ─── Realtime counter — cập nhật mỗi khi form thay đổi ──────────────────────
+  // ─── Realtime counter 
   const [grammarCount, setGrammarCount] = useState(0);
   const [vocabCount, setVocabCount]     = useState(0);
   const totalCount = grammarCount + vocabCount;
 
-  // Gọi hàm này sau mỗi lần thêm/xóa câu hỏi để cập nhật counter
+ 
   const refreshCounts = useCallback(() => {
     const gram = form.getFieldValue('grammar_questions')?.length || 0;
     const vocab = (form.getFieldValue('vocab_groups') || [])
@@ -68,7 +67,7 @@ export const useGramVocabEdit = () => {
     setVocabCount(vocab);
   }, [form]);
 
-  // ─── Fetch chi tiết bài (Edit mode) ─────────────────────────────────────────
+  // ─── Fetch detail test (Edit mode)
   const fetchTestDetail = useCallback(async () => {
     setLoading(true);
     try {
@@ -98,7 +97,7 @@ export const useGramVocabEdit = () => {
         vocab_groups:      vocabGroups,
       });
 
-      // Cập nhật counter sau khi load xong
+
       setGrammarCount(grammarQuestions.length);
       setVocabCount(vocabGroups.reduce((sum, g) => sum + g.questions.length, 0));
     } catch (err) {
@@ -129,7 +128,6 @@ export const useGramVocabEdit = () => {
     }
   }, [isEditMode, fetchTestDetail, form]);
 
-  // ─── Warning: group vocab < 5 câu ───────────────────────────────────────────
   const warnUnderfilledGroups = (vocabGroups = []) => {
     vocabGroups
       .filter((g) => (g.questions?.length || 0) < 5)
@@ -146,7 +144,7 @@ export const useGramVocabEdit = () => {
     message.error('Please fill in all required fields.');
   };
 
-  // ─── Submit ──────────────────────────────────────────────────────────────────
+  // ─── Submit ────
   const onFinish = async (values) => {
     const gramCount   = values.grammar_questions?.length || 0;
     const vocabGroups = values.vocab_groups || [];
