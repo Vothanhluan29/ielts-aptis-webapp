@@ -20,27 +20,23 @@ class AuthService:
     @staticmethod
     def google_login(db: Session, token: str):
         try:
-            # 1. Xác thực Token với Google
-            # Hàm này sẽ ném lỗi nếu token giả mạo hoặc hết hạn
+
             id_info = id_token.verify_oauth2_token(
                 token, 
                 google_requests.Request(), 
                 settings.GOOGLE_CLIENT_ID
             )
 
-            # 2. Lấy thông tin user từ Token
             email = id_info.get('email')
             name = id_info.get('name', 'Google User')
             
             if not email:
                 return None
 
-            # 3. Kiểm tra user trong DB
             user = db.query(User).filter(User.email == email).first()
 
             if not user:
-                # 4. Nếu chưa có -> Tự động Đăng ký (Register)
-                # Tạo mật khẩu ngẫu nhiên vì user này đăng nhập bằng Google
+
                 random_password = str(uuid.uuid4()) 
                 hashed_password = get_password_hash(random_password)
 
@@ -48,7 +44,7 @@ class AuthService:
                     email=email,
                     full_name=name,
                     hashed_password=hashed_password,
-                    role="student", # Mặc định là user thường
+                    role="student",
                     is_active=True
                 )
                 db.add(new_user)
@@ -56,10 +52,9 @@ class AuthService:
                 db.refresh(new_user)
                 return new_user
             
-            # 5. Nếu đã có -> Trả về user để tạo Access Token
             return user
 
         except ValueError as e:
-            # Token không hợp lệ
+
             print(f"Google Token Error: {e}")
             return None
