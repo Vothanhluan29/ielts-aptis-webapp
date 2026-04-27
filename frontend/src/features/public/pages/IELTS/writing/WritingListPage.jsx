@@ -29,8 +29,8 @@ const WritingListPage = () => {
         tagColor: 'success',
         text: 'Completed',
         icon: <CheckCircle size={14} className="mr-1" />,
-        mainBtnText: 'View Result',
-        mainBtnAction: () => navigate(`/writing/result/${testId}`),
+        mainBtnText: 'View History',
+        mainBtnAction: () => navigate(`/writing/history`),
         isStartBtn: false,
         showRetry: true,
         // Emerald
@@ -48,8 +48,8 @@ const WritingListPage = () => {
         tagColor: 'warning',
         text: 'Pending Review',
         icon: <Clock size={14} className="mr-1" />,
-        mainBtnText: 'Review Submission',
-        mainBtnAction: () => navigate(`/writing/result/${testId}`),
+        mainBtnText: 'Check Status',
+        mainBtnAction: () => navigate(`/writing/history`),
         isStartBtn: false,
         showRetry: true,
         // Amber
