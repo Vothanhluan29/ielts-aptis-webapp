@@ -6,7 +6,7 @@ import {
 } from '@ant-design/icons';
 import writingAptisAdminApi from '../../../api/APTIS/writing/writingAptisAdminApi';
 
-// Cấu hình cố định cho 4 phần thi Writing của Aptis
+
 export const PART_CONFIGS = [
   { type: "PART_1", title: "Part 1",  qCount: 5 },
   { type: "PART_2", title: "Part 2",  qCount: 1 },
@@ -22,9 +22,7 @@ export const useWritingAptisEdit = () => {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // ==========================================
-  // 1. KHỞI TẠO DỮ LIỆU MẶC ĐỊNH
-  // ==========================================
+
   const initDefaultData = useCallback(() => {
     const defaultParts = PART_CONFIGS.map((config, pIndex) => {
       let questions = [];
@@ -64,7 +62,7 @@ export const useWritingAptisEdit = () => {
   }, [form]);
 
   // ==========================================
-  // 2. FETCH & MERGE DỮ LIỆU TỪ SERVER
+  // 2. FETCH & MERGE DATA FROM DB
   // ==========================================
   useEffect(() => {
     if (isEditMode) {
@@ -74,7 +72,6 @@ export const useWritingAptisEdit = () => {
           const res = await writingAptisAdminApi.getTestDetail(id);
           const data = res.data || res;
 
-          // Merge dữ liệu DB với cấu trúc PART_CONFIGS để tránh thiếu Part
           const mergedParts = PART_CONFIGS.map((config, pIndex) => {
             const existingPart = data.parts?.find(p => p.part_type === config.type);
 
@@ -86,7 +83,6 @@ export const useWritingAptisEdit = () => {
               };
             }
 
-            // Nếu DB thiếu 1 Part nào đó, tự tạo Part mặc định
             let defaultQuestions = [];
             if (config.type === "PART_4") {
               defaultQuestions = [
@@ -130,7 +126,7 @@ export const useWritingAptisEdit = () => {
   }, [id, isEditMode, initDefaultData, navigate, form]);
 
   // ==========================================
-  // 3. SUBMIT DỮ LIỆU
+  // 3. SUBMIT DATA
   // ==========================================
   const onFinish = async (values) => {
     setSubmitting(true);

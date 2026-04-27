@@ -3,7 +3,6 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { message } from "antd";
 import writingAptisAdminApi from "../../../api/APTIS/writing/writingAptisAdminApi";
 
-// Hàm hỗ trợ Parse JSON an toàn (Lớp 1)
 export const safeParseAnswers = (data) => {
   if (!data) return {};
   if (typeof data === 'object') return data;

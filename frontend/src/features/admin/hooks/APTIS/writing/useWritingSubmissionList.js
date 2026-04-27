@@ -13,7 +13,7 @@ export const useWritingSubmissionList = () => {
     searchText: '',
   });
 
-  // Bóc tách giá trị nguyên thủy (primitive) để dùng trong dependency mảng
+
   const { current: page, pageSize } = pagination;
   const { status, searchText } = filters;
 
@@ -48,7 +48,7 @@ export const useWritingSubmissionList = () => {
         limit: pageSize,
         status: status,
         search: searchText,
-        is_full_test_only: false, // Báo backend CHỈ lấy bài thi lẻ (Practice)
+        is_full_test_only: false, 
       };
 
       const res = await writingAptisAdminApi.getAllSubmissions(params);
@@ -72,12 +72,12 @@ export const useWritingSubmissionList = () => {
     }
   }, [page, pageSize, status, searchText]);
 
-  // Tự động load dữ liệu danh sách khi tham số thay đổi
+
   useEffect(() => {
     fetchSubmissions();
   }, [fetchSubmissions]);
 
-  // Tự động load lại thống kê khi trạng thái (status) thay đổi
+
   useEffect(() => {
     loadOverviewStats();
   }, [status, loadOverviewStats]);
