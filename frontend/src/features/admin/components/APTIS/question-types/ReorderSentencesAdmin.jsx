@@ -20,7 +20,6 @@ const ReorderSentencesAdmin = ({ relativePath, absolutePath, form }) => {
   const currentOptions = Form.useWatch([...absolutePath, 'options'], form);
   const optionsLength = currentOptions?.length || 0;
 
-  // 🔥 ĐÃ SỬA LỖI: Chỉ auto-update correct_answer khi số lượng câu thay đổi
   useEffect(() => {
     if (optionsLength > 0) {
       const currentCorrect = form.getFieldValue([...absolutePath, 'correct_answer']);
@@ -33,15 +32,11 @@ const ReorderSentencesAdmin = ({ relativePath, absolutePath, form }) => {
         currentCorrectArray = currentCorrect.split(',');
       }
 
-      // CHỈ TẠO LẠI MẢNG DEFAULT ["0", "1", "2", "3"] NẾU:
-      // 1. correct_answer đang rỗng (Câu hỏi mới tạo)
-      // 2. Hoặc độ dài của correct_answer khác với số lượng options (Vừa thêm/xóa câu)
       if (currentCorrectArray.length !== optionsLength) {
         const newCorrectArray = Array.from({ length: optionsLength }, (_, i) => i.toString());
         form.setFieldValue([...absolutePath, 'correct_answer'], newCorrectArray);
       }
     } else {
-      // Đặt về mảng rỗng thay vì chuỗi rỗng để đồng bộ với Component
       form.setFieldValue([...absolutePath, 'correct_answer'], []);
     }
   }, [optionsLength, absolutePath, form]);
