@@ -8,7 +8,7 @@ export const useListeningAptisManage = () => {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [isMockFilter, setIsMockFilter] = useState(false);
 
-  // Bóc tách primitive variables để tránh ESLint Dependency Warning
+
   const { current: page, pageSize } = pagination;
 
   const fetchTests = useCallback(async () => {
@@ -22,7 +22,6 @@ export const useListeningAptisManage = () => {
       const data = response.data || response;
       setTests(data);
       
-      // Vì logic API của bạn hiện chưa trả về tổng số (total), tạm dùng logic tính toán cũ
       setPagination(prev => ({
         ...prev,
         total: data.length === pageSize ? page * pageSize + 10 : page * pageSize,
@@ -35,7 +34,7 @@ export const useListeningAptisManage = () => {
     }
   }, [page, pageSize, isMockFilter]);
 
-  // Chạy ngay khi hook được gọi
+
   useEffect(() => {
     fetchTests();
   }, [fetchTests]);
@@ -52,7 +51,7 @@ export const useListeningAptisManage = () => {
     try {
       await listeningAptisAdminApi.deleteTest(testId);
       message.success('Test deleted successfully!');
-      fetchTests(); // Refresh lại dữ liệu
+      fetchTests(); 
     } catch (error) {
       if (error.response && error.response.status === 400) {
         message.error(error.response.data.detail || 'Unable to delete this test as it is currently in use.');
