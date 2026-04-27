@@ -11,11 +11,11 @@ class UserUsage(Base):
     
     # Speaking
     speaking_used = Column(Integer, default=0)
-    speaking_limit = Column(Integer, default=3) # Mặc định 2 bài / 12h
+    speaking_limit = Column(Integer, default=3) 
     
     # Writing
     writing_used = Column(Integer, default=0)
-    writing_limit = Column(Integer, default=3) # Mặc định 1 bài / 12h
+    writing_limit = Column(Integer, default=3) 
 
     exam_used = Column(Integer, default=0)
     exam_limit = Column(Integer, default=1) 

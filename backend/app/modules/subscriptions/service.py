@@ -57,7 +57,7 @@ class SubscriptionService:
                 UserUsage.exam_used: 0
             })
             db.commit()
-            print("✅ [SCHEDULER] All quotas have been reset.")
+            print("[SCHEDULER] All quotas have been reset.")
         except Exception as e:
-            print(f"❌ [SCHEDULER] Error resetting quotas: {e}")
+            print(f"[SCHEDULER] Error resetting quotas: {e}")
             db.rollback()
