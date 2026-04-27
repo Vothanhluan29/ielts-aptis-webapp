@@ -69,7 +69,6 @@ class AptisSpeakingSubmissionService:
             missing = required_parts - submitted_parts
             raise HTTPException(400, f"Vui lòng hoàn thành đủ 4 phần thi. (Thiếu: Part {missing})")
 
-        # ĐỔI STATUS: Gửi thẳng vào trạng thái PENDING chờ Giáo viên chấm
         sub.status = AptisSpeakingStatus.PENDING.value 
         sub.submitted_at = datetime.now()
         

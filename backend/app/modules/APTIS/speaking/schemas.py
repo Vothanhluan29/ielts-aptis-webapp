@@ -5,7 +5,7 @@ import json
 
 from .models import AptisSpeakingStatus
 
-# ==================== 1. QUESTIONS (Cấp thấp nhất) ====================
+# ==================== 1. QUESTIONS ====================
 
 class AptisSpeakingQuestionBase(BaseModel):
     order_number: int
@@ -28,7 +28,7 @@ class AptisSpeakingQuestionResponse(AptisSpeakingQuestionBase):
         from_attributes = True
 
 
-# ==================== 2. PARTS (Cấu phần đề thi) ====================
+# ==================== 2. PARTS ====================
 
 class AptisSpeakingPartBase(BaseModel):
     part_number: int  
@@ -57,7 +57,7 @@ class AptisSpeakingPartResponse(AptisSpeakingPartBase):
         from_attributes = True
 
 
-# ==================== 3. TEST (Đề thi) ====================
+# ==================== 3. TEST ====================
 
 class AptisSpeakingTestBase(BaseModel):
     title: str
@@ -85,7 +85,6 @@ class AptisSpeakingTestResponse(AptisSpeakingTestBase):
     class Config:
         from_attributes = True
 
-# Schema hiển thị ngắn gọn ở ngoài List UI
 class AptisSpeakingTestListItem(BaseModel):
     id: int
     title: str
@@ -100,7 +99,7 @@ class AptisSpeakingTestListItem(BaseModel):
         from_attributes = True
 
 
-# ==================== 4. SUBMISSION INPUT (User Nộp bài) ====================
+# ==================== 4. SUBMISSION INPUT ====================
 
 class SaveAptisSpeakingPartRequest(BaseModel):
     test_id: int
@@ -118,8 +117,6 @@ class AptisSpeakingPartAnswerResponse(BaseModel):
     audio_url: str
     
     transcript: Optional[str] = None
-    
-    # 🔥 THAY ĐỔI LỚN TỪ ĐÂY: Loại bỏ AIErrorItem, đổi tên thành admin_feedback
     part_score: Optional[int] = None
     admin_feedback: Optional[str] = None
 
@@ -141,7 +138,6 @@ class AptisSpeakingSubmissionResponse(BaseModel):
     
     overall_feedback: Optional[str] = None
     
-    # Danh sách các bản ghi âm của từng part
     answers: List[AptisSpeakingPartAnswerResponse] = []
     
     class Config:
@@ -158,7 +154,6 @@ class UserBasicInfo(BaseModel):
     class Config:
         from_attributes = True
 
-# Schema dùng cho trang Chi tiết bài nộp (Đầy đủ Đề thi + User + Grader)
 class AdminAptisSpeakingSubmissionDetailResponse(AptisSpeakingSubmissionResponse):
     user: Optional[UserBasicInfo] = None
     grader: Optional[UserBasicInfo] = None
@@ -167,11 +162,10 @@ class AdminAptisSpeakingSubmissionDetailResponse(AptisSpeakingSubmissionResponse
     class Config:
         from_attributes = True
 
-# Schema dùng cho List (Phân trang Table)
+
 class AdminAptisSpeakingSubmissionListResponse(AptisSpeakingSubmissionResponse):
     user: Optional[UserBasicInfo] = None
     grader: Optional[UserBasicInfo] = None
-    # Trả về test title thôi cho nhẹ payload
     test: Optional[AptisSpeakingTestListItem] = None
 
     class Config:
@@ -185,7 +179,6 @@ class AdminAptisSpeakingPagingResponse(BaseModel):
         from_attributes = True
 
 # ==================== 7. MANUAL GRADING REQUEST ====================
-# 🔥 Gửi lên từ trang chấm điểm chi tiết của Giáo viên
 class PartGradeRequest(BaseModel):
     part_number: int
     score: int
@@ -195,4 +188,4 @@ class SpeakingGradeRequest(BaseModel):
     total_score: int
     cefr_level: str
     overall_feedback: Optional[str] = None
-    part_feedbacks: List[PartGradeRequest] # Mảng chứa điểm và nhận xét của từng Part
+    part_feedbacks: List[PartGradeRequest] 

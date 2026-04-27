@@ -23,10 +23,7 @@ async def upload_aptis_audio_file(
     file: UploadFile = File(...),
     user = Depends(get_current_user)
 ):
-    """
-    Upload audio files (mp3, wav, webm...).
-    Used for both Admin (upload question audio) and User (upload answer audio).
-    """
+
     if not file.content_type.startswith("audio/") and not file.content_type == "application/octet-stream":
         pass
 
@@ -145,7 +142,7 @@ def get_aptis_test_detail(
 
 
 # =================================================================
-# 4. USER: CORE FLOW (Save Part -> Finish)
+# 4. USER
 # =================================================================
 @router.post("/save-part")
 def save_aptis_speaking_part(
