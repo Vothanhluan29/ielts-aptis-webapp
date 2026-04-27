@@ -29,8 +29,8 @@ const ReadingListPage = () => {
         tagColor: 'success',
         text: 'Completed',
         icon: <CheckCircle size={14} className="mr-1" />,
-        mainBtnText: 'View Result',
-        mainBtnAction: () => navigate(`/reading/result/${testId}`),
+        mainBtnText: 'View History',
+        mainBtnAction: () => navigate(`/reading/history `),
         isStartBtn: false,
         showRetry: true,
         // Emerald
