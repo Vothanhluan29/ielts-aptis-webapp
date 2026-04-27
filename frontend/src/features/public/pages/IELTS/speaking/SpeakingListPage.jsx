@@ -22,8 +22,8 @@ const SpeakingListPage = () => {
         tagColor: 'success',
         text: 'Completed',
         icon: <CheckCircle size={14} className="mr-1" />,
-        mainBtnText: 'View Result',
-        mainBtnAction: () => navigate(`/speaking/result/${testId}`),
+        mainBtnText: 'View History',
+        mainBtnAction: () => navigate(`/speaking/history`),
         isStartBtn: false,
         showRetry: true,
         // Emerald
@@ -41,8 +41,8 @@ const SpeakingListPage = () => {
         tagColor: 'warning',
         text: 'Pending Review',
         icon: <Clock size={14} className="mr-1" />,
-        mainBtnText: 'Review Submission',
-        mainBtnAction: () => navigate(`/speaking/result/${testId}`),
+        mainBtnText: 'View History',
+        mainBtnAction: () => navigate(`/speaking/history`),
         isStartBtn: false,
         showRetry: true,
         // Amber
