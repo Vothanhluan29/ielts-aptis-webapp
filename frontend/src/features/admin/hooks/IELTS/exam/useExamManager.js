@@ -12,7 +12,7 @@ export const useExamManager = () => {
     setLoading(true);
     try {
       const response = await examAdminApi.getAllTests();
-      // Hỗ trợ an toàn cho cả format mảng [...] và object phân trang { items: [...] }
+
       const data = response?.data?.items || response?.data || response || [];
       setExams(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -34,8 +34,7 @@ export const useExamManager = () => {
       await examAdminApi.deleteTest(id);
       hide(); // Tắt popup loading
       message.success('Exam deleted successfully!');
-      
-      // Tối ưu hiệu năng: Xóa trực tiếp khỏi state thay vì gọi lại API fetchExams()
+ 
       setExams((prev) => prev.filter((exam) => exam.id !== id));
     } catch (error) {
       console.error("Delete exam error:", error);
