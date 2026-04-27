@@ -9,11 +9,10 @@ export const useExamAptisSubmissionsManager = () => {
 
   const [stats, setStats] = useState({ total: 0, in_progress: 0, pending: 0, completed: 0 });
   const [filters, setFilters] = useState({
-    status: 'PENDING', // Mặc định: hiện các bài chờ chấm
+    status: 'PENDING', 
     searchText: '',
   });
 
-  // 🔥 Bóc tách các giá trị nguyên thủy để tránh lỗi dependency của ESLint
   const { current: page, pageSize } = pagination;
   const { status, searchText } = filters;
 
@@ -45,7 +44,7 @@ export const useExamAptisSubmissionsManager = () => {
     }
   }, []);
 
-  // Lấy danh sách bài nộp theo filter và phân trang
+
   const fetchSubmissions = useCallback(async () => {
     setLoading(true);
     try {
@@ -75,17 +74,17 @@ export const useExamAptisSubmissionsManager = () => {
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, status, searchText]); // <-- Mảng dependency giờ đã sạch sẽ
+  }, [page, pageSize, status, searchText]); 
 
-  // Load lại list khi đổi trang hoặc đổi filter
+
   useEffect(() => {
     fetchSubmissions();
   }, [fetchSubmissions]);
 
-  // Load lại overview stats khi mới mount hoặc khi status filter thay đổi
+
   useEffect(() => {
     loadOverviewStats();
-  }, [status, loadOverviewStats]); // Sử dụng trực tiếp biến status đã bóc tách
+  }, [status, loadOverviewStats]);
 
   return {
     loading,
