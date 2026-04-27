@@ -31,7 +31,7 @@ const ExamListPage = () => {
         text: 'Completed',
         icon: <CheckCircleOutlined className="mr-1" />,
         mainBtnText: 'View Result',
-        mainBtnAction: () => handleAction(exam), // 🔥 Trả quyền điều hướng cho Hook
+        mainBtnAction: () => handleAction(exam), 
         isStartBtn: false,
         showRetry: true,
         cardBg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 60%, #bbf7d0 100%)',
@@ -49,7 +49,7 @@ const ExamListPage = () => {
         text: exam.current_step ? `In Progress · ${exam.current_step}` : 'In Progress',
         icon: <ClockCircleOutlined className="mr-1" />,
         mainBtnText: 'Resume Test',
-        mainBtnAction: () => handleAction(exam), // 🔥 Trả quyền điều hướng cho Hook
+        mainBtnAction: () => handleAction(exam),
         isStartBtn: false,
         showRetry: false,
         cardBg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 60%, #fde68a 100%)',
@@ -58,13 +58,13 @@ const ExamListPage = () => {
       };
     }
 
-    // NOT_STARTED — Purple: Full Test brand color
+
     return {
       tagColor: 'purple',
       text: 'Not Started',
       icon: <ExclamationCircleOutlined className="mr-1" />,
       mainBtnText: 'Start Test',
-      mainBtnAction: () => handleAction(exam), // 🔥 Trả quyền điều hướng cho Hook
+      mainBtnAction: () => handleAction(exam),
       isStartBtn: true,
       showRetry: false,
       cardBg: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 60%, #e9d5ff 100%)',
@@ -207,7 +207,6 @@ const ExamListPage = () => {
                         block
                         onClick={(e) => {
                           e.stopPropagation();
-                          // Nút Retry bắt buộc phải vào Lobby để tạo lượt thi MỚI
                           navigate(`/exam/lobby/${exam.id}`);
                         }}
                         style={{
