@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
+import { message } from 'antd';
 import profileApi from '../../api/profile/profileApi';
-import { toast } from 'react-hot-toast'; 
 
 export const useAdminProfile = () => {
     const [admin, setAdmin] = useState(null);
@@ -11,8 +11,8 @@ export const useAdminProfile = () => {
         try {
             const data = await profileApi.getMe();
             setAdmin(data);
-        } catch (err) {
-            toast.error("Không thể tải thông tin hồ sơ", err);
+        } catch {
+            message.error("Unable to load profile information");
         } finally {
             setLoading(false);
         }
@@ -23,9 +23,9 @@ export const useAdminProfile = () => {
         try {
             const updated = await profileApi.updateProfile(values);
             setAdmin(updated);
-            toast.success("Cập nhật thông tin thành công!");
+            message.success("Profile updated successfully!");
         } catch (err) {
-            toast.error(err.response?.data?.detail || "Cập nhật thất bại");
+            message.error(err.response?.data?.detail || "Failed to update profile");
         } finally {
             setUpdating(false);
         }
@@ -37,9 +37,9 @@ export const useAdminProfile = () => {
         try {
             const updated = await profileApi.updateAvatar(file);
             setAdmin(updated);
-            toast.success("Đã cập nhật ảnh đại diện");
-        } catch (err) {
-            toast.error("Lỗi tải ảnh lên", err);
+            message.success("Avatar updated successfully");
+        } catch {
+            message.error("Failed to upload avatar");
         } finally {
             setUpdating(false);
         }
