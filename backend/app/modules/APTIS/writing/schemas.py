@@ -11,17 +11,16 @@ class AptisWritingPartType(str, Enum):
     PART_3 = "PART_3"
     PART_4 = "PART_4"
 
-# 🔥 Đã xóa GRADING và ERROR vì chuyển sang chấm thủ công
 class SubmissionStatus(str, Enum):
     PENDING = "PENDING"
     GRADED = "GRADED"
 
-# ==================== 1. CẤU TRÚC CÂU HỎI (QUESTIONS) ====================
+# ==================== 1. QUESTIONS ====================
 
 class QuestionBase(BaseModel):
     question_text: str
     order_number: int = 1
-    sub_type: Optional[str] = None  # "informal" hoặc "formal" cho Part 4
+    sub_type: Optional[str] = None  
 
 class QuestionCreate(QuestionBase):
     pass
@@ -33,7 +32,7 @@ class QuestionResponse(QuestionBase):
     class Config:
         from_attributes = True 
 
-# ==================== 2. QUẢN LÝ ĐỀ THI (PARTS & TESTS) ====================
+# ==================== 2.(PARTS & TESTS) ====================
 
 class PartBase(BaseModel):
     part_number: int
@@ -92,11 +91,11 @@ class WritingTestListItem(BaseModel):
     class Config:
         from_attributes = True
 
-# ==================== 3. NỘP BÀI & KẾT QUẢ (SUBMISSIONS) ====================
+# ==================== 3. SUBMISSIONS ====================
 
 class SubmitWriting(BaseModel):
     test_id: int
-    user_answers: Dict[str, str]  # Key: question_id, Value: Student response
+    user_answers: Dict[str, str] 
     is_full_test_only: bool = False
 
 class WritingTestSimpleResponse(BaseModel):
@@ -114,14 +113,12 @@ class WritingSubmissionResponse(BaseModel):
     user_id: int  
     user_answers: Dict[str, Any]
     
-    # 🔥 THAY ĐỔI: Sử dụng teacher_feedback thay cho ai_feedback
     teacher_feedback: Optional[Dict[str, Any]] = None 
     overall_feedback: Optional[str] = None
     score: int 
     cefr_level: Optional[str]
     status: SubmissionStatus
     
-    # 🔥 THÊM: ID của người chấm bài
     graded_by: Optional[int] = None
     
     submitted_at: datetime
@@ -175,11 +172,11 @@ class WritingSubmissionDetailResponse(WritingSubmissionResponse):
 
 class AdminWritingSubmissionResponse(WritingSubmissionResponse):
     user: Optional[UserBasicInfo] = None
-    grader: Optional[UserBasicInfo] = None  # 🔥 THÊM: Trả về thông tin Admin/Giáo viên đã chấm bài
+    grader: Optional[UserBasicInfo] = None  
     test: Optional[WritingTestSimpleResponse] = None
-# 🔥 ĐỔI TÊN VÀ CẬP NHẬT: Dùng cho Giáo viên/Admin gửi điểm và nhận xét lên server
+
 class WritingGradeRequest(BaseModel):
-    score: int                 # Điểm tổng (Scale 50)
+    score: int                
     cefr_level: str            # CEFR Level (A1, A2, B1, B2, C)
-    teacher_feedback: Optional[Dict[str, Any]] = None  # Nhận xét chi tiết cho từng Part (JSON)
-    overall_feedback: Optional[str] = None             # Nhận xét chung toàn bài
+    teacher_feedback: Optional[Dict[str, Any]] = None  
+    overall_feedback: Optional[str] = None            
