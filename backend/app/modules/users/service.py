@@ -27,23 +27,18 @@ class UserService:
         db.commit()
         db.refresh(db_user)
         return db_user
-    
-    # ==========================================
-    # 🔥 CẬP NHẬT: UPLOAD AVATAR LÊN CLOUD
-    # ==========================================
+
     @staticmethod
-    async def upload_avatar(db: Session, user: User, file: UploadFile): # Thêm async
+    async def upload_avatar(db: Session, user: User, file: UploadFile): 
         # 1. Validate file
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="File must be an image")
 
-        # 2. Đẩy thẳng ảnh cho hàm xử lý chung, lưu trong thư mục "avatars"
         avatar_url = await upload_smart_file(file, folder_name="avatars")
         
         if not avatar_url:
             raise HTTPException(status_code=500, detail="Failed to upload avatar")
-        
-        # 3. Update DB với URL mới (Dù là localhost hay Cloudinary đều dùng được luôn)
+   
         user.avatar_url = avatar_url
         db.add(user)
         db.commit()

@@ -38,7 +38,7 @@ class UserResponse(BaseModel):
 
 # --- Pagination ---
 class UserPaginationResponse(BaseModel):
-    items: List[UserResponse]  # Danh sách user trên trang hiện tại
-    total: int                 # Tổng số user trong Database
-    page: int                  # Trang hiện tại
-    size: int                  # Số lượng bản ghi mỗi trang
+    items: List[UserResponse] 
+    total: int                
+    page: int               
+    size: int               
