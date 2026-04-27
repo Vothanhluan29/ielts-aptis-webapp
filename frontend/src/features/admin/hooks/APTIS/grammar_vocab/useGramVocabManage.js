@@ -8,7 +8,6 @@ export const useGramVocabManage = () => {
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
   const [isMockFilter, setIsMockFilter] = useState(false);
 
-  // Bóc tách biến để tránh ESLint warning
   const { current: page, pageSize } = pagination;
 
   const fetchTests = useCallback(async () => {
@@ -32,7 +31,7 @@ export const useGramVocabManage = () => {
     }
   }, [page, pageSize, isMockFilter]);
 
-  // Tự động load lại data mỗi khi các tham số thay đổi
+
   useEffect(() => {
     fetchTests();
   }, [fetchTests]);
@@ -49,7 +48,7 @@ export const useGramVocabManage = () => {
     try {
       await GrammarVocabAdminApi.deleteTest(testId);
       message.success('Test deleted successfully!');
-      fetchTests(); // Refresh lại danh sách
+      fetchTests(); 
     } catch (error) {
       if (error.response && error.response.status === 400) {
         message.error(error.response.data.detail || 'Unable to delete this test as it is currently in use.');
