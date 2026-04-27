@@ -7,14 +7,14 @@ import enum
 from app.core.database import Base
 
 # ==========================================
-# 0. ENUMS
+#ENUMS
 # ==========================================
 class AptisReadingStatus(str, enum.Enum):
     IN_PROGRESS = "IN_PROGRESS"
     GRADED = "GRADED"
 
 # ==========================================
-# 1. TEST (Đề thi - 35 phút, 25 câu)
+# 1. TEST 
 # ==========================================
 class AptisReadingTest(Base):
     __tablename__ = "aptis_reading_tests"
@@ -22,7 +22,7 @@ class AptisReadingTest(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    time_limit = Column(Integer, default=35) # Thời gian chuẩn của Aptis Reading
+    time_limit = Column(Integer, default=35) 
     is_published = Column(Boolean, default=False)
     is_full_test_only = Column(Boolean, default=False)
 
@@ -43,7 +43,7 @@ class AptisReadingTest(Base):
     )
 
 # ==========================================
-# 2. PART (Phần thi - Thay cho Passage, vì Aptis có 4 Parts)
+# 2. PART 
 # ==========================================
 class AptisReadingPart(Base):
     __tablename__ = "aptis_reading_parts"
@@ -51,11 +51,8 @@ class AptisReadingPart(Base):
     id = Column(Integer, primary_key=True, index=True)
     test_id = Column(Integer, ForeignKey("aptis_reading_tests.id", ondelete="CASCADE"), nullable=False)
     
-    part_number = Column(Integer, default=1) # 1, 2, 3, 4
-    title = Column(String(255), nullable=True) # VD: "Part 4: Heading Matching"
-    
-    # Text nội dung bài đọc.
-    # Cho nullable=True vì Part 1 & 2 đôi khi không có bài đọc chung, chỉ có các câu hỏi rời rạc.
+    part_number = Column(Integer, default=1) 
+    title = Column(String(255), nullable=True)
     content = Column(Text, nullable=True) 
 
     # Quan hệ
@@ -68,7 +65,7 @@ class AptisReadingPart(Base):
     )
 
 # ==========================================
-# 3. GROUP (Nhóm câu hỏi chứa yêu cầu chung)
+# 3. GROUP 
 # ==========================================
 class AptisReadingQuestionGroup(Base):
     __tablename__ = "aptis_reading_question_groups"
@@ -76,7 +73,7 @@ class AptisReadingQuestionGroup(Base):
     id = Column(Integer, primary_key=True, index=True)
     part_id = Column(Integer, ForeignKey("aptis_reading_parts.id", ondelete="CASCADE"), nullable=False)
 
-    instruction = Column(Text, nullable=True) # VD: "Match the headings to the paragraphs"
+    instruction = Column(Text, nullable=True)
     image_url = Column(String(255), nullable=True)
     order = Column(Integer, default=0)
 
@@ -90,7 +87,7 @@ class AptisReadingQuestionGroup(Base):
     )
 
 # ==========================================
-# 4. QUESTION (Câu hỏi lẻ)
+# 4. QUESTION 
 # ==========================================
 class AptisReadingQuestion(Base):
     __tablename__ = "aptis_reading_questions"
@@ -106,11 +103,10 @@ class AptisReadingQuestion(Base):
     correct_answer = Column(String(255), nullable=False)
     explanation = Column(Text, nullable=True)
 
-    # Quan hệ
     group = relationship("AptisReadingQuestionGroup", back_populates="questions")
 
 # ==========================================
-# 5. SUBMISSION (Bài nộp & Điểm CEFR)
+# 5. SUBMISSION 
 # ==========================================
 class AptisReadingSubmission(Base):
     __tablename__ = "aptis_reading_submissions"
@@ -121,10 +117,9 @@ class AptisReadingSubmission(Base):
 
     user_answers = Column(JSON, nullable=False)
 
-    # 🔥 ĐÃ THAY ĐỔI CƠ CHẾ ĐIỂM (Bỏ Band Score, dùng CEFR)
-    correct_count = Column(Integer, default=0) # Điểm số câu đúng (Max 25)
-    score = Column(Integer, default=0)         # Có thể dùng để lưu điểm scale nếu cần
-    cefr_level = Column(String(10), nullable=True) # A1, A2, B1, B2, C
+    correct_count = Column(Integer, default=0) 
+    score = Column(Integer, default=0)       
+    cefr_level = Column(String(10), nullable=True)
 
     submitted_at = Column(DateTime(timezone=True), server_default=func.now())
     status = Column(String(50), default=AptisReadingStatus.IN_PROGRESS.value)

@@ -3,23 +3,21 @@ from typing import List, Optional, Union, Dict, Any
 from datetime import datetime
 from enum import Enum
 
-# ==================== ENUMS (Đã chuẩn hóa theo Aptis Reading) ====================
+# = ENUMS  ==
 class AptisReadingQuestionType(str, Enum):
-    FILL_IN_BLANKS = "FILL_IN_BLANKS"             # Điền từ (Part 1, Part 4)
-    REORDER_SENTENCES = "REORDER_SENTENCES"       # Sắp xếp câu (Part 2)
-    MATCHING_OPINIONS = "MATCHING_OPINIONS"       # Nối quan điểm người nói (Part 3)
-    MATCHING_HEADINGS = "MATCHING_HEADINGS"       # Nối tiêu đề đoạn văn (Part 4)
-    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"           # Trắc nghiệm (Dự phòng)
+    FILL_IN_BLANKS = "FILL_IN_BLANKS"           
+    REORDER_SENTENCES = "REORDER_SENTENCES"     
+    MATCHING_OPINIONS = "MATCHING_OPINIONS"    
+    MATCHING_HEADINGS = "MATCHING_HEADINGS"       
+    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"           
 
 
 # ==================== BASE MODELS ====================
 class QuestionBase(BaseModel):
     question_number: int
-    question_text: Optional[str] = None # Có thể null vì dạng nối heading chỉ cần số câu
+    question_text: Optional[str] = None 
     question_type: AptisReadingQuestionType
     
-    # Options: Dùng dạng Dict cho an toàn {"A": "Apple", "B": "Banana"}
-    # Dạng REORDER thì options chứa các câu cần sắp xếp.
     options: Optional[Union[Dict[str, Any], List[str], str]] = None
 
     @field_validator('options', mode='before')
@@ -40,11 +38,9 @@ class QuestionGroupBase(BaseModel):
     image_url: Optional[str] = None
     order: int = 0
 
-# 🔴 Đổi Passage thành Part
 class PartBase(BaseModel):
     part_number: int = 1
     title: Optional[str] = None
-    # 🔥 Quan trọng: content được phép null vì Part 1 & 2 Aptis không có bài đọc dài
     content: Optional[str] = None 
 
 
@@ -64,8 +60,8 @@ class PartCreateOrUpdate(PartBase):
 
 class TestCreateOrUpdate(BaseModel):
     title: str
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: Cho phép Admin nhập mô tả khi tạo/sửa đề
-    time_limit: int = 35 # Aptis Reading thường 35 phút
+    description: Optional[str] = None 
+    time_limit: int = 35 
     is_published: bool = False
     is_full_test_only: bool = False
     parts: List[PartCreateOrUpdate] = []
@@ -92,7 +88,7 @@ class PartAdmin(PartBase):
 class TestAdmin(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: Trả về mô tả cho Admin
+    description: Optional[str] = None 
     time_limit: int
     is_published: bool
     is_full_test_only: bool
@@ -120,7 +116,7 @@ class PartPublic(PartBase):
 class TestPublic(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: Trả về mô tả cho Student xem lúc bắt đầu thi
+    description: Optional[str] = None 
     time_limit: int
     parts: List[PartPublic]
     class Config: from_attributes = True
@@ -128,7 +124,7 @@ class TestPublic(BaseModel):
 class TestListItem(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: Trả về mô tả hiển thị ở màn hình Danh sách đề (Lobby)
+    description: Optional[str] = None 
     time_limit: int
     is_published: bool
     is_full_test_only: bool
@@ -148,7 +144,7 @@ class StudentSubmissionRequest(BaseModel):
 class ReadingTestSummary(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None # 🔥 ĐÃ THÊM: (Tùy chọn) Để lịch sử thi hiển thị thêm mô tả nếu cần
+    description: Optional[str] = None 
     class Config: from_attributes = True
 
 
@@ -159,8 +155,6 @@ class SubmissionHistoryItem(BaseModel):
     test: Optional[ReadingTestSummary] = None
     status: str
     is_full_test_only: bool
-
-    # 🔥 Đã đổi sang cơ chế điểm CEFR của Aptis
     correct_count: int
     score: int
     cefr_level: Optional[str] = None
@@ -186,7 +180,6 @@ class SubmissionDetail(BaseModel):
     status: str
     is_full_test_only: bool
     
-    # 🔥 Đã đổi sang cơ chế điểm CEFR
     correct_count: int
     score: int
     cefr_level: Optional[str] = None
@@ -209,7 +202,6 @@ class AdminReadingSubmissionResponse(SubmissionDetail):
     user: Optional[UserBasicInfo] = None
 
 class ReadingScoreOverrideRequest(BaseModel):
-    # 🔥 Cập nhật theo điểm Aptis
     score: int
     correct_count: Optional[int] = None
     cefr_level: Optional[str] = None

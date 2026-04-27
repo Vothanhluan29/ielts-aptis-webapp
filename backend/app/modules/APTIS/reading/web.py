@@ -9,6 +9,7 @@ from app.core.dependencies import get_current_user, get_admin_user
 from app.modules.APTIS.reading import schemas
 from app.modules.APTIS.reading.services.test_service import AptisReadingTestService
 from app.modules.APTIS.reading.services.submission_service import AptisReadingSubmissionService
+
 router = APIRouter(prefix="/aptis/reading", tags=["Aptis Reading"])
 
 
@@ -118,7 +119,7 @@ def admin_get_user_history(
 
 
 # =====================================================
-# 🎓 STUDENT ROUTES (Practice Mode)
+# STUDENT ROUTES (Practice Mode)
 # =====================================================
 
 @router.get("/tests", response_model=List[schemas.TestListItem])
@@ -150,9 +151,8 @@ def get_test_for_student(
     user_role = str(getattr(current_user, "role", "")).upper()
     is_admin = user_role == "ADMIN"
 
-    # Chặn không cho học viên xem đề chưa publish
     if not test.is_published and not is_admin and not test.is_full_test_only:
-        raise HTTPException(status_code=403, detail="Bài thi này chưa được công khai.")
+        raise HTTPException(status_code=403, detail="This test has not been published yet.")
 
     return test
 
@@ -170,7 +170,7 @@ def submit_test(
 
 
 # =====================================================
-# 📜 HISTORY ROUTES
+# HISTORY ROUTES
 # =====================================================
 
 @router.get("/submissions/me", response_model=List[schemas.SubmissionHistoryItem])
@@ -194,7 +194,6 @@ def get_submission_review(
     user_role = str(getattr(current_user, "role", "")).upper()
     is_admin = user_role == "ADMIN"
 
-    # Chỉ Admin hoặc chính chủ mới được xem lại bài nộp
     if not is_admin and result.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
