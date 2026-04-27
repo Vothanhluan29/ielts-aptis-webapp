@@ -11,7 +11,7 @@ export const useListeningHistory = () => {
     const fetchHistory = async () => {
       try {
         const response = await listeningStudentApi.getMyHistory();
-        // API response trả về array hoặc object chứa data
+
         const data = Array.isArray(response) ? response : response.data || [];
         setHistory(data);
       } catch (error) {
@@ -32,7 +32,7 @@ export const useListeningHistory = () => {
   /* Lọc danh sách */
   const filtered = useMemo(() => {
     return history.filter((item) => {
-      // ✅ LOGIC KHỚP VỚI BACKEND MỚI: Lấy title từ object test
+
       const titleToSearch = item.test?.title || item.test_title || '';
       
       const matchSearch =

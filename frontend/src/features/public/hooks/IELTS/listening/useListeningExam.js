@@ -127,7 +127,7 @@ export const useListeningExam = (propsTestId, propsOnFinish) => {
         console.error('Submit error:', error);
         toast.error('Submission failed. Please try again.');
       } finally {
-        setSubmitting(false); // 🔥 ALWAYS unlock the button whether success or failure
+        setSubmitting(false); 
       }
     },
     [testId, submitting, navigate, isFullTestMode, propsOnFinish]
