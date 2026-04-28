@@ -14,9 +14,7 @@ from app.modules.IELTS.exam.models import ExamSubmission
 
 class UserStatsService:
 
-    # ============================================================
-    # 1. HELPERS (Giữ nguyên logic cực tốt của bạn)
-    # ============================================================
+
     @staticmethod
     def _calculate_average_score(submissions) -> Tuple[float, int]:
         if not submissions: return 0.0, 0
@@ -78,9 +76,7 @@ class UserStatsService:
 
         return schemas.StreakInfo(current_streak=streak, activity_map=activity_map)
 
-    # ============================================================
-    # 2. API 1: LẤY TỔNG QUAN (OVERVIEW) - CHẠY NHANH
-    # ============================================================
+
     @staticmethod
     def get_overview_stats(db: Session, user_id: int) -> schemas.OverviewStatsResponse:
         # Lấy bài Full Test
@@ -102,7 +98,7 @@ class UserStatsService:
             SpeakingSubmission.user_id == user_id, SpeakingTest.is_full_test_only == False
         ).all()
 
-        # Tính Full Test Stats
+
         total_exams = len(exam_subs)
         avg_overall, max_overall = 0.0, 0.0
         if total_exams > 0:
@@ -115,7 +111,7 @@ class UserStatsService:
             total_exams=total_exams, average_overall=avg_overall, highest_overall=max_overall
         )
 
-        # Tính Skill Stats
+
         r_avg, r_count = UserStatsService._calculate_average_score(read_subs)
         l_avg, l_count = UserStatsService._calculate_average_score(list_subs)
         w_avg, w_count = UserStatsService._calculate_average_score(writ_subs)
@@ -132,9 +128,7 @@ class UserStatsService:
             full_test_stats=full_test_stats, skill_stats=skill_stats_list
         )
 
-    # ============================================================
-    # 3. API 2: LẤY DỮ LIỆU BIỂU ĐỒ (PROGRESS)
-    # ============================================================
+
     @staticmethod
     def get_progress_data(db: Session, user_id: int) -> schemas.ProgressResponse:
         exam_subs = db.query(ExamSubmission.overall_score, ExamSubmission.completed_at).filter(
@@ -154,7 +148,7 @@ class UserStatsService:
             SpeakingSubmission.user_id == user_id, SpeakingTest.is_full_test_only == False
         ).order_by(desc(SpeakingSubmission.submitted_at)).all()
 
-        # Tạo mảng các ngày có tương tác (all_dates)
+
         all_active_dates = set()
         for subs, is_full in [(exam_subs, True), (read_subs, False), (list_subs, False), (writ_subs, False), (speak_subs, False)]:
             for s in subs:
@@ -167,11 +161,9 @@ class UserStatsService:
 
         return schemas.ProgressResponse(chart_data=chart_data, streak_info=streak_info)
 
-    # ============================================================
-    # 4. API 3: LẤY LỊCH SỬ HOẠT ĐỘNG (RECENT ACTIVITIES)
-    # ============================================================
+
     @staticmethod
-    def get_recent_activities(db: Session, user_id: int, limit: int = 10) -> schemas.RecentActivitiesResponse: # 🔥 ĐÃ SỬA TYPE HINT
+    def get_recent_activities(db: Session, user_id: int, limit: int = 10) -> schemas.RecentActivitiesResponse: 
         exam_subs = db.query(ExamSubmission).options(joinedload(ExamSubmission.full_test)).filter(
             ExamSubmission.user_id == user_id, ExamSubmission.completed_at.isnot(None)
         ).order_by(desc(ExamSubmission.completed_at)).limit(limit).all()
@@ -217,8 +209,8 @@ class UserStatsService:
         extract_activity(writ_subs, schemas.SkillType.WRITING)
         extract_activity(speak_subs, schemas.SkillType.SPEAKING)
 
-        # Trộn tất cả lại, sắp xếp theo thời gian mới nhất
+
         activities.sort(key=lambda x: x.date, reverse=True)
         
-        # 🔥 ĐÃ SỬA: Đóng gói vào schema RecentActivitiesResponse
+
         return schemas.RecentActivitiesResponse(activities=activities[:limit])
