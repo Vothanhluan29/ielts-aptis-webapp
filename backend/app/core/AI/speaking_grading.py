@@ -13,7 +13,7 @@ genai.configure(api_key=settings.GEMINI_API_KEY)
 class IELTS_Speaking_Grader:
     def __init__(self):
         self.model = genai.GenerativeModel(
-            model_name="models/gemini-2.5-flash-lite", 
+            model_name="models/gemini-2.5-flash", 
             generation_config={
                 "temperature": 0.1, 
                 "response_mime_type": "application/json"
