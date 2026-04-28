@@ -22,6 +22,5 @@ class UserUsage(Base):
 
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Quan hệ
     user = relationship("User", back_populates="usage")
     
