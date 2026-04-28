@@ -160,10 +160,8 @@ function App() {
 
         <Route path="/choose-mode" element={<ModeSelectionPage />} />
 
-        {/* ================= STUDENT LAYOUT (CHỨA CẢ IELTS VÀ APTIS) ================= */}
+        {/* ================= STUDENT LAYOUT (IELTS AND APTIS) ================= */}
         <Route path="/" element={<MainLayout />}>
-          
-          {/* Sửa đổi: Khi vào gốc '/', tự động đẩy sang trang chọn Mode thay vì auto vào IELTS */}
           <Route index element={<Navigate to="/choose-mode" replace />} />
           
           {/* --- IELTS ROUTES --- */}
@@ -211,7 +209,7 @@ function App() {
           <Route path="aptis/reading/history" element={<ReadingAptisHistoryPage />} />
 
           <Route path="aptis/writing" element={<WritingAptisListPage />} />
-          <Route path="aptis/writing/lobby/:id" element={<WritingAptisLobbyPage />} /> {/* ĐÃ SỬA LỖI ĐƯỜNG DẪN */}
+          <Route path="aptis/writing/lobby/:id" element={<WritingAptisLobbyPage />} /> 
           <Route path="aptis/writing/result/:id" element={<WritingAptisResultPage />} />
           <Route path="aptis/writing/history" element={<WritingAptisHistoryPage />} />
 
