@@ -8,13 +8,10 @@ class WritingUtils:
         return len(text.strip().split())
 
     @staticmethod
-    async def upload_image(file: UploadFile) -> str: # Thêm async
-        """Lưu ảnh đề bài Task 1 (lên Cloudinary hoặc Local)"""
-        
-        # 🔥 Đẩy thẳng file vào hàm xử lý chung, lưu trong thư mục "ielts_writing_images"
+    async def upload_image(file: UploadFile) -> str: 
+
         image_url = await upload_smart_file(file, folder_name="ielts_writing_images")
         
-        # Ở code cũ bạn trả về chuỗi rỗng "" nếu lỗi, mình giữ nguyên logic này
         if not image_url:
             print("Error saving Writing Task 1 image.")
             return ""

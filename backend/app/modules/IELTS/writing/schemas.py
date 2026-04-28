@@ -15,7 +15,7 @@ class SubmissionStatus(str, Enum):
     GRADED = "GRADED"
     ERROR = "ERROR"
 
-# ==================== 1. QUẢN LÝ ĐỀ THI (ADMIN) ====================
+
 
 class TaskBase(BaseModel):
     task_type: WritingTaskType
@@ -57,7 +57,7 @@ class WritingTestResponse(WritingTestBase):
     class Config: 
         from_attributes = True
 
-# Schema hiển thị danh sách dạng rút gọn
+
 class WritingTestListItem(BaseModel):
     id: int
     title: str
@@ -70,7 +70,7 @@ class WritingTestListItem(BaseModel):
     class Config: 
         from_attributes = True
 
-# ==================== 2. NỘP BÀI (STUDENT) ====================
+
 
 class SubmitWriting(BaseModel):
     test_id: int
@@ -79,16 +79,13 @@ class SubmitWriting(BaseModel):
     task2_content: Optional[str] = ""
     is_full_test_only: bool = False
 
-# ==================== 3. KẾT QUẢ & HIỂN THỊ ====================
 
-# Schema định nghĩa cấu trúc 1 lỗi sai từ AI
 class CorrectionItem(BaseModel):
-    text: str       # Đoạn văn sai
-    fix: str        # Đoạn sửa lại
-    type: str       # grammar, vocabulary, minor_slip...
+    text: str       
+    fix: str        
+    type: str       
     explanation: Optional[str] = None
 
-# Schema Test rút gọn nhúng trong Submission
 class WritingTestSimpleResponse(BaseModel):
     id: int
     title: str
@@ -103,13 +100,13 @@ class WritingSubmissionResponse(BaseModel):
     user_id: int  
     is_full_test_only: bool = False
     
-    # Bài làm
+
     task1_content: Optional[str] = ""
     task2_content: Optional[str] = ""
     task1_word_count: int = 0
     task2_word_count: int = 0
     
-    # --- ĐIỂM SỐ & FEEDBACK TASK 1 ---
+
     score_t1_overall: Optional[float] = None
     score_t1_ta: Optional[float] = None
     score_t1_cc: Optional[float] = None
@@ -118,7 +115,7 @@ class WritingSubmissionResponse(BaseModel):
     feedback_t1: Optional[str] = None
     correction_t1: Optional[List[CorrectionItem]] = None 
 
-    # --- ĐIỂM SỐ & FEEDBACK TASK 2 ---
+
     score_t2_overall: Optional[float] = None
     score_t2_tr: Optional[float] = None
     score_t2_cc: Optional[float] = None
@@ -127,7 +124,7 @@ class WritingSubmissionResponse(BaseModel):
     feedback_t2: Optional[str] = None
     correction_t2: Optional[List[CorrectionItem]] = None 
 
-    # --- TỔNG KẾT ---
+
     band_score: Optional[float] = None
     overall_feedback: Optional[str] = None
     
@@ -144,10 +141,8 @@ class WritingSubmissionResponse(BaseModel):
             return []
         if isinstance(v, str):
             try:
-                # Nếu chuỗi rỗng thì trả về list rỗng
                 if not v.strip(): return []
                 parsed = json.loads(v)
-                # Đảm bảo trả về list
                 return parsed if isinstance(parsed, list) else []
             except Exception:
                 return []
@@ -159,7 +154,6 @@ class WritingSubmissionResponse(BaseModel):
 
 # ==================== 4. ADMIN MANAGEMENT SCHEMAS ====================
 
-# Thông tin cơ bản của User
 class UserBasicInfo(BaseModel):
     id: int
     email: str
@@ -167,6 +161,5 @@ class UserBasicInfo(BaseModel):
     class Config:
         from_attributes = True
 
-# Kế thừa nguyên vẹn từ bản Student, chỉ kẹp thêm info của User
 class AdminWritingSubmissionResponse(WritingSubmissionResponse):
     user: Optional[UserBasicInfo] = None
