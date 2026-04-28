@@ -11,7 +11,7 @@ from app.core.config import settings
 from app.core.database import engine, Base
 from app.core.scheduler import start_scheduler
 
-# Import Models (Phải import để Base.metadata.create_all nhận diện được bảng)
+
 from app.modules.users.models import User
 from app.modules.IELTS.reading.models import ReadingTest
 from app.modules.IELTS.listening.models import ListeningTest
@@ -19,7 +19,7 @@ from app.modules.IELTS.writing.models import WritingTest
 from app.modules.IELTS.speaking.models import SpeakingTest
 from app.modules.IELTS.exam.models import FullTest
 from app.modules.subscriptions.models import UserUsage
-# Đảm bảo bạn đã import các Model của APTIS ở đâu đó hoặc import tại đây
+
 
 # Import Routers
 from app.modules.auth import web as auth_web
@@ -88,7 +88,6 @@ app.add_middleware(
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
-    # Cho phép ứng dụng giao tiếp với các cửa sổ popup (Login Google, Facebook...)
     response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
     return response
 
@@ -106,10 +105,8 @@ print(f"Static Directory mounted at: {static_dir}")
 
 
 # ==========================================
-# 6. Register Routers (Đã Tối Ưu Hóa)
+# 6. Register Routers 
 # ==========================================
-# Thay vì tạo các APIRouter() trung gian rỗng, ta include thẳng vào app.
-# Các prefix như "/aptis/exam" đã được định nghĩa sẵn trong các file web.py của bạn.
 
 # --- Core & System ---
 app.include_router(auth_web.router)
@@ -131,7 +128,7 @@ app.include_router(aptis_listening_web.router)
 app.include_router(aptis_reading_web.router)
 app.include_router(aptis_writing_web.router)
 app.include_router(aptis_speaking_web.router)
-app.include_router(aptis_exam_web.router) # Router cho Aptis Full Test
+app.include_router(aptis_exam_web.router) 
 app.include_router(aptis_user_stats_web.router)
 
 
