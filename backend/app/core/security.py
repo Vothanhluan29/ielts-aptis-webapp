@@ -4,7 +4,7 @@ from typing import Optional
 from jose import jwt
 from app.core.config import settings
 
-# Cấu hình Argon2
+
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 def verify_password(plain_password, hashed_password):
