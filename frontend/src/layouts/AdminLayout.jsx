@@ -1,24 +1,23 @@
 import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import SideBar from '../components/AdminLayout/SideBar';
-import AptisSideBar from '../components/AdminLayout/AptisSideBar'; // 🟢 Import thêm Sidebar của Aptis
+import AptisSideBar from '../components/AdminLayout/AptisSideBar';
 import Header from '../components/AdminLayout/Header';
 import { useAdminLayout } from '../hooks/AdminLayout/useAdminLayout';
 
 const AdminLayout = () => {
-  // Lấy toàn bộ logic từ Hook
+
   const layoutProps = useAdminLayout();
   
-  // Lấy đường dẫn URL hiện tại
+
   const location = useLocation();
 
-  // Kiểm tra xem URL có chứa chữ '/aptis' hay không
+
   const isAptis = location.pathname.includes('/aptis');
 
   return (
     <div className="flex h-screen bg-slate-100 font-sans text-slate-900">
       
-      {/* 🟢 SIDEBAR Component: Hiển thị động theo URL */}
       {isAptis ? (
         <AptisSideBar layoutProps={layoutProps} />
       ) : (
