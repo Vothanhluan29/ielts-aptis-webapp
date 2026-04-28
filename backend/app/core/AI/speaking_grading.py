@@ -6,11 +6,8 @@ import os
 import re
 import logging
 from app.core.config import settings
-
-# Cấu hình Logger cơ bản cho module này
 logger = logging.getLogger(__name__)
 
-# Cấu hình API Key
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
 class IELTS_Speaking_Grader:
