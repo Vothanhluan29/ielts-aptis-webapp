@@ -1,6 +1,6 @@
 import os
-import urllib.request # Dùng để tải file từ URL
-import tempfile       # Dùng để tạo file rác tạm thời
+import urllib.request 
+import tempfile    
 from sqlalchemy.orm import joinedload
 from datetime import datetime
 
@@ -41,33 +41,25 @@ class SpeakingGradingService:
                     print(f"[ERROR] Audio URL empty for Question {answer.question_id}")
                     continue
 
-                # ==========================================
-                # 🔥 TRICK XỬ LÝ FILE ĐỂ AI CHẤM ĐIỂM
-                # ==========================================
                 temp_path = ""
                 try:
-                    # 1. Tạo một file tạm thời trên hệ thống (đuôi .webm hoặc mp3)
+
                     fd, temp_path = tempfile.mkstemp(suffix=".webm")
                     os.close(fd)
-
-                    # 2. Tải file âm thanh từ URL (Cloudinary hoặc Localhost) về file tạm
                     urllib.request.urlretrieve(answer.audio_url, temp_path)
 
-                    # 3. Ném đường dẫn file tạm cho AI chấm
                     ai_result = grader.grade_single_part(
                         audio_path=temp_path,
                         question_text=question_text,
                         part_number=part_number
                     )
 
-                    # 4. Xóa file tạm ngay sau khi AI chấm xong để dọn dẹp
                     os.remove(temp_path)
 
                 except Exception as e:
                     print(f"[ERROR] Could not download/grade audio: {e}")
                     answer.transcript = "(System Error: Could not process audio)"
                     answer.feedback = "We couldn't process your audio file. Please try recording again."
-                    # Dọn dẹp file rác nếu lỡ bị lỗi giữa chừng
                     if temp_path and os.path.exists(temp_path):
                         os.remove(temp_path)
                     continue

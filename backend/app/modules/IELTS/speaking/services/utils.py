@@ -4,8 +4,8 @@ from app.core.cloudinary import upload_smart_file
 
 class SpeakingUtils:
     @staticmethod
-    async def save_audio_file(file: UploadFile) -> str: # 🔥 Thêm async
-        # Giữ nguyên logic check file rỗng/lỗi mic của bạn
+    async def save_audio_file(file: UploadFile) -> str: 
+
         file.file.seek(0, os.SEEK_END)
         file_size = file.file.tell()
         file.file.seek(0) 
@@ -16,7 +16,6 @@ class SpeakingUtils:
                 detail="Audio file is empty or corrupted. Please check your microphone."
             )
 
-        # 🔥 Đẩy thẳng file vào hàm xử lý chung, lưu trong thư mục "ielts_speaking_audio"
         audio_url = await upload_smart_file(file, folder_name="ielts_speaking_audio")
         
         if not audio_url:
