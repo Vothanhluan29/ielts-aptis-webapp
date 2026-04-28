@@ -23,4 +23,4 @@ else:
                 print(f"--> Display Name: {m.display_name}")
                 print("-" * 30)
     except Exception as e:
-        print(f"❌ Connection error: {e}")
+        print(f" Connection error: {e}")
