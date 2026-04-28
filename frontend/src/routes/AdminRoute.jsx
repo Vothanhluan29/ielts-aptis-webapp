@@ -24,8 +24,6 @@ const AdminRoute = () => {
     return <div className="h-screen flex items-center justify-center">Checking permission....</div>;
   }
 
-  // Nếu là admin -> Cho phép đi tiếp vào Outlet (AdminLayout)
-  // Nếu không -> Đá về dashboard học viên
   return role === 'admin' ? <Outlet /> : <Navigate to="/dashboard" replace />;
 };
 
