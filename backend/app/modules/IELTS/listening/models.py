@@ -11,40 +11,39 @@ class ListeningStatus(str, enum.Enum):
     GRADED = "GRADED"
 
 class ListeningQuestionType(str, enum.Enum):
-    # 1. Trắc nghiệm
-    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"          # Trắc nghiệm chọn 1 đáp án (A, B, C)
-    MULTIPLE_ANSWER = "MULTIPLE_ANSWER"          # Chọn 2-3 đáp án từ 1 list (A-E / A-G)
+   
+    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"         
+    MULTIPLE_ANSWER = "MULTIPLE_ANSWER"          
     
-    # 2. Nối thông tin (Map, Plan, Diagram, Matching)
-    MATCHING = "MATCHING"                        # Nối tên người/sự vật với đặc điểm
-    MAP_PLAN_LABELING = "MAP_PLAN_LABELING"      # Điền nhãn Bản đồ/Sơ đồ (thường nối với A, B, C trên ảnh)
-    DIAGRAM_LABELING = "DIAGRAM_LABELING"        # Điền nhãn Sơ đồ máy móc/quy trình
     
-    # 3. Điền từ vào chỗ trống (Fill in the blanks) - Chiếm >50% bài thi
-    FORM_COMPLETION = "FORM_COMPLETION"          # Điền form đăng ký (Tên, SĐT, Địa chỉ) - Thường Part 1
-    NOTE_COMPLETION = "NOTE_COMPLETION"          # Điền Note bài giảng - Thường Part 4
-    TABLE_COMPLETION = "TABLE_COMPLETION"        # Điền bảng biểu thống kê
-    FLOWCHART_COMPLETION = "FLOWCHART_COMPLETION"# Điền lưu đồ các bước thực hiện
-    SUMMARY_COMPLETION = "SUMMARY_COMPLETION"    # Điền đoạn tóm tắt
-    SENTENCE_COMPLETION = "SENTENCE_COMPLETION"  # Hoàn thành câu
-    SHORT_ANSWER = "SHORT_ANSWER"                # Trả lời câu hỏi ngắn (NO MORE THAN 3 WORDS)
+    MATCHING = "MATCHING"                        
+    MAP_PLAN_LABELING = "MAP_PLAN_LABELING"      
+    DIAGRAM_LABELING = "DIAGRAM_LABELING"      
+    
+    FORM_COMPLETION = "FORM_COMPLETION"          
+    NOTE_COMPLETION = "NOTE_COMPLETION"         
+    TABLE_COMPLETION = "TABLE_COMPLETION"       
+    FLOWCHART_COMPLETION = "FLOWCHART_COMPLETION"
+    SUMMARY_COMPLETION = "SUMMARY_COMPLETION"   
+    SENTENCE_COMPLETION = "SENTENCE_COMPLETION" 
+    SHORT_ANSWER = "SHORT_ANSWER"               
 
-# 1. TEST (Đề thi)
+# 1. TEST 
 class ListeningTest(Base):
     __tablename__ = "listening_tests"
     
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
-    description = Column(Text, nullable=True)  # 🔥 Thêm description ở đây
+    description = Column(Text, nullable=True) 
     
-    time_limit = Column(Integer, default=40)  # Listening thường 30p làm bài + 10p transfer
+    time_limit = Column(Integer, default=40)  
     is_published = Column(Boolean, default=False)  
     is_full_test_only = Column(Boolean, default=False)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now()) # Đồng bộ với Reading
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now()) 
 
-    # Quan hệ
+
     parts = relationship("ListeningPart", back_populates="test", cascade="all, delete-orphan", order_by="ListeningPart.part_number")
     submissions = relationship("ListeningSubmission", back_populates="test", cascade="all, delete-orphan")
 
@@ -55,12 +54,11 @@ class ListeningPart(Base):
     id = Column(Integer, primary_key=True, index=True)
     test_id = Column(Integer, ForeignKey("listening_tests.id"), nullable=False)
     
-    part_number = Column(Integer)     # 1, 2, 3, 4
-    audio_url = Column(String, nullable=False) # Link file MP3
-    transcript = Column(Text, nullable=True)   # Lời thoại (Tapescript)
+    part_number = Column(Integer)   
+    audio_url = Column(String, nullable=False) 
+    transcript = Column(Text, nullable=True)  
     
     test = relationship("ListeningTest", back_populates="parts")
-    # Part chứa nhiều Groups
     groups = relationship("ListeningQuestionGroup", back_populates="part", cascade="all, delete-orphan", order_by="ListeningQuestionGroup.order")
 
 # 3. GROUP
@@ -71,7 +69,7 @@ class ListeningQuestionGroup(Base):
     part_id = Column(Integer, ForeignKey("listening_parts.id"), nullable=False)
     
     instruction = Column(Text)        
-    image_url = Column(String, nullable=True) # Rất quan trọng cho dạng Map Labeling
+    image_url = Column(String, nullable=True)
     order = Column(Integer, default=1)
 
     part = relationship("ListeningPart", back_populates="groups")
@@ -90,14 +88,14 @@ class ListeningQuestion(Base):
     
     options = Column(JSON, nullable=True) 
     
-    # 🔥 FIX QUAN TRỌNG: Sửa String thành JSON để chứa mảng các đáp án hợp lệ
+
     correct_answers = Column(JSON, nullable=False) 
     
     explanation = Column(Text, nullable=True)
 
     group = relationship("ListeningQuestionGroup", back_populates="questions")
 
-# 5. SUBMISSION (Kết quả thi)
+# 5. SUBMISSION 
 class ListeningSubmission(Base):
     __tablename__ = "listening_submissions"
 

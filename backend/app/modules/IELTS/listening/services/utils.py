@@ -4,7 +4,7 @@ from app.core.cloudinary import upload_smart_file
 
 class ListeningUtils:
     @staticmethod
-    async def save_image_file(file: UploadFile) -> str: # Thêm async
+    async def save_image_file(file: UploadFile) -> str: 
         """Save an image file to Cloudinary/Local and return the URL"""
         try:
             allowed_extensions = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
@@ -12,7 +12,6 @@ class ListeningUtils:
             if ext not in allowed_extensions:
                 raise ValueError(f"Invalid image format. Supported formats: {', '.join(allowed_extensions)}")
 
-            # 🔥 Gọi hàm upload, lưu vào thư mục "ielts_listening_images"
             image_url = await upload_smart_file(file, folder_name="ielts_listening_images")
             
             if not image_url:
@@ -23,7 +22,7 @@ class ListeningUtils:
             raise ValueError(f"Error saving image: {str(e)}")
 
     @staticmethod
-    async def save_audio_file(file: UploadFile) -> str: # Thêm async
+    async def save_audio_file(file: UploadFile) -> str:
         """Save an audio file to Cloudinary/Local and return the URL"""
         try:
             allowed_extensions = {".mp3", ".wav", ".m4a", ".ogg", ".aac"}
@@ -31,7 +30,7 @@ class ListeningUtils:
             if ext not in allowed_extensions:
                 raise ValueError(f"Invalid format. Supported formats: {', '.join(allowed_extensions)}")
 
-            # 🔥 Gọi hàm upload, lưu vào thư mục "ielts_listening_audio"
+
             audio_url = await upload_smart_file(file, folder_name="ielts_listening_audio")
             
             if not audio_url:

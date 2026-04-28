@@ -54,7 +54,7 @@ class PartBase(BaseModel):
 
 class TestBase(BaseModel):
     title: str
-    description: Optional[str] = None # 🔥 BỔ SUNG: Đồng bộ với DB Test Model
+    description: Optional[str] = None 
     time_limit: int = 40
     is_published: bool = False 
     is_full_test_only: bool = False
@@ -64,8 +64,8 @@ class TestBase(BaseModel):
 # =======================================================
 
 class QuestionCreate(QuestionBase):
-    id: Optional[int] = None # Dùng chung cho Create/Update
-    correct_answers: List[str] = [] # 🔥 ĐÃ FIX: Chuyển thành MẢNG đúng chuẩn
+    id: Optional[int] = None 
+    correct_answers: List[str] = []
     explanation: Optional[str] = None
 
 class GroupCreate(GroupBase):
@@ -85,7 +85,6 @@ class ListeningTestCreateOrUpdate(TestBase):
 
 class QuestionStudent(QuestionBase):
     id: int
-    # Không trả correct_answers để chống cheat
     class Config: from_attributes = True
 
 class GroupStudent(GroupBase):
@@ -115,12 +114,11 @@ class ListeningTestListItem(BaseModel):
     class Config: from_attributes = True
 
 # =======================================================
-# 4. SUBMISSION & SCORING (Chấm điểm)
+# 4. SUBMISSION & SCORING 
 # =======================================================
 
 class SubmitAnswer(BaseModel):
     test_id: int
-    # 🔥 ĐÃ FIX TÊN BIẾN: user_answers (Không phải answers)
     user_answers: Dict[str, Union[str, List[str]]] = Field(default_factory=dict)
     is_full_test_only: bool = False
 
@@ -129,7 +127,7 @@ class ResultDetailItem(BaseModel):
     question_number: int
     question_text: Optional[str]
     user_answer: Optional[Union[str, List[str]]] = "" 
-    correct_answers: List[str] # 🔥 ĐÃ FIX: Chuyển thành list    
+    correct_answers: List[str] 
     is_correct: bool
     explanation: Optional[str] = None
 
