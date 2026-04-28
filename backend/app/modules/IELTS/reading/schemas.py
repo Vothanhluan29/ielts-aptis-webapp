@@ -69,7 +69,7 @@ class PassageCreateOrUpdate(PassageBase):
 
 class TestCreateOrUpdate(BaseModel):
     title: str
-    description: Optional[str] = None  # 🔥 Thêm description
+    description: Optional[str] = None  
     time_limit: int = 60
     is_published: bool = False
     is_full_test_only: bool = False
@@ -105,7 +105,7 @@ class PassageAdmin(PassageBase):
 class TestAdmin(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None  # 🔥 Thêm description
+    description: Optional[str] = None 
     time_limit: int
     is_published: bool
     is_full_test_only: bool
@@ -148,7 +148,7 @@ class PassagePublic(PassageBase):
 class TestPublic(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None  # 🔥 Thêm description
+    description: Optional[str] = None 
     time_limit: int
     passages: List[PassagePublic]
 
@@ -159,7 +159,7 @@ class TestPublic(BaseModel):
 class TestListItem(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None  # 🔥 Thêm description
+    description: Optional[str] = None  
     time_limit: int
     is_published: bool
     is_full_test_only: bool
@@ -181,8 +181,7 @@ class StudentSubmissionRequest(BaseModel):
 class ReadingTestSummary(BaseModel):
     id: int
     title: str
-    description: Optional[str] = None  # 🔥 Thêm description (tùy chọn nhưng nên có)
-
+    description: Optional[str] = None  
     class Config:
         from_attributes = True
 

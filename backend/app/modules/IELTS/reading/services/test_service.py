@@ -148,7 +148,6 @@ class ReadingTestService:
             .joinedload(models.ReadingQuestionGroup.questions)
         ).filter(models.ReadingTest.id == test_id).first()
     
-    # Alias để tương thích với các logic gọi cũ nếu có
     get_test_detail = get_full_test_data
 
     @staticmethod

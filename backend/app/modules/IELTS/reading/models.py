@@ -97,7 +97,6 @@ class ReadingQuestion(Base):
     question_type = Column(String, nullable=False)
     options = Column(JSON, nullable=True)
     
-    # Sử dụng JSON để lưu các cụm đáp án được chấp nhận
     correct_answers = Column(JSON, nullable=False) 
     
     explanation = Column(Text, nullable=True)
