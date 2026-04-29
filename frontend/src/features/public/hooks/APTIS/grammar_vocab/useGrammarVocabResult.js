@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import grammarVocabAptisStudentApi from '../../../api/APTIS/grammar_vocab/grammarvocabAptisStudentApi';
 
-// Helper parse JSON an toàn
+
 const safeParse = (data, defaultVal = {}) => {
   if (!data) return defaultVal;
   if (typeof data === 'object') return data;
@@ -18,17 +18,17 @@ export const useGrammarVocabResult = () => {
   const [testDetail, setTestDetail] = useState(null);
   const [activeTab, setActiveTab] = useState('GRAMMAR');
 
-  // ─── LƯỒNG FETCH DATA TỐI ƯU ───
+
   const fetchResult = useCallback(async () => {
     try {
       setLoading(true);
 
-      // 1. Gọi API lấy Bài Nộp (truyền submissionId)
+ 
       const detailsRes = await grammarVocabAptisStudentApi.getSubmissionDetail(submissionId);
       const subData = detailsRes.data || detailsRes;
       setSubmission(subData);
 
-      // 2. Từ Bài Nộp, lấy ra test_id để gọi API lấy Đề Thi
+
       if (subData && subData.test_id) {
         const testRes = await grammarVocabAptisStudentApi.getTestDetail(subData.test_id);
         const testData = testRes.data || testRes;
@@ -50,9 +50,8 @@ export const useGrammarVocabResult = () => {
     if (submissionId) fetchResult();
   }, [submissionId, fetchResult]);
 
-  // ─── XỬ LÝ DỮ LIỆU & SẮP XẾP CÂU HỎI ───
+
   const computedData = useMemo(() => {
-    // Chỉ chạy khi đã load xong cả Đề thi và Bài nộp
     if (!submission || !testDetail) return null;
 
     const groups = testDetail.groups || []; 
@@ -74,7 +73,7 @@ export const useGrammarVocabResult = () => {
       ? new Date(dateStr).toLocaleDateString('en-GB', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
       : 'N/A';
 
-    // Phân loại nhóm và ép sắp xếp câu hỏi theo question_number tăng dần
+
     const grammarGroups = groups
       .filter(g => (g.part_type?.toUpperCase() || '') === 'GRAMMAR')
       .map(g => ({

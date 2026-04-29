@@ -30,13 +30,13 @@ export const useGrammarVocabAptisList = () => {
     fetchTests();
   }, [fetchTests]);
 
-  // 4. Lọc dữ liệu thông minh
+  // 4. Filtered Tests based on status
   const filteredTests = useMemo(() => {
     if (filterStatus === 'ALL') return tests;
     return tests.filter(test => test.status === filterStatus);
   }, [tests, filterStatus]);
 
-  // 5. Gom các hàm điều hướng (Navigation Handlers)
+  // 5. Navigation Handlers
   const handleNavigateHistory = () => navigate('/aptis/grammar-vocab/history');
   const handleNavigateLobby = (testId) => navigate(`/aptis/grammar-vocab/lobby/${testId}`);
   const handleNavigateRetry = (testId) => navigate(`/aptis/grammar-vocab/taking/${testId}`);

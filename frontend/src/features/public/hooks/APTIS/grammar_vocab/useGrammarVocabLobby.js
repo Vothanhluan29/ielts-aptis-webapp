@@ -10,7 +10,7 @@ export const useGrammarVocabLobby = () => {
   const [loading, setLoading] = useState(true);
   const [testDetail, setTestDetail] = useState(null);
 
-  // 2. Fetch Data bọc trong useCallback
+  // 2. Fetch Data
   const fetchTestDetail = useCallback(async () => {
     if (!id) return;
     try {
@@ -29,10 +29,10 @@ export const useGrammarVocabLobby = () => {
     fetchTestDetail();
   }, [fetchTestDetail]);
 
-  // 4. Các biến tính toán sẵn
+
   const timeLimit = testDetail?.time_limit || 25; // Default Aptis time is 25 minutes
 
-  // 5. Các hàm điều hướng (Navigation Handlers)
+  // 5. Navigation Handlers
   const handleStartTest = () => navigate(`/aptis/grammar-vocab/taking/${id}`);
   const handleGoBack = () => navigate('/aptis/grammar-vocab');
 

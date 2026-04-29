@@ -9,19 +9,18 @@ export const useGrammarVocabHistory = () => {
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState([]);
 
-  // 1. Fetch dữ liệu lịch sử
+ 
   const fetchHistory = useCallback(async () => {
     try {
       setLoading(true);
 
       const response = await grammarVocabAptisStudentApi.getMyHistory();
       let rawData = response?.data || response;
-      // 🔥 BẢO VỆ 1: Đảm bảo dữ liệu luôn là một Mảng (Array) trước khi sort
+
       if (!Array.isArray(rawData)) {
         rawData = [];
       }
 
-      // Sắp xếp bài nộp mới nhất lên đầu
       const sortedData = [...rawData].sort(
         (a, b) =>
           new Date(b.submitted_at || b.created_at) -
@@ -38,16 +37,14 @@ export const useGrammarVocabHistory = () => {
     }
   }, []);
 
-  // 2. Tự động fetch khi vào trang
+
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]);
 
-  // 3. Tính toán Mini Stats bằng useMemo để tối ưu
   const stats = useMemo(() => {
     if (!history || history.length === 0) return null;
 
-    // 🔥 BẢO VỆ 2: Ép kiểu điểm số về Number để Math.max không bao giờ bị lỗi NaN
     const scoresArray = history.map(h => Number(h.total_score) || Number(h.score) || 0);
 
     return {
@@ -56,10 +53,9 @@ export const useGrammarVocabHistory = () => {
     };
   }, [history]);
 
-  // 4. Các hàm điều hướng dùng chung
+
   const handleGoBack = () => navigate('/aptis/grammar-vocab');
-  
-  // Đã fix lỗi kinh điển: Truyền record.id thay vì record.test_id
+
   const handleViewResult = (submissionId) => navigate(`/aptis/grammar-vocab/result/${submissionId}`);
 
   return {

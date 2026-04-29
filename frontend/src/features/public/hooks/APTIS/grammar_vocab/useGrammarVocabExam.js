@@ -45,7 +45,7 @@ export const useGrammarVocabExam = ({ isFullTest, testIdFromProps, onSkillFinish
 
   useEffect(() => { fetchTest(); }, [fetchTest]);
 
-  // ─── 2. Submit bài ──────────────────────────────────────────────────────────
+  // ─── 2. Submit ──────────────────────────────────────────────────────────
   const handleSubmit = useCallback(async (isAutoSubmit = false) => {
     if (submitting) return;
     try {
@@ -63,7 +63,7 @@ export const useGrammarVocabExam = ({ isFullTest, testIdFromProps, onSkillFinish
       const payload = {
         test_id: parseInt(testId),
         is_full_test_only: Boolean(isFullTest),
-        // Key là question id (string), value là đáp án user chọn
+
         user_answers: answersRef.current,
       };
 
@@ -75,7 +75,7 @@ export const useGrammarVocabExam = ({ isFullTest, testIdFromProps, onSkillFinish
       if (isFullTest && onSkillFinish) {
         onSkillFinish(submissionData.id);
       } else {
-        // ✅ Navigate bằng submissionId (không phải testId) để xem kết quả đúng
+  
         navigate(`/aptis/grammar-vocab/result/${submissionData.id}`);
       }
     } catch (error) {
@@ -100,7 +100,7 @@ export const useGrammarVocabExam = ({ isFullTest, testIdFromProps, onSkillFinish
 
   // ─── 4. Handlers ────────────────────────────────────────────────────────────
   const handleAnswerChange = useCallback((questionId, value) => {
-    // Key luôn là string để khớp với user_answers payload gửi lên backend
+
     setAnswers(prev => ({ ...prev, [String(questionId)]: String(value) }));
   }, []);
 
@@ -123,14 +123,7 @@ export const useGrammarVocabExam = ({ isFullTest, testIdFromProps, onSkillFinish
     return `${m}:${s}`;
   }, []);
 
-  // ─── 5. Derived data từ cấu trúc test → groups → questions ─────────────────
 
-  /**
-   * Groups của tab hiện tại.
-   * UI render theo từng group để hiển thị instruction riêng của mỗi group.
-   * Grammar  → groups có part_type = "GRAMMAR"
-   * Vocabulary → groups có part_type chứa "VOCAB"
-   */
 const currentGroups = useMemo(() => {
     const groups = testDetail?.groups || [];
     
@@ -140,28 +133,22 @@ const currentGroups = useMemo(() => {
       if (currentTab === 'VOCABULARY') return type.includes('VOCAB');
       return false;
     }).map(group => {
-      // 🔥 FIX LỖI ĐẾM NGƯỢC: Ép mảng câu hỏi sắp xếp theo question_number tăng dần
+   
       const sortedQuestions = [...(group.questions || [])].sort(
         (a, b) => a.question_number - b.question_number
       );
       
-      // Trả về group với mảng câu hỏi đã được xếp lại chuẩn chỉ
+   
       return { ...group, questions: sortedQuestions };
     });
   }, [testDetail, currentTab]);
 
-  /**
-   * Flat list câu hỏi của tab hiện tại.
-   * Dùng cho: progress bar, đếm tổng số câu, navigation câu hỏi.
-   */
+ 
   const currentQuestions = useMemo(() => {
     return currentGroups.flatMap(group => group.questions || []);
   }, [currentGroups]);
 
-  /**
-   * Số câu đã trả lời trong tab hiện tại.
-   * Dùng cho: progress bar, badge trên tab header.
-   */
+
   const answeredCount = useMemo(() => {
     return currentQuestions.filter(q => {
       const ans = answers[String(q.id)];
@@ -169,10 +156,7 @@ const currentGroups = useMemo(() => {
     }).length;
   }, [currentQuestions, answers]);
 
-  /**
-   * Tổng số câu Grammar (tất cả groups, không phân biệt tab).
-   * Dùng cho: tab header badge.
-   */
+
   const totalGrammarQuestions = useMemo(() => {
     return (testDetail?.groups || [])
       .filter(g => g.part_type?.toUpperCase() === 'GRAMMAR')
@@ -180,10 +164,7 @@ const currentGroups = useMemo(() => {
       .length;
   }, [testDetail]);
 
-  /**
-   * Tổng số câu Vocabulary (tất cả groups, không phân biệt tab).
-   * Dùng cho: tab header badge.
-   */
+
   const totalVocabQuestions = useMemo(() => {
     return (testDetail?.groups || [])
       .filter(g => g.part_type?.toUpperCase().includes('VOCAB'))
@@ -210,11 +191,9 @@ const currentGroups = useMemo(() => {
     timeLeft,
     isTimeRunningOut,
 
-    // ── Dữ liệu câu hỏi (cấu trúc mới) ─────────
-    currentGroups,      // Groups của tab hiện tại (render instruction + questions)
-    currentQuestions,   // Flat list câu hỏi tab hiện tại (progress, đếm câu)
-
-    // ── Thống kê ────────────────────────────────
+    
+    currentGroups,      
+    currentQuestions,   
     answeredCount,
     totalGrammarQuestions,
     totalVocabQuestions,
