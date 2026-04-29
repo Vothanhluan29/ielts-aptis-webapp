@@ -2,9 +2,7 @@ import axiosClient from "../../../../../services/axiosClient";
 
 const speakingAptisStudentApi = {
   /**
-   * 1. Upload file âm thanh (mp3, wav, webm...)
    * POST: /aptis/speaking/upload
-   * Ghi chú: Sử dụng FormData để gửi file
    */
   uploadAudio: (file) => {
     const url = '/aptis/speaking/upload';
@@ -19,7 +17,6 @@ const speakingAptisStudentApi = {
   },
 
   /**
-   * 2. Lấy danh sách các đề thi Speaking đã public
    * GET: /aptis/speaking/tests
    */
   getListTests: (params) => {
@@ -28,7 +25,6 @@ const speakingAptisStudentApi = {
   },
 
   /**
-   * 3. Lấy chi tiết cấu trúc đề thi Speaking
    * GET: /aptis/speaking/tests/{test_id}
    */
   getTestDetail: (id) => {
@@ -37,7 +33,6 @@ const speakingAptisStudentApi = {
   },
 
   /**
-   * 4. Lưu nháp từng Part trong quá trình làm bài
    * POST: /aptis/speaking/save-part
    * @param {Object} payload - { test_id, part_id, responses: [{ question_id, audio_url }] }
    */
@@ -47,7 +42,6 @@ const speakingAptisStudentApi = {
   },
 
   /**
-   * 5. Kết thúc và nộp toàn bộ bài thi Speaking
    * POST: /aptis/speaking/finish/{submission_id}
    */
   finishTest: (submissionId) => {
@@ -56,7 +50,6 @@ const speakingAptisStudentApi = {
   },
 
   /**
-   * 6. Lấy danh sách lịch sử làm bài Speaking
    * GET: /aptis/speaking/submissions/me
    */
   getMyHistory: () => {
@@ -65,7 +58,6 @@ const speakingAptisStudentApi = {
   },
 
   /**
-   * 7. Lấy chi tiết một bài nộp Speaking (Để xem lại bài hoặc xem giáo viên chấm)
    * GET: /aptis/speaking/submissions/{submission_id}
    */
   getSubmissionDetail: (submissionId) => {
