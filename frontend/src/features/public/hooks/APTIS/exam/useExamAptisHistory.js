@@ -10,14 +10,14 @@ export const useExamAptisHistory = () => {
   const [loading, setLoading] = useState(true);
   const [historyData, setHistoryData] = useState([]);
 
-  // 2. Fetch Data bọc trong useCallback
+  // 2. Fetch Data
   const fetchHistory = useCallback(async () => {
     try {
       setLoading(true);
       const res = await examAptisStudentApi.getMyExamHistory();
       const data = res.data || res || [];
       
-      // Sắp xếp bài mới nhất lên đầu
+      
       const sortedData = data.sort((a, b) => new Date(b.start_time) - new Date(a.start_time));
       setHistoryData(sortedData);
     } catch (error) {
@@ -33,7 +33,7 @@ export const useExamAptisHistory = () => {
     fetchHistory();
   }, [fetchHistory]);
 
-  // 4. Tính toán thống kê (Bọc useMemo để tối ưu hiệu suất)
+  // 4. Computed Stats
   const stats = useMemo(() => {
     return {
       total: historyData.length,
@@ -43,7 +43,7 @@ export const useExamAptisHistory = () => {
     };
   }, [historyData]);
 
-  // 5. Handlers điều hướng
+  // 5. Navigation Handlers
   const handleGoBack = () => navigate('/aptis/exam');
   const handleViewResult = (id) => navigate(`/aptis/exam/result/${id}`);
   const handleResumeTest = (fullTestId) => navigate(`/aptis/exam/lobby/${fullTestId}`);

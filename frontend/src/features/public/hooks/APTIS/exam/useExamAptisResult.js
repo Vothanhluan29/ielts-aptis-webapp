@@ -30,7 +30,7 @@ export const useExamAptisResult = () => {
     fetchResult();
   }, [fetchResult]);
 
-  // 2. Xào nấu và tính toán dữ liệu (Logic Pending & Điểm)
+
   const computedData = useMemo(() => {
     if (!resultData) return null;
 
@@ -42,7 +42,7 @@ export const useExamAptisResult = () => {
     const hasPendingSkills = isWritingPending || isSpeakingPending;
     const showFinal = isFullyGraded || !hasPendingSkills;
 
-    // Đóng gói mảng kỹ năng sẵn sàng cho UI render
+
     const skills = [
       { key: 'GRAMMAR',   score: resultData.grammar_vocab_score || 0, max: 50, pending: false },
       { key: 'READING',   score: resultData.reading_score || 0,       max: 50, pending: false },

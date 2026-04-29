@@ -10,7 +10,7 @@ export const useExamAptisList = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('ALL');
 
-  // 2. Fetch Data bọc trong useCallback
+  // 2. Fetch Data 
   const fetchTests = useCallback(async () => {
     try {
       setLoading(true);
@@ -28,7 +28,7 @@ export const useExamAptisList = () => {
     fetchTests();
   }, [fetchTests]);
 
-  // 4. Lọc Data (Filter)
+  // 4. Filter
   const filteredTests = useMemo(() => {
     if (filterStatus === 'ALL') return tests;
     if (filterStatus === 'COMPLETED') {
@@ -37,7 +37,7 @@ export const useExamAptisList = () => {
     return tests.filter(test => test.user_status === filterStatus);
   }, [tests, filterStatus]);
 
-  // 5. Các hàm Navigation dùng chung
+  // 5. Navigation Handlers
   const handleNavigateLobby = (testId) => navigate(`/aptis/exam/lobby/${testId}`);
   const handleNavigateResult = (subId) => navigate(`/aptis/exam/result/${subId}`);
   const handleNavigateHistory = () => navigate('/aptis/exam/history');

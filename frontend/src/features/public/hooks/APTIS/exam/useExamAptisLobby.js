@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import examAptisStudentApi from '../../../api/APTIS/exam/examAptisStudentApi';
 
-// Danh sách ID các kỹ năng để dò tìm vị trí Step
+
 const APTIS_SKILLS_IDS = ['GRAMMAR_VOCAB', 'READING', 'LISTENING', 'WRITING', 'SPEAKING'];
 
 export const useExamAptisLobby = () => {
@@ -16,15 +16,15 @@ export const useExamAptisLobby = () => {
   const [testDetail, setTestDetail] = useState(null);
   const [activeSubmission, setActiveSubmission] = useState(null);
 
-  // 2. Lấy dữ liệu phòng chờ (Bọc trong useCallback)
+  // 2. Fetch Data
   const fetchLobbyData = useCallback(async () => {
     setLoading(true);
     try {
-      // Lấy thông tin đề thi
+   
       const testRes = await examAptisStudentApi.getLibraryTestDetail(id);
       setTestDetail(testRes.data || testRes);
 
-      // Quét lịch sử xem có bài thi nào đang dở dang không (IN_PROGRESS)
+  
       const historyRes = await examAptisStudentApi.getMyExamHistory();
       const history = historyRes.data || historyRes || [];
       
@@ -50,26 +50,26 @@ export const useExamAptisLobby = () => {
     fetchLobbyData();
   }, [fetchLobbyData]);
 
-  // 4. Tính toán vị trí kỹ năng đang làm dở (Dùng useMemo tối ưu hóa)
+
   const currentStepIndex = useMemo(() => {
     if (!activeSubmission || !activeSubmission.current_step) return 0;
     const index = APTIS_SKILLS_IDS.indexOf(activeSubmission.current_step);
     return index === -1 ? 0 : index;
   }, [activeSubmission]);
 
-  // 5. Handlers điều hướng và bắt đầu bài thi
+
   const handleGoBack = () => navigate('/aptis/exam');
 
   const handleStartOrResume = async () => {
     setStarting(true);
     try {
-      // Nếu đang làm dở -> Resume
+  
       if (activeSubmission) {
         const currentStep = activeSubmission.current_step || 'GRAMMAR_VOCAB';
         message.info(`Resuming exam at section: ${currentStep.replace('_', ' ')}`);
         navigate(`/aptis/exam/taking/${activeSubmission.id}`);
       } 
-      // Nếu mới tinh -> Tạo bài mới
+
       else {
         const startRes = await examAptisStudentApi.startExam(id);
         const newSubmission = startRes.data || startRes;

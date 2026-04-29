@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { message } from 'antd';
 import examAptisStudentApi from '../../../api/APTIS/exam/examAptisStudentApi';
 
-// Tách logic data khỏi UI
+
 const STEP_IDS = ['GRAMMAR_VOCAB', 'LISTENING', 'READING', 'WRITING', 'SPEAKING'];
 const STEP_TITLES = ['Grammar & Vocab', 'Listening', 'Reading', 'Writing', 'Speaking'];
 
@@ -14,7 +14,7 @@ export const useAptisExam = (id) => {
   const [transitioning, setTransitioning] = useState(false);
   const [transitionMsg, setTransitionMsg] = useState('Loading exam data...');
 
-  // 🔥 SỬ DỤNG useCallback ĐỂ FIX TRIỆT ĐỂ CẢNH BÁO CỦA USEEFFECT
+
   const fetchCurrentProgress = useCallback(async () => {
     setLoading(true);
     try {
@@ -51,7 +51,7 @@ export const useAptisExam = (id) => {
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [fetchCurrentProgress]); // Đã thêm vào dependency an toàn
+  }, [fetchCurrentProgress]); 
 
   const handleSkillFinish = async (skillSubmissionId) => {
     if (!submission) return;
