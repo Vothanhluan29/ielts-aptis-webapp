@@ -11,7 +11,7 @@ export const useListeningAptisList = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('ALL');
 
-  // 2. Fetch Data bọc trong useCallback
+  // 2. Fetch Data from API
   const fetchTests = useCallback(async () => {
     try {
       setLoading(true);
@@ -30,13 +30,13 @@ export const useListeningAptisList = () => {
     fetchTests();
   }, [fetchTests]);
 
-  // 4. Lọc dữ liệu thông minh (Filter)
+  // 4.Filter
   const filteredTests = useMemo(() => {
     if (filterStatus === 'ALL') return tests;
     return tests.filter(test => test.status === filterStatus);
   }, [tests, filterStatus]);
 
-  // 5. Gom các hàm điều hướng (Navigation Handlers)
+  // 5. Navigation Handlers
   const handleNavigateHistory = () => navigate('/aptis/listening/history');
   const handleNavigateLobby = (testId) => navigate(`/aptis/listening/lobby/${testId}`);
   const handleNavigateRetry = (testId) => navigate(`/aptis/listening/taking/${testId}`);

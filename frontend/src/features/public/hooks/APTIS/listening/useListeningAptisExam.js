@@ -7,7 +7,7 @@ export const useListeningAptisExam = ({ isFullTest, testIdFromProps, onSkillFini
   const { id: urlId } = useParams();
   const navigate = useNavigate();
 
-  // Xác định ID chuẩn xác tùy theo chế độ thi
+  
   const testId = isFullTest ? testIdFromProps : urlId;
 
   const [loading, setLoading] = useState(true);
@@ -21,7 +21,7 @@ export const useListeningAptisExam = ({ isFullTest, testIdFromProps, onSkillFini
   
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
-  // 1. Fetch Dữ liệu đề thi
+  // 1. Fetching Test Details
   const fetchTest = useCallback(async () => {
     try {
       setLoading(true);
@@ -48,7 +48,7 @@ export const useListeningAptisExam = ({ isFullTest, testIdFromProps, onSkillFini
     fetchTest();
   }, [fetchTest]);
 
-  // 2. Logic Submit Bài Thi
+  // 2. Logic Submit
   const handleSubmit = useCallback(async (isAutoSubmit = false) => {
     if (submitting) return;
     try {
@@ -59,7 +59,6 @@ export const useListeningAptisExam = ({ isFullTest, testIdFromProps, onSkillFini
         message.loading({ content: 'Submitting Listening test...', key: 'submit' });
       }
 
-      // Xóa bỏ các đáp án rác
       const cleanedAnswers = {};
       Object.entries(answersRef.current).forEach(([key, val]) => {
         if (val && val !== 'undefined' && val !== 'null' && val.trim() !== '') {
@@ -87,7 +86,7 @@ export const useListeningAptisExam = ({ isFullTest, testIdFromProps, onSkillFini
       if (isFullTest && onSkillFinish) {
         onSkillFinish(submissionData.id);
       } else {
-        // 🔥 ĐÃ FIX LỖI ID: Chuyển hướng theo testId thay vì submissionData.id
+  
         navigate(`/aptis/listening/result/${submissionData.id}`); 
       }
       
@@ -98,7 +97,7 @@ export const useListeningAptisExam = ({ isFullTest, testIdFromProps, onSkillFini
     }
   }, [submitting, testId, isFullTest, navigate, onSkillFinish]);
 
-  // 3. Đếm ngược thời gian
+
   useEffect(() => {
     if (loading || submitting || timeLeft <= 0) {
       if (timeLeft <= 0 && !loading && !submitting && testDetail) handleSubmit(true);
@@ -122,7 +121,6 @@ export const useListeningAptisExam = ({ isFullTest, testIdFromProps, onSkillFini
   const confirmSubmit = () => {
     Modal.confirm({
       title: 'Confirm Submission',
-      // 🔥 ĐÃ FIX LỖI JSX Syntax Error: Đã gỡ bỏ icon truyền vào, Modal tự dùng icon mặc định của nó.
       content: isFullTest 
         ? 'After submitting, the system will automatically move to the next section. You will not be able to change your answers. Continue?' 
         : 'Are you sure you want to submit? The system will end your test immediately.',

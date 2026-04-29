@@ -9,7 +9,6 @@ export const useListeningAptisHistory = () => {
   const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState([]);
 
-  // 1. Fetch dữ liệu lịch sử
   const fetchHistory = useCallback(async () => {
     try {
       setLoading(true);
@@ -17,12 +16,10 @@ export const useListeningAptisHistory = () => {
       const response = await listeningAptisStudentApi.getMyHistory();
       let rawData = response?.data || response;
 
-      // Đảm bảo dữ liệu luôn là một Mảng (Array) để tránh crash
       if (!Array.isArray(rawData)) {
         rawData = [];
       }
 
-      // Sắp xếp bài nộp mới nhất lên đầu
       const sortedData = [...rawData].sort(
         (a, b) =>
           new Date(b.submitted_at || b.created_at) -
@@ -44,11 +41,10 @@ export const useListeningAptisHistory = () => {
     fetchHistory();
   }, [fetchHistory]);
 
-  // 3. Tính toán Mini Stats bằng useMemo để tối ưu hiệu suất
+
   const stats = useMemo(() => {
     if (!history || history.length === 0) return null;
 
-    // Ép kiểu điểm số về Number để Math.max tính toán an toàn
     const scoresArray = history.map(h => Number(h.score) || 0);
 
     return {
@@ -57,7 +53,6 @@ export const useListeningAptisHistory = () => {
     };
   }, [history]);
 
-  // 4. Các hàm điều hướng
   const handleGoBack = () => navigate('/aptis/listening');
   const handleViewResult = (submissionId) => navigate(`/aptis/listening/result/${submissionId}`);
 

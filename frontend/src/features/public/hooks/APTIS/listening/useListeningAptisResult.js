@@ -11,23 +11,23 @@ export const useListeningAptisResult = () => {
   const [testDetail, setTestDetail] = useState(null);
   const [activePartId, setActivePartId] = useState(null);
 
-  // 1. Fetch Dữ liệu (gọi liên tiếp 2 API)
+  // 1. Fetch Data from API
   const fetchResult = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Bước 1: Lấy chi tiết bài nộp
+  
       const detailsRes = await listeningAptisStudentApi.getSubmissionDetail(id);
       const subData = detailsRes.data || detailsRes;
       setSubmission(subData);
 
-      // Bước 2: Dùng test_id từ bài nộp để lấy chi tiết đề
+
       if (subData?.test_id) {
         const testRes = await listeningAptisStudentApi.getTestDetail(subData.test_id);
         const testData = testRes.data || testRes;
         setTestDetail(testData);
 
-        // Khởi tạo tab hiển thị ở Part đầu tiên
+
         if (testData.parts?.length > 0) {
           setActivePartId(testData.parts[0].id);
         }
@@ -44,7 +44,7 @@ export const useListeningAptisResult = () => {
     if (id) fetchResult();
   }, [id, fetchResult]);
 
-  // 2. Data Processing (Tính toán và đóng gói bằng useMemo)
+ 
   const computedData = useMemo(() => {
     if (!submission || !testDetail) return null;
 
