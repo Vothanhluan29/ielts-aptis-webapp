@@ -13,7 +13,7 @@ export const useSpeakingAptisLobby = () => {
   // Trạng thái kiểm tra Micro: 'idle' | 'checking' | 'success' | 'error'
   const [micStatus, setMicStatus] = useState('idle');
 
-  // 1. Lấy thông tin đề thi
+
   const fetchTestDetail = useCallback(async () => {
     if (!id) return;
     try {
@@ -33,14 +33,14 @@ export const useSpeakingAptisLobby = () => {
     fetchTestDetail();
   }, [fetchTestDetail]);
 
-  // 2. Hàm yêu cầu quyền truy cập Micro
+
   const checkMicrophone = async () => {
     try {
       setMicStatus('checking');
-      // Yêu cầu trình duyệt cấp quyền thu âm
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       
-      // Nếu thành công, lập tức đóng luồng stream để không giữ mic quá lâu
+
       stream.getTracks().forEach(track => track.stop());
       
       setMicStatus('success');
@@ -52,7 +52,7 @@ export const useSpeakingAptisLobby = () => {
     }
   };
 
-  // 3. Các hàm điều hướng
+
   const handleStartTest = () => {
     if (micStatus !== 'success') {
       message.warning("Please check your microphone before starting the test!");
@@ -64,7 +64,7 @@ export const useSpeakingAptisLobby = () => {
   const handleGoBack = () => navigate('/aptis/speaking');
 
   // 4. Các biến tính toán
-  const timeLimit = testDetail?.time_limit || 12; // Default Aptis Speaking time is approx 12 mins
+  const timeLimit = testDetail?.time_limit || 12; 
 
   return {
     loading,

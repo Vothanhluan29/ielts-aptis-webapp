@@ -10,7 +10,7 @@ export const useSpeakingAptisResult = () => {
   const [submission, setSubmission] = useState(null);
   const [testDetail, setTestDetail] = useState(null);
 
-  // 1. Logic Fetch Data "Phòng thủ kép"
+
   const fetchResult = useCallback(async () => {
     if (!id) return;
     try {
@@ -19,7 +19,7 @@ export const useSpeakingAptisResult = () => {
       let currentSubmission = null;
       let currentTestDetail = null;
 
-      // CÁCH 1: Giả định ID trên URL là submission_id
+
       try {
         const subRes = await speakingAptisStudentApi.getSubmissionDetail(id);
         if (subRes && (subRes.data || subRes.id)) {
@@ -41,7 +41,7 @@ export const useSpeakingAptisResult = () => {
         }
       }
 
-      // Kéo thông tin chi tiết của bài Test
+  
       if (currentSubmission?.test_id) {
         const testRes = await speakingAptisStudentApi.getTestDetail(currentSubmission.test_id);
         currentTestDetail = testRes.data || testRes;
@@ -61,7 +61,7 @@ export const useSpeakingAptisResult = () => {
     fetchResult();
   }, [fetchResult]);
 
-  // 2. Tính toán và đóng gói dữ liệu hiển thị
+
   const computedData = useMemo(() => {
     if (!submission) return null;
 
