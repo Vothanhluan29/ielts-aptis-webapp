@@ -21,7 +21,7 @@ export const useReadingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinish
   
   useEffect(() => { answersRef.current = answers; }, [answers]);
 
-  // 1. Lấy dữ liệu đề thi
+
   const fetchTest = useCallback(async () => {
     try {
       setLoading(true);
@@ -48,7 +48,7 @@ export const useReadingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinish
     fetchTest();
   }, [fetchTest]);
 
-  // 2. Logic Nộp bài
+  
   const handleSubmit = useCallback(async (isAutoSubmit = false) => {
     if (submitting) return;
     try {
@@ -73,7 +73,7 @@ export const useReadingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinish
       if (isFullTest && onSkillFinish) {
         onSkillFinish(submissionData.id);
       } else {
-        // ĐÃ ĐỒNG BỘ: Chuyển hướng bằng Test ID (testId) thay vì submissionData.id
+   
         navigate(`/aptis/reading/result/${submissionData.id || testId}`); 
       }
     } catch (error) {
@@ -83,7 +83,7 @@ export const useReadingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinish
     }
   }, [submitting, testId, isFullTest, navigate, onSkillFinish]);
 
-  // 3. Đếm ngược thời gian
+
   useEffect(() => {
     if (loading || submitting || timeLeft <= 0) {
       if (timeLeft <= 0 && !loading && !submitting && testDetail) handleSubmit(true);
@@ -93,7 +93,7 @@ export const useReadingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinish
     return () => clearInterval(timerId);
   }, [timeLeft, loading, submitting, testDetail, handleSubmit]);
 
-  // 4. Các hàm Handle UI
+
   const handleAnswerChange = useCallback((questionId, value) => {
     setAnswers(prev => ({ ...prev, [questionId]: String(value) }));
   }, []);
@@ -120,12 +120,12 @@ export const useReadingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinish
 
   const handleGoBackEmpty = () => navigate('/aptis/reading');
 
-  // 5. Các biến tính toán hiển thị
+ 
   const parts = testDetail?.parts || [];
   const activePart = parts.find(p => p.id === currentPartId);
   const currentTabIndex = parts.findIndex(p => p.id === currentPartId);
 
-  // Xác định xem part này có đoạn văn dài không (để quyết định có chia đôi màn hình không)
+ 
   const hasReadingPassage = !!(
     activePart?.content || 
     activePart?.groups?.some(g => g.transcript || g.content || g.text || g.image_url)

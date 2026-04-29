@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import readingAptisStudentApi from '../../../api/APTIS/reading/readingAptisStudentApi';
 
 export const useReadingAptisResult = () => {
-  // id ở đây là submission_id từ URL
   const { id } = useParams();
   const navigate = useNavigate();
   
@@ -12,7 +11,7 @@ export const useReadingAptisResult = () => {
   const [testDetail, setTestDetail] = useState(null);
   const [activePartId, setActivePartId] = useState(null);
 
-  // 1. Fetch Dữ liệu (Lấy Submission trước -> Lấy Test sau)
+
   const fetchResult = useCallback(async () => {
     if (!id) return;
     try {
@@ -45,7 +44,7 @@ export const useReadingAptisResult = () => {
     fetchResult();
   }, [fetchResult]);
 
-  // 2. Tính toán và đóng gói dữ liệu (bọc trong useMemo)
+
   const computedData = useMemo(() => {
     if (!submission || !testDetail) return null;
 
@@ -55,10 +54,10 @@ export const useReadingAptisResult = () => {
     const cefrLevel = submission.cefr_level || "N/A";
     const scoreVal = submission.score || submission.total_score || 0;
     
-    // correctCount bây giờ đại diện cho Điểm thô (có thể là số thập phân do partial scoring)
+
     const correctCount = submission.correct_count || 0;
     
-    // TỐI ƯU: Tính tổng điểm thô/số câu thực tế để match với correctCount
+  
     let totalQuestions = 0;
     parts.forEach(p => {
       p.groups?.forEach(g => {

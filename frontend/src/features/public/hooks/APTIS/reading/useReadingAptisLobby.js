@@ -10,7 +10,7 @@ export const useReadingAptisLobby = () => {
   const [loading, setLoading] = useState(true);
   const [testDetail, setTestDetail] = useState(null);
 
-  // 1. Fetch Dữ liệu đề thi
+  // 1. Fetch test details
   const fetchTestDetail = useCallback(async () => {
     if (!id) return;
     try {
@@ -30,7 +30,7 @@ export const useReadingAptisLobby = () => {
     fetchTestDetail();
   }, [fetchTestDetail]);
 
-  // 2. Tính toán biến số (bọc trong useMemo để tối ưu)
+
   const { totalQuestions, timeLimit } = useMemo(() => {
     if (!testDetail) return { totalQuestions: 0, timeLimit: 35 };
 
@@ -54,7 +54,7 @@ export const useReadingAptisLobby = () => {
     };
   }, [testDetail]);
 
-  // 3. Các hàm điều hướng
+  // 3. Navigation Handlers
   const handleStartTest = () => navigate(`/aptis/reading/taking/${id}`);
   const handleGoBack = () => navigate('/aptis/reading');
 

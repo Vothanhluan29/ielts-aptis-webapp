@@ -11,14 +11,14 @@ export const useReadingAptisList = () => {
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('ALL');
 
-  // 2. Fetch Data bọc trong useCallback để chống re-render
+
   const fetchTests = useCallback(async () => {
     try {
       setLoading(true);
       const response = await readingAptisStudentApi.getListTests();
       let data = response?.data || response;
       
-      // Lập trình phòng thủ: Đảm bảo data luôn là Array
+  
       if (!Array.isArray(data)) {
         data = [];
       }
@@ -37,13 +37,13 @@ export const useReadingAptisList = () => {
     fetchTests();
   }, [fetchTests]);
 
-  // 4. Lọc dữ liệu thông minh (Filter)
+  // 4.Filter
   const filteredTests = useMemo(() => {
     if (filterStatus === 'ALL') return tests;
     return tests.filter(test => test.status === filterStatus);
   }, [tests, filterStatus]);
 
-  // 5. Gom các hàm điều hướng (Navigation Handlers)
+  // 5. Navigation Handlers
   const handleNavigateHistory = () => navigate('/aptis/reading/history');
   const handleNavigateLobby = (testId) => navigate(`/aptis/reading/lobby/${testId}`);
   const handleNavigateRetry = (testId) => navigate(`/aptis/reading/taking/${testId}`);
