@@ -74,16 +74,16 @@ export const useListeningExam = (propsTestId, propsOnFinish) => {
     async (isAutoSubmit = false) => {
       if (submitting) return;
 
-      // Skip confirm dialog if it is auto submission due to time running out
-      if (!isAutoSubmit) {
-        const isConfirmed = window.confirm('Are you sure you want to submit your answers?');
-        if (!isConfirmed) return;
-      }
+      // // Skip confirm dialog if it is auto submission due to time running out
+      // if (!isAutoSubmit) {
+      //   const isConfirmed = window.confirm('Are you sure you want to submit your answers?');
+      //   if (!isConfirmed) return;
+      // }
 
       try {
         setSubmitting(true);
         if (isAutoSubmit) {
-          toast('Time is up! The system is automatically submitting your test...', { icon: '⏰' });
+          toast('Time is up! The system is automatically submitting your test...');
         }
 
         const currentAnswers = answersRef.current;
