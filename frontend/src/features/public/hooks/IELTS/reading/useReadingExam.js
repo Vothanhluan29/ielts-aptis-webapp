@@ -49,16 +49,12 @@ export const useReadingExam = (propsTestId, propsOnFinish) => {
   const handleSubmit = useCallback(async (isAutoSubmit = false) => {
     if (submitting) return;
 
-    if (!isAutoSubmit) {
-      const isConfirmed = window.confirm('Are you sure you want to submit your test?');
-      if (!isConfirmed) return;
-    }
-
+    
     try {
       setSubmitting(true);
 
       if (isAutoSubmit) {
-        toast('Time is up! The system is automatically submitting your test...', { icon: '⏰' });
+        toast('Time is up! The system is automatically submitting your test...');
       }
 
       const currentAnswers = answersRef.current;
