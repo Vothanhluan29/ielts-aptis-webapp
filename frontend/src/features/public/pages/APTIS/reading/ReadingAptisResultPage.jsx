@@ -161,7 +161,7 @@ const ReadingAptisResultPage = () => {
   const cefrColor = getCefrColor(cefrLevel);
 
   const renderReviewQuestions = (groups) => {
-    // 🔥 Calculate sequential question numbers for the active part
+   
     let globalQNum = 1;
 
     // Accumulate question counts from previous parts to get the correct starting number
@@ -190,7 +190,7 @@ const ReadingAptisResultPage = () => {
           {group.questions?.map((q) => {
             const qResult = resultsArray.find(r => r.id === q.id || String(r.question_number) === String(q.question_number));
 
-            // 🔥 Handle range label for Reorder questions (e.g. "6 - 10")
+  
             let qNumDisplay = globalQNum.toString();
             let stepsToAdvance = 1;
 
