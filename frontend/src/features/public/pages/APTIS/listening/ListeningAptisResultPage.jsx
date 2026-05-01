@@ -33,12 +33,12 @@ const getCefrColor = (level) => {
   return '#94a3b8';
 };
 
-/* ─── Question Review Card (ĐÃ LÀM GỌN GIỐNG READING) ──────────────── */
+/* ─── Individual Question Review Card ───────────────────────────── */
 const QuestionReviewCard = ({ q, index, qResult }) => {
   const userAnswerKey = qResult?.user_answer;
   const correctAnswerRaw = qResult?.correct_answer || q.correct_answer;
   const isCorrect = qResult?.is_correct || false;
-  const isSkipped = !userAnswerKey || String(userAnswerKey).trim() === ""; 
+  const isSkipped = !userAnswerKey || String(userAnswerKey).trim() === "";
   const explanation = qResult?.explanation || q.explanation;
   const parsedOptions = safeParse(q.options);
 
@@ -46,10 +46,10 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
     if (!correctAnswerRaw) return 'N/A';
     if (parsedOptions[correctAnswerRaw]) return `${correctAnswerRaw}. ${parsedOptions[correctAnswerRaw]}`;
     const found = Object.entries(parsedOptions).find(([, v]) => String(v).trim().toLowerCase() === String(correctAnswerRaw).trim().toLowerCase());
-    
+
     if (found) {
-      return Array.isArray(parsedOptions) 
-        ? `${String.fromCharCode(65 + parseInt(found[0]))}. ${found[1]}` 
+      return Array.isArray(parsedOptions)
+        ? `${String.fromCharCode(65 + parseInt(found[0]))}. ${found[1]}`
         : `${found[0]}. ${found[1]}`;
     }
     return correctAnswerRaw;
@@ -60,16 +60,16 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
 
   return (
     <div className={`border rounded-xl p-3.5 mb-3 flex gap-3 animate-in fade-in slide-in-from-bottom-2 ${cardStyle}`}>
-      {/* Số thứ tự câu hỏi */}
+      {/* Question number badge */}
       <div className={`min-w-7 h-7 rounded-md text-white flex items-center justify-center text-xs font-bold mt-0.5 ${badgeStyle}`}>
         {q.question_number || index + 1}
       </div>
 
       <div className="flex-1 min-w-0">
-        {/* Câu hỏi */}
+        {/* Question text */}
         <div className="text-[13px] font-semibold text-slate-800 mb-2 leading-snug">{q.question_text}</div>
 
-        {/* Khối hiển thị đáp án thu gọn (Inline Tags) */}
+        {/* Inline answer tags */}
         <div className="flex flex-wrap items-center gap-2 mb-1.5">
           <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs ${isCorrect ? 'bg-green-100 border-green-300 text-green-800' : 'bg-red-100 border-red-300 text-red-800'}`}>
             {isCorrect ? <CheckCircleFilled /> : <CloseCircleFilled />}
@@ -84,7 +84,7 @@ const QuestionReviewCard = ({ q, index, qResult }) => {
           )}
         </div>
 
-        {/* Giải thích / Transcript (Nhỏ gọn hơn) */}
+        {/* Explanation / Transcript */}
         {explanation && (
           <div className="mt-2 bg-blue-50/50 border border-blue-100 rounded-md p-2 text-xs text-blue-900 leading-relaxed">
             <strong className="text-blue-600 block mb-0.5 uppercase tracking-wide text-[10px]">Explanation / Transcript</strong>
@@ -115,7 +115,7 @@ const ListeningAptisResultPage = () => {
     </div>
   );
 
-  const { parts, resultsArray, cefrLevel, scoreVal, correctCount, totalQuestions, submitDate, activePart } = computedData;
+  const { parts, resultsArray, cefrLevel, scoreVal,submitDate, activePart } = computedData;
   const cefrColor = getCefrColor(cefrLevel);
 
   return (
@@ -135,27 +135,21 @@ const ListeningAptisResultPage = () => {
       </div>
 
       <Content className="px-6 pb-8 max-w-4xl mx-auto w-full">
-        
+
         {/* ── SCORE CARD ── */}
         <Card variant="borderless" className="rounded-3xl mb-6 shadow-sm border-slate-200" styles={{ body: { padding: '24px 32px' } }}>
-          <Row gutter={[24, 24]} align="middle">
-            <Col xs={24} md={8} className="text-center md:border-r border-slate-200">
+          <Row gutter={[24, 24]} align="middle" justify="center">
+            <Col xs={24} md={10} className="text-center md:border-r border-slate-200">
               <div className="mx-auto flex flex-col items-center justify-center w-24 h-24 rounded-full mb-2 shadow-inner" style={{ backgroundColor: `${cefrColor}15`, border: `3px solid ${cefrColor}` }}>
                 <span style={{ fontSize: 32, fontWeight: 900, lineHeight: 1, color: cefrColor }}>{cefrLevel}</span>
               </div>
               <Text strong className="text-slate-500 uppercase tracking-widest text-[10px]">Certification Level</Text>
             </Col>
 
-            <Col xs={12} md={8} className="text-center md:border-r border-slate-200">
+            <Col xs={24} md={10} className="text-center">
               <AimOutlined className="text-2xl text-blue-500 mb-1 block" />
               <div className="text-3xl font-black text-slate-800 leading-none">{scoreVal} <span className="text-lg text-slate-400">/ 50</span></div>
               <Text strong className="text-slate-500 uppercase tracking-widest text-[10px] mt-1.5 block">Aptis Score</Text>
-            </Col>
-
-            <Col xs={12} md={8} className="text-center">
-              <CheckCircleFilled className="text-2xl text-green-500 mb-1 block" />
-              <div className="text-3xl font-black text-slate-800 leading-none">{correctCount} <span className="text-lg text-slate-400">/ {totalQuestions}</span></div>
-              <Text strong className="text-slate-500 uppercase tracking-widest text-[10px] mt-1.5 block">Correct Answers</Text>
             </Col>
           </Row>
 
@@ -164,7 +158,7 @@ const ListeningAptisResultPage = () => {
           </div>
         </Card>
 
-        {/* ── PART TABS (ĐÃ BỎ ĐẾM SỐ CÂU) ── */}
+        {/* ── PART TABS ── */}
         <div className="flex gap-2 mb-4 overflow-x-auto pb-2 custom-scrollbar animate-in fade-in slide-in-from-bottom-2">
           {parts.map((p, i) => {
             const isActive = activePartId === p.id;
@@ -190,8 +184,8 @@ const ListeningAptisResultPage = () => {
               activePart.groups.map(group => {
                 const src = group.audio_url || group.media_url || group.audio_file || group.attached_audio;
                 return (
-                  <div key={group.id} className="mb-8 last:mb-0 pb-6 border-b border-dashed border-slate-300 last:border-0  last:pb-0">
-                    
+                  <div key={group.id} className="mb-8 last:mb-0 pb-6 border-b border-dashed border-slate-300 last:border-0 last:pb-0">
+
                     {src ? (
                       <div className="mb-4 p-4 rounded-xl bg-blue-50/70 border border-blue-100 shadow-sm flex flex-col gap-2">
                         <Text className="font-bold text-blue-800 text-[13px] flex items-center gap-2"><CustomerServiceOutlined /> Audio Recording:</Text>
