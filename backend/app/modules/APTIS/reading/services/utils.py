@@ -1,29 +1,22 @@
 class AptisReadingUtils:
     @staticmethod
-    def calculate_aptis_score_and_cefr(user_points: float, max_points: int) -> dict:
-        if max_points > 0:
-            scale_score = round((user_points / max_points) * 50)
+    def calculate_aptis_score_and_cefr(correct_count: int, total_questions: int = 29) -> dict:
+        if total_questions > 0:
+            scale_score = round((correct_count / total_questions) * 50)
         else:
             scale_score = 0
 
-        scale_score = min(scale_score, 50)
         cefr = "A0"
-        if scale_score >= 46:      
-            cefr = "C"
-        elif scale_score >= 40:    
-            cefr = "B2"
-        elif scale_score >= 30:    
-            cefr = "B1"
-        elif scale_score >= 20:    
-            cefr = "A2"
-        elif scale_score >= 10:    
-            cefr = "A1"
+        if correct_count >= 27:    cefr = "C"
+        elif correct_count >= 23:  cefr = "B2"
+        elif correct_count >= 18:  cefr = "B1"
+        elif correct_count >= 12:  cefr = "A2"
+        elif correct_count >= 6:   cefr = "A1"
             
         return {
             "score": scale_score,
             "cefr_level": cefr
         }
-
     @staticmethod
     def clean_text(text) -> str:
         if text is None: 
