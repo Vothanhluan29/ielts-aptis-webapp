@@ -74,11 +74,9 @@ export const useMainLayout = () => {
   }, []);
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to log out?')) {
       localStorage.removeItem('access_token');
       message.success('Logged out successfully');
       navigate('/login', { replace: true });
-    }
   };
 
   // Improve page title: full-tests -> Full Tests
