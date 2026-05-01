@@ -5,7 +5,7 @@ import {
   ReadOutlined, ClockCircleOutlined, TrophyFilled, AimOutlined, ExclamationCircleFilled
 } from '@ant-design/icons';
 
-// Nhúng Custom Hook
+// Import Custom Hook
 import { useReadingAptisResult } from '../../../hooks/APTIS/reading/useReadingAptisResult';
 
 const { Content } = Layout;
@@ -26,13 +26,13 @@ const getOptionLabel = (optionsObj, key) => {
 };
 
 const getCefrColor = (level) => {
-  if (level === 'C') return '#10b981'; 
-  if (level?.includes('B')) return '#3b82f6'; 
-  if (level?.includes('A')) return '#f59e0b'; 
-  return '#94a3b8'; 
+  if (level === 'C') return '#10b981';
+  if (level?.includes('B')) return '#3b82f6';
+  if (level?.includes('A')) return '#f59e0b';
+  return '#94a3b8';
 };
 
-/* ─── Component hiển thị từng câu hỏi ─── */
+/* ─── Individual Question Review Card ─── */
 const QuestionReviewCard = ({ q, qResult, questionNumberDisplay }) => {
   const userAnswerKey = qResult?.user_answer;
   const correctAnswerRaw = qResult?.correct_answer || q.correct_answer;
@@ -42,7 +42,7 @@ const QuestionReviewCard = ({ q, qResult, questionNumberDisplay }) => {
   const parsedOptions = safeParse(q.options);
   const qType = q.question_type?.toUpperCase();
 
-  // 🔥 LOGIC XỬ LÝ ĐIỂM TỪNG PHẦN (PARTIAL CORRECT) CHO REORDER
+  // 🔥 PARTIAL SCORE LOGIC FOR REORDER QUESTIONS
   let isPartial = false;
   let partialScore = 0;
   let totalPositions = 0;
@@ -50,7 +50,7 @@ const QuestionReviewCard = ({ q, qResult, questionNumberDisplay }) => {
   if (qType === 'REORDER_SENTENCES' && userAnswerKey && correctAnswerRaw && !isCorrect) {
     const userArr = String(userAnswerKey).split('-');
     const correctArr = String(correctAnswerRaw).split('-');
-    
+
     if (userArr.length === correctArr.length) {
       totalPositions = correctArr.length;
       for (let i = 0; i < correctArr.length; i++) {
@@ -60,21 +60,21 @@ const QuestionReviewCard = ({ q, qResult, questionNumberDisplay }) => {
     }
   }
 
-  // Khai báo Style tùy theo trạng thái
-  const cardStyle = isCorrect 
-    ? 'bg-green-50/50 border-green-200' 
-    : isPartial 
-      ? 'bg-orange-50/50 border-orange-200' // Thêm màu cam cho Partial
-      : isSkipped 
-        ? 'bg-slate-50 border-slate-200' 
+  // Card style based on answer status
+  const cardStyle = isCorrect
+    ? 'bg-green-50/50 border-green-200'
+    : isPartial
+      ? 'bg-orange-50/50 border-orange-200' // Orange for Partial
+      : isSkipped
+        ? 'bg-slate-50 border-slate-200'
         : 'bg-red-50/50 border-red-200';
 
-  const badgeStyle = isCorrect 
-    ? 'bg-green-500' 
-    : isPartial 
-      ? 'bg-orange-500' // Huy hiệu màu cam
-      : isSkipped 
-        ? 'bg-slate-400' 
+  const badgeStyle = isCorrect
+    ? 'bg-green-500'
+    : isPartial
+      ? 'bg-orange-500' // Orange badge for partial
+      : isSkipped
+        ? 'bg-slate-400'
         : 'bg-red-500';
 
   const getCorrectDisplay = () => {
@@ -90,7 +90,7 @@ const QuestionReviewCard = ({ q, qResult, questionNumberDisplay }) => {
 
   return (
     <div className={`border rounded-xl p-3.5 mb-3 flex gap-3 animate-in fade-in slide-in-from-bottom-2 ${cardStyle}`}>
-      {/* Số thứ tự câu hỏi (Đã hỗ trợ dải 6 - 10) */}
+      {/* Question number badge (supports range display e.g. 6 - 10) */}
       <div className={`px-2 min-w-7 h-7 rounded-md text-white flex items-center justify-center text-xs font-bold mt-0.5 whitespace-nowrap ${badgeStyle}`}>
         {questionNumberDisplay}
       </div>
@@ -99,24 +99,24 @@ const QuestionReviewCard = ({ q, qResult, questionNumberDisplay }) => {
         <div className="text-[13px] font-semibold text-slate-800 mb-2 leading-snug">{q.question_text}</div>
 
         <div className="flex flex-wrap items-center gap-2 mb-1.5">
-          {/* Tag câu trả lời của user */}
+          {/* User answer tag */}
           <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs ${
-            isCorrect ? 'bg-green-100 border-green-300 text-green-800' : 
-            isPartial ? 'bg-orange-100 border-orange-300 text-orange-800' : 
+            isCorrect ? 'bg-green-100 border-green-300 text-green-800' :
+            isPartial ? 'bg-orange-100 border-orange-300 text-orange-800' :
             'bg-red-100 border-red-300 text-red-800'
           }`}>
             {isCorrect ? <CheckCircleFilled /> : isPartial ? <ExclamationCircleFilled /> : <CloseCircleFilled />}
             <span><strong>Yours:</strong> {isSkipped ? "Skipped" : getOptionLabel(q.options, userAnswerKey)}</span>
           </div>
 
-          {/* Tag báo lỗi Partial Correct */}
+          {/* Partial correct indicator tag */}
           {isPartial && (
             <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-white border border-orange-300 text-orange-600 text-xs font-semibold shadow-sm">
               ✨ Partial Score: {partialScore}/{totalPositions} correct positions
             </div>
           )}
 
-          {/* Tag câu trả lời đúng */}
+          {/* Correct answer tag */}
           {(!isCorrect && correctAnswerRaw) && (
             <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-50 border border-emerald-300 text-emerald-700 text-xs">
               <CheckCircleFilled />
@@ -157,14 +157,14 @@ const ReadingAptisResultPage = () => {
     </div>
   );
 
-  const { parts, resultsArray, cefrLevel, scoreVal, correctCount, totalQuestions, submitDate, activePart } = computedData;
+  const { parts, resultsArray, cefrLevel, scoreVal,submitDate, activePart } = computedData;
   const cefrColor = getCefrColor(cefrLevel);
 
   const renderReviewQuestions = (groups) => {
-    // 🔥 Tính toán số thứ tự câu hỏi nối tiếp cho Part hiện tại
+    // 🔥 Calculate sequential question numbers for the active part
     let globalQNum = 1;
 
-    // Cộng dồn các câu của các Part trước đó để có số bắt đầu chuẩn
+    // Accumulate question counts from previous parts to get the correct starting number
     const currentPartIndex = parts.findIndex(p => p.id === activePartId);
     for (let i = 0; i < currentPartIndex; i++) {
       parts[i].groups?.forEach(g => {
@@ -189,21 +189,21 @@ const ReadingAptisResultPage = () => {
         <div className="space-y-3 pl-1">
           {group.questions?.map((q) => {
             const qResult = resultsArray.find(r => r.id === q.id || String(r.question_number) === String(q.question_number));
-            
-            // 🔥 Xử lý Label dải số câu cho Reorder (VD: "6 - 10")
+
+            // 🔥 Handle range label for Reorder questions (e.g. "6 - 10")
             let qNumDisplay = globalQNum.toString();
             let stepsToAdvance = 1;
 
             if (q.question_type === 'REORDER_SENTENCES') {
-               const optCount = Array.isArray(q.options) ? q.options.length : 0;
-               if (optCount > 1) {
-                 const endNum = globalQNum + optCount - 1;
-                 qNumDisplay = `${globalQNum} - ${endNum}`;
-                 stepsToAdvance = optCount;
-               }
+              const optCount = Array.isArray(q.options) ? q.options.length : 0;
+              if (optCount > 1) {
+                const endNum = globalQNum + optCount - 1;
+                qNumDisplay = `${globalQNum} - ${endNum}`;
+                stepsToAdvance = optCount;
+              }
             }
 
-            // Tiến số thứ tự lên cho câu vòng lặp tiếp theo
+            // Advance the counter for the next iteration
             globalQNum += stepsToAdvance;
 
             return <QuestionReviewCard key={q.id} q={q} qResult={qResult} questionNumberDisplay={qNumDisplay} />;
@@ -216,7 +216,7 @@ const ReadingAptisResultPage = () => {
 
   return (
     <Layout className="min-h-screen bg-slate-50">
-      
+
       {/* CUSTOM HEADER */}
       <div className="flex items-center gap-3 mb-6 px-6 pt-6">
         <button onClick={handleGoBack} className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-slate-600 font-semibold hover:bg-slate-100 transition-all text-sm">
@@ -233,25 +233,18 @@ const ReadingAptisResultPage = () => {
 
         {/* ── SCORE CARD ── */}
         <Card variant="borderless" className="rounded-3xl mb-6 shadow-sm border-slate-200" styles={{ body: { padding: '24px 32px' } }}>
-          <Row gutter={[24, 24]} align="middle">
-            <Col xs={24} md={8} className="text-center md:border-r border-slate-200">
+          <Row gutter={[24, 24]} align="middle" justify="center">
+            <Col xs={24} md={10} className="text-center md:border-r border-slate-200">
               <div className="mx-auto flex flex-col items-center justify-center w-24 h-24 rounded-full mb-2 shadow-inner" style={{ backgroundColor: `${cefrColor}15`, border: `3px solid ${cefrColor}` }}>
                 <span style={{ fontSize: 32, fontWeight: 900, lineHeight: 1, color: cefrColor }}>{cefrLevel}</span>
               </div>
               <Text strong className="text-slate-500 uppercase tracking-widest text-[10px]">Certification Level</Text>
             </Col>
 
-            <Col xs={12} md={8} className="text-center md:border-r border-slate-200">
+            <Col xs={24} md={10} className="text-center">
               <AimOutlined className="text-2xl text-orange-500 mb-1 block" />
               <div className="text-3xl font-black text-slate-800 leading-none">{scoreVal} <span className="text-lg text-slate-400">/ 50</span></div>
               <Text strong className="text-slate-500 uppercase tracking-widest text-[10px] mt-1.5 block">Aptis Score</Text>
-            </Col>
-
-            <Col xs={12} md={8} className="text-center">
-              <CheckCircleFilled className="text-2xl text-green-500 mb-1 block" />
-              {/* Hiển thị correctCount / totalQuestions (Vd: 27.5 / 35) */}
-              <div className="text-3xl font-black text-slate-800 leading-none">{correctCount} <span className="text-lg text-slate-400">/ {totalQuestions}</span></div>
-              <Text strong className="text-slate-500 uppercase tracking-widest text-[10px] mt-1.5 block">Correct Points</Text>
             </Col>
           </Row>
 
