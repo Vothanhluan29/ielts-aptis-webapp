@@ -64,12 +64,12 @@ const SpeakingAptisResultPage = () => {
   const { parts, resultsArray, isGraded, cefrLevel, scoreVal, submitDate, overallFeedback } = computedData;
   const cefrStyle = getCefrColor(cefrLevel);
 
-  // Map dữ liệu vào cấu trúc Tabs của Ant Design
+
+
   const tabItems = parts.map((part) => {
-    const partResult = resultsArray.find(r => String(r.part_number) === String(part.part_number));
-    const audioUrl = partResult?.audio_url || partResult?.user_answer || partResult?.audio_path;
-    const feedback = partResult?.admin_feedback;
-    const score = partResult?.part_score ?? partResult?.score;
+    const partFeedbackObj = resultsArray.find(r => String(r.part_number) === String(part.part_number) && r.admin_feedback);
+    const feedback = partFeedbackObj?.admin_feedback;
+    const score = partFeedbackObj?.part_score ?? partFeedbackObj?.score;
 
     return {
       key: `part-${part.id}`,
@@ -83,31 +83,39 @@ const SpeakingAptisResultPage = () => {
             </Title>
           </div>
 
-          <div className="space-y-4 pl-2 mb-8">
-            {part.questions?.map((q, qIdx) => (
-              <div key={q.id} className="flex gap-4 items-start">
-                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-500 font-bold text-xs shrink-0 mt-0.5">
-                  Q{q.order_number || qIdx + 1}
+          <div className="space-y-6 pl-2 mb-8">
+            {part.questions?.map((q, qIdx) => {
+              const qResult = resultsArray.find(r => String(r.question_id) === String(q.id) || String(r.id) === String(q.id));
+              const qAudioUrl = qResult?.audio_url || qResult?.user_answer || qResult?.audio_path || qResult?.user_audio_url;
+
+              return (
+                <div key={q.id} className="flex gap-4 items-start pb-6 border-b border-dashed border-slate-200 last:border-0 last:pb-0">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-100 text-slate-500 font-bold text-xs shrink-0 mt-0.5">
+                    Q{q.order_number || qIdx + 1}
+                  </div>
+                  
+                  <div className="flex-1">
+                    {/* Text Câu hỏi */}
+                    <Text className="text-slate-700 font-medium text-[15px] whitespace-pre-wrap leading-relaxed mt-1 block mb-3">
+                      {q.question_text}
+                    </Text>
+                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 inline-block w-full max-w-md">
+                       <Text className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                         <PlayCircle size={14}/> Your Response
+                       </Text>
+                       {qAudioUrl ? (
+                         <audio controls src={qAudioUrl.startsWith('http') ? qAudioUrl : `http://localhost:8000${qAudioUrl}`} controlsList="nodownload" className="w-full h-9" />
+                       ) : (
+                         <Text type="secondary" className="italic text-red-400 text-xs">No recording submitted for this question.</Text>
+                       )}
+                    </div>
+                  </div>
                 </div>
-                <Text className="text-slate-700 font-medium text-[15px] whitespace-pre-wrap leading-relaxed mt-1">
-                  {q.question_text}
-                </Text>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="bg-slate-50/50 border border-slate-200 rounded-2xl p-5 shadow-sm">
-            <div className="mb-4">
-              <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                <PlayCircle size={16}/> Recording for this part
-              </Text>
-              {audioUrl ? (
-                <audio controls src={audioUrl} controlsList="nodownload" className="w-full max-w-md bg-white rounded-lg shadow-sm h-11" />
-              ) : (
-                <Text type="secondary" className="italic text-red-400">No recording file found for this part.</Text>
-              )}
-            </div>
-
             {/* Gọi component PartFeedback */}
             <PartFeedback isGraded={isGraded} feedback={feedback} score={score} />
           </div>
