@@ -21,7 +21,6 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const SpeakingGradingDetailPage = () => {
-  // Lấy toàn bộ logic và data từ Hook
   const {
     loading,
     submitting,
@@ -84,7 +83,6 @@ const SpeakingGradingDetailPage = () => {
         <Col xs={24} lg={13}>
           <div className="space-y-4">
             {submission?.test?.parts?.map((part, index) => {
-              const studentAnswer = submission?.answers?.find(a => a.part_number === part.part_number);
               const colorKeys = ['blue', 'green', 'orange', 'purple'];
               const theme = themeColors[colorKeys[index % 4]];
               
@@ -94,13 +92,6 @@ const SpeakingGradingDetailPage = () => {
                   size="small"
                   className={`shadow-sm border-gray-200 rounded-lg border-l-4 ${theme.leftBorder}`}
                   title={<Text strong className={theme.text}>Part {part.part_number}: {part.part_type}</Text>}
-                  extra={
-                    studentAnswer?.audio_url ? (
-                      <audio controls controlsList="nodownload" className="h-8 w-60" src={studentAnswer.audio_url} />
-                    ) : (
-                      <Text type="danger" className="text-xs"><WarningOutlined /> No Audio</Text>
-                    )
-                  }
                 >
                   <Text italic className="text-gray-500 text-sm block mb-3">{part.instruction}</Text>
 
@@ -112,15 +103,37 @@ const SpeakingGradingDetailPage = () => {
                     </div>
                   )}
 
-                  {/* QUESTIONS */}
-                  <div className={`space-y-1 p-2 rounded border ${theme.bg} ${theme.border}`}>
-                    {part.questions?.map((q, idx) => (
-                      <div key={q.id} className="text-sm">
-                        <Text strong className="mr-2">Q{idx + 1}.</Text>
-                        <Text>{q.question_text}</Text>
-                        <Text type="secondary" className="ml-2 text-xs">({q.prep_time}s / {q.response_time}s)</Text>
-                      </div>
-                    ))}
+                  {/* QUESTIONS & INDIVIDUAL AUDIO */}
+                  <div className={`space-y-3 p-3 rounded border ${theme.bg} ${theme.border}`}>
+                    {part.questions?.map((q, idx) => {
+                      const qAnswer = submission?.answers?.find(a => String(a.question_id) === String(q.id) || String(a.id) === String(q.id));
+                      const audioUrl = qAnswer?.audio_url || qAnswer?.user_answer || qAnswer?.audio_path || qAnswer?.user_audio_url;
+
+                      return (
+                        <div key={q.id} className="text-sm pb-3 mb-2 border-b border-white/60 last:border-0 last:pb-0 last:mb-0">
+                          <div className="mb-2">
+                            <Text strong className="mr-2">Q{idx + 1}.</Text>
+                            <Text>{q.question_text}</Text>
+                            <Text type="secondary" className="ml-2 text-xs">({q.prep_time}s / {q.response_time}s)</Text>
+                          </div>
+                          
+                          <div className="pl-6">
+                            {audioUrl ? (
+                              <audio 
+                                controls 
+                                controlsList="nodownload" 
+                                className="h-9 w-full max-w-sm outline-none" 
+                                src={audioUrl.startsWith('http') ? audioUrl : `http://localhost:8000${audioUrl}`} 
+                              />
+                            ) : (
+                              <Text type="danger" className="text-xs italic bg-red-50 px-2 py-1 rounded border border-red-100">
+                                <WarningOutlined className="mr-1"/> No recording submitted
+                              </Text>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </Card>
               );
