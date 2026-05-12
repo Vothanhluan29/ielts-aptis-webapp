@@ -7,11 +7,11 @@ class AptisReadingUtils:
             scale_score = 0
 
         cefr = "A0"
-        if correct_count >= 27:    cefr = "C"
-        elif correct_count >= 23:  cefr = "B2"
-        elif correct_count >= 18:  cefr = "B1"
-        elif correct_count >= 12:  cefr = "A2"
-        elif correct_count >= 6:   cefr = "A1"
+        if scale_score >= 46:      cefr = "C"   # Từ 46 - 50 điểm
+        elif scale_score >= 38:    cefr = "B2"  # Từ 38 - 45 điểm
+        elif scale_score >= 26:    cefr = "B1"  # Từ 26 - 37  điểm
+        elif scale_score >= 16:    cefr = "A2"  # Từ 16 - 25 điểm
+        elif scale_score >= 8:     cefr = "A1"  # Từ 8 - 15 điểm
             
         return {
             "score": scale_score,
