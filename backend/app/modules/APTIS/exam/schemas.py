@@ -137,7 +137,9 @@ class AptisExamSubmissionResponse(BaseModel):
     overall_cefr_level: Optional[str] = None 
 
 
-    grammar_vocab_score: Optional[int] = None 
+    grammar_vocab_score: Optional[int] = None  # Tong Grammar + Vocab (/50)
+    grammar_score: Optional[int] = None         # Diem Grammar rieng (/25)
+    vocab_score: Optional[int] = None           # Diem Vocabulary rieng (/25)
     listening_score: Optional[int] = None
     reading_score: Optional[int] = None
     writing_score: Optional[int] = None
@@ -174,3 +176,8 @@ class AdminAptisExamPagingResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class AdminUpdateCefrRequest(BaseModel):
+    """Request body cho admin override CEFR level."""
+    cefr_level: str  # A0, A1, A2, B1, B2, C

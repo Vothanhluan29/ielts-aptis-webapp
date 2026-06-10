@@ -139,3 +139,42 @@ class AptisExamSubmissionService:
             
         db.commit()
         return {"items": subs, "total": total}
+
+    @staticmethod
+    def update_cefr_level(db: Session, submission_id: int, cefr_level: str):
+        """Admin override CEFR level. Không bị auto-reset trừ khi status về Pending."""
+        VALID_CEFR = {"A0", "A1", "A2", "B1", "B2", "C"}
+        if cefr_level.upper() not in VALID_CEFR:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid CEFR level. Valid values: {', '.join(sorted(VALID_CEFR))}"
+            )
+
+        # Update chỉ column cefr_level trước
+        sub_check = db.query(AptisExamSubmission).filter(
+            AptisExamSubmission.id == submission_id
+        ).first()
+        if not sub_check:
+            raise HTTPException(status_code=404, detail="Submission not found")
+
+        sub_check.overall_cefr_level = cefr_level.upper()
+        db.commit()
+
+        # Load lại với joinedload đầy đủ để serialize response không lỗi
+        sub = db.query(AptisExamSubmission).options(
+            joinedload(AptisExamSubmission.user),
+            joinedload(AptisExamSubmission.full_test).joinedload(AptisFullTest.grammar_vocab_test),
+            joinedload(AptisExamSubmission.full_test).joinedload(AptisFullTest.listening_test),
+            joinedload(AptisExamSubmission.full_test).joinedload(AptisFullTest.reading_test),
+            joinedload(AptisExamSubmission.full_test).joinedload(AptisFullTest.writing_test),
+            joinedload(AptisExamSubmission.full_test).joinedload(AptisFullTest.speaking_test),
+            joinedload(AptisExamSubmission.grammar_vocab_submission),
+            joinedload(AptisExamSubmission.listening_submission),
+            joinedload(AptisExamSubmission.reading_submission),
+            joinedload(AptisExamSubmission.writing_submission),
+            joinedload(AptisExamSubmission.speaking_submission),
+        ).filter(AptisExamSubmission.id == submission_id).first()
+
+        # Populate dynamic attributes để schema serialize đúng
+        AptisExamUtils.recalculate_overall_score(db, sub, auto_commit=False)
+        return sub

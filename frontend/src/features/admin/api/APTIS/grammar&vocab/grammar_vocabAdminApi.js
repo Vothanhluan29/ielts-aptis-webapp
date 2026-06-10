@@ -17,6 +17,13 @@ const grammarVocabAdminApi = {
 
   deleteTest: (testId) =>
     axiosClient.delete(`${BASE_URL}/tests/${testId}`),
+
+  // Admin: Submission management (view-only)
+  getAllSubmissions: (params) =>
+    axiosClient.get(`${BASE_URL}/submissions`, { params }),
+
+  getSubmissionDetail: (submissionId) =>
+    axiosClient.get(`${BASE_URL}/submissions/${submissionId}`),
 };
 
 export default grammarVocabAdminApi;

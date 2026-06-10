@@ -67,7 +67,7 @@ const SpeakingAptisResultPage = () => {
   // Map dữ liệu vào cấu trúc Tabs của Ant Design
   const tabItems = parts.map((part) => {
     const partResult = resultsArray.find(r => String(r.part_number) === String(part.part_number));
-    const audioUrl = partResult?.audio_url || partResult?.user_answer || partResult?.audio_path;
+    const audioUrls = partResult?.audioUrls || [];
     const feedback = partResult?.admin_feedback;
     const score = partResult?.part_score ?? partResult?.score;
 
@@ -99,10 +99,27 @@ const SpeakingAptisResultPage = () => {
           <div className="bg-slate-50/50 border border-slate-200 rounded-2xl p-5 shadow-sm">
             <div className="mb-4">
               <Text className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
-                <PlayCircle size={16}/> Recording for this part
+                <PlayCircle size={16}/> Recordings for this part
               </Text>
-              {audioUrl ? (
-                <audio controls src={audioUrl} controlsList="nodownload" className="w-full max-w-md bg-white rounded-lg shadow-sm h-11" />
+
+              {audioUrls.length > 0 ? (
+                <div className="space-y-3">
+                  {audioUrls.map((url, idx) => (
+                    <div key={idx} className="flex items-center gap-3">
+                      {audioUrls.length > 1 && (
+                        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-purple-100 text-purple-600 font-bold text-xs shrink-0">
+                          Q{idx + 1}
+                        </div>
+                      )}
+                      <audio
+                        controls
+                        src={url}
+                        controlsList="nodownload"
+                        className="flex-1 max-w-md bg-white rounded-lg shadow-sm h-11"
+                      />
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <Text type="secondary" className="italic text-red-400">No recording file found for this part.</Text>
               )}

@@ -26,6 +26,9 @@ const readingAptisAdminApi = {
   getUserHistory: (userId) =>
     axiosClient.get(`${PREFIX}/users/${userId}/submissions`),
 
+  getSubmissionDetail: (submissionId) =>
+    axiosClient.get(`/aptis/reading/submissions/${submissionId}`),
+
   overrideScore: (submissionId, data) =>
     axiosClient.put(`${PREFIX}/submissions/${submissionId}/override`, data),
 };

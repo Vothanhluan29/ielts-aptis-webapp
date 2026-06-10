@@ -148,6 +148,14 @@ import SpeakingAptisEditPage from './features/admin/pages/APTIS/speaking/Speakin
 import SpeakingSubmissionListPage from './features/admin/pages/APTIS/speaking/SpeakingSubmissionListPage';
 import SpeakingGradingDetailPage from './features/admin/pages/APTIS/speaking/SpeakingGradingDetailPage'; 
 
+// Admin: Auto-graded submission list + view pages
+import ListeningSubmissionListPage from './features/admin/pages/APTIS/listening/ListeningSubmissionListPage';
+import ListeningSubmissionViewPage from './features/admin/pages/APTIS/listening/ListeningSubmissionViewPage';
+import ReadingSubmissionListPage from './features/admin/pages/APTIS/reading/ReadingSubmissionListPage';
+import ReadingSubmissionViewPage from './features/admin/pages/APTIS/reading/ReadingSubmissionViewPage';
+import GrammarVocabSubmissionListPage from './features/admin/pages/APTIS/grammar_vocab/GrammarVocabSubmissionListPage';
+import GrammarVocabSubmissionViewPage from './features/admin/pages/APTIS/grammar_vocab/GrammarVocabSubmissionViewPage';
+
 function App() {
   return (
     <>
@@ -253,7 +261,13 @@ function App() {
             <Route path="profile" element={<AdminProfilePage/>}/>
             <Route path="aptis/profile" element={<AdminProfilePage/>}/>
 
-            {/* APTIS GRADING (CHẤM BÀI) */}
+            {/* APTIS GRADING (CHAM BAI) */}
+            <Route path="aptis/submissions/listening" element={<ListeningSubmissionListPage />} />
+            <Route path="aptis/submissions/listening/:id" element={<ListeningSubmissionViewPage />} />
+            <Route path="aptis/submissions/reading" element={<ReadingSubmissionListPage />} />
+            <Route path="aptis/submissions/reading/:id" element={<ReadingSubmissionViewPage />} />
+            <Route path="aptis/submissions/grammar-vocab" element={<GrammarVocabSubmissionListPage />} />
+            <Route path="aptis/submissions/grammar-vocab/:id" element={<GrammarVocabSubmissionViewPage />} />
             <Route path="aptis/submissions/writing" element={<WritingSubmissionListPage />} />
             <Route path="aptis/submissions/writing/:id" element={<WritingGradingDetailPage />} />
             <Route path="aptis/submissions/speaking" element={<SpeakingSubmissionListPage/>} />

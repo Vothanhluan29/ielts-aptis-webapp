@@ -111,7 +111,13 @@ export const useGrammarVocabResult = () => {
     };
   }, [submission, testDetail, activeTab]);
 
-  const handleGoBack = () => navigate('/aptis/grammar-vocab');
+  const handleGoBack = () => {
+    if (window.location.pathname.includes('/admin/aptis/submissions')) {
+      navigate('/admin/aptis/submissions/grammar-vocab');
+    } else {
+      navigate('/aptis/grammar-vocab');
+    }
+  };
 
   return {
     loading,

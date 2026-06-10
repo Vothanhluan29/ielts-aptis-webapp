@@ -85,6 +85,7 @@ const SpeakingGradingDetailPage = () => {
           <div className="space-y-4">
             {submission?.test?.parts?.map((part, index) => {
               const studentAnswer = submission?.answers?.find(a => a.part_number === part.part_number);
+              const audioUrls = studentAnswer?.audioUrls || [];
               const colorKeys = ['blue', 'green', 'orange', 'purple'];
               const theme = themeColors[colorKeys[index % 4]];
               
@@ -94,13 +95,6 @@ const SpeakingGradingDetailPage = () => {
                   size="small"
                   className={`shadow-sm border-gray-200 rounded-lg border-l-4 ${theme.leftBorder}`}
                   title={<Text strong className={theme.text}>Part {part.part_number}: {part.part_type}</Text>}
-                  extra={
-                    studentAnswer?.audio_url ? (
-                      <audio controls controlsList="nodownload" className="h-8 w-60" src={studentAnswer.audio_url} />
-                    ) : (
-                      <Text type="danger" className="text-xs"><WarningOutlined /> No Audio</Text>
-                    )
-                  }
                 >
                   <Text italic className="text-gray-500 text-sm block mb-3">{part.instruction}</Text>
 
@@ -121,6 +115,37 @@ const SpeakingGradingDetailPage = () => {
                         <Text type="secondary" className="ml-2 text-xs">({q.prep_time}s / {q.response_time}s)</Text>
                       </div>
                     ))}
+                  </div>
+
+                  {/* STUDENT AUDIO RECORDINGS */}
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <Text className="text-xs font-semibold text-gray-400 uppercase tracking-wider block mb-2">
+                      🎙 Student Recordings ({audioUrls.length} file{audioUrls.length !== 1 ? 's' : ''})
+                    </Text>
+                    {audioUrls.length === 0 ? (
+                      <div className="flex items-center gap-1.5 text-red-400 text-xs py-1">
+                        <WarningOutlined />
+                        <span>No audio recorded for this part.</span>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        {audioUrls.map((url, idx) => (
+                          <div key={idx} className="flex items-center gap-2">
+                            {audioUrls.length > 1 && (
+                              <div className={`flex items-center justify-center w-6 h-6 rounded text-xs font-bold shrink-0 ${theme.bg} ${theme.text} border ${theme.border}`}>
+                                Q{idx + 1}
+                              </div>
+                            )}
+                            <audio
+                              controls
+                              controlsList="nodownload"
+                              src={url}
+                              className="h-8 flex-1 max-w-sm"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </Card>
               );

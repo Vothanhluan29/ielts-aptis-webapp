@@ -92,7 +92,13 @@ export const useReadingAptisResult = () => {
   }, [submission, testDetail, activePartId]);
 
   // 3. Navigation Handlers
-  const handleGoBack = () => navigate('/aptis/reading');
+  const handleGoBack = () => {
+    if (window.location.pathname.includes('/admin/aptis/submissions')) {
+      navigate('/admin/aptis/submissions/reading');
+    } else {
+      navigate('/aptis/reading');
+    }
+  };
 
   return {
     loading,

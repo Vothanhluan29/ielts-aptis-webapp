@@ -18,6 +18,26 @@ export const gradingSections = [
   { key: 'p4', title: 'Part 4', max: 25, colorKey: 'purple' },
 ];
 
+/**
+ * Parse audio_url (có thể là JSON list hoặc URL đơn thuần) thành mảng URL hợp lệ.
+ * Backward-compatible: nếu là URL thuần → trả về [url].
+ */
+export const parseAudioUrls = (audioUrl, audioUrls) => {
+  if (Array.isArray(audioUrls) && audioUrls.length > 0) {
+    return audioUrls.filter(url => url && url.trim());
+  }
+  if (!audioUrl) return [];
+  try {
+    const parsed = JSON.parse(audioUrl);
+    if (Array.isArray(parsed)) {
+      return parsed.filter(url => url && url.trim());
+    }
+    return [audioUrl];
+  } catch {
+    return [audioUrl];
+  }
+};
+
 export const useSpeakingGradingDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -122,10 +142,19 @@ export const useSpeakingGradingDetail = () => {
     }
   };
 
+  // Enrich submission answers với audioUrls đã parse
+  const enrichedSubmission = submission ? {
+    ...submission,
+    answers: (submission.answers || []).map(answer => ({
+      ...answer,
+      audioUrls: parseAudioUrls(answer.audio_url, answer.audio_urls)
+    }))
+  } : null;
+
   return {
     loading,
     submitting,
-    submission,
+    submission: enrichedSubmission,
     grading,
     setGrading,
     totalScore,

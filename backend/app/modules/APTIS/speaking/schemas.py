@@ -103,9 +103,10 @@ class AptisSpeakingTestListItem(BaseModel):
 
 class SaveAptisSpeakingPartRequest(BaseModel):
     test_id: int
-    part_number: int       
-    audio_url: str         
-    submission_id: Optional[int] = None 
+    part_number: int
+    question_index: int = 0  # Vị trí câu hỏi trong part (0-indexed)
+    audio_url: str
+    submission_id: Optional[int] = None
     is_full_test_only: bool = False
 
 
@@ -115,10 +116,38 @@ class AptisSpeakingPartAnswerResponse(BaseModel):
     id: int
     part_number: int
     audio_url: str
-    
+    audio_urls: List[str] = []  # Danh sách URL đã parse từ JSON
+
     transcript: Optional[str] = None
     part_score: Optional[int] = None
     admin_feedback: Optional[str] = None
+
+    @field_validator('audio_urls', mode='before')
+    @classmethod
+    def parse_audio_urls(cls, v, info):
+        """Tự động parse audio_url JSON list hoặc URL đơn thành list."""
+        # Nếu audio_urls đã được set thì dùng luôn
+        if v:
+            return v
+        return []
+
+    @field_validator('audio_url', mode='after')
+    @classmethod
+    def set_audio_urls_from_audio_url(cls, v):
+        return v
+
+    def model_post_init(self, __context: Any) -> None:
+        """Sau khi khởi tạo, tự parse audio_url thành audio_urls."""
+        if not self.audio_urls and self.audio_url:
+            try:
+                parsed = json.loads(self.audio_url)
+                if isinstance(parsed, list):
+                    self.audio_urls = [url for url in parsed if url]
+                else:
+                    self.audio_urls = [self.audio_url]
+            except (json.JSONDecodeError, ValueError):
+                # Không phải JSON → coi là URL đơn (backward compatible)
+                self.audio_urls = [self.audio_url]
 
     class Config:
         from_attributes = True

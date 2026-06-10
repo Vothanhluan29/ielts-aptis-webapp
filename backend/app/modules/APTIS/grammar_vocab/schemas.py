@@ -136,3 +136,34 @@ class SubmissionHistoryItem(BaseModel):
     
     submitted_at: datetime
     class Config: from_attributes = True
+
+
+# =====================================================
+# 4. ADMIN SUBMISSION SCHEMAS
+# =====================================================
+class UserBasicInfo(BaseModel):
+    id: int
+    email: str
+    full_name: Optional[str] = None
+    class Config: from_attributes = True
+
+
+class AdminGrammarVocabSubmissionResponse(BaseModel):
+    id: int
+    user_id: int
+    user: Optional[UserBasicInfo] = None
+    test_id: int
+    test: Optional[TestResponse] = None
+    is_full_test_only: bool
+    grammar_score: int
+    vocab_score: int
+    total_score: int
+    status: AptisGrammarVocabStatus
+    submitted_at: datetime
+    class Config: from_attributes = True
+
+
+class AdminGrammarVocabPagingResponse(BaseModel):
+    items: List[AdminGrammarVocabSubmissionResponse]
+    total: int
+    class Config: from_attributes = True

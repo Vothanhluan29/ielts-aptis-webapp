@@ -12,7 +12,10 @@ import {
   ClipboardCheck,
   PenTool,
   Mic,
-  FileCheck
+  FileCheck,
+  Headphones,
+  BookMarked,
+  GraduationCap
 } from "lucide-react";
 
 const AptisSideBar = ({ layoutProps }) => {
@@ -111,6 +114,15 @@ const AptisSideBar = ({ layoutProps }) => {
             <div className="ml-5 mt-1 space-y-1 border-l border-indigo-800 pl-4">
               <NavLink to="/admin/aptis/submissions" end className={subLinkClass}>
                 <FileCheck size={14} className="shrink-0" /> <span className="whitespace-nowrap">Exam (Full Test)</span>
+              </NavLink>
+              <NavLink to="/admin/aptis/submissions/listening" className={subLinkClass}>
+                <Headphones size={14} className="shrink-0" /> <span className="whitespace-nowrap">Listening</span>
+              </NavLink>
+              <NavLink to="/admin/aptis/submissions/reading" className={subLinkClass}>
+                <BookMarked size={14} className="shrink-0" /> <span className="whitespace-nowrap">Reading</span>
+              </NavLink>
+              <NavLink to="/admin/aptis/submissions/grammar-vocab" className={subLinkClass}>
+                <GraduationCap size={14} className="shrink-0" /> <span className="whitespace-nowrap">Grammar &amp; Vocab</span>
               </NavLink>
               <NavLink to="/admin/aptis/submissions/writing" className={subLinkClass}>
                 <PenTool size={14} className="shrink-0" /> <span className="whitespace-nowrap">Writing</span>

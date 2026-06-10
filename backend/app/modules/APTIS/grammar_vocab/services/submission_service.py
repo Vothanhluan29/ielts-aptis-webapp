@@ -107,3 +107,27 @@ class GrammarVocabSubmissionService:
             .joinedload(models.AptisGrammarVocabTest.groups)
             .joinedload(models.AptisGrammarVocabGroup.questions)
         ).filter(models.AptisGrammarVocabSubmission.id == sub_id).first()
+
+    @staticmethod
+    def get_all_submissions_for_admin(
+        db: Session,
+        skip: int = 0,
+        limit: int = 50,
+        is_full_test_only: bool = False,
+    ):
+        """[ADMIN] Lay tat ca bai lam Grammar&Vocab (loc theo standalone hoac full-test)."""
+        from sqlalchemy import desc
+        from app.modules.users.models import User
+
+        query = (
+            db.query(models.AptisGrammarVocabSubmission)
+            .options(
+                joinedload(models.AptisGrammarVocabSubmission.test),
+                joinedload(models.AptisGrammarVocabSubmission.user),
+            )
+            .filter(models.AptisGrammarVocabSubmission.is_full_test_only == is_full_test_only)
+            .order_by(desc(models.AptisGrammarVocabSubmission.submitted_at))
+        )
+        total = query.count()
+        items = query.offset(skip).limit(limit).all()
+        return {"items": items, "total": total}

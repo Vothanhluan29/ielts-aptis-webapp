@@ -39,12 +39,31 @@ class AptisSpeakingSubmissionService:
         ).first()
 
         if existing_answer:
-            existing_answer.audio_url = req.audio_url
+            # Parse JSON list hiện tại, rồi insert/update URL tại đúng question_index
+            import json
+            try:
+                current_urls = json.loads(existing_answer.audio_url)
+                if not isinstance(current_urls, list):
+                    current_urls = [existing_answer.audio_url]
+            except (json.JSONDecodeError, TypeError):
+                # Backward compatible: chuỗi URL thuần
+                current_urls = [existing_answer.audio_url]
+
+            # Mở rộng list nếu cần, rồi gán URL vào đúng vị trí
+            while len(current_urls) <= req.question_index:
+                current_urls.append(None)
+            current_urls[req.question_index] = req.audio_url
+
+            existing_answer.audio_url = json.dumps(current_urls, ensure_ascii=False)
         else:
+            # Tạo mới: list với URL tại đúng vị trí question_index
+            import json
+            new_urls = [None] * (req.question_index + 1)
+            new_urls[req.question_index] = req.audio_url
             new_answer = AptisSpeakingPartAnswer(
                 submission_id=submission.id,
                 part_number=req.part_number,
-                audio_url=req.audio_url
+                audio_url=json.dumps(new_urls, ensure_ascii=False)
             )
             db.add(new_answer)
 

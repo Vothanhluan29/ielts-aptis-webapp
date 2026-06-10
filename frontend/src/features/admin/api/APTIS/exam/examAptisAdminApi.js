@@ -35,6 +35,12 @@ const examAptisAdminApi = {
 
   getSubmissionDetail: (submissionId) =>
     axiosClient.get(`${PREFIX}/result/${submissionId}`),
+
+  // Admin override CEFR level cho một submission
+  updateCefrLevel: (submissionId, cefrLevel) =>
+    axiosClient.patch(`${PREFIX}/admin/submissions/${submissionId}/cefr`, {
+      cefr_level: cefrLevel,
+    }),
 };
 
 export default examAptisAdminApi;

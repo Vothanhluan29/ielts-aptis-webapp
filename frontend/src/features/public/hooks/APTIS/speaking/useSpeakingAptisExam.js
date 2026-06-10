@@ -166,6 +166,7 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
         is_full_test_only: isFullTest, 
         part_id: currentPart.id,
         part_number: currentPart.part_number,
+        question_index: currentQuestionIdx,  // Vị trí câu hỏi (0-indexed) trong part
         question_id: currentQuestion.id,
         audio_url: audioUrl,
         ...(submissionId && { submission_id: submissionId })

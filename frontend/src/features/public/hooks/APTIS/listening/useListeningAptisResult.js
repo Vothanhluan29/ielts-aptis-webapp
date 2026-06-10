@@ -82,7 +82,13 @@ export const useListeningAptisResult = () => {
   }, [submission, testDetail, activePartId]);
 
   // 3. Navigation
-  const handleGoBack = () => navigate('/aptis/listening');
+  const handleGoBack = () => {
+    if (window.location.pathname.includes('/admin/aptis/submissions')) {
+      navigate('/admin/aptis/submissions/listening');
+    } else {
+      navigate('/aptis/listening');
+    }
+  };
 
   return {
     loading,

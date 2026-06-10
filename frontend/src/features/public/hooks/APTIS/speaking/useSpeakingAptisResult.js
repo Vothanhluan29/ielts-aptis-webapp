@@ -66,8 +66,36 @@ export const useSpeakingAptisResult = () => {
     if (!submission) return null;
 
     const parts = testDetail?.parts || [];
-    const resultsArray = submission.results || submission.responses || submission.answers || [];
-    
+    const rawAnswers = submission.results || submission.responses || submission.answers || [];
+
+    // Helper: parse audio_url (có thể là JSON list hoặc URL đơn) thành mảng URL hợp lệ
+    const parseAudioUrls = (audioUrl, audioUrls) => {
+      // Nếu backend đã trả về audio_urls list thì dùng luôn
+      if (Array.isArray(audioUrls) && audioUrls.length > 0) {
+        return audioUrls.filter(url => url && url.trim());
+      }
+      if (!audioUrl) return [];
+      try {
+        const parsed = JSON.parse(audioUrl);
+        if (Array.isArray(parsed)) {
+          return parsed.filter(url => url && url.trim());
+        }
+        return [audioUrl];
+      } catch {
+        // Không phải JSON → URL thuần (backward compatible)
+        return [audioUrl];
+      }
+    };
+
+    // Enrich mỗi answer với audioUrls đã parse
+    const resultsArray = rawAnswers.map(answer => ({
+      ...answer,
+      audioUrls: parseAudioUrls(
+        answer.audio_url || answer.user_answer || answer.audio_path,
+        answer.audio_urls
+      )
+    }));
+
     const isGraded = submission.status?.toUpperCase() === 'GRADED';
     const cefrLevel = submission.cefr_level || "N/A";
     const scoreVal = submission.total_score ?? submission.score ?? 0;

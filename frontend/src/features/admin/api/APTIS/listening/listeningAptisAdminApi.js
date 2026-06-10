@@ -25,6 +25,13 @@ const listeningAptisAdminApi = {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
+
+  // Admin: Submission management (view-only)
+  getAllSubmissions: (params) =>
+    axiosClient.get(`${ADMIN_BASE_URL}/submissions`, { params }),
+
+  getSubmissionDetail: (submissionId) =>
+    axiosClient.get(`/aptis/listening/submissions/${submissionId}`),
 };
 
 export default listeningAptisAdminApi;

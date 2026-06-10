@@ -151,3 +151,41 @@ def get_submission_detail(
         raise HTTPException(status_code=403, detail="Not authorized to view this submission")
         
     return sub
+
+
+# =====================================================
+# ADMIN: SUBMISSION MANAGEMENT (VIEW ONLY)
+# =====================================================
+
+@router.get(
+    "/admin/submissions",
+    response_model=schemas.AdminGrammarVocabPagingResponse,
+    summary="[ADMIN] List all standalone Grammar&Vocab submissions",
+)
+def admin_get_all_submissions(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin_user),
+):
+    """[ADMIN] Lay danh sach tat ca bai lam Grammar&Vocab thi le (is_full_test_only=False)."""
+    return GrammarVocabSubmissionService.get_all_submissions_for_admin(
+        db, skip=skip, limit=limit, is_full_test_only=False
+    )
+
+
+@router.get(
+    "/admin/submissions/{submission_id}",
+    response_model=schemas.SubmissionResponse,
+    summary="[ADMIN] View detail of a Grammar&Vocab submission",
+)
+def admin_get_submission_detail(
+    submission_id: int,
+    db: Session = Depends(get_db),
+    admin = Depends(get_admin_user),
+):
+    """[ADMIN] Xem chi tiet ket qua bai lam Grammar&Vocab (read-only)."""
+    sub = GrammarVocabSubmissionService.get_submission_detail(db, submission_id)
+    if not sub:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    return sub

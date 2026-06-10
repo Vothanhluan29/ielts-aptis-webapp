@@ -91,6 +91,21 @@ def admin_get_all_submissions(
     return AptisExamSubmissionService.get_all_submissions_for_admin(db, skip, limit, status)
 
 
+@router.patch(
+    "/admin/submissions/{submission_id}/cefr",
+    response_model=schemas.AptisExamSubmissionResponse,
+    summary="Admin override CEFR level",
+)
+def admin_update_cefr_level(
+    submission_id: int,
+    data: schemas.AdminUpdateCefrRequest,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_admin_user),
+):
+    """Admin đặt thủ công CEFR level cho một submission. Không bị auto-reset sau khi đã set."""
+    return AptisExamSubmissionService.update_cefr_level(db, submission_id, data.cefr_level)
+
+
 # =========================
 # STUDENT - TEST LIBRARY
 # =========================
