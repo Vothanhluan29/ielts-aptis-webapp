@@ -124,6 +124,7 @@ const WritingAptisExamPage = ({ isFullTest = false, testIdFromProps = null, onSk
                           onChange={(e) => updateAnswer('part_1', idx, e.target.value)} 
                           disabled={submitting} 
                         />
+                        {renderWordCount(countWords(answers.part_1[idx] || ''), 1, 5)}
                       </div>
                     </Col>
                   ))}
