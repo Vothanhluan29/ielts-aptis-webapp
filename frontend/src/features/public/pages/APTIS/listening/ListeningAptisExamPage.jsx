@@ -1,21 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Layout, Button, Typography, Spin, Card, Tag, message, Progress } from 'antd'; 
-import { 
-  ClockCircleOutlined, ExclamationCircleOutlined, SendOutlined, 
-  LeftOutlined, RightOutlined, CustomerServiceOutlined, PlayCircleFilled, CheckCircleFilled
-} from '@ant-design/icons';
+import { Progress, message } from 'antd';
+import {
+  Clock, Headphones, ChevronLeft, ChevronRight, Send,
+  Play, CheckCircle2, AlertCircle, Volume2, VolumeX
+} from 'lucide-react';
 
-import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion'; 
-import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion'; 
-
+import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion';
+import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion';
 import { useListeningAptisExam } from '../../../hooks/APTIS/listening/useListeningAptisExam';
 
-const { Header, Content, Footer } = Layout;
-const { Title, Text } = Typography;
-
-// ==========================================
-// COMPONENT: AUDIO PLAYER
-// ==========================================
+/* ─────────────────────────────────────────────────────────
+   AUDIO PLAYER — APTIS style
+───────────────────────────────────────────────────────── */
 const AptisAudioPlayer = ({ src, startTime, endTime }) => {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -24,334 +20,403 @@ const AptisAudioPlayer = ({ src, startTime, endTime }) => {
   const MAX_PLAYS = 2;
 
   useEffect(() => {
-    if (audioRef.current && startTime !== undefined && startTime !== null) {
+    if (audioRef.current && startTime != null) {
       audioRef.current.currentTime = startTime;
     }
   }, [startTime]);
 
   const handlePlay = () => {
     if (playCount >= MAX_PLAYS || isPlaying) return;
-    if (audioRef.current) {
-      if (startTime !== undefined && startTime !== null) {
-        if (audioRef.current.currentTime < startTime || (endTime && audioRef.current.currentTime >= endTime)) {
-          audioRef.current.currentTime = startTime;
-        }
-      }
-      audioRef.current.play().catch(e => {
-         console.error("Audio playback error:", e);
-         message.error("Audio playback error. Please check your speakers/browser!");
-      });
-      setIsPlaying(true);
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (startTime != null && (audio.currentTime < startTime || (endTime && audio.currentTime >= endTime))) {
+      audio.currentTime = startTime;
     }
+    audio.play().catch(e => {
+      console.error('Audio error:', e);
+      message.error('Audio playback failed. Check your browser settings.');
+    });
+    setIsPlaying(true);
   };
 
   const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      const current = audioRef.current.currentTime;
-      if (endTime && current >= endTime) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-        audioRef.current.currentTime = (startTime !== undefined && startTime !== null) ? startTime : 0;
-        setProgress(0);
-        setPlayCount(prev => prev + 1);
-        return;
-      }
-      const start = (startTime !== undefined && startTime !== null) ? startTime : 0;
-      const end = endTime || audioRef.current.duration || 0;
-      const duration = end - start;
-
-      if (duration > 0) {
-        let currentProgress = ((current - start) / duration) * 100;
-        if (currentProgress < 0) currentProgress = 0;
-        if (currentProgress > 100) currentProgress = 100;
-        setProgress(currentProgress);
-      }
+    const audio = audioRef.current;
+    if (!audio) return;
+    const current = audio.currentTime;
+    if (endTime && current >= endTime) {
+      audio.pause();
+      setIsPlaying(false);
+      audio.currentTime = startTime ?? 0;
+      setProgress(0);
+      setPlayCount(p => p + 1);
+      return;
     }
+    const start = startTime ?? 0;
+    const end = endTime || audio.duration || 0;
+    const dur = end - start;
+    if (dur > 0) setProgress(Math.min(100, Math.max(0, ((current - start) / dur) * 100)));
   };
 
   const handleEnded = () => {
     setIsPlaying(false);
     setProgress(0);
-    setPlayCount(prev => prev + 1);
-    if (startTime !== undefined && startTime !== null) {
-      audioRef.current.currentTime = startTime;
-    }
+    setPlayCount(p => p + 1);
+    if (audioRef.current && startTime != null) audioRef.current.currentTime = startTime;
   };
 
   const playsLeft = MAX_PLAYS - playCount;
   const isLocked = playsLeft <= 0;
 
-  if (!src) {
-    return (
-      <div className="bg-red-50 p-4 rounded-xl border border-red-200 mb-4">
-        <Text type="danger" className="font-bold">⚠️ This question is missing its audio file from the system!</Text>
-      </div>
-    );
-  }
+  if (!src) return (
+    <div style={{
+      background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 10,
+      padding: '10px 16px', color: '#dc2626', fontSize: 13, fontWeight: 600, marginBottom: 16,
+    }}>
+      ⚠ Audio file missing for this question.
+    </div>
+  );
+
+  const resolvedSrc = src.startsWith('http') ? src : `http://localhost:8000${src}`;
 
   return (
-    <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-5 mb-6 flex items-center gap-5 transition-all shadow-sm">
-      <audio 
-        ref={audioRef} 
-        src={src.startsWith('http') ? src : `http://localhost:8000${src}`} 
-        onEnded={handleEnded} 
-        onTimeUpdate={handleTimeUpdate} 
+    <div style={{
+      background: isLocked ? '#f8fafc' : '#eff6ff',
+      border: `1.5px solid ${isLocked ? '#e2e8f0' : '#bfdbfe'}`,
+      borderRadius: 12, padding: '14px 18px',
+      display: 'flex', alignItems: 'center', gap: 14,
+      marginBottom: 20, transition: 'all 0.2s',
+    }}>
+      <audio
+        ref={audioRef} src={resolvedSrc}
+        onEnded={handleEnded} onTimeUpdate={handleTimeUpdate}
         preload="metadata"
       />
-      
-      <Button 
-        type="primary" 
-        shape="circle" 
-        size="large"
-        icon={isLocked ? <CheckCircleFilled /> : <PlayCircleFilled />}
+
+      {/* Play button */}
+      <button
         onClick={handlePlay}
         disabled={isLocked || isPlaying}
-        className={`w-16 h-16 flex items-center justify-center text-3xl shadow-md ${
-          isLocked ? 'bg-slate-300 text-white border-none shadow-none' : 
-          isPlaying ? 'bg-blue-300 text-white border-none' : 
-          'bg-blue-600 hover:bg-blue-500 hover:scale-105 transition-transform'
-        }`}
-      />
-      
-      <div className="flex-1">
-        <div className="flex justify-between items-center mb-2">
-          <Text className="font-bold text-blue-800 text-base">
-            {isPlaying ? 'Playing audio...' : isLocked ? 'Listening complete' : 'Press Play to start listening'}
-          </Text>
-          <Tag color={isLocked ? "default" : "blue"} className="font-bold rounded-full border-0 px-3 py-1">
-            Plays remaining: {playsLeft}
-          </Tag>
+        title={isLocked ? 'Maximum plays reached' : 'Play audio'}
+        style={{
+          width: 44, height: 44, borderRadius: '50%', border: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: isLocked ? 'not-allowed' : isPlaying ? 'default' : 'pointer',
+          background: isLocked ? '#e2e8f0' : isPlaying ? '#93c5fd' : '#2563eb',
+          color: '#fff', flexShrink: 0,
+          boxShadow: isLocked ? 'none' : '0 2px 8px rgba(37,99,235,0.30)',
+          transition: 'all 0.2s',
+        }}
+      >
+        {isLocked ? <VolumeX size={18} /> : <Play size={18} fill="white" />}
+      </button>
+
+      {/* Progress & label */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: isLocked ? '#94a3b8' : '#1d4ed8' }}>
+            {isPlaying ? 'Playing…' : isLocked ? 'Audio played' : 'Press play to listen'}
+          </span>
+          <span style={{
+            fontSize: 11, fontWeight: 700,
+            background: isLocked ? '#f1f5f9' : '#dbeafe',
+            color: isLocked ? '#94a3b8' : '#1e40af',
+            padding: '2px 8px', borderRadius: 20,
+          }}>
+            {isLocked ? '0 plays left' : `${playsLeft} play${playsLeft !== 1 ? 's' : ''} left`}
+          </span>
         </div>
-        <Progress 
-          percent={isLocked ? 100 : progress} 
-          showInfo={false} 
-          strokeColor={isLocked ? "#94a3b8" : "#2563eb"}
-          railColor="#e2e8f0" 
-          size="small"
-        />
+        <div style={{ height: 5, borderRadius: 99, background: '#dbeafe', overflow: 'hidden' }}>
+          <div style={{
+            height: '100%', borderRadius: 99,
+            background: isLocked ? '#94a3b8' : '#2563eb',
+            width: `${isLocked ? 100 : progress}%`,
+            transition: 'width 0.1s linear',
+          }} />
+        </div>
       </div>
     </div>
   );
 };
 
-// ==========================================
-// MAIN COMPONENT: LISTENING EXAM PAGE
-// ==========================================
-const ListeningAptisExamPage = ({ 
-  isFullTest = false, 
+/* ─────────────────────────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────────────────────────── */
+const ListeningAptisExamPage = ({
+  isFullTest = false,
   testIdFromProps = null,
-  onSkillFinish = null 
+  onSkillFinish = null
 }) => {
   const {
-    loading,
-    submitting,
-    testDetail,
-    currentPartId,
-    setCurrentPartId,
-    timeLeft,
-    answers,
-    parts,
-    activePart,
-    currentTabIndex,
-    isTimeRunningOut,
-    handleAnswerChange,
-    confirmSubmit,
-    formatTime,
-    handleGoBackEmpty
+    loading, submitting, testDetail,
+    currentPartId, setCurrentPartId, timeLeft,
+    answers, parts, activePart, currentTabIndex,
+    isTimeRunningOut, handleAnswerChange,
+    confirmSubmit, formatTime, handleGoBackEmpty
   } = useListeningAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
-  // 🐞 BẮT LỖI (DEBUG): Dòng này sẽ in ra Console (F12) dữ liệu thật
   useEffect(() => {
     if (!loading && activePart) {
-      console.log("=== THÔNG TIN AUDIO ĐANG TÌM ĐƯỢC ===");
-      console.log("Audio tổng của Test:", testDetail?.audio_url);
-      console.log("Chi tiết Part hiện tại:", activePart);
+      console.log('[Listening] activePart audio:', testDetail?.audio_url, activePart);
     }
   }, [loading, activePart, testDetail]);
 
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <Spin size="large" />
-          <Text type="secondary" className="font-medium text-lg">Loading test data...</Text>
-        </div>
+  if (loading) return (
+    <div style={{ minHeight: '100vh', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: 44, height: 44, borderRadius: '50%', border: '4px solid #2563eb', borderTopColor: 'transparent', animation: 'aptis-spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+        <p style={{ color: '#94a3b8', margin: 0 }}>Loading test...</p>
       </div>
-    );
-  }
+    </div>
+  );
 
-  if (parts.length === 0) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
-        <Card className="text-center rounded-3xl shadow-sm border-0 py-10 px-8">
-          <ExclamationCircleOutlined className="text-red-400 text-5xl mb-4 block" />
-          <Title level={4}>Empty Test</Title>
-          <Button type="primary" onClick={handleGoBackEmpty} className="mt-6">Go Back</Button>
-        </Card>
+  if (parts.length === 0) return (
+    <div style={{ minHeight: '100vh', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center', background: '#fff', padding: '48px 40px', borderRadius: 16, border: '1px solid #e2e8f0' }}>
+        <AlertCircle size={40} color="#f87171" style={{ marginBottom: 16 }} />
+        <p style={{ fontWeight: 700, fontSize: 16, color: '#1e293b', margin: '0 0 8px' }}>Empty Test</p>
+        <p style={{ color: '#94a3b8', fontSize: 13, margin: '0 0 20px' }}>No content has been added to this test.</p>
+        <button onClick={handleGoBackEmpty} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Go Back</button>
       </div>
-    );
-  }
+    </div>
+  );
+
+  const totalQ = activePart?.groups?.reduce((s, g) => s + (g.questions?.length || 0), 0) || 0;
+  const answeredQ = Object.keys(answers).length;
 
   return (
-    <Layout style={{ minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh', backgroundColor: '#f8fafc' }}>
-      
-      {!isFullTest && (
-        <Header style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 10 }}>
-          <div className="flex items-center gap-3">
-            <Tag color="blue" className="px-3 py-1 font-bold rounded-lg border-0 bg-blue-100 text-blue-700 m-0">
-              <CustomerServiceOutlined className="mr-1"/> Listening
-            </Tag>
-            <Text strong className="text-base hidden sm:block text-slate-800">{testDetail?.title}</Text>
-          </div>
-          <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-lg transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
-            <ClockCircleOutlined /> {formatTime(timeLeft)}
-          </div>
-        </Header>
-      )}
+    <div style={{
+      minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh',
+      background: '#f0f4f8', display: 'flex', flexDirection: 'column',
+      fontFamily: "'Inter', -apple-system, sans-serif",
+    }}>
 
-      {isFullTest && (
-        <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center sticky top-0 z-10 shadow-sm">
-          <Text strong className="text-lg text-slate-700">Section: Listening</Text>
-          <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-lg transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-blue-50 border-blue-200 text-blue-700'}`}>
-            <ClockCircleOutlined /> Time remaining: {formatTime(timeLeft)}
+      {/* ═══════════════ TOP BAR ═══════════════ */}
+      <div style={{
+        height: 56, background: '#fff',
+        borderBottom: '1px solid #e2e8f0',
+        display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 24px', position: 'sticky', top: 0, zIndex: 20,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            background: '#eff6ff', color: '#1d4ed8',
+            padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
+          }}>
+            <Headphones size={13} />
+            {isFullTest ? 'Listening' : 'Listening Test'}
+          </div>
+          {testDetail?.title && (
+            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>{testDetail.title}</span>
+          )}
+        </div>
+        {/* Timer */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 7,
+          padding: '5px 14px', borderRadius: 8, fontWeight: 700, fontSize: 16,
+          background: isTimeRunningOut ? '#fef2f2' : '#eff6ff',
+          color: isTimeRunningOut ? '#dc2626' : '#1d4ed8',
+          border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#bfdbfe'}`,
+        }}>
+          <Clock size={16} /> {formatTime(timeLeft)}
+        </div>
+      </div>
+
+      {/* ═══════════════ PART TABS ═══════════════ */}
+      <div style={{
+        background: '#fff', borderBottom: '1px solid #f1f5f9',
+        padding: '10px 24px',
+      }}>
+        <div style={{ display: 'flex', gap: 6, maxWidth: 820, margin: '0 auto' }}>
+          {parts.map((p, idx) => {
+            const active = currentPartId === p.id;
+            return (
+              <button
+                key={p.id}
+                onClick={() => setCurrentPartId(p.id)}
+                style={{
+                  padding: '6px 18px', borderRadius: 20, border: '1.5px solid',
+                  borderColor: active ? '#2563eb' : '#e2e8f0',
+                  background: active ? '#2563eb' : '#fff',
+                  color: active ? '#fff' : '#64748b',
+                  fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                  transition: 'all 0.15s',
+                }}
+              >
+                Part {p.part_number || idx + 1}
+              </button>
+            );
+          })}
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: answeredQ === totalQ && totalQ > 0 ? '#16a34a' : '#94a3b8' }}>
+            {answeredQ === totalQ && totalQ > 0 ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
+            {answeredQ}/{totalQ} answered
           </div>
         </div>
-      )}
+      </div>
 
-      <Content style={{ padding: '24px', maxWidth: 900, margin: '0 auto', width: '100%' }}>
-        
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 custom-scrollbar">
-          {parts.map((p, idx) => (
-            <Button 
-              key={p.id} 
-              type={currentPartId === p.id ? 'primary' : 'default'} 
-              onClick={() => setCurrentPartId(p.id)} 
-              className={`flex-1 min-w-35 h-12 font-bold rounded-xl transition-all ${
-                currentPartId === p.id 
-                  ? 'bg-blue-600 hover:bg-blue-500 border-none shadow-md shadow-blue-200 text-white' 
-                  : 'text-slate-500 border-slate-200 hover:text-blue-500 hover:border-blue-300'
-              }`}
-            >
-              Part {p.part_number || idx + 1}
-            </Button>
-          ))}
-        </div>
+      {/* ═══════════════ CONTENT ═══════════════ */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 16px' }}>
+        <div style={{ maxWidth: 820, margin: '0 auto' }}>
 
-        <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200 overflow-hidden" styles={{ body: { padding: '32px 24px' } }}>
-          
-          <div className="mb-8 p-4 bg-blue-50/50 rounded-xl border-l-4 border-blue-500 text-slate-700 font-medium flex items-start gap-3">
-            <CustomerServiceOutlined className="text-blue-600 text-xl mt-0.5" />
-            <div>
-              Listen carefully to the audio and select the most accurate answer. Remember that you only have <strong>2 plays</strong> for each audio clip.
-            </div>
+          {/* Instructions banner */}
+          <div style={{
+            background: '#eff6ff', border: '1px solid #bfdbfe',
+            borderRadius: 10, padding: '12px 16px',
+            display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20,
+          }}>
+            <Volume2 size={16} color="#1d4ed8" style={{ flexShrink: 0 }} />
+            <p style={{ margin: 0, fontSize: 13, color: '#1e40af', fontWeight: 500 }}>
+              Listen carefully to each audio clip. You may listen to each clip a maximum of <strong>2 times</strong>. Select the best answer for each question.
+            </p>
           </div>
 
+          {/* Groups */}
           {!activePart?.groups || activePart.groups.length === 0 ? (
-             <div className="text-center py-10 text-slate-400">No questions in this section.</div>
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>No questions in this section.</div>
           ) : (
-            activePart.groups.map((group) => {
-              // Kiểm tra xem Group có lấy được Audio từ cấp độ chung không
+            activePart.groups.map((group, gIdx) => {
               const groupAudioSrc = group.audio_url || group.media_url || activePart?.audio_url || testDetail?.audio_url;
-              
-              // Kiểm tra xem các câu hỏi lẻ bên trong có tự gắn Audio riêng không (Trường hợp Part 1)
-              const hasQuestionLevelAudio = group.questions?.some(q => q.audio_url || q.media_url);
+              const hasQAudio = group.questions?.some(q => q.audio_url || q.media_url);
 
               return (
-                <div key={group.id} className="mb-14 last:mb-0 pb-8 border-b border-slate-100 last:border-0 last:pb-0">
-                  
-                  {/* HIỂN THỊ AUDIO CẤP ĐỘ GROUP: Chỉ hiện nếu có audio chung, hoặc CẢ group VÀ question đều không có audio (để báo lỗi màu đỏ) */}
-                  {(groupAudioSrc || !hasQuestionLevelAudio) && (
-                    <AptisAudioPlayer 
-                      src={groupAudioSrc} 
-                      startTime={group.start_time}
-                      endTime={group.end_time}
-                    />
-                  )}
-                  
-                  <div className="pl-2 space-y-8 mt-6">
-                    {group.questions?.map((q, idx) => {
-                      const qType = q.question_type?.toUpperCase() || "";
-                      const pType = q.part_type?.toUpperCase() || "";
-                      const isDropdown = qType === 'DROPDOWN' || qType === 'MATCHING' || pType.includes('PART_4');
-                      const qKey = String(q.question_number || idx + 1);
+                <div
+                  key={group.id}
+                  style={{
+                    background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0',
+                    overflow: 'hidden', marginBottom: 20,
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                  }}
+                >
+                  {/* Group header */}
+                  <div style={{
+                    padding: '14px 20px', borderBottom: '1px solid #f1f5f9',
+                    background: '#fafbff', display: 'flex', alignItems: 'center', gap: 8,
+                  }}>
+                    <div style={{ width: 3, height: 16, background: '#2563eb', borderRadius: 99 }} />
+                    <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>
+                      Questions {group.questions?.[0]?.question_number} – {group.questions?.[group.questions.length - 1]?.question_number}
+                    </span>
+                  </div>
 
-                      // Lấy Audio riêng của câu hỏi (nếu có)
-                      const questionAudioSrc = q.audio_url || q.media_url;
+                  <div style={{ padding: '20px' }}>
+                    {/* Group-level audio */}
+                    {(groupAudioSrc || !hasQAudio) && (
+                      <AptisAudioPlayer
+                        src={groupAudioSrc}
+                        startTime={group.start_time}
+                        endTime={group.end_time}
+                      />
+                    )}
 
-                      return (
-                        <div key={q.id} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm mb-6">
-                          
-                          {/* 🔥 HIỂN THỊ AUDIO CẤP ĐỘ CÂU HỎI (Dành riêng cho Part 1) */}
-                          {questionAudioSrc && (
-                            <AptisAudioPlayer src={questionAudioSrc} />
-                          )}
+                    {/* Questions */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                      {group.questions?.map((q, qIdx) => {
+                        const qType = q.question_type?.toUpperCase() || '';
+                        const pType = q.part_type?.toUpperCase() || '';
+                        const isDropdown = qType === 'DROPDOWN' || qType === 'MATCHING' || pType.includes('PART_4');
+                        const qKey = String(q.question_number || qIdx + 1);
+                        const qAudioSrc = q.audio_url || q.media_url;
 
-                          {isDropdown ? (
-                            <DropdownQuestion 
-                              questionId={q.id}
-                              questionNumber={q.question_number || idx + 1}
-                              questionText={q.question_text}
-                              options={q.options}
-                              selectedValue={answers[qKey]} 
-                              onChange={(arg1, arg2) => handleAnswerChange(qKey, arg2 !== undefined ? arg2 : arg1)} 
-                            />
-                          ) : (
-                            <MultipleChoiceQuestion 
-                              questionId={q.id}
-                              questionNumber={q.question_number || idx + 1}
-                              questionText={q.question_text}
-                              options={q.options}
-                              selectedValue={answers[qKey]} 
-                              onChange={(arg1, arg2) => handleAnswerChange(qKey, arg2 !== undefined ? arg2 : arg1)} 
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
+                        return (
+                          <div key={q.id} style={{ borderRadius: 10, border: '1px solid #f1f5f9', overflow: 'hidden' }}>
+                            {qAudioSrc && <div style={{ padding: '12px 16px 0' }}><AptisAudioPlayer src={qAudioSrc} /></div>}
+                            <div style={{ padding: qAudioSrc ? '0 8px 8px' : '4px 8px 8px' }}>
+                              {isDropdown ? (
+                                <DropdownQuestion
+                                  questionId={q.id} questionNumber={q.question_number || qIdx + 1}
+                                  questionText={q.question_text} options={q.options}
+                                  selectedValue={answers[qKey]}
+                                  onChange={(a, b) => handleAnswerChange(qKey, b !== undefined ? b : a)}
+                                />
+                              ) : (
+                                <MultipleChoiceQuestion
+                                  questionId={q.id} questionNumber={q.question_number || qIdx + 1}
+                                  questionText={q.question_text} options={q.options}
+                                  selectedValue={answers[qKey]}
+                                  onChange={(a, b) => handleAnswerChange(qKey, b !== undefined ? b : a)}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               );
             })
           )}
+        </div>
+      </div>
 
-        </Card>
-      </Content>
-
-      <Footer style={{ backgroundColor: '#fff', borderTop: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', bottom: 0, zIndex: 10 }}>
-        <Button
-          size="large"
-          className="rounded-xl font-semibold text-slate-600 border-slate-300"
-          disabled={currentTabIndex === 0 || submitting}
+      {/* ═══════════════ FOOTER ═══════════════ */}
+      <div style={{
+        height: 64, background: '#fff', borderTop: '1px solid #e2e8f0',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 24px', position: 'sticky', bottom: 0, zIndex: 20,
+      }}>
+        <button
           onClick={() => setCurrentPartId(parts[currentTabIndex - 1]?.id)}
-          icon={<LeftOutlined />}
+          disabled={currentTabIndex === 0 || submitting}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '8px 18px', borderRadius: 8,
+            border: '1.5px solid #e2e8f0', background: '#fff',
+            color: currentTabIndex === 0 ? '#cbd5e1' : '#475569',
+            fontWeight: 600, fontSize: 14, cursor: currentTabIndex === 0 ? 'not-allowed' : 'pointer',
+          }}
         >
-          Previous Part
-        </Button>
-        
+          <ChevronLeft size={16} /> Previous
+        </button>
+
+        {/* Part dots */}
+        <div style={{ display: 'flex', gap: 8 }}>
+          {parts.map((p, idx) => (
+            <div key={p.id} style={{
+              width: 8, height: 8, borderRadius: '50%',
+              background: currentPartId === p.id ? '#2563eb' : '#cbd5e1',
+              transition: 'background 0.2s',
+            }} />
+          ))}
+        </div>
+
         {currentTabIndex < parts.length - 1 ? (
-          <Button
-            type="primary"
-            size="large"
-            className="rounded-xl font-bold bg-slate-800 hover:bg-slate-700 border-none shadow-md shadow-slate-300 text-white"
+          <button
             onClick={() => setCurrentPartId(parts[currentTabIndex + 1]?.id)}
             disabled={submitting}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '8px 18px', borderRadius: 8,
+              border: 'none', background: '#1e293b',
+              color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer',
+            }}
           >
-            Next Part <RightOutlined />
-          </Button>
+            Next <ChevronRight size={16} />
+          </button>
         ) : (
-          <Button
-            type="primary"
-            size="large"
-            className="rounded-xl font-bold px-10 bg-blue-600 hover:bg-blue-500 border-none shadow-lg shadow-blue-200 text-white"
+          <button
             onClick={confirmSubmit}
-            loading={submitting}
-            icon={<SendOutlined />}
+            disabled={submitting}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '8px 22px', borderRadius: 8, border: 'none',
+              background: submitting ? '#93c5fd' : 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+              color: '#fff', fontWeight: 700, fontSize: 14, cursor: submitting ? 'not-allowed' : 'pointer',
+              boxShadow: '0 2px 8px rgba(37,99,235,0.35)',
+            }}
           >
-            {isFullTest ? 'Submit & Continue to Reading' : 'Submit Test'}
-          </Button>
+            {submitting
+              ? <><div style={{ width: 14, height: 14, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'aptis-spin 0.8s linear infinite' }} /> Submitting...</>
+              : <><Send size={15} /> {isFullTest ? 'Submit & Continue to Reading' : 'Submit Test'}</>
+            }
+          </button>
         )}
-      </Footer>
-    </Layout>
+      </div>
+
+      <style>{`@keyframes aptis-spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
   );
 };
 

@@ -1,40 +1,49 @@
 import React from 'react';
-import { Card, Button, Tag, Typography, Row, Col, Skeleton, Empty, Space, Radio } from 'antd';
-import { 
-  Mic, Clock, CheckCircle, 
-  AlertCircle, ArrowRight, History, RotateCcw 
-} from 'lucide-react';
-
-// Nhúng Custom Hook vào
+import { Skeleton } from 'antd';
+import { Mic, Clock, CheckCircle, AlertCircle, ArrowRight, History, RotateCcw, Play } from 'lucide-react';
 import { useSpeakingAptisList } from '../../../hooks/APTIS/speaking/useSpeakingAptisList';
 
-const { Title, Paragraph, Text } = Typography;
+const FILTER_OPTIONS = [
+  { value: 'ALL', label: 'All' },
+  { value: 'NOT_STARTED', label: 'Not Started' },
+  { value: 'PENDING', label: 'Pending Review' },
+  { value: 'GRADED', label: 'Completed' },
+];
 
 const SpeakingAptisListPage = () => {
-
-  const { 
-    loading, 
-    filterStatus, 
-    setFilterStatus, 
-    filteredTests, 
-    handleNavigateHistory, 
-    handleNavigateLobby, 
-    handleNavigateResult 
+  const {
+    loading,
+    filterStatus,
+    setFilterStatus,
+    filteredTests,
+    handleNavigateHistory,
+    handleNavigateLobby,
+    handleNavigateResult
   } = useSpeakingAptisList();
-
 
   const getStatusConfig = (status, testId) => {
     const s = status?.toUpperCase();
-    
+
     switch (s) {
       case 'GRADED':
       case 'COMPLETED':
         return {
-          tagColor: 'success',
-          text: 'Graded',
-          icon: <CheckCircle size={14} className="mr-1" />,
+          badge: (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              background: '#dcfce7', color: '#16a34a',
+              padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
+            }}>
+              <CheckCircle size={12} /> Đã chấm điểm
+            </span>
+          ),
           mainBtnText: 'View History',
           mainBtnAction: handleNavigateHistory,
+          mainBtnStyle: {
+            background: 'transparent', color: '#6366f1',
+            border: '1.5px solid #a5b4fc', fontWeight: 700
+          },
+          isDone: true,
           showRetry: true
         };
 
@@ -42,161 +51,242 @@ const SpeakingAptisListPage = () => {
       case 'GRADING':
       case 'SUBMITTED':
         return {
-          tagColor: 'warning',
-          text: 'Pending Review',
-          icon: <Clock size={14} className="mr-1" />,
-          mainBtnText: 'Review Submission',
+          badge: (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              background: '#fef3c7', color: '#d97706',
+              padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
+            }}>
+              <Clock size={12} /> Pending Review
+            </span>
+          ),
+          mainBtnText: 'Xem bài nộp',
           mainBtnAction: () => handleNavigateResult(testId),
+          mainBtnStyle: {
+            background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
+            color: '#fff', border: 'none', fontWeight: 700,
+            boxShadow: '0 4px 14px rgba(245,158,11,0.35)'
+          },
+          isDone: false,
           showRetry: true
         };
 
       default:
         return {
-          tagColor: 'purple',
-          text: 'Not Started',
-          icon: <AlertCircle size={14} className="mr-1" />,
-          mainBtnText: 'Start Test',
-          mainBtnAction: () => handleNavigateLobby(testId), 
+          badge: (
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              background: '#ede9fe', color: '#7c3aed',
+              padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
+            }}>
+              <AlertCircle size={12} /> Not Started
+            </span>
+          ),
+          mainBtnText: 'Start Now',
+          mainBtnAction: () => handleNavigateLobby(testId),
+          mainBtnStyle: {
+            background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
+            color: '#fff', border: 'none', fontWeight: 700,
+            boxShadow: '0 4px 14px rgba(99,102,241,0.35)'
+          },
+          isDone: false,
           showRetry: false
         };
     }
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 animate-in fade-in duration-500">
-      
-      {/* ================= HEADER SECTION ================= */}
-      <div className="mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-200">
-            <Mic size={32} strokeWidth={2.5} />
+    <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
+
+      {/* ===== HEADER ===== */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{
+          display: 'flex', flexWrap: 'wrap',
+          alignItems: 'center', justifyContent: 'space-between', gap: 16
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 16,
+              background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 20px rgba(99,102,241,0.3)', flexShrink: 0
+            }}>
+              <Mic size={28} color="#fff" strokeWidth={2.5} />
+            </div>
+            <div>
+              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#1e1b4b', lineHeight: 1.3 }}>
+                Speaking Practice
+              </h1>
+              <p style={{ margin: 0, fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+                Speaking skills following the British Council APTIS structure
+              </p>
+            </div>
           </div>
 
-          <div>
-            <Title level={2} className="m-0! font-extrabold! text-slate-800">
-              Aptis Speaking Practice
-            </Title>
-            <Text className="text-slate-500 font-medium">
-              Practice speaking based on the British Council structure
-            </Text>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <div style={{
+              display: 'flex', background: '#f1f0fe', borderRadius: 12,
+              padding: 4, gap: 4
+            }}>
+              {FILTER_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setFilterStatus(opt.value)}
+                  style={{
+                    padding: '6px 14px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                    fontSize: 13, fontWeight: 600, transition: 'all 0.2s',
+                    background: filterStatus === opt.value ? '#6366f1' : 'transparent',
+                    color: filterStatus === opt.value ? '#fff' : '#6b7280',
+                    boxShadow: filterStatus === opt.value ? '0 2px 8px rgba(99,102,241,0.3)' : 'none'
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={handleNavigateHistory}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '8px 16px', borderRadius: 10, border: '1.5px solid #e2e8f0',
+                background: '#fff', cursor: 'pointer', fontSize: 13,
+                fontWeight: 600, color: '#374151', transition: 'all 0.2s',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#a5b4fc'; e.currentTarget.style.color = '#6366f1'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#374151'; }}
+            >
+              <History size={15} /> History
+            </button>
           </div>
         </div>
-
-        <Space size="middle" wrap>
-          {/* STATUS FILTER */}
-          <Radio.Group 
-            value={filterStatus} 
-            onChange={(e) => setFilterStatus(e.target.value)}
-            optionType="button"
-            buttonStyle="solid"
-            className="custom-radio-group"
-          >
-            <Radio.Button value="ALL">All</Radio.Button>
-            <Radio.Button value="NOT_STARTED">Not Started</Radio.Button>
-            <Radio.Button value="PENDING">Pending</Radio.Button>
-            <Radio.Button value="GRADED">Completed</Radio.Button>
-          </Radio.Group>
-
-          <Button 
-            icon={<History size={18} />} 
-            onClick={handleNavigateHistory}
-            className="flex items-center gap-2 rounded-lg font-bold border-slate-200 hover:text-indigo-600 shadow-sm h-10"
-          >
-            History
-          </Button>
-        </Space>
+        <div style={{ marginTop: 20, height: 1, background: 'linear-gradient(90deg, #e0e7ff 0%, transparent 100%)' }} />
       </div>
 
-      {/* ================= CONTENT SECTION ================= */}
+      {/* ===== CONTENT ===== */}
       {loading ? (
-        <Row gutter={[24, 24]}>
-          {[1, 2, 3].map((i) => (
-            <Col xs={24} md={12} lg={8} key={i}>
-              <Card className="rounded-3xl border-slate-100">
-                <Skeleton active paragraph={{ rows: 3 }} />
-              </Card>
-            </Col>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{
+              background: '#fff', borderRadius: 16, padding: 24,
+              border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            }}>
+              <Skeleton active paragraph={{ rows: 3 }} />
+            </div>
           ))}
-        </Row>
-
+        </div>
       ) : filteredTests.length === 0 ? (
-        <Empty
-          className="mt-20"
-          description={<Text type="secondary" className="text-base">No tests found matching the selected filter.</Text>}
-        />
-
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', padding: '80px 24px', textAlign: 'center'
+        }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: 20,
+            background: '#ede9fe', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', marginBottom: 16
+          }}>
+            <Mic size={32} color="#6366f1" />
+          </div>
+          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#374151' }}>
+            No tests found.
+          </p>
+          <p style={{ margin: '6px 0 0', fontSize: 13, color: '#9ca3af' }}>
+            Try a different filter or check back later.
+          </p>
+        </div>
       ) : (
-        <Row gutter={[24, 24]}>
-          {filteredTests.map((test) => {
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          {filteredTests.map(test => {
             const config = getStatusConfig(test.status, test.id);
+            const s = test.status?.toUpperCase();
+            const isDone = s === 'GRADED' || s === 'COMPLETED';
+            const isPending = s === 'PENDING' || s === 'GRADING' || s === 'SUBMITTED';
+
+            const accentColor = isDone ? '#22c55e' : isPending ? '#f59e0b' : '#6366f1';
 
             return (
-              <Col xs={24} md={12} lg={8} key={test.id}>
-                <Card 
-                  hoverable
-                  className="h-full flex flex-col rounded-3xl border-slate-200 shadow-sm transition-all duration-300 hover:shadow-indigo-100/60 hover:border-indigo-200"
-                  styles={{ body: { display: 'flex', flexDirection: 'column', height: '100%', padding: '24px' } }}
-                >
-                  {/* STATUS + TIME */}
-                  <div className="flex justify-between items-center mb-4">
-                    <Tag color={config.tagColor} className="flex items-center gap-1 px-3 py-1 m-0 rounded-lg font-bold border-0">
-                      {config.icon}
-                      {config.text}
-                    </Tag>
-
-                    <Space className="text-slate-400 text-xs font-bold bg-slate-50 px-2 py-1 rounded-md">
-                      <Clock size={12} />
-                      {test.time_limit || 12} Minutes
-                    </Space>
+              <div
+                key={test.id}
+                style={{
+                  background: '#fff', borderRadius: 16, overflow: 'hidden',
+                  border: '1px solid #e8e7ff',
+                  borderLeft: `4px solid ${accentColor}`,
+                  boxShadow: '0 2px 12px rgba(99,102,241,0.06)',
+                  display: 'flex', flexDirection: 'column',
+                  transition: 'transform 0.2s, box-shadow 0.2s'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.boxShadow = '0 8px 28px rgba(99,102,241,0.14)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(99,102,241,0.06)';
+                }}
+              >
+                <div style={{ padding: '20px 20px 16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                    {config.badge}
+                    <span style={{
+                      display: 'flex', alignItems: 'center', gap: 4,
+                      fontSize: 12, fontWeight: 600, color: '#9ca3af',
+                      background: '#f8fafc', padding: '3px 9px', borderRadius: 8
+                    }}>
+                      <Clock size={11} /> {test.time_limit || 12} phút
+                    </span>
                   </div>
+                  <h3 style={{
+                    margin: '0 0 6px', fontSize: 15, fontWeight: 800,
+                    color: '#1e1b4b', lineHeight: 1.4,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                  }}>
+                    {test.title}
+                  </h3>
+                  <p style={{
+                    margin: 0, fontSize: 13, color: '#6b7280', lineHeight: 1.5,
+                    display: '-webkit-box', WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical', overflow: 'hidden'
+                  }}>
+                    {test.description || 'Practice all 4 Speaking parts following the official APTIS format.'}
+                  </p>
+                </div>
 
-                  {/* INFO */}
-                  <div className="flex-1 mb-6">
-                    <Title level={4} className="line-clamp-1 mt-0! mb-2! font-extrabold!">
-                      {test.title}
-                    </Title>
-                    <Paragraph className="text-slate-500 line-clamp-2 m-0 text-[13px]">
-                      {test.description || 'Practice all four Speaking parts following the Aptis standard.'}
-                    </Paragraph>
-                  </div>
+                <div style={{ padding: '12px 20px 20px', display: 'flex', flexDirection: 'column', gap: 8, marginTop: 'auto' }}>
+                  <button
+                    onClick={config.mainBtnAction}
+                    style={{
+                      width: '100%', padding: '11px 16px', borderRadius: 10,
+                      cursor: 'pointer', fontSize: 14, fontWeight: 700,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      transition: 'all 0.2s', ...config.mainBtnStyle
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'scale(1.01)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)'; }}
+                  >
+                    {isDone ? <><History size={15} /> {config.mainBtnText}</> : <><Play size={15} /> {config.mainBtnText} <ArrowRight size={15} /></>}
+                  </button>
 
-                  {/* ACTION BUTTONS */}
-                  <div className="flex flex-col gap-2">
-                    <Button 
-                      type={test.status === 'NOT_STARTED' || !test.status ? 'primary' : 'default'}
-                      size="large"
-                      block
-                      onClick={config.mainBtnAction}
-                      className={`h-11 rounded-xl font-bold flex items-center justify-center gap-2 ${
-                        test.status === 'NOT_STARTED' || !test.status
-                          ? 'bg-indigo-600 hover:bg-indigo-500 border-none'
-                          : 'text-indigo-600 border-indigo-200 hover:bg-indigo-50'
-                      }`}
+                  {config.showRetry && (
+                    <button
+                      onClick={e => { e.stopPropagation(); handleNavigateLobby(test.id); }}
+                      style={{
+                        width: '100%', padding: '9px 16px', borderRadius: 10,
+                        cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        background: 'transparent', color: '#6b7280',
+                        border: '1.5px solid #e5e7eb', transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#f97316'; e.currentTarget.style.color = '#f97316'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#6b7280'; }}
                     >
-                      {config.mainBtnText}
-                      <ArrowRight size={18} />
-                    </Button>
-
-                    {/* RETRY BUTTON */}
-                    {config.showRetry && (
-                      <Button 
-                        icon={<RotateCcw size={16} />}
-                        block
-                        className="h-11 rounded-xl font-semibold text-slate-500 border-slate-200 hover:text-orange-500 hover:border-orange-500"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleNavigateLobby(test.id);
-                        }}
-                      >
-                        Retry Test
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              </Col>
+                      <RotateCcw size={13} /> Retry Test
+                    </button>
+                  )}
+                </div>
+              </div>
             );
           })}
-        </Row>
+        </div>
       )}
     </div>
   );

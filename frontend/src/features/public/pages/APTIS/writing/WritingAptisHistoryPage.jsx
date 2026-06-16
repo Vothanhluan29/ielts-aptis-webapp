@@ -1,35 +1,21 @@
 import React from 'react';
-import { 
-  Layout, Table, Tag, Button, Typography, 
-  Card, Empty, Skeleton
-} from 'antd';
-import { 
-  ArrowLeftOutlined, 
-  EyeOutlined, 
-  HistoryOutlined,
-  CalendarOutlined,
-  CheckCircleOutlined,
-  ClockCircleOutlined,
-  EditOutlined
-} from '@ant-design/icons';
-import dayjs from 'dayjs';
+import { Layout, Typography, Card, Skeleton } from 'antd';
+import { ArrowLeft, History, Calendar, Clock, CheckCircle2, Edit3, ExternalLink, Award } from 'lucide-react';
 
-// Nhúng Custom Hook
+// Custom Hook
 import { useWritingAptisHistory } from '../../../hooks/APTIS/writing/useWritingAptisHistory';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 
-// Helper function để lấy màu Tag theo chuẩn CEFR
-const getCefrColor = (level) => {
-  if (level === 'C') return 'success';
-  if (level?.includes('B')) return 'processing';
-  if (level?.includes('A')) return 'warning';
-  return 'default';
+const getCefrColorStyle = (level) => {
+  if (level === 'C') return { bg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-200' };
+  if (level?.includes('B')) return { bg: 'bg-violet-100', text: 'text-violet-700', border: 'border-violet-200' };
+  if (level?.includes('A')) return { bg: 'bg-orange-100', text: 'text-orange-700', border: 'border-orange-200' };
+  return { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200' };
 };
 
 const WritingAptisHistoryPage = () => {
-  // 🔥 Kéo Data và Handlers từ Hook
   const { 
     loading, 
     history, 
@@ -38,179 +24,148 @@ const WritingAptisHistoryPage = () => {
     handleViewResult 
   } = useWritingAptisHistory();
 
-  // 🔥 Định nghĩa cấu trúc cột Table
-  const columns = [
-    {
-      title: 'Test Name',
-      dataIndex: ['test', 'title'],
-      key: 'title',
-      render: (text, record) => (
-        <div className="flex flex-col">
-          <Text strong className="text-slate-700 text-base">
-            {text || `Test #${record.test_id}`}
-          </Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            Submission ID: {record.id}
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: 'Submission Date',
-      dataIndex: 'submitted_at',
-      key: 'date',
-      width: 200,
-      render: date => (
-        <div className="flex items-center gap-2 text-slate-500">
-          <CalendarOutlined />
-          <span>{dayjs(date).format('DD/MM/YYYY HH:mm')}</span>
-        </div>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status) => {
-        const config = {
-          GRADED: { color: 'success', icon: <CheckCircleOutlined />, text: 'Graded' },
-          PENDING: { color: 'warning', icon: <ClockCircleOutlined />, text: 'Pending Review' },
-        };
-        const s = config[status] || { color: 'default', text: status };
-
-        return (
-          <Tag color={s.color} icon={s.icon} className="font-bold border-0 px-2 py-0.5 rounded-md text-sm">
-            {s.text}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: 'Result',
-      key: 'score',
-      align: 'center',
-      width: 180,
-      render: (_, record) => {
-        const score = record.score || 0;
-        const cefr = record.cefr_level || 'N/A';
-
-        if (record.status !== 'GRADED') {
-          return <Text type="secondary" className="italic text-sm">Awaiting Score</Text>;
-        }
-
-        return (
-          <div className="flex flex-col items-center gap-1.5">
-            <Tag className="font-bold px-3 py-1 rounded-full border-0 bg-indigo-50 text-indigo-600 m-0 text-sm">
-              {score} / 50
-            </Tag>
-            <Tag color={getCefrColor(cefr)} className="font-bold m-0 border-0 rounded px-2">
-              CEFR: {cefr}
-            </Tag>
-          </div>
-        );
-      },
-    },
-    {
-      title: 'Action',
-      key: 'action',
-      align: 'right',
-      width: 150,
-      render: (_, record) => (
-        <Button
-          type="primary"
-          icon={<EyeOutlined />}
-          className="bg-indigo-600 hover:bg-indigo-500 border-none rounded-lg font-semibold shadow-md shadow-indigo-200"
-          onClick={() => handleViewResult(record.id)} // Truyền chính xác record.id (Submission ID)
-        >
-          View Details
-        </Button>
-      ),
-    },
-  ];
-
   return (
-    <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
-      <Content style={{ padding: '40px 24px', maxWidth: 1000, margin: '0 auto', width: '100%' }}>
-
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: "'Inter', sans-serif" }}>
+      <Content style={{ padding: '40px 24px', maxWidth: 1040, margin: '0 auto', width: '100%' }}>
+        
         {/* NÚT BACK */}
         <button
           onClick={handleGoBack}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 8, padding: '6px 16px',
-            borderRadius: 999, border: '1px solid #e2e8f0', background: '#fff',
-            color: '#475569', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s',
-            marginBottom: 24,
-          }}
-          onMouseOver={(e) => { e.currentTarget.style.color = '#4f46e5'; e.currentTarget.style.borderColor = '#a5b4fc'; }}
-          onMouseOut={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+          className="group flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-600 font-semibold mb-8 hover:bg-slate-50 hover:text-violet-600 hover:border-violet-200 transition-all shadow-sm"
         >
-          <ArrowLeftOutlined />
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
           Back
         </button>
 
         {/* BANNER */}
-        <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div className="flex items-center gap-5">
-            <div className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-200">
-              <HistoryOutlined style={{ fontSize: 32 }} />
+        <div className="mb-10 bg-white p-8 rounded-3xl border border-violet-50 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-violet-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-60 pointer-events-none" />
+          
+          <div className="flex items-center gap-5 relative z-10">
+            <div className="p-4 bg-gradient-to-br from-violet-500 to-purple-600 text-white rounded-2xl shadow-lg shadow-violet-200">
+              <History size={32} strokeWidth={1.5} />
             </div>
             <div>
-              <Title level={2} style={{ margin: 0, fontWeight: 800, color: '#1e293b' }}>
+              <Title level={2} style={{ margin: '0 0 4px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>
                 Writing Test History
               </Title>
-              <Text className="text-slate-500 text-base">
+              <Text className="text-slate-500 text-[15px]">
                 Track your progress, scores, and teacher feedback.
               </Text>
             </div>
           </div>
 
-          {/* Mini Stats (Sử dụng object stats từ Hook) */}
+          {/* Mini Stats */}
           {stats && (
-            <Card className="rounded-2xl border-indigo-100 bg-indigo-50/50 shadow-sm" styles={{ body: { padding: '12px 24px' } }}>
-              <div className="flex items-center gap-6">
-                <div className="text-center">
-                  <Text className="block text-[10px] uppercase font-bold text-indigo-600 mb-1">Total Submissions</Text>
-                  <Text className="text-xl font-black text-indigo-800">{stats.totalSubmissions}</Text>
-                </div>
-                <div className="w-px h-10 bg-indigo-200"></div>
-                <div className="text-center">
-                  <Text className="block text-[10px] uppercase font-bold text-indigo-600 mb-1">Graded Tests</Text>
-                  <Text className="text-xl font-black text-indigo-800">{stats.gradedSubmissions}</Text>
-                </div>
+            <div className="flex bg-slate-50 rounded-2xl p-4 border border-slate-100 relative z-10">
+              <div className="px-6 text-center">
+                <Text className="block text-[11px] uppercase tracking-wider font-bold text-slate-400 mb-1">Total Submissions</Text>
+                <Text className="text-2xl font-black text-slate-800">{stats.totalSubmissions || 0}</Text>
               </div>
-            </Card>
+              <div className="w-px bg-slate-200 my-2" />
+              <div className="px-6 text-center">
+                <Text className="block text-[11px] uppercase tracking-wider font-bold text-slate-400 mb-1">Graded Tests</Text>
+                <Text className="text-2xl font-black text-violet-600">{stats.gradedSubmissions || 0}</Text>
+              </div>
+            </div>
           )}
         </div>
 
-        {/* MAIN TABLE */}
+        {/* MAIN CONTENT */}
         {loading ? (
-          <Card className="rounded-3xl border-0 shadow-sm"><Skeleton active paragraph={{ rows: 6 }} /></Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[1, 2, 3, 4].map(i => (
+              <Card key={i} className="rounded-3xl border border-slate-100 shadow-sm p-6"><Skeleton active /></Card>
+            ))}
+          </div>
         ) : history.length === 0 ? (
-          <Card className="rounded-3xl border-0 shadow-sm text-center py-20">
-            <Empty 
-              image={<EditOutlined style={{ fontSize: 64, color: '#cbd5e1' }} />}
-              description={<Text type="secondary" className="text-lg">You have not taken any Writing tests yet.</Text>}
-            />
-            <Button
-              type="primary"
-              size="large"
-              className="mt-6 bg-indigo-600 hover:bg-indigo-500 border-none h-12 px-8 rounded-xl font-bold shadow-md shadow-indigo-200"
+          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm text-center py-24 flex flex-col items-center">
+            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+              <Edit3 size={40} className="text-slate-300" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">No history found</h3>
+            <p className="text-slate-500 mb-8 max-w-md">You haven't taken any Writing tests yet. Start practicing to see your progress here.</p>
+            <button
               onClick={handleGoBack}
+              className="bg-violet-600 hover:bg-violet-700 text-white font-bold h-12 px-8 rounded-xl shadow-md shadow-violet-200 transition-all hover:-translate-y-0.5"
             >
               Start Practice
-            </Button>
-          </Card>
+            </button>
+          </div>
         ) : (
-          <Card className="rounded-3xl border-0 shadow-sm overflow-hidden" styles={{ body: { padding: 0 } }}>
-            <Table
-              columns={columns}
-              dataSource={history}
-              rowKey="id"
-              pagination={{ pageSize: 8, hideOnSinglePage: true }}
-              scroll={{ x: 700 }}
-              className="custom-history-table"
-            />
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {history.map((record) => {
+              const score = record.score || 0;
+              const cefr = record.cefr_level || 'N/A';
+              const cefrStyle = getCefrColorStyle(cefr);
+              const title = record.test?.title || `Test #${record.test_id}`;
+              const isGraded = record.status === 'GRADED';
+              const date = new Date(record.submitted_at).toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
+              });
+
+              return (
+                <div key={record.id} className="group bg-white rounded-3xl border border-slate-100 p-6 flex flex-col justify-between hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-violet-100 transition-all duration-300 relative overflow-hidden">
+                  
+                  {/* Card Header */}
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        {isGraded ? <CheckCircle2 size={16} className="text-violet-500" /> : <Clock size={16} className="text-amber-500" />}
+                        <h4 className="m-0 font-bold text-slate-800 text-[17px] line-clamp-1 pr-2" title={title}>
+                          {title}
+                        </h4>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-slate-400 text-[13px] font-medium">
+                        <Calendar size={13} />
+                        {date}
+                      </div>
+                    </div>
+                    {isGraded ? (
+                      <div className="bg-emerald-50 text-emerald-600 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shrink-0 border border-emerald-100">
+                        GRADED
+                      </div>
+                    ) : (
+                      <div className="bg-amber-50 text-amber-600 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md shrink-0 border border-amber-100">
+                        PENDING
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Body (Scores) */}
+                  <div className="bg-slate-50/80 rounded-2xl p-4 mb-6 flex items-center justify-between border border-slate-100/50">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm border border-slate-100 ${isGraded ? 'text-violet-500' : 'text-slate-300'}`}>
+                        <Award size={20} />
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">Total Score</div>
+                        {isGraded ? (
+                          <div className="font-black text-lg text-slate-800 leading-none">{score} <span className="text-sm text-slate-400">/ 50</span></div>
+                        ) : (
+                          <div className="font-medium text-sm text-slate-500 italic mt-1">Awaiting Score</div>
+                        )}
+                      </div>
+                    </div>
+                    {isGraded && cefr !== 'N/A' && (
+                      <div className={`px-4 py-2 rounded-xl border ${cefrStyle.bg} ${cefrStyle.border} flex flex-col items-end justify-center`}>
+                        <span className={`text-[10px] uppercase font-bold opacity-70 ${cefrStyle.text}`}>CEFR Level</span>
+                        <span className={`text-lg font-black leading-none mt-1 ${cefrStyle.text}`}>{cefr}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Footer (Action) */}
+                  <button
+                    onClick={() => handleViewResult(record.id)}
+                    className="w-full py-3.5 bg-slate-50 hover:bg-violet-600 text-slate-600 hover:text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-all duration-300"
+                  >
+                    View Details <ExternalLink size={16} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         )}
       </Content>
     </Layout>

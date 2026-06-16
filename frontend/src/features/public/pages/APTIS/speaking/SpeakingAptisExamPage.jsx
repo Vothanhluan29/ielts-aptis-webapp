@@ -1,15 +1,79 @@
 import React from 'react';
-import { Typography, Button, Spin, Progress, Image, Tag } from 'antd';
-import { Mic, StopCircle, CheckCircle2, Loader2, Send, Clock, PlayCircle } from 'lucide-react';
-import { AudioOutlined } from '@ant-design/icons';
-
-// Nhúng Custom Hook
+import { Image } from 'antd';
+import {
+  Mic, Square, CheckCircle2, Loader2, Send,
+  Clock, PlayCircle, ChevronRight
+} from 'lucide-react';
 import { useSpeakingAptisExam } from '../../../hooks/APTIS/speaking/useSpeakingAptisExam';
 
-const { Title, Text } = Typography;
+/* ─────────────────────────────────────────────────────────
+   PROGRESS DOTS  (questions in current part)
+───────────────────────────────────────────────────────── */
+const ProgressDots = ({ total, current }) => (
+  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+    {Array.from({ length: total }).map((_, i) => (
+      <div
+        key={i}
+        style={{
+          width: i === current ? 24 : 8,
+          height: 8, borderRadius: 99,
+          background: i < current ? '#a855f7' : i === current ? '#7c3aed' : '#e2e8f0',
+          transition: 'all 0.25s',
+        }}
+      />
+    ))}
+  </div>
+);
 
-const SpeakingAptisExamPage = ({ isFullTest = false, testIdFromProps = null, onSkillFinish = null }) => {
-  // 🔥 Rút toàn bộ Data và Hàm từ Hook
+/* ─────────────────────────────────────────────────────────
+   CIRCULAR TIMER RING
+───────────────────────────────────────────────────────── */
+const TimerRing = ({ seconds, maxSeconds, isRecording, isPrep }) => {
+  const R = 52;
+  const CIRC = 2 * Math.PI * R;
+  const pct = maxSeconds > 0 ? seconds / maxSeconds : 0;
+  const dashOffset = CIRC * (1 - pct);
+
+  const color = isRecording ? '#ef4444' : '#f59e0b';
+  const bgColor = isRecording ? '#fef2f2' : '#fffbeb';
+
+  return (
+    <div style={{ position: 'relative', width: 130, height: 130 }}>
+      <svg width={130} height={130} style={{ transform: 'rotate(-90deg)' }}>
+        <circle cx={65} cy={65} r={R} fill="none" stroke="#f1f5f9" strokeWidth={8} />
+        <circle
+          cx={65} cy={65} r={R} fill="none"
+          stroke={color} strokeWidth={8}
+          strokeLinecap="round"
+          strokeDasharray={CIRC}
+          strokeDashoffset={dashOffset}
+          style={{ transition: 'stroke-dashoffset 1s linear' }}
+        />
+      </svg>
+      <div style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+      }}>
+        <span style={{ fontSize: 30, fontWeight: 900, color, fontVariantNumeric: 'tabular-nums', lineHeight: 1 }}>
+          {String(Math.floor(seconds / 60)).padStart(2, '0')}:{String(seconds % 60).padStart(2, '0')}
+        </span>
+        <span style={{ fontSize: 11, fontWeight: 600, color: '#94a3b8', marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          {isPrep ? 'Prep' : 'Record'}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+/* ─────────────────────────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────────────────────────── */
+const SpeakingAptisExamPage = ({
+  isFullTest = false,
+  testIdFromProps = null,
+  onSkillFinish = null
+}) => {
   const {
     loading, submitting, testDetail, currentPart, currentQuestion,
     currentQuestionIdx, step, timer, audioBlocked, setAudioBlocked,
@@ -17,176 +81,314 @@ const SpeakingAptisExamPage = ({ isFullTest = false, testIdFromProps = null, onS
     PREP_TIME, RECORD_TIME, EXAM_STEPS
   } = useSpeakingAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
-  // 1. TRẠNG THÁI LOADING
-  if (loading || !testDetail) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <Spin size="large" />
-          <Text className="font-medium text-lg text-slate-500">Initializing recording system...</Text>
-        </div>
+  /* ── Loading ── */
+  if (loading || !testDetail) return (
+    <div style={{ minHeight: '100vh', background: '#0f0a1e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <Loader2 size={44} color="#a855f7" style={{ animation: 'aptis-spin 1s linear infinite', marginBottom: 16 }} />
+        <p style={{ color: '#94a3b8', margin: 0, fontSize: 15 }}>Initializing recording system...</p>
       </div>
-    );
-  }
+      <style>{`@keyframes aptis-spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
 
-  // 2. TRẠNG THÁI ĐÃ THI XONG (DONE)
-  if (step === EXAM_STEPS.DONE) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
-        <div className="bg-white p-10 rounded-3xl text-center max-w-md w-full shadow-xl border border-slate-100 animate-in zoom-in-95 duration-500">
-          <div className="w-20 h-20 bg-green-50 text-green-500 flex items-center justify-center rounded-full mx-auto mb-6">
-            <CheckCircle2 size={40} />
-          </div>
-          <Title level={3} className="text-slate-800! mb-2">Recording complete!</Title>
-          <Text className="text-slate-500 block mb-8">
-            {isFullTest ? "Great job! You have completed the entire Speaking section, which is also the final skill." : "You have completed all recorded questions. Please click Submit to finish."}
-          </Text>
-          <Button 
-            type="primary" size="large" block icon={<Send size={20} />} loading={submitting} onClick={handleFinishTest}
-            className="flex items-center justify-center gap-2 h-14 bg-purple-600 hover:bg-purple-500 border-none font-bold text-lg rounded-xl shadow-md shadow-purple-200"
-          >
-            {isFullTest ? "Finish Full Test" : "Submit Test"}
-          </Button>
+  /* ── Done state ── */
+  if (step === EXAM_STEPS.DONE) return (
+    <div style={{ minHeight: '100vh', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{
+        background: '#fff', borderRadius: 24, padding: '48px 40px',
+        textAlign: 'center', maxWidth: 440, width: '100%',
+        border: '1px solid #e9d5ff',
+        boxShadow: '0 8px 40px rgba(124,58,237,0.12)',
+      }}>
+        <div style={{
+          width: 80, height: 80, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          margin: '0 auto 24px',
+          boxShadow: '0 4px 20px rgba(124,58,237,0.35)',
+        }}>
+          <CheckCircle2 size={40} color="#fff" />
         </div>
+        <h2 style={{ margin: '0 0 12px', fontSize: 24, fontWeight: 800, color: '#1e1b4b' }}>
+          All Recordings Complete
+        </h2>
+        <p style={{ margin: '0 0 32px', fontSize: 15, color: '#64748b', lineHeight: 1.6 }}>
+          {isFullTest
+            ? "Great job! You have completed the Speaking section — the final part of the test."
+            : "You have recorded all your answers. Click the button below to submit."}
+        </p>
+        <button
+          onClick={handleFinishTest}
+          disabled={submitting}
+          style={{
+            width: '100%', height: 52, borderRadius: 12, border: 'none',
+            background: submitting ? '#c4b5fd' : 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+            color: '#fff', fontWeight: 700, fontSize: 16, cursor: submitting ? 'not-allowed' : 'pointer',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
+            boxShadow: '0 4px 16px rgba(124,58,237,0.40)',
+          }}
+        >
+          {submitting
+            ? <><Loader2 size={18} style={{ animation: 'aptis-spin 0.8s linear infinite' }} /> Submitting...</>
+            : <><Send size={18} /> {isFullTest ? 'Finish Full Test' : 'Submit Test'}</>
+          }
+        </button>
       </div>
-    );
-  }
+      <style>{`@keyframes aptis-spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
 
-  // 3. TRẠNG THÁI LỖI DATA
-  if (!currentQuestion) return <div className="text-slate-800 p-10">Question data error!</div>;
+  if (!currentQuestion) return (
+    <div style={{ minHeight: '100vh', background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <p style={{ color: '#ef4444', fontWeight: 600 }}>Question data error. Please reload.</p>
+    </div>
+  );
 
-  // Lấy ảnh (nếu có)
-  const isPart3 = currentPart.part_number === 3;
-  const image1 = currentQuestion.image_url || currentPart.image_url;
-  const image2 = currentQuestion.image_url_2 || currentPart.image_url_2;
-  const hasTwoImages = isPart3 && image1 && image2;
-  
-  const maxTime = step === EXAM_STEPS.PREP ? PREP_TIME : RECORD_TIME;
-  const timePercent = (timer / maxTime) * 100;
+  /* Compute images */
+  const isPart3 = currentPart?.part_number === 3;
+  const img1 = currentQuestion.image_url || currentPart?.image_url;
+  const img2 = currentQuestion.image_url_2 || currentPart?.image_url_2;
+  const hasTwoImages = isPart3 && img1 && img2;
 
-  // 4. MAIN EXAM UI
+  const isPrep = step === EXAM_STEPS.PREP;
+  const isRecording = step === EXAM_STEPS.RECORDING;
+  const isIntro = step === EXAM_STEPS.INTRO;
+  const isUploading = step === EXAM_STEPS.UPLOADING;
+
+  const maxTime = isPrep ? PREP_TIME : RECORD_TIME;
+  const totalQ = currentPart?.questions?.length || 1;
+
   return (
-    <div className={`bg-slate-50 flex flex-col font-sans ${isFullTest ? 'h-[calc(100vh-64px)]' : 'min-h-screen'}`}>
-      
-      {/* HEADER BAR */}
-      <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center z-10 shadow-sm shrink-0 h-16">
-        <div className="flex items-center gap-3">
-          {isFullTest ? (
-            <AudioOutlined className="text-purple-600 text-lg" />
-          ) : (
-            <div className="px-3 py-1 rounded-lg bg-purple-50 text-purple-600 font-bold border border-purple-100 text-sm">
-              Part {currentPart.part_number}
-            </div>
+    <div style={{
+      height: isFullTest ? 'calc(100vh - 64px)' : '100vh',
+      background: '#f5f3ff',
+      display: 'flex', flexDirection: 'column',
+      fontFamily: "'Inter', -apple-system, sans-serif",
+      overflow: 'hidden',
+    }}>
+
+      {/* ═══════════════ TOP BAR ═══════════════ */}
+      <div style={{
+        height: 56, background: '#fff',
+        borderBottom: '1px solid #e9d5ff',
+        display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 24px', flexShrink: 0,
+        boxShadow: '0 1px 4px rgba(124,58,237,0.08)',
+      }}>
+        {/* Left: Part badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            background: '#faf5ff', color: '#7c3aed',
+            padding: '4px 12px', borderRadius: 20, fontWeight: 700, fontSize: 12,
+            border: '1px solid #e9d5ff',
+          }}>
+            <Mic size={12} />
+            Part {currentPart?.part_number}
+          </div>
+          {!isFullTest && (
+            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
+              {testDetail.title}
+            </span>
           )}
-          <Text strong={isFullTest} className={isFullTest ? "text-lg text-slate-700" : "text-slate-700 font-bold hidden sm:block"}>
-            {isFullTest ? `Skill: Speaking - Part ${currentPart.part_number}` : testDetail.title}
-          </Text>
+          {isFullTest && (
+            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
+              Speaking — Part {currentPart?.part_number}
+            </span>
+          )}
         </div>
-        <div className="px-3 py-1 bg-slate-100 rounded-lg text-slate-600 text-sm font-bold border border-slate-200">
-          Question {currentQuestionIdx + 1} / {currentPart.questions.length}
+
+        {/* Right: Question progress */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <ProgressDots total={totalQ} current={currentQuestionIdx} />
+          <div style={{
+            background: '#f3f4f6', borderRadius: 8, padding: '4px 12px',
+            fontSize: 13, fontWeight: 700, color: '#475569',
+            border: '1px solid #e2e8f0',
+          }}>
+            {currentQuestionIdx + 1} / {totalQ}
+          </div>
         </div>
       </div>
 
-      {/* MAIN CONTENT AREA */}
-      <div className="flex-1 flex flex-col items-center justify-center p-6 relative overflow-hidden">
-        <div className="w-full max-w-6xl z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            {/* LEFT COLUMN: IMAGES & QUESTION TEXT */}
-            <div className="lg:col-span-7 bg-white border border-slate-200 p-8 md:p-10 rounded-3xl shadow-sm flex flex-col justify-center">
-              
-              {/* IMAGES */}
+      {/* ═══════════════ MAIN CONTENT ═══════════════ */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px 16px', overflow: 'hidden' }}>
+        <div style={{ width: '100%', maxWidth: 900 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
+
+            {/* ─── LEFT: Question card ─── */}
+            <div style={{
+              background: '#fff', borderRadius: 20, border: '1px solid #e9d5ff',
+              padding: '28px 32px', minHeight: 320,
+              boxShadow: '0 4px 20px rgba(124,58,237,0.08)',
+              display: 'flex', flexDirection: 'column', justifyContent: 'center',
+            }}>
+              {/* Images */}
               {hasTwoImages ? (
-                <div className="mb-6 grid grid-cols-2 gap-4 text-center">
-                  <Image src={image1} className="max-h-72 object-contain rounded-xl mx-auto border border-slate-100 shadow-sm" />
-                  <Image src={image2} className="max-h-72 object-contain rounded-xl mx-auto border border-slate-100 shadow-sm" />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                  <Image src={img1} style={{ borderRadius: 12, maxHeight: 200, objectFit: 'contain' }} />
+                  <Image src={img2} style={{ borderRadius: 12, maxHeight: 200, objectFit: 'contain' }} />
                 </div>
-              ) : image1 ? (
-                <div className="mb-6 text-center">
-                  <Image src={image1} className="max-h-72 object-contain rounded-xl mx-auto border border-slate-100 shadow-sm" />
+              ) : img1 ? (
+                <div style={{ marginBottom: 20, textAlign: 'center' }}>
+                  <Image src={img1} style={{ borderRadius: 12, maxHeight: 220, objectFit: 'contain' }} />
                 </div>
               ) : null}
 
-              {/* HIDDEN AUDIO & FALLBACK BUTTON */}
+              {/* Examiner audio */}
               {currentQuestion.audio_url && (
                 <>
                   <audio ref={examinerAudioRef} src={currentQuestion.audio_url} className="hidden" />
                   {audioBlocked && (
-                    <div className="mb-6 flex justify-center">
-                      <Button 
-                        type="primary" icon={<PlayCircle size={18} />} 
+                    <div style={{ marginBottom: 16 }}>
+                      <button
                         onClick={() => { examinerAudioRef.current?.play(); setAudioBlocked(false); }}
-                        className="bg-indigo-600 hover:bg-indigo-500 font-bold h-10 px-6 rounded-lg shadow-md flex items-center gap-2"
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 8,
+                          padding: '8px 16px', borderRadius: 8, border: 'none',
+                          background: '#7c3aed', color: '#fff', fontWeight: 600,
+                          fontSize: 13, cursor: 'pointer',
+                        }}
                       >
-                        Play question audio
-                      </Button>
+                        <PlayCircle size={16} /> Play question audio
+                      </button>
                     </div>
                   )}
                 </>
               )}
-              
-              <Text className="text-purple-600 block mb-3 uppercase tracking-widest text-xs font-bold">Question</Text>
-              <Title level={3} className="text-slate-800! m-0! leading-relaxed font-semibold whitespace-pre-wrap">
+
+              {/* Question label */}
+              <span style={{
+                display: 'inline-block', marginBottom: 12,
+                fontSize: 11, fontWeight: 800, letterSpacing: '1px',
+                textTransform: 'uppercase', color: '#a855f7',
+              }}>
+                Question
+              </span>
+
+              {/* Question text */}
+              <h3 style={{
+                margin: 0, fontSize: 18, fontWeight: 700, color: '#1e1b4b',
+                lineHeight: 1.55, whiteSpace: 'pre-wrap',
+              }}>
                 {currentQuestion.question_text}
-              </Title>
+              </h3>
             </div>
 
-            {/* RIGHT COLUMN: RECORDING CONTROLS */}
-            <div className="lg:col-span-5 bg-white border border-slate-200 p-8 md:p-10 rounded-3xl shadow-sm flex flex-col items-center justify-center min-h-100">
-              
-              {/* INTRO STEP */}
-              {step === EXAM_STEPS.INTRO && (
-                <div className="text-center w-full animate-in zoom-in-95">
-                  <div className="w-20 h-20 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-100">
-                    <Mic className="w-10 h-10" />
+            {/* ─── RIGHT: Recording controls ─── */}
+            <div style={{
+              background: '#fff', borderRadius: 20, border: '1px solid #e9d5ff',
+              padding: '32px', minHeight: 320,
+              boxShadow: '0 4px 20px rgba(124,58,237,0.08)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+              gap: 24,
+            }}>
+
+              {/* INTRO */}
+              {isIntro && (
+                <div style={{ textAlign: 'center', width: '100%' }}>
+                  <div style={{
+                    width: 72, height: 72, borderRadius: '50%',
+                    background: '#faf5ff', border: '2px solid #e9d5ff',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 20px',
+                  }}>
+                    <Mic size={32} color="#c4b5fd" />
                   </div>
-                  <Title level={4} className="text-slate-700! mb-8!">Are you ready to answer this question?</Title>
-                  <Button type="primary" size="large" onClick={startPrep} className="bg-purple-600 hover:bg-purple-500 border-none font-bold h-14 px-10 rounded-xl shadow-md shadow-purple-200 text-lg w-full">
-                    Start ({PREP_TIME}s Preparation)
-                  </Button>
+                  <h4 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 700, color: '#1e1b4b' }}>
+                    Ready to answer?
+                  </h4>
+                  <p style={{ margin: '0 0 24px', fontSize: 14, color: '#94a3b8' }}>
+                    You will have <strong style={{ color: '#7c3aed' }}>{PREP_TIME}s</strong> to prepare, then{' '}
+                    <strong style={{ color: '#ef4444' }}>{RECORD_TIME}s</strong> to record.
+                  </p>
+                  <button
+                    onClick={startPrep}
+                    style={{
+                      width: '100%', height: 52, borderRadius: 12, border: 'none',
+                      background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                      color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer',
+                      boxShadow: '0 4px 16px rgba(124,58,237,0.40)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    }}
+                  >
+                    Start Preparation <ChevronRight size={18} />
+                  </button>
                 </div>
               )}
 
-              {/* PREP & RECORDING STEP */}
-              {(step === EXAM_STEPS.PREP || step === EXAM_STEPS.RECORDING) && (
-                <div className="w-full text-center animate-in zoom-in-95">
-                  <div className="flex items-center justify-center gap-4 mb-6">
-                    {step === EXAM_STEPS.PREP ? <Clock className="text-amber-500 w-8 h-8" /> : (
-                      <div className="relative flex h-8 w-8 items-center justify-center">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500"></span>
-                      </div>
+              {/* PREP / RECORDING */}
+              {(isPrep || isRecording) && (
+                <div style={{ textAlign: 'center', width: '100%' }}>
+                  {/* Status label */}
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                    padding: '6px 16px', borderRadius: 20, marginBottom: 24,
+                    background: isPrep ? '#fffbeb' : '#fef2f2',
+                    border: `1px solid ${isPrep ? '#fde68a' : '#fecaca'}`,
+                    color: isPrep ? '#92400e' : '#991b1b',
+                    fontWeight: 700, fontSize: 13,
+                  }}>
+                    {isRecording && (
+                      <span style={{ position: 'relative', width: 10, height: 10 }}>
+                        <span style={{
+                          position: 'absolute', inset: 0, borderRadius: '50%',
+                          background: '#ef4444', opacity: 0.75,
+                          animation: 'ping 1s ease infinite',
+                        }} />
+                        <span style={{ position: 'relative', display: 'block', width: 10, height: 10, borderRadius: '50%', background: '#ef4444' }} />
+                      </span>
                     )}
-                    <Text className={`text-5xl font-black tabular-nums tracking-tight ${step === EXAM_STEPS.PREP ? 'text-amber-500' : 'text-red-500'}`}>
-                      00:{timer.toString().padStart(2, '0')}
-                    </Text>
+                    {isPrep ? '⏳ Preparation time' : '🔴 Recording in progress'}
                   </div>
 
-                  <Text className="block text-slate-600 font-semibold mb-8 text-lg">
-                    {step === EXAM_STEPS.PREP ? 'Thinking time...' : 'Recording your answer...'}
-                  </Text>
+                  {/* Timer ring */}
+                  <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+                    <TimerRing seconds={timer} maxSeconds={maxTime} isRecording={isRecording} isPrep={isPrep} />
+                  </div>
 
-                  <Progress percent={timePercent} showInfo={false} strokeColor={step === EXAM_STEPS.PREP ? '#f59e0b' : '#ef4444'} trailColor="#f1f5f9" className="mb-10 px-2" size={["100%", 12]} />
-
-                  {step === EXAM_STEPS.RECORDING && (
-                    <Button type="default" icon={<StopCircle size={20} />} onClick={stopRecording} className="flex items-center justify-center gap-2 mx-auto bg-white text-slate-700 border-slate-300 hover:border-red-400 hover:text-red-500 font-bold h-14 px-8 rounded-xl transition-colors shadow-sm w-full text-base">
-                      Stop Recording Early
-                    </Button>
+                  {/* Buttons */}
+                  {isRecording && (
+                    <button
+                      onClick={stopRecording}
+                      style={{
+                        width: '100%', height: 48, borderRadius: 12,
+                        border: '1.5px solid #fecaca', background: '#fff',
+                        color: '#dc2626', fontWeight: 700, fontSize: 14,
+                        cursor: 'pointer', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', gap: 8,
+                      }}
+                    >
+                      <Square size={16} fill="#dc2626" /> Stop Recording Early
+                    </button>
                   )}
-                  {step === EXAM_STEPS.PREP && (
-                    <Button type="link" onClick={startRecording} className="text-amber-500 hover:text-amber-400 font-semibold text-base mt-2">
-                      Skip preparation, record now
-                    </Button>
+                  {isPrep && (
+                    <button
+                      onClick={startRecording}
+                      style={{
+                        marginTop: 12, background: 'none', border: 'none',
+                        color: '#f59e0b', fontWeight: 600, fontSize: 14,
+                        cursor: 'pointer', textDecoration: 'underline',
+                      }}
+                    >
+                      Skip preparation — record now
+                    </button>
                   )}
                 </div>
               )}
 
-              {/* UPLOADING STEP */}
-              {step === EXAM_STEPS.UPLOADING && (
-                <div className="text-center w-full py-8 animate-in fade-in">
-                  <Loader2 className="text-purple-600 w-16 h-16 mx-auto mb-6 animate-spin" />
-                  <Title level={4} className="text-slate-700! m-0!">Saving audio...</Title>
-                  <Text className="text-slate-500 mt-3 block text-base">Please do not leave this page</Text>
+              {/* UPLOADING */}
+              {isUploading && (
+                <div style={{ textAlign: 'center', width: '100%', padding: '20px 0' }}>
+                  <Loader2 size={48} color="#a855f7" style={{ animation: 'aptis-spin 1s linear infinite', marginBottom: 20 }} />
+                  <h4 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 700, color: '#1e1b4b' }}>
+                    Saving your recording...
+                  </h4>
+                  <p style={{ margin: 0, fontSize: 14, color: '#94a3b8' }}>
+                    Please do not close this page
+                  </p>
                 </div>
               )}
 
@@ -194,6 +396,13 @@ const SpeakingAptisExamPage = ({ isFullTest = false, testIdFromProps = null, onS
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes aptis-spin { to { transform: rotate(360deg); } }
+        @keyframes ping {
+          75%, 100% { transform: scale(2); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 };

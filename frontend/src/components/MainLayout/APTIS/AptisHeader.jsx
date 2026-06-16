@@ -1,6 +1,18 @@
 import React, { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, User, LogOut } from "lucide-react";
+import { Menu, User, LogOut, ChevronDown } from "lucide-react";
+
+/* ================= PAGE TITLE MAP ================= */
+const PAGE_TITLES = {
+  '/aptis/dashboard':     'Dashboard',
+  '/aptis/exam':          'Full Mock Test',
+  '/aptis/grammar-vocab': 'Grammar & Vocabulary',
+  '/aptis/listening':     'Listening Practice',
+  '/aptis/reading':       'Reading Practice',
+  '/aptis/writing':       'Writing Practice',
+  '/aptis/speaking':      'Speaking Practice',
+  '/aptis/profile':       'Account Settings',
+};
 
 const AptisHeader = ({
   sidebarOpen,
@@ -11,108 +23,133 @@ const AptisHeader = ({
   user,
   handleLogout
 }) => {
-  // Tự động đổi Title theo URL (Dynamic Title)
   const location = useLocation();
-  
+
   const dynamicPageTitle = useMemo(() => {
-    const path = location.pathname;
-    if (path.includes('/aptis/dashboard')) return 'Dashboard';
-    if (path.includes('/aptis/exam')) return 'Full Mock Test';
-    if (path.includes('/aptis/grammar-vocab')) return 'Grammar & Vocabulary';
-    if (path.includes('/aptis/listening')) return 'Listening Practice';
-    if (path.includes('/aptis/reading')) return 'Reading Practice';
-    if (path.includes('/aptis/writing')) return 'Writing Practice';
-    if (path.includes('/aptis/speaking')) return 'Speaking Practice';
-    if (path.includes('/aptis/profile')) return 'Account Settings';
-    return 'Aptis Dashboard'; // Fallback default
+    // Tìm key match chính xác trước, rồi mới tìm partial match
+    const exactMatch = PAGE_TITLES[location.pathname];
+    if (exactMatch) return exactMatch;
+
+    const partialKey = Object.keys(PAGE_TITLES).find(k => location.pathname.startsWith(k));
+    return partialKey ? PAGE_TITLES[partialKey] : 'APTIS';
   }, [location.pathname]);
 
+  const initials = user?.full_name
+    ? user.full_name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+    : 'U';
+
   return (
-    <header className="h-20 bg-linear-to-r from-emerald-200 via-teal-200 to-sky-200 border-b border-white/40 flex items-center justify-between px-6 sticky top-0 z-30">
-
-      {/* LEFT AREA: MOBILE MENU & DYNAMIC TITLE */}
-      <div className="flex items-center gap-6">
-
-        {/* MOBILE MENU */}
+    <header
+      className="h-[64px] flex items-center justify-between px-4 md:px-6 sticky top-0 z-30"
+      style={{
+        background: '#ffffff',
+        borderBottom: '1px solid #f1f0fe',
+        boxShadow: '0 1px 0 0 rgba(99,102,241,0.06)'
+      }}
+    >
+      {/* ===== LEFT: Mobile menu + Page title ===== */}
+      <div className="flex items-center gap-3">
+        {/* Mobile menu toggle */}
         <button
-          className="md:hidden p-2 rounded-lg bg-white/40 hover:bg-white/60 transition"
+          className="md:hidden p-2 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all duration-150"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
-          <Menu size={20} className="text-slate-800" />
+          <Menu size={20} />
         </button>
 
-        {/* DYNAMIC PAGE TITLE */}
-        <h1 className="text-lg font-bold text-teal-900 drop-shadow-xs m-0">
+        {/* Page title */}
+        <h1 className="text-[15px] font-bold text-slate-700 m-0 tracking-tight">
           {dynamicPageTitle}
         </h1>
-
       </div>
 
-      {/* RIGHT AREA: PROFILE */}
-      <div className="flex items-center gap-4 relative" ref={profileRef}>
+      {/* ===== RIGHT: Profile area ===== */}
+      <div className="relative flex items-center gap-3" ref={profileRef}>
 
-        {/* PROFILE INFO (Ẩn trên mobile) */}
+        {/* User info (hidden on small screens) */}
         <div className="hidden sm:block text-right">
-          <p className="text-sm font-semibold text-slate-800 m-0">
+          <p className="text-[13px] font-semibold text-slate-800 m-0 leading-tight">
             {user?.full_name || "Aptis Student"}
           </p>
-          <p className="text-xs text-teal-700 uppercase font-bold tracking-wider m-0 mt-0.5">
+          <p className="text-[11px] text-indigo-500 font-bold uppercase tracking-wider m-0 mt-0.5">
             Student
           </p>
         </div>
 
-        {/* AVATAR */}
+        {/* Avatar button */}
         <button
           onClick={() => setProfileOpen(!profileOpen)}
-          className="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold shadow-md hover:ring-4 hover:ring-teal-200 transition-all overflow-hidden"
+          className="flex items-center gap-1.5 rounded-xl p-1 transition-all duration-200 hover:bg-indigo-50"
+          style={{ outline: 'none' }}
         >
-          {user?.avatar_url ? (
-            <img
-              src={user.avatar_url}
-              alt="avatar"
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            user?.full_name?.charAt(0).toUpperCase() || "U"
-          )}
+          <div
+            className="w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-white text-sm font-bold shadow-sm shrink-0"
+            style={{ background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)' }}
+          >
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover" />
+            ) : (
+              initials
+            )}
+          </div>
+          <ChevronDown
+            size={13}
+            strokeWidth={2.5}
+            className={`text-slate-400 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`}
+          />
         </button>
 
-        {/* DROPDOWN MENU */}
+        {/* ===== DROPDOWN ===== */}
         {profileOpen && (
-          <div className="absolute right-0 top-14 w-60 bg-white border border-slate-100 rounded-2xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-            
-            <div className="p-4 bg-slate-50 border-b border-slate-100">
-              <p className="text-sm font-bold text-slate-900 truncate m-0">
+          <div
+            className="absolute right-0 top-[calc(100%+8px)] w-56 rounded-2xl overflow-hidden z-50"
+            style={{
+              background: '#ffffff',
+              border: '1px solid #ede9fe',
+              boxShadow: '0 8px 32px rgba(99,102,241,0.12), 0 2px 8px rgba(0,0,0,0.06)',
+              animation: 'dropdownIn 0.18s ease'
+            }}
+          >
+            {/* User info block */}
+            <div className="p-4 border-b border-slate-50">
+              <p className="text-[13px] font-bold text-slate-900 truncate m-0">
                 {user?.full_name || "Anonymous User"}
               </p>
-              <p className="text-xs text-slate-500 truncate m-0 mt-0.5">
-                {user?.email || "No email provided"}
+              <p className="text-[11px] text-slate-400 truncate m-0 mt-0.5">
+                {user?.email || "No email"}
               </p>
             </div>
-            
-            <div className="p-2 flex flex-col gap-1">
+
+            {/* Menu items */}
+            <div className="p-1.5">
               <Link
                 to="/aptis/profile"
                 onClick={() => setProfileOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-700 rounded-xl hover:bg-teal-50 hover:text-teal-700 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-slate-700 rounded-xl hover:bg-indigo-50 hover:text-indigo-700 transition-colors duration-150"
               >
-                <User size={16} />
+                <User size={15} className="text-slate-400" />
                 Profile Settings
               </Link>
-              
+
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 rounded-xl hover:bg-red-50 transition-colors text-left"
+                className="w-full flex items-center gap-2.5 px-3 py-2.5 text-[13px] font-medium text-red-500 rounded-xl hover:bg-red-50 transition-colors duration-150 text-left"
               >
-                <LogOut size={16} />
+                <LogOut size={15} />
                 Sign out
               </button>
             </div>
-
           </div>
         )}
-
       </div>
+
+      {/* Dropdown animation keyframe */}
+      <style>{`
+        @keyframes dropdownIn {
+          from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0)    scale(1);    }
+        }
+      `}</style>
     </header>
   );
 };

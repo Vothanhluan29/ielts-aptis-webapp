@@ -61,9 +61,9 @@ const MainLayout = () => {
   if (loadingUser) {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-slate-50">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-slate-500 font-medium animate-pulse">
-          Verifying access permissions...
+        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-slate-400 text-sm font-medium animate-pulse">
+          Đang xác thực...
         </p>
       </div>
     );
@@ -104,7 +104,7 @@ const MainLayout = () => {
 
         {/* ===================== CONTENT ===================== */}
 
-        <main className={`flex-1 overflow-y-auto p-4 md:p-6 lg:p-10 transition-colors duration-300 ${examMode === 'APTIS' ? 'bg-slate-50' : 'bg-[#F8FAFC]'}`}>
+        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 bg-[#F7F7FB]">
 
           <Outlet context={{ user, refreshUser: fetchMe, examMode }} />
         </main>

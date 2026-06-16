@@ -1,387 +1,362 @@
 import React from 'react';
-import { Layout, Button, Typography, Spin, Card, Tag } from 'antd'; 
-import { 
-  ClockCircleOutlined, ExclamationCircleOutlined, SendOutlined, 
-  LeftOutlined, RightOutlined, ReadOutlined, FileTextOutlined
-} from '@ant-design/icons';
+import {
+  Clock, BookOpen, ChevronLeft, ChevronRight, Send,
+  FileText, CheckCircle2, AlertCircle, BookOpenCheck
+} from 'lucide-react';
 
-import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion'; 
-import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion'; 
-import ReorderQuestion from '../../../components/APTIS/ExamForms/ReorderQuestion'; 
-import FillInBlankQuestion from '../../../components/APTIS/ExamForms/FillInBlankQuestion'; 
-
-// Nhúng Custom Hook
+import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion';
+import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion';
+import ReorderQuestion from '../../../components/APTIS/ExamForms/ReorderQuestion';
+import FillInBlankQuestion from '../../../components/APTIS/ExamForms/FillInBlankQuestion';
 import { useReadingAptisExam } from '../../../hooks/APTIS/reading/useReadingAptisExam';
 
-const { Header, Content, Footer } = Layout;
-const { Title, Text, Paragraph } = Typography;
+/* ─────────────────────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────────────────────── */
+const getTrueQuestionCount = (groups) => {
+  if (!groups?.length) return 0;
+  return groups.reduce((acc, g) =>
+    acc + (g.questions || []).reduce((s, q) => {
+      if (q.question_type === 'REORDER_SENTENCES') {
+        const n = Array.isArray(q.options) ? q.options.length : 0;
+        return s + (n > 0 ? n : 1);
+      }
+      return s + 1;
+    }, 0), 0);
+};
 
-const ReadingAptisExamPage = ({ 
-  isFullTest = false, 
+/* ─────────────────────────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────────────────────────── */
+const ReadingAptisExamPage = ({
+  isFullTest = false,
   testIdFromProps = null,
-  onSkillFinish = null 
+  onSkillFinish = null
 }) => {
   const {
-    loading,
-    submitting,
-    testDetail,
-    currentPartId,
-    setCurrentPartId,
-    timeLeft,
-    answers,
-    parts,
-    activePart,
-    currentTabIndex,
-    hasReadingPassage,
-    isTimeRunningOut,
-    handleAnswerChange,
-    confirmSubmit,
-    formatTime,
-    handleGoBackEmpty
+    loading, submitting, testDetail,
+    currentPartId, setCurrentPartId, timeLeft,
+    answers, parts, activePart, currentTabIndex,
+    hasReadingPassage, isTimeRunningOut,
+    handleAnswerChange, confirmSubmit, formatTime, handleGoBackEmpty
   } = useReadingAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
-  // ==========================================
-  // HÀM TÍNH TỔNG SỐ CÂU THỰC TẾ (Hỗ trợ Reorder)
-  // ==========================================
-  const getTrueQuestionCount = (groups) => {
-    if (!groups || groups.length === 0) return 0;
-    return groups.reduce((acc, group) => {
-      const groupCount = (group.questions || []).reduce((sum, q) => {
-        if (q.question_type === 'REORDER_SENTENCES') {
-          const optCount = Array.isArray(q.options) ? q.options.length : 0;
-          return sum + (optCount > 0 ? optCount : 1);
-        }
-        return sum + 1;
-      }, 0);
-      return acc + groupCount;
-    }, 0);
-  };
-
-  // ==========================================
-  // RENDER DANH SÁCH CÂU HỎI
-  // ==========================================
+  /* ── Dynamic question numbering ── */
   const renderQuestionsList = (groups) => {
-    if (!groups || groups.length === 0) {
-      return <div className="text-center py-10 text-slate-400">No questions in this section.</div>;
-    }
+    if (!groups?.length) return (
+      <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8', fontSize: 14 }}>
+        No questions in this section.
+      </div>
+    );
 
-    // 🔥 LOGIC MỚI: TÍNH TOÁN SỐ THỨ TỰ CÂU HỎI ĐỘNG (Dynamic Numbering)
     let globalQNum = 1;
     const currentPartIndex = parts.findIndex(p => p.id === currentPartId);
-
-    // Cộng dồn số câu của các Part phía trước để lấy mốc xuất phát chuẩn
     for (let i = 0; i < currentPartIndex; i++) {
       parts[i].groups?.forEach(g => {
         (g.questions || []).forEach(q => {
-          if (q.question_type === 'REORDER_SENTENCES') {
-            const optCount = Array.isArray(q.options) ? q.options.length : 0;
-            globalQNum += (optCount > 0 ? optCount : 1);
-          } else {
-            globalQNum += 1;
-          }
+          globalQNum += q.question_type === 'REORDER_SENTENCES'
+            ? (Array.isArray(q.options) ? q.options.length || 1 : 1)
+            : 1;
         });
       });
     }
 
     return groups.map((group) => (
-      <div key={group.id} className="mb-14 last:mb-0 pb-8 border-b border-slate-100 last:border-0 last:pb-0">
-        
-        {/* Hướng dẫn riêng của từng Group (nếu có) */}
+      <div key={group.id} style={{ marginBottom: 28 }}>
         {!hasReadingPassage && group.instruction && (
-          <div className="mb-6 p-4 bg-orange-50 rounded-xl border-l-4 border-orange-500">
-            <Text className="text-orange-800 font-bold text-base whitespace-pre-wrap">
-              {group.instruction}
-            </Text>
+          <div style={{
+            background: '#f0fdfa', border: '1px solid #99f6e4',
+            borderLeft: '3px solid #14b8a6', borderRadius: 10,
+            padding: '12px 16px', marginBottom: 16, fontSize: 14,
+            color: '#0f766e', fontWeight: 600,
+          }}>
+            {group.instruction}
           </div>
         )}
 
-        <div className="pl-2 space-y-8">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {group.questions?.map((q) => {
-            const qType = q.question_type?.toUpperCase() || "";
-            const pType = q.part_type?.toUpperCase() || "";
-            
-            const isDropdown = qType === 'DROPDOWN' || qType === 'MATCHING' || qType === 'MATCHING_HEADINGS' || qType === 'MATCHING_OPINIONS' || pType.includes('PART_4');
+            const qType = q.question_type?.toUpperCase() || '';
+            const pType = q.part_type?.toUpperCase() || '';
+            const isDropdown = ['DROPDOWN', 'MATCHING', 'MATCHING_HEADINGS', 'MATCHING_OPINIONS'].includes(qType) || pType.includes('PART_4');
             const isReorder = qType === 'REORDER_SENTENCES';
-            const isFillInBlank = qType === 'FILL_IN_BLANKS'; 
+            const isFillInBlank = qType === 'FILL_IN_BLANKS';
 
-            // 🔥 Định hình chuỗi số câu hỏi hiển thị ra màn hình (VD: "12" hoặc "12 - 16")
-            let questionNumberDisplay = globalQNum.toString();
-            let stepsToAdvance = 1;
-
-            if (isReorder && Array.isArray(q.options)) {
-              const optCount = q.options.length;
-              if (optCount > 1) {
-                const endNumber = globalQNum + optCount - 1;
-                questionNumberDisplay = `${globalQNum} - ${endNumber}`;
-                stepsToAdvance = optCount; // Cắm cờ nhảy cóc số thứ tự
-              }
+            let numDisplay = globalQNum.toString();
+            let steps = 1;
+            if (isReorder && Array.isArray(q.options) && q.options.length > 1) {
+              numDisplay = `${globalQNum}–${globalQNum + q.options.length - 1}`;
+              steps = q.options.length;
             }
+            globalQNum += steps;
 
-            // Tiến số thứ tự lên để dành cho vòng lặp của câu hỏi tiếp theo
-            globalQNum += stepsToAdvance;
-
-            // Render giao diện theo loại câu
-            if (isReorder) {
-              return (
-                <ReorderQuestion 
-                  key={q.id} questionId={q.id} questionNumber={questionNumberDisplay}
-                  questionText={q.question_text} options={q.options} selectedValue={answers[q.id]}
-                  onChange={handleAnswerChange}
-                />
-              );
-            } else if (isFillInBlank) {
-              return (
-                <FillInBlankQuestion 
-                  key={q.id} questionId={q.id} questionNumber={questionNumberDisplay}
-                  questionText={q.question_text} selectedValue={answers[q.id]}
-                  onChange={handleAnswerChange}
-                />
-              );
-            } else if (isDropdown) {
-              return (
-                <DropdownQuestion 
-                  key={q.id} questionId={q.id} questionNumber={questionNumberDisplay}
-                  questionText={q.question_text} options={q.options} selectedValue={answers[q.id]}
-                  onChange={handleAnswerChange}
-                />
-              );
-            } else {
-              return (
-                <MultipleChoiceQuestion 
-                  key={q.id} questionId={q.id} questionNumber={questionNumberDisplay}
-                  questionText={q.question_text} options={q.options} selectedValue={answers[q.id]}
-                  onChange={handleAnswerChange}
-                />
-              );
-            }
+            if (isReorder) return <ReorderQuestion key={q.id} questionId={q.id} questionNumber={numDisplay} questionText={q.question_text} options={q.options} selectedValue={answers[q.id]} onChange={handleAnswerChange} />;
+            if (isFillInBlank) return <FillInBlankQuestion key={q.id} questionId={q.id} questionNumber={numDisplay} questionText={q.question_text} selectedValue={answers[q.id]} onChange={handleAnswerChange} />;
+            if (isDropdown) return <DropdownQuestion key={q.id} questionId={q.id} questionNumber={numDisplay} questionText={q.question_text} options={q.options} selectedValue={answers[q.id]} onChange={handleAnswerChange} />;
+            return <MultipleChoiceQuestion key={q.id} questionId={q.id} questionNumber={numDisplay} questionText={q.question_text} options={q.options} selectedValue={answers[q.id]} onChange={handleAnswerChange} />;
           })}
         </div>
       </div>
     ));
   };
 
-  // ==========================================
-  // LOADING & EMPTY STATES
-  // ==========================================
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <Spin size="large" />
-          <Text type="secondary" className="font-medium text-lg">Loading test data...</Text>
-        </div>
+  /* ── Loading / Empty ── */
+  if (loading) return (
+    <div style={{ minHeight: '100vh', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{ width: 44, height: 44, borderRadius: '50%', border: '4px solid #0d9488', borderTopColor: 'transparent', animation: 'aptis-spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+        <p style={{ color: '#94a3b8', margin: 0 }}>Loading test...</p>
       </div>
-    );
-  }
+      <style>{`@keyframes aptis-spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
 
-  if (parts.length === 0) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
-        <Card className="text-center rounded-3xl shadow-sm border-0 py-10 px-8">
-          <ExclamationCircleOutlined className="text-red-400 text-5xl mb-4 block" />
-          <Title level={4}>Empty Test</Title>
-          <Text type="secondary">No content has been added to this test yet.</Text>
-          <Button type="primary" onClick={handleGoBackEmpty} className="mt-6 bg-orange-500 border-none">Go Back</Button>
-        </Card>
+  if (parts.length === 0) return (
+    <div style={{ minHeight: '100vh', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center', background: '#fff', padding: '48px 40px', borderRadius: 16, border: '1px solid #e2e8f0' }}>
+        <AlertCircle size={40} color="#f87171" style={{ marginBottom: 16 }} />
+        <p style={{ fontWeight: 700, fontSize: 16, margin: '0 0 8px' }}>Empty Test</p>
+        <button onClick={handleGoBackEmpty} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#0d9488', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Go Back</button>
       </div>
-    );
-  }
+    </div>
+  );
 
-  // Đếm tổng số câu hỏi thực tế để hiển thị trên UI
   const currentPartTrueQCount = getTrueQuestionCount(activePart?.groups);
+  const totalAnswered = Object.keys(answers).length;
 
-  // ==========================================
-  // MAIN LAYOUT
-  // ==========================================
   return (
-    <Layout style={{ minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh', backgroundColor: '#f8fafc' }}>
-      
-      {/* HEADER TƯƠNG TỰ LISTENING */}
-      {!isFullTest && (
-        <Header style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 40 }}>
-          <div className="flex items-center gap-3">
-            <Tag color="orange" className="px-3 py-1 font-bold rounded-lg border-0 bg-orange-100 text-orange-700 m-0">
-              <ReadOutlined className="mr-1"/> Reading
-            </Tag>
-            <Text strong className="text-base hidden sm:block text-slate-800">{testDetail?.title}</Text>
-          </div>
-          
-          <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-lg transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-orange-50 border-orange-200 text-orange-600'}`}>
-            <ClockCircleOutlined /> {formatTime(timeLeft)}
-          </div>
-        </Header>
-      )}
+    <div style={{
+      minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh',
+      background: '#f0f4f8', display: 'flex', flexDirection: 'column',
+      fontFamily: "'Inter', -apple-system, sans-serif",
+    }}>
 
-      {isFullTest && (
-        <div className="bg-white border-b border-slate-200 py-3 px-6 flex justify-between items-center sticky top-0 z-40 shadow-sm">
-          <Text strong className="text-lg text-slate-700">Section: Reading</Text>
-          <div className={`px-4 py-1.5 rounded-lg border flex items-center gap-2 font-bold text-lg transition-colors ${isTimeRunningOut ? 'bg-red-50 border-red-200 text-red-600' : 'bg-orange-50 border-orange-200 text-orange-600'}`}>
-            <ClockCircleOutlined /> Time remaining: {formatTime(timeLeft)}
+      {/* ═══════════════ TOP BAR ═══════════════ */}
+      <div style={{
+        height: 56, background: '#fff', borderBottom: '1px solid #e2e8f0',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 24px', position: 'sticky', top: 0, zIndex: 40,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            background: '#f0fdfa', color: '#0f766e',
+            padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
+          }}>
+            <BookOpen size={13} />
+            {isFullTest ? 'Reading' : 'Reading Test'}
+          </div>
+          {testDetail?.title && <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>{testDetail.title}</span>}
+        </div>
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 7,
+          padding: '5px 14px', borderRadius: 8, fontWeight: 700, fontSize: 16,
+          background: isTimeRunningOut ? '#fef2f2' : '#f0fdfa',
+          color: isTimeRunningOut ? '#dc2626' : '#0f766e',
+          border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#99f6e4'}`,
+        }}>
+          <Clock size={16} /> {formatTime(timeLeft)}
+        </div>
+      </div>
+
+      {/* ═══════════════ PART TABS ═══════════════ */}
+      <div style={{ background: '#fff', borderBottom: '1px solid #f1f5f9', padding: '10px 24px' }}>
+        <div style={{ display: 'flex', gap: 6, maxWidth: hasReadingPassage ? 1240 : 820, margin: '0 auto', alignItems: 'center' }}>
+          {parts.map((p, idx) => {
+            const active = currentPartId === p.id;
+            return (
+              <button key={p.id} onClick={() => setCurrentPartId(p.id)} style={{
+                padding: '6px 18px', borderRadius: 20, border: '1.5px solid',
+                borderColor: active ? '#0d9488' : '#e2e8f0',
+                background: active ? '#0d9488' : '#fff',
+                color: active ? '#fff' : '#64748b',
+                fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 0.15s',
+              }}>
+                Part {p.part_number || idx + 1}
+              </button>
+            );
+          })}
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#94a3b8' }}>
+            <CheckCircle2 size={13} />
+            {currentPartTrueQCount} questions in this part
           </div>
         </div>
-      )}
+      </div>
 
-      {/* CONTENT (Độ rộng thay đổi linh hoạt tùy có đoạn văn hay không) */}
-      <Content style={{ padding: '24px', maxWidth: hasReadingPassage ? 1280 : 900, margin: '0 auto', width: '100%' }}>
-        
-        {/* TABS (Thiết kế giống Listening nhưng màu cam) */}
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 custom-scrollbar">
+      {/* ═══════════════ CONTENT ═══════════════ */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px' }}>
+        <div style={{ maxWidth: hasReadingPassage ? 1240 : 820, margin: '0 auto' }}>
+
+          {hasReadingPassage ? (
+            /* ── SPLIT SCREEN: Passage left, Questions right ── */
+            <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+
+              {/* LEFT: Passage */}
+              <div style={{ flex: 1, position: 'sticky', top: 20 }}>
+                <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                  <div style={{
+                    padding: '14px 20px', borderBottom: '1px solid #f0fdfa',
+                    background: '#f0fdfa', display: 'flex', alignItems: 'center', gap: 8,
+                  }}>
+                    <FileText size={16} color="#0d9488" />
+                    <span style={{ fontWeight: 700, fontSize: 14, color: '#0f766e' }}>Reading Passage</span>
+                  </div>
+                  <div style={{ maxHeight: '65vh', overflowY: 'auto', padding: '20px 24px' }} className="custom-scrollbar">
+                    {activePart?.content && (
+                      <p style={{
+                        fontSize: 15, lineHeight: 1.9, color: '#374151',
+                        whiteSpace: 'pre-wrap', textAlign: 'justify',
+                        background: '#fafffe', border: '1px solid #ccfbf1',
+                        borderRadius: 10, padding: '20px', marginBottom: 20,
+                      }}>{activePart.content}</p>
+                    )}
+                    {activePart?.groups?.map((group) => {
+                      const groupContent = group.transcript || group.content || group.text;
+                      if (!group.instruction && !group.image_url && !groupContent) return null;
+                      return (
+                        <div key={group.id} style={{ marginBottom: 20 }}>
+                          {group.image_url && <img src={group.image_url} alt="Reading Resource" style={{ maxWidth: '100%', borderRadius: 10, marginBottom: 16 }} />}
+                          {group.instruction && <p style={{ fontWeight: 700, fontSize: 15, color: '#1e293b', whiteSpace: 'pre-wrap', marginBottom: 12 }}>{group.instruction}</p>}
+                          {groupContent && (
+                            <p style={{
+                              fontSize: 15, lineHeight: 1.9, color: '#374151',
+                              whiteSpace: 'pre-wrap', textAlign: 'justify',
+                              background: '#fafffe', border: '1px solid #ccfbf1',
+                              borderRadius: 10, padding: '20px',
+                            }}>{groupContent}</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* RIGHT: Questions */}
+              <div style={{ flex: 1 }}>
+                <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                  <div style={{
+                    padding: '14px 20px', borderBottom: '1px solid #f1f5f9',
+                    background: '#fafbff', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <BookOpenCheck size={16} color="#0d9488" />
+                      <span style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>Questions</span>
+                    </div>
+                    <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>
+                      {currentPartTrueQCount} questions
+                    </span>
+                  </div>
+                  <div style={{ padding: '20px' }}>
+                    <div style={{
+                      background: '#f0fdfa', border: '1px solid #99f6e4',
+                      borderLeft: '3px solid #14b8a6', borderRadius: 10,
+                      padding: '12px 16px', marginBottom: 20, fontSize: 13, color: '#0f766e', fontWeight: 500,
+                    }}>
+                      Read the passage and answer the questions. Use the text to support your answers.
+                    </div>
+                    {renderQuestionsList(activePart.groups)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          ) : (
+            /* ── SINGLE COLUMN ── */
+            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div style={{
+                padding: '14px 20px', borderBottom: '1px solid #f1f5f9',
+                background: '#fafbff', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ width: 4, height: 18, background: '#0d9488', borderRadius: 99 }} />
+                  <span style={{ fontWeight: 700, fontSize: 15, color: '#1e293b' }}>Questions</span>
+                </div>
+                <span style={{ fontSize: 12, color: '#94a3b8' }}>{currentPartTrueQCount} questions</span>
+              </div>
+              <div style={{ padding: '20px 24px' }}>
+                <div style={{
+                  background: '#f0fdfa', border: '1px solid #99f6e4', borderLeft: '3px solid #14b8a6',
+                  borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: '#0f766e', fontWeight: 500,
+                }}>
+                  Read the instructions and answer the questions below.
+                </div>
+                {renderQuestionsList(activePart?.groups)}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ═══════════════ FOOTER ═══════════════ */}
+      <div style={{
+        height: 64, background: '#fff', borderTop: '1px solid #e2e8f0',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 24px', position: 'sticky', bottom: 0, zIndex: 40,
+      }}>
+        <button
+          onClick={() => setCurrentPartId(parts[currentTabIndex - 1]?.id)}
+          disabled={currentTabIndex === 0 || submitting}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '8px 18px', borderRadius: 8, border: '1.5px solid #e2e8f0', background: '#fff',
+            color: currentTabIndex === 0 ? '#cbd5e1' : '#475569',
+            fontWeight: 600, fontSize: 14, cursor: currentTabIndex === 0 ? 'not-allowed' : 'pointer',
+          }}
+        >
+          <ChevronLeft size={16} /> Previous
+        </button>
+
+        <div style={{ display: 'flex', gap: 8 }}>
           {parts.map((p, idx) => (
-            <Button 
-              key={p.id} 
-              type={currentPartId === p.id ? 'primary' : 'default'} 
-              onClick={() => setCurrentPartId(p.id)} 
-              className={`flex-1 min-w-35 h-12 font-bold rounded-xl transition-all ${
-                currentPartId === p.id 
-                  ? 'bg-orange-600 hover:bg-orange-500 border-none shadow-md shadow-orange-200 text-white' 
-                  : 'text-slate-500 border-slate-200 hover:text-orange-500 hover:border-orange-300 bg-white'
-              }`}
-            >
-              Part {p.part_number || idx + 1}
-            </Button>
+            <div key={p.id} style={{
+              width: 8, height: 8, borderRadius: '50%',
+              background: currentPartId === p.id ? '#0d9488' : '#cbd5e1',
+              transition: 'background 0.2s',
+            }} />
           ))}
         </div>
 
-        {/* ================= KHU VỰC CÂU HỎI VÀ ĐOẠN VĂN ================= */}
-        {hasReadingPassage ? (
-          // CHẾ ĐỘ SPLIT SCREEN (Có đoạn văn dài)
-          <div className="flex flex-col lg:flex-row gap-6 animation-fade-in relative items-start">
-            
-            {/* CỘT TRÁI: BÀI ĐỌC (Sử dụng sticky top để ghim lại khi cuộn chuột) */}
-            <div className="w-full lg:w-1/2 lg:sticky lg:top-24 h-fit">
-              <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200 bg-white" styles={{ body: { padding: '32px 24px' } }}>
-                <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-                  <FileTextOutlined className="text-orange-500 text-2xl" />
-                  <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Reading Passage</Title>
-                </div>
-                
-                <div className="max-h-[60vh] overflow-y-auto custom-scrollbar pr-2">
-                  {activePart?.content && (
-                    <div className="text-slate-700 text-base leading-loose whitespace-pre-wrap text-justify bg-orange-50/30 p-6 rounded-2xl border border-orange-100/50 mb-8">
-                      {activePart.content}
-                    </div>
-                  )}
-
-                  {activePart?.groups?.map((group) => {
-                    const groupContent = group.transcript || group.content || group.text;
-                    if (!group.instruction && !group.image_url && !groupContent) return null;
-                    return (
-                      <div key={group.id} className="mb-8">
-                        {group.image_url && <img src={group.image_url} alt="Reading Resource" className="max-w-full rounded-xl mb-6 shadow-sm border border-slate-100" />}
-                        {group.instruction && <Paragraph className="text-slate-800 font-bold text-lg mb-4 whitespace-pre-wrap">{group.instruction}</Paragraph>}
-                        {groupContent && (
-                          <div className="text-slate-700 text-base leading-loose whitespace-pre-wrap text-justify bg-orange-50/30 p-6 rounded-2xl border border-orange-100/50">
-                            {groupContent}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-                </div>
-              </Card>
-            </div>
-
-            {/* CỘT PHẢI: CÂU HỎI */}
-            <div className="w-full lg:w-1/2">
-              <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200 bg-white" styles={{ body: { padding: '32px 24px' } }}>
-                <div className="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
-                  <div className="flex items-center gap-2">
-                    <ReadOutlined className="text-orange-500 text-2xl" />
-                    <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Questions</Title>
-                  </div>
-                  <Tag className="rounded-full bg-slate-100 text-slate-600 font-bold border-0 px-3 py-1 m-0 text-sm">
-                    {currentPartTrueQCount} questions
-                  </Tag>
-                </div>
-
-                <div className="mb-8 p-4 bg-orange-50/50 rounded-xl border-l-4 border-orange-500 text-slate-700 font-medium flex items-start gap-3">
-                  <ReadOutlined className="text-orange-600 text-xl mt-0.5" />
-                  <div>
-                    Read the text carefully and select the most accurate answers for the questions below.
-                  </div>
-                </div>
-
-                {renderQuestionsList(activePart.groups)}
-              </Card>
-            </div>
-          </div>
-
-        ) : (
-
-          // CHẾ ĐỘ SINGLE COLUMN (Giống hệt Listening)
-          <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200 bg-white animation-fade-in" styles={{ body: { padding: '32px 24px' } }}>
-            <div className="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-2">
-                <ReadOutlined className="text-orange-500 text-2xl" />
-                <Title level={4} style={{ margin: 0, color: '#1e293b' }}>Questions</Title>
-              </div>
-              <Tag className="rounded-full bg-slate-100 text-slate-600 font-bold border-0 px-3 py-1 m-0 text-sm">
-                {currentPartTrueQCount} questions
-              </Tag>
-            </div>
-
-            <div className="mb-8 p-4 bg-orange-50/50 rounded-xl border-l-4 border-orange-500 text-slate-700 font-medium flex items-start gap-3">
-              <ReadOutlined className="text-orange-600 text-xl mt-0.5" />
-              <div>
-                Read the instructions carefully and answer the questions below.
-              </div>
-            </div>
-
-            {renderQuestionsList(activePart.groups)}
-          </Card>
-        )}
-      </Content>
-
-      {/* FOOTER (Sticky dưới cùng, giống hệt Listening) */}
-      <Footer style={{ backgroundColor: '#fff', borderTop: '1px solid #e2e8f0', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', bottom: 0, zIndex: 40 }}>
-        <Button
-          size="large"
-          className="rounded-xl font-semibold text-slate-600 border-slate-300"
-          disabled={currentTabIndex === 0 || submitting}
-          onClick={() => setCurrentPartId(parts[currentTabIndex - 1]?.id)}
-          icon={<LeftOutlined />}
-        >
-          Previous Part
-        </Button>
-        
         {currentTabIndex < parts.length - 1 ? (
-          <Button
-            type="primary"
-            size="large"
-            className="rounded-xl font-bold bg-slate-800 hover:bg-slate-700 border-none shadow-md shadow-slate-300 text-white"
+          <button
             onClick={() => setCurrentPartId(parts[currentTabIndex + 1]?.id)}
             disabled={submitting}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '8px 18px', borderRadius: 8, border: 'none', background: '#1e293b',
+              color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer',
+            }}
           >
-            Next Part <RightOutlined />
-          </Button>
+            Next <ChevronRight size={16} />
+          </button>
         ) : (
-          <Button
-            type="primary"
-            size="large"
-            className="rounded-xl font-bold px-10 bg-orange-600 hover:bg-orange-500 border-none shadow-lg shadow-orange-200 text-white"
+          <button
             onClick={confirmSubmit}
-            loading={submitting}
-            icon={<SendOutlined />}
+            disabled={submitting}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              padding: '8px 22px', borderRadius: 8, border: 'none',
+              background: submitting ? '#5eead4' : 'linear-gradient(135deg, #0d9488, #0f766e)',
+              color: '#fff', fontWeight: 700, fontSize: 14, cursor: submitting ? 'not-allowed' : 'pointer',
+              boxShadow: '0 2px 8px rgba(13,148,136,0.35)',
+            }}
           >
-            {isFullTest ? 'Submit & Go to Writing' : 'Submit Test'}
-          </Button>
+            {submitting
+              ? <><div style={{ width: 14, height: 14, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'aptis-spin 0.8s linear infinite' }} /> Submitting...</>
+              : <><Send size={15} /> {isFullTest ? 'Submit & Go to Writing' : 'Submit Test'}</>
+            }
+          </button>
         )}
-      </Footer>
+      </div>
 
       <style>{`
-        .animation-fade-in {
-          animation: fadeIn 0.3s ease-in-out;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(5px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes aptis-spin { to { transform: rotate(360deg); } }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
       `}</style>
-    </Layout>
+    </div>
   );
 };
 
