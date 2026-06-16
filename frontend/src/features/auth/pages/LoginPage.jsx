@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { GoogleLogin } from '@react-oauth/google';
 import authApi from '../api/authApi';
-import { CheckCircle2, GraduationCap, ArrowRight } from 'lucide-react'; // Thêm icon cho đẹp
+import { CheckCircle2, GraduationCap, ArrowRight, BookOpen, Sparkles } from 'lucide-react';
 
 const FEATURES = [
   'Full-length mock tests for IELTS & APTIS',
@@ -13,8 +13,9 @@ const FEATURES = [
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [loading, setLoading]   = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -57,156 +58,173 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-50 font-sans">
-      
-      {/* ── LEFT PANEL (BRANDING) ── */}
-      {/* Ẩn trên màn hình nhỏ (w-0), hiện và chiếm 45% chiều rộng trên màn hình lớn (lg:w-[45%]) */}
-      <div className="hidden lg:flex w-[45%] bg-linear-to-br from-indigo-900 via-indigo-800 to-violet-900 p-12 flex-col justify-between relative overflow-hidden">
-        
-        {/* Lớp lưới mờ trang trí (Background Pattern) */}
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-        <div className="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-violet-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+    <div className="flex h-screen bg-white font-sans selection:bg-indigo-100 selection:text-indigo-900 overflow-hidden">
 
-        <div className="relative z-10">
-          <div className="flex items-center gap-3 mb-16">
-            <div className="bg-white/10 p-2 rounded-xl backdrop-blur-sm border border-white/20">
-              <GraduationCap className="text-white" size={28} />
+      {/* ── LEFT PANEL (BRANDING - MODERN GRADIENT) ── */}
+      <div className="hidden lg:flex w-[45%] bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-400 p-8 xl:p-12 flex-col justify-between relative overflow-hidden">
+
+        {/* Soft glowing orbs for background texture */}
+        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none"></div>
+        <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-white rounded-full mix-blend-overlay filter blur-[100px] opacity-20 animate-float pointer-events-none"></div>
+        <div className="absolute -bottom-[20%] -right-[10%] w-[60%] h-[60%] bg-indigo-300 rounded-full mix-blend-overlay filter blur-[100px] opacity-30 animate-float animation-delay-400 pointer-events-none"></div>
+
+        <div className="relative z-10 opacity-0 animate-fade-in-up">
+          <div className="flex items-center gap-3 mb-10 xl:mb-12">
+            <div className="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md border border-white/30 shadow-xl shadow-white/5">
+              <GraduationCap className="text-white" size={24} strokeWidth={2.5} />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">English Master</h1>
-              <p className="text-indigo-200 text-xs font-medium">English Proficiency Platform</p>
+              <h1 className="text-xl font-black text-white tracking-tight">English Master</h1>
+              <p className="text-white/80 text-[10px] font-semibold uppercase tracking-wider">Proficiency Platform</p>
             </div>
           </div>
 
-          <h2 className="text-4xl xl:text-5xl font-black text-white leading-tight mb-6">
+          <h2 className="text-4xl xl:text-5xl font-black text-white leading-[1.1] mb-4 drop-shadow-sm">
             Achieve Your <br />
-            <span className="text-cyan-300">Target Score.</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-200 to-white">
+              Target Score.
+            </span>
           </h2>
-          
-          <p className="text-indigo-200 text-base leading-relaxed max-w-md mb-10">
-            Practice smarter with AI-powered feedback and full-length mock exams — for both IELTS and APTIS.
+
+          <p className="text-white/90 text-sm xl:text-base leading-relaxed max-w-md mb-8 font-medium">
+            Practice smarter with AI-powered feedback and full-length mock exams for IELTS and APTIS.
           </p>
 
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             {FEATURES.map((feature, idx) => (
-              <div key={idx} className="flex items-center gap-3">
-                <CheckCircle2 className="text-cyan-300 shrink-0" size={20} />
-                <span className="text-white/90 font-medium">{feature}</span>
+              <div key={idx} className="flex items-center gap-3 bg-white/10 p-2.5 rounded-2xl backdrop-blur-sm border border-white/10 shadow-sm w-max pr-5 hover:bg-white/20 transition-colors">
+                <div className="bg-white/20 p-1 rounded-full">
+                  <CheckCircle2 className="text-white" size={16} strokeWidth={2.5} />
+                </div>
+                <span className="text-white font-semibold text-xs xl:text-sm">{feature}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="relative z-10 pt-10">
-          <p className="text-xs font-bold text-indigo-300 tracking-widest uppercase mb-4">Available Modules</p>
-          <div className="flex gap-4">
-            <div className="bg-white/10 border border-white/20 px-4 py-2 rounded-xl backdrop-blur-sm">
-              <p className="text-white font-bold">IELTS</p>
-              <p className="text-indigo-200 text-xs">British Council</p>
+        <div className="relative z-10 opacity-0 animate-fade-in-up animation-delay-200 mt-6">
+          <p className="text-[10px] font-bold text-white/70 tracking-widest uppercase mb-3 flex items-center gap-2">
+            <Sparkles size={12} /> Available Modules
+          </p>
+          <div className="flex gap-3">
+            <div className="bg-white/15 border border-white/20 px-4 py-2.5 rounded-xl backdrop-blur-md cursor-default">
+              <div className="flex items-center gap-2 mb-0.5">
+                <BookOpen size={14} className="text-white" />
+                <p className="text-white font-black text-base">IELTS</p>
+              </div>
+              <p className="text-white/80 text-[10px] font-medium">Academic & General</p>
             </div>
-            <div className="bg-white/10 border border-white/20 px-4 py-2 rounded-xl backdrop-blur-sm">
-              <p className="text-white font-bold">APTIS</p>
-              <p className="text-indigo-200 text-xs">British Council</p>
+            <div className="bg-white/15 border border-white/20 px-4 py-2.5 rounded-xl backdrop-blur-md cursor-default">
+              <div className="flex items-center gap-2 mb-0.5">
+                <BookOpen size={14} className="text-white" />
+                <p className="text-white font-black text-base">APTIS</p>
+              </div>
+              <p className="text-white/80 text-[10px] font-medium">British Council</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* ── RIGHT PANEL (LOGIN FORM) ── */}
-      <div className="flex-1 flex flex-col justify-center items-center p-6 sm:p-12 relative">
-        
-        <div className="w-full max-w-md">
-          {/* Mobile Logo (Chỉ hiện trên màn hình nhỏ) */}
-          <div className="lg:hidden flex flex-col items-center mb-8">
-            <div className="bg-indigo-600 p-3 rounded-2xl mb-3 shadow-lg shadow-indigo-200">
-              <GraduationCap className="text-white" size={32} />
-            </div>
-            <h1 className="text-3xl font-black text-slate-800">English Master</h1>
-          </div>
-          {/* Form Container */}
-          <div className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8 sm:p-10">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Welcome back</h2>
-              <p className="text-slate-500 text-sm">Sign in to continue your practice journey.</p>
-            </div>
+      <div className="flex-1 overflow-y-auto bg-slate-50/50 custom-scrollbar">
+        <div className="min-h-full flex flex-col justify-center items-center p-6 sm:p-8">
+          <div className="w-full max-w-[400px] py-8">
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email Address</label>
-                <input 
-                  type="email" 
-                  name="email" 
-                  required 
-                  disabled={loading}
-                  value={formData.email} 
-                  onChange={handleChange} 
-                  placeholder="name@example.com"
-                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all disabled:opacity-50"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">Password</label>
-                <input 
-                  type="password" 
-                  name="password" 
-                  required 
-                  disabled={loading}
-                  value={formData.password} 
-                  onChange={handleChange} 
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all disabled:opacity-50"
-                />
-              </div>
-
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+            {/* Custom Toggle Switch */}
+            <div className="flex bg-slate-200/60 p-1 rounded-full mb-8 relative opacity-0 animate-fade-in-up">
+              <Link
+                to="/login"
+                className="flex-1 text-center py-2.5 text-sm font-bold rounded-full transition-all duration-300 bg-white shadow-sm text-indigo-600"
               >
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <>Sign In <ArrowRight size={18} /></>
-                )}
-              </button>
-            </form>
-
-            <div className="flex items-center gap-4 my-6">
-              <div className="flex-1 h-px bg-slate-200"></div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">or</span>
-              <div className="flex-1 h-px bg-slate-200"></div>
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                className="flex-1 text-center py-2.5 text-sm font-bold rounded-full transition-all duration-300 text-slate-500 hover:text-slate-700"
+              >
+                Create Account
+              </Link>
             </div>
 
-            <div className="flex justify-center">
-              <GoogleLogin 
-                onSuccess={handleGoogleSuccess} 
-                onError={() => toast.error('Google Login Failed')}
-                theme="outline" 
-                shape="pill" 
-                text="signin_with" 
-                size="large" 
-                width="100%"
-              />
+            {/* Form Container */}
+            <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-8 opacity-0 animate-fade-in-up animation-delay-200">
+              <div className="mb-6">
+                <h2 className="text-2xl font-black text-slate-800 mb-1.5">Welcome back</h2>
+                <p className="text-slate-500 text-sm font-medium">Sign in to continue your practice journey.</p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="group">
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 group-focus-within:text-indigo-600 transition-colors">Email Address</label>
+                  <input
+                    type="email"
+                    name="email"
+                    required
+                    disabled={loading}
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="name@example.com"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all disabled:opacity-50 text-sm font-medium text-slate-800 placeholder:text-slate-400"
+                  />
+                </div>
+
+                <div className="group">
+                  <div className="flex justify-between items-center mb-1.5">
+                    <label className="block text-xs font-bold text-slate-700 group-focus-within:text-indigo-600 transition-colors">Password</label>
+                    <a href="#" className="text-[11px] font-bold text-indigo-600 hover:text-indigo-700 transition-colors">Forgot?</a>
+                  </div>
+                  <input
+                    type="password"
+                    name="password"
+                    required
+                    disabled={loading}
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 outline-none transition-all disabled:opacity-50 text-sm font-medium text-slate-800 placeholder:text-slate-400 tracking-wider"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-2xl transition-all duration-300 shadow-lg shadow-indigo-600/20 hover:shadow-indigo-500/30 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none mt-2 text-sm"
+                >
+                  {loading ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>Sign In <ArrowRight size={16} /></>
+                  )}
+                </button>
+              </form>
+
+              <div className="flex items-center gap-4 my-6">
+                <div className="flex-1 h-px bg-slate-100"></div>
+                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Or continue with</span>
+                <div className="flex-1 h-px bg-slate-100"></div>
+              </div>
+
+              <div className="flex justify-center hover:scale-[1.02] transition-transform duration-300">
+                <div className="w-full flex justify-center [&>div]:w-full [&>div>div]:!w-full [&_iframe]:!w-full">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => toast.error('Google Login Failed')}
+                    theme="filled_blue"
+                    shape="rectangular"
+                    text="signin_with"
+                    size="large"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="mt-8 pt-6 border-t border-slate-100 text-center">
-              <p className="text-sm text-slate-500">
-                Don't have an account?{' '}
-                <Link to="/register" className="font-bold text-indigo-600 hover:text-indigo-700 transition-colors">
-                  Create Account
-                </Link>
-              </p>
-            </div>
+            <p className="text-center text-[11px] font-medium text-slate-400 mt-6 opacity-0 animate-fade-in-up animation-delay-400">
+              By signing in, you agree to our Terms & Privacy Policy
+            </p>
           </div>
-          
-          <p className="text-center text-xs text-slate-400 mt-8">
-            By signing in, you agree to our Terms & Privacy Policy
-          </p>
         </div>
       </div>
-      
+
     </div>
   );
 }
