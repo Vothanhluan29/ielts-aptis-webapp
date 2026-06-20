@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Button, Modal, Typography, message, Space, Select, Card } from 'antd';
 import { ThunderboltOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { BlurInput } from '../../../../../components/common/BlurInput';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -61,7 +62,7 @@ const MatchingAdmin = ({ relativePath, absolutePath, form }) => {
                   rules={[{ required: true, message: 'Option cannot be empty!' }]}
                   style={{ marginBottom: 0, width: '400px' }}
                 >
-                  <Input placeholder={`Option ${index + 1} (e.g., Heading ${index + 1})`} />
+                  <BlurInput placeholder={`Option ${index + 1} (e.g., Heading ${index + 1})`} />
                 </Form.Item>
                 <Button danger type="text" icon={<DeleteOutlined />} onClick={() => remove(name)} />
               </Space>

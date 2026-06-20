@@ -4,6 +4,7 @@ import { useReadingResult } from '../../../hooks/IELTS/reading/useReadingResult'
 import { ArrowLeft, CheckCircle, XCircle, Target, BarChart2, Clock } from 'lucide-react';
 
 import ReadingResultItem from '../../../components/IELTS/reading/ReadingResultItem';
+import SmartBackButton from '../../../../../components/common/SmartBackButton';
 
 const ReadingResultPage = () => {
   const { id } = useParams();
@@ -70,6 +71,7 @@ const ReadingResultPage = () => {
       `}</style>
 
       <div className="max-w-5xl mx-auto">
+        <SmartBackButton fallbackPath="/reading/history" customText="Back to Reading Library" themeClass="text-blue-600" />
 
         {/* --- HEADER --- */}
         <div className="header-grad fu rounded-3xl p-8 md:p-10 mb-8 overflow-hidden relative shadow-xl shadow-blue-300/30">

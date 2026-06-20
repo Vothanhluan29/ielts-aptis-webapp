@@ -29,16 +29,6 @@ const ReadingAptisManagerList = () => {
 
   const columns = useMemo(() => [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 70,
-      align: 'center',
-      render: (id) => (
-        <Text type="secondary" style={{ fontSize: 12 }}>#{id}</Text>
-      ),
-    },
-    {
       title: 'Test Title',
       dataIndex: 'title',
       key: 'title',

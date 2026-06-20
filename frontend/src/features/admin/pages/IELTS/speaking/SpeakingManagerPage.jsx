@@ -2,7 +2,6 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
-  Input,
   Table,
   Tag,
   Space,
@@ -10,18 +9,13 @@ import {
   Card,
   Popconfirm,
   Tooltip,
-  Segmented,
+  Switch,
 } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  SearchOutlined,
   AudioOutlined,
-  CheckCircleOutlined,
-  MinusCircleOutlined,
-  FileProtectOutlined,
-  FileTextOutlined,
 } from "@ant-design/icons";
 import { useSpeakingManager } from "../../../hooks/IELTS/speaking/useSpeakingManager";
 
@@ -33,8 +27,6 @@ const SpeakingManagerPage = () => {
   const {
     filteredTests,
     loading,
-    searchTerm,
-    setSearchTerm,
     isMockOnly,
     setIsMockOnly,
     handleDelete,
@@ -42,32 +34,13 @@ const SpeakingManagerPage = () => {
 
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      key: "id",
-      width: 80,
-      align: "center",
-      render: (text) => (
-        <Text type="secondary" className="font-mono">
-          #{text}
-        </Text>
-      ),
-    },
-    {
       title: "Test Title",
       key: "title",
       render: (_, record) => (
-        <div>
-          <div className="font-bold text-slate-800 text-base">
-            {record.title}
-          </div>
-          <div
-            className="text-slate-500 text-xs truncate max-w-sm"
-            title={record.description}
-          >
-            {record.description || "No description provided"}
-          </div>
-        </div>
+        <Space>
+          <AudioOutlined style={{ color: '#ec4899' }} />
+          <Text strong style={{ color: '#9d174d', fontSize: '15px' }}>{record.title}</Text>
+        </Space>
       ),
     },
     {
@@ -76,70 +49,78 @@ const SpeakingManagerPage = () => {
       key: "time_limit",
       width: 120,
       align: "center",
-      render: (time) => <Tag color="blue">{time} Mins</Tag>,
+      render: (time) => (
+        <Tag color="pink" style={{ borderRadius: 20, fontWeight: 500 }}>
+          {time} min
+        </Tag>
+      ),
+    },
+    {
+      title: "Type",
+      dataIndex: "is_mock",
+      key: "is_mock",
+      width: 150,
+      align: "center",
+      render: (isMock, record) => {
+        const isMockTest = isMock || record.is_full_test_only; 
+        return (
+          <Tag color={isMockTest ? 'magenta' : 'purple'} bordered={false} style={{ borderRadius: 20, fontWeight: 500 }}>
+            {isMockTest ? 'Full Mock Test' : 'Practice'}
+          </Tag>
+        );
+      },
     },
     {
       title: "Status",
       dataIndex: "is_published",
       key: "is_published",
-      width: 120,
+      width: 130,
       align: "center",
       render: (isPublished) =>
         isPublished ? (
-          <Tag color="success" icon={<CheckCircleOutlined />}>
-            PUBLIC
-          </Tag>
+          <Text style={{ fontSize: 13, fontWeight: 500, color: '#16a34a' }}>Published</Text>
         ) : (
-          <Tag color="default" icon={<MinusCircleOutlined />}>
-            DRAFT
-          </Tag>
+          <Text style={{ fontSize: 13, fontWeight: 500, color: '#6b7280' }}>Draft</Text>
         ),
     },
     {
-      title: "Created Date",
+      title: "Created",
       dataIndex: "created_at",
       key: "created_at",
-      width: 150,
-      render: (date) =>
-        new Date(date).toLocaleDateString("vi-VN", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        }),
+      width: 130,
+      align: "center",
+      render: (date) => (
+        <Text type="secondary" style={{ fontSize: 13 }}>
+          {date ? new Date(date).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : "—"}
+        </Text>
+      ),
     },
     {
       title: "Actions",
       key: "actions",
-      width: 120,
+      width: 100,
       align: "center",
       render: (_, record) => (
-        <Space size="middle">
+        <Space size={2}>
           <Tooltip title="Edit Test">
             <Button
               type="text"
-              icon={<EditOutlined className="text-blue-600" />}
-              onClick={() =>
-                navigate(`/admin/skills/speaking/edit/${record.id}`)
-              }
-              className="bg-blue-50 hover:bg-blue-100 border-none"
+              icon={<EditOutlined />}
+              onClick={() => navigate(`/admin/skills/speaking/edit/${record.id}`)}
+              style={{ color: '#ec4899' }}
             />
           </Tooltip>
 
           <Tooltip title="Delete Test">
             <Popconfirm
               title="Are you sure you want to delete this test?"
-              description="This action cannot be undone. All related student submissions will be lost."
+              description="This action cannot be undone."
               onConfirm={() => handleDelete(record.id)}
-              okText="Yes, Delete"
+              okText="Delete"
               cancelText="Cancel"
               okButtonProps={{ danger: true }}
             >
-              <Button
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-                className="bg-red-50 hover:bg-red-100 border-none"
-              />
+              <Button type="text" danger icon={<DeleteOutlined />} />
             </Popconfirm>
           </Tooltip>
         </Space>
@@ -148,90 +129,69 @@ const SpeakingManagerPage = () => {
   ];
 
   return (
-    <div className="p-6 bg-slate-50 min-h-screen font-sans">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <Title
-              level={2}
-              className="m-0 flex items-center gap-3 text-slate-800"
+    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
+      <Card
+        variant="borderless"
+        style={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
+      >
+        <div style={{
+          display: 'flex', justifyContent: 'space-between',
+          alignItems: 'center', marginBottom: 32,
+        }}>
+          <Space size="large">
+            <div style={{
+              padding: '12px', backgroundColor: '#fdf2f8',
+              borderRadius: '14px', color: '#ec4899',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <AudioOutlined style={{ fontSize: 32 }} />
+            </div>
+            <div>
+              <Title level={3} style={{ margin: 0, color: '#1a1a2e' }}>
+                Speaking Test Bank
+              </Title>
+              <Text type="secondary">
+                Manage IELTS Speaking test content
+              </Text>
+            </div>
+          </Space>
+
+          <Space size="middle">
+            <Space size="small">
+              <Text style={{ fontWeight: 500, color: '#6b7280' }}>Mock only</Text>
+              <Switch
+                size="small"
+                checked={isMockOnly}
+                onChange={(checked) => setIsMockOnly(checked)}
+              />
+            </Space>
+
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              size="large"
+              onClick={() => navigate("/admin/skills/speaking/create")}
+              style={{
+                backgroundColor: '#ec4899', borderColor: '#ec4899',
+                height: '45px', borderRadius: '10px', fontWeight: '600',
+              }}
             >
-              <div className="p-2 bg-indigo-600 text-white rounded-lg">
-                <AudioOutlined />
-              </div>
-              Speaking Manager
-            </Title>
-
-            <Text className="text-slate-500 mt-1 block">
-              Manage your IELTS Speaking tests and mock exams.
-            </Text>
-          </div>
-
-          <Button
-            type="primary"
-            size="large"
-            icon={<PlusOutlined />}
-            onClick={() => navigate("/admin/skills/speaking/create")}
-            className="bg-indigo-600 hover:bg-indigo-500 shadow-md font-semibold rounded-xl"
-          >
-            Create New Test
-          </Button>
+              New Test
+            </Button>
+          </Space>
         </div>
 
-        <Card
-          className="rounded-2xl shadow-sm border-slate-200"
-          styles={{ body: { padding: 16 } }}
-        >
-          <div className="flex flex-col md:flex-row justify-between gap-4 items-center">
-            <Input
-              placeholder="Search by test title..."
-              prefix={<SearchOutlined className="text-slate-400" />}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="max-w-md"
-              size="large"
-              allowClear
-            />
-
-            <Segmented
-              options={[
-                {
-                  label: "Practice Tests",
-                  value: false,
-                  icon: <FileTextOutlined />,
-                },
-                {
-                  label: "Mock Exams",
-                  value: true,
-                  icon: <FileProtectOutlined />,
-                },
-              ]}
-              value={isMockOnly}
-              onChange={setIsMockOnly}
-              size="large"
-              className="p-1 font-medium bg-slate-100 border border-slate-200"
-            />
-          </div>
-        </Card>
-
-        <Card
-          className="rounded-2xl shadow-sm border-slate-200 overflow-hidden"
-          styles={{ body: { padding: 0 } }}
-        >
-          <Table
-            columns={columns}
-            dataSource={filteredTests}
-            rowKey="id"
-            loading={loading}
-            pagination={{
-              pageSize: 10,
-              showTotal: (total) => `Total ${total} tests`,
-              placement: ["bottomCenter"],
-            }}
-            className="custom-table"
-          />
-        </Card>
-      </div>
+        <Table
+          columns={columns}
+          dataSource={filteredTests}
+          rowKey="id"
+          loading={loading}
+          pagination={{
+            pageSize: 10,
+            showTotal: (total, range) => `${range[0]}–${range[1]} of ${total} tests`,
+          }}
+        />
+      </Card>
     </div>
   );
 };

@@ -6,7 +6,7 @@ const ReadingSubmissionListPage = () => (
   <AutoGradedSubmissionListPage
     skill="reading"
     api={readingAptisAdminApi}
-    detailRoute="/admin/aptis/submissions/reading"
+    detailRoute="/aptis/reading/result"
   />
 );
 

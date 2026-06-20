@@ -11,6 +11,7 @@ import MultipleChoiceAdmin from '../../../components/APTIS/question-types/Multip
 import MatchingAdmin from '../../../components/APTIS/question-types/MatchingAdmin';
 import FillInBlankAdmin from '../../../components/APTIS/question-types/FillInBlankAdmin';
 import { useListeningAptisEdit } from '../../../hooks/APTIS/listening/useListeningAptisEdit'; 
+import { BlurInput, BlurTextArea } from '../../../../../components/common/BlurInput';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -171,7 +172,7 @@ const ListeningAptisEditPage = () => {
                           <Form.Item label="Shared Audio URL (For Parts 2, 3, 4)">
                             <div style={{ display: 'flex', gap: 8 }}>
                               <Form.Item name={[partName, 'audio_url']} noStyle>
-                                <Input placeholder="Paste shared audio link for this entire Part..." style={{ flex: 1 }} />
+                                <BlurInput placeholder="Paste shared audio link for this entire Part..." style={{ flex: 1 }} />
                               </Form.Item>
                               <Upload 
                                 customRequest={(options) => handleUploadAudio(options, partName)} 
@@ -214,7 +215,7 @@ const ListeningAptisEditPage = () => {
                                     <Form.Item label="Individual Audio URL (For Part 1 only)" style={{ marginBottom: 12 }}>
                                       <div style={{ display: 'flex', gap: 8 }}>
                                         <Form.Item {...restQField} name={[qName, 'audio_url']} noStyle>
-                                          <Input placeholder="If filled, this question will have its own independent audio..." style={{ flex: 1 }} />
+                                          <BlurInput placeholder="If filled, this question will have its own independent audio..." style={{ flex: 1 }} />
                                         </Form.Item>
                                         <Upload 
                                           customRequest={(options) => handleUploadAudio(options, partName, qName)} 
@@ -244,7 +245,7 @@ const ListeningAptisEditPage = () => {
                                         <Form.Item label="Question Content" required style={{ marginBottom: 12 }}>
                                           <div style={{ display: 'flex', gap: '8px' }}>
                                             <Form.Item {...restQField} name={[qName, 'question_text']} rules={[{ required: true, message: 'Please enter question content!' }]} style={{ flex: 1, marginBottom: 0 }}>
-                                              <Input placeholder="E.g: What is the main topic?" />
+                                              <BlurInput placeholder="E.g: What is the main topic?" />
                                             </Form.Item>
                                             <Button 
                                               type="dashed"
@@ -283,7 +284,7 @@ const ListeningAptisEditPage = () => {
                                     </Form.Item>
 
                                     <Form.Item {...restQField} name={[qName, 'explanation']} label="Explanation / Transcript (Optional)" style={{ marginBottom: 0 }}>
-                                      <Input.TextArea rows={1} placeholder="Enter transcript or reason for selecting this answer..." />
+                                      <BlurTextArea rows={1} placeholder="Enter transcript or reason for selecting this answer..." />
                                     </Form.Item>
                                   </Card>
                                 );

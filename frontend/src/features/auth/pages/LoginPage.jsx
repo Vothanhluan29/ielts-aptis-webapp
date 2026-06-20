@@ -74,8 +74,8 @@ export default function LoginPage() {
               <GraduationCap className="text-white" size={24} strokeWidth={2.5} />
             </div>
             <div>
-              <h1 className="text-xl font-black text-white tracking-tight">English Master</h1>
-              <p className="text-white/80 text-[10px] font-semibold uppercase tracking-wider">Proficiency Platform</p>
+              <h1 className="text-xl font-black text-white tracking-tight">ELITEK</h1>
+              <p className="text-white/80 text-[10px] font-semibold uppercase tracking-wider">Learning Platform</p>
             </div>
           </div>
 
@@ -149,6 +149,9 @@ export default function LoginPage() {
             {/* Form Container */}
             <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 p-8 opacity-0 animate-fade-in-up animation-delay-200">
               <div className="mb-6">
+                <div className="flex items-center justify-center mb-8">
+                  <img src="/logo.jpg" alt="Elitek Logo" className="h-20 object-contain drop-shadow-sm" />
+                </div>
                 <h2 className="text-2xl font-black text-slate-800 mb-1.5">Welcome back</h2>
                 <p className="text-slate-500 text-sm font-medium">Sign in to continue your practice journey.</p>
               </div>

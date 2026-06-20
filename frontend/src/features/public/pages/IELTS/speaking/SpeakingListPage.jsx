@@ -1,249 +1,326 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button, Tag, Typography, Row, Col, Skeleton, Empty, Space, Radio, Input } from 'antd';
+import { Skeleton } from 'antd';
 import {
-  Mic, Clock, CheckCircle,
-  AlertCircle, ArrowRight, History, Search, RotateCcw
+  Mic, Clock, CheckCircle, AlertCircle, ArrowRight,
+  History, RotateCcw, Play
 } from 'lucide-react';
 import { useSpeakingList } from '../../../hooks/IELTS/speaking/useSpeakingList';
 
-const { Title, Paragraph, Text } = Typography;
+const FILTER_OPTIONS = [
+  { value: 'ALL', label: 'All' },
+  { value: 'NOT_STARTED', label: 'Not Started' },
+  { value: 'COMPLETED', label: 'Completed' },
+];
 
 const SpeakingListPage = () => {
   const navigate = useNavigate();
   const { filteredTests, loading, searchTerm, setSearchTerm, filter, setFilter } = useSpeakingList();
 
-  // ─── Status config ────────────────────────────────────────────────────────────
+  const finalTests = useMemo(() => {
+    if (!filteredTests) return [];
+    return filteredTests.filter(t =>
+      t.title?.toLowerCase().includes((searchTerm || '').toLowerCase())
+    );
+  }, [filteredTests, searchTerm]);
+
   const getStatusConfig = (status, testId) => {
-    const s = status?.toUpperCase();
+    const s = status?.toUpperCase() || 'NOT_STARTED';
 
     if (['GRADED', 'COMPLETED', 'FINISHED'].includes(s)) {
       return {
-        tagColor: 'success',
-        text: 'Completed',
-        icon: <CheckCircle size={14} className="mr-1" />,
+        badge: (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            background: '#dcfce7', color: '#16a34a',
+            padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
+          }}>
+            <CheckCircle size={12} /> Completed
+          </span>
+        ),
         mainBtnText: 'View History',
         mainBtnAction: () => navigate(`/speaking/history`),
-        isStartBtn: false,
+        mainBtnStyle: {
+          background: 'transparent', color: '#4f46e5',
+          border: '1.5px solid #a5b4fc', fontWeight: 700
+        },
+        isDone: true,
         showRetry: true,
-        // Emerald
-        cardBg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 60%, #bbf7d0 100%)',
-        cardBorder: '#86efac',
-        hoverBg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 60%, #a7f3d0 100%)',
-        retryColor: '#16a34a',
-        retryBorder: '#86efac',
-        retryBg: '#f0fdf4',
+        accentColor: '#22c55e'
       };
-    }
-
-    if (['SUBMITTED', 'GRADING', 'PENDING', 'ERROR'].includes(s)) {
+    } else if (['SUBMITTED', 'GRADING', 'PENDING', 'ERROR'].includes(s)) {
       return {
-        tagColor: 'warning',
-        text: 'Pending Review',
-        icon: <Clock size={14} className="mr-1" />,
+        badge: (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            background: '#fef3c7', color: '#d97706',
+            padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
+          }}>
+            <Clock size={12} /> Pending Review
+          </span>
+        ),
         mainBtnText: 'View History',
         mainBtnAction: () => navigate(`/speaking/history`),
-        isStartBtn: false,
+        mainBtnStyle: {
+          background: 'transparent', color: '#d97706',
+          border: '1.5px solid #fcd34d', fontWeight: 700
+        },
+        isDone: true,
         showRetry: true,
-        // Amber
-        cardBg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 60%, #fde68a 100%)',
-        cardBorder: '#fcd34d',
-        hoverBg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 60%, #fcd34d 100%)',
-        retryColor: '#d97706',
-        retryBorder: '#fcd34d',
-        retryBg: '#fffbeb',
+        accentColor: '#f59e0b'
       };
-    }
-
-    if (s === 'IN_PROGRESS') {
+    } else if (s === 'IN_PROGRESS') {
       return {
-        tagColor: 'processing',
-        text: 'In Progress',
-        icon: <Clock size={14} className="mr-1" />,
+        badge: (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            background: '#e0e7ff', color: '#4f46e5',
+            padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
+          }}>
+            <Clock size={12} /> In Progress
+          </span>
+        ),
         mainBtnText: 'Continue Test',
         mainBtnAction: () => navigate(`/speaking/exam/${testId}`),
-        isStartBtn: false,
+        mainBtnStyle: {
+          background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
+          color: '#fff', border: 'none', fontWeight: 700,
+          boxShadow: '0 4px 14px rgba(99,102,241,0.35)'
+        },
+        isDone: false,
         showRetry: false,
-        // Sky
-        cardBg: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 60%, #bae6fd 100%)',
-        cardBorder: '#7dd3fc',
-        hoverBg: 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 60%, #93c5fd 100%)',
+        accentColor: '#6366f1'
+      };
+    } else {
+      return {
+        badge: (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            background: '#eef2ff', color: '#4f46e5',
+            padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
+          }}>
+            <AlertCircle size={12} /> Not Started
+          </span>
+        ),
+        mainBtnText: 'Start Test',
+        mainBtnAction: () => navigate(`/speaking/exam/${testId}`),
+        mainBtnStyle: {
+          background: 'linear-gradient(135deg, #4f46e5 0%, #818cf8 100%)',
+          color: '#fff', border: 'none', fontWeight: 700,
+          boxShadow: '0 4px 14px rgba(79,70,229,0.35)'
+        },
+        isDone: false,
+        showRetry: false,
+        accentColor: '#4f46e5'
       };
     }
-
-    return {
-      tagColor: 'purple',
-      text: 'Not Started',
-      icon: <AlertCircle size={14} className="mr-1" />,
-      mainBtnText: 'Start Test',
-      mainBtnAction: () => navigate(`/speaking/exam/${testId}`),
-      isStartBtn: true,
-      showRetry: false,
-      // Indigo/violet
-      cardBg: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 60%, #ddd6fe 100%)',
-      cardBorder: '#c4b5fd',
-      hoverBg: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 60%, #c4b5fd 100%)',
-    };
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 animate-in fade-in duration-500 font-sans bg-transparent">
+    <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
 
-      {/* ═══════════════ HEADER ═══════════════ */}
-      <div className="mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-200">
-            <Mic size={32} strokeWidth={2.5} />
+      {/* ===== HEADER ===== */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{
+          display: 'flex', flexWrap: 'wrap',
+          alignItems: 'center', justifyContent: 'space-between', gap: 16
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 16,
+              background: 'linear-gradient(135deg, #4f46e5 0%, #818cf8 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 20px rgba(79,70,229,0.3)', flexShrink: 0
+            }}>
+              <Mic size={28} color="#fff" strokeWidth={2.5} />
+            </div>
+            <div>
+              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#1e1b4b', lineHeight: 1.3 }}>
+                IELTS Speaking Practice
+              </h1>
+              <p style={{ margin: 0, fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+                Improve your fluency with AI-powered scoring and feedback
+              </p>
+            </div>
           </div>
-          <div>
-            <Title level={2} style={{ margin: 0, fontWeight: 650, color: '#1e293b' }}>
-              IELTS Speaking Practice
-            </Title>
-            <Text className="text-slate-500 font-medium">
-              Improve your fluency with AI-powered scoring and feedback
-            </Text>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              placeholder="Search tests..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                padding: '8px 14px', borderRadius: 10, border: '1.5px solid #e2e8f0',
+                background: '#fff', fontSize: 13, color: '#374151', outline: 'none',
+                minWidth: 180, transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
+              }}
+              onFocus={e => e.currentTarget.style.borderColor = '#a5b4fc'}
+              onBlur={e => e.currentTarget.style.borderColor = '#e2e8f0'}
+            />
+
+            <div style={{
+              display: 'flex', background: '#eef2ff', borderRadius: 12,
+              padding: 4, gap: 4
+            }}>
+              {FILTER_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setFilter(opt.value)}
+                  style={{
+                    padding: '6px 14px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                    fontSize: 13, fontWeight: 600, transition: 'all 0.2s',
+                    background: filter === opt.value ? '#4f46e5' : 'transparent',
+                    color: filter === opt.value ? '#fff' : '#6b7280',
+                    boxShadow: filter === opt.value ? '0 2px 8px rgba(79,70,229,0.3)' : 'none'
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => navigate('/speaking/history')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '8px 16px', borderRadius: 10, border: '1.5px solid #e2e8f0',
+                background: '#fff', cursor: 'pointer', fontSize: 13,
+                fontWeight: 600, color: '#374151', transition: 'all 0.2s',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#a5b4fc'; e.currentTarget.style.color = '#4f46e5'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#374151'; }}
+            >
+              <History size={15} /> History
+            </button>
           </div>
         </div>
-
-        <Space size="middle" wrap>
-          <Input
-            prefix={<Search size={16} className="text-slate-400" />}
-            placeholder="Search tests..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="rounded-lg h-10 w-full sm:w-48 lg:w-64 border-slate-200 bg-white"
-            allowClear
-          />
-
-          <Radio.Group
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            optionType="button"
-            buttonStyle="solid"
-            className="custom-radio-group"
-          >
-            <Radio.Button value="ALL">All</Radio.Button>
-            <Radio.Button value="NOT_STARTED">New</Radio.Button>
-            <Radio.Button value="COMPLETED">Completed</Radio.Button>
-          </Radio.Group>
-
-          <Button
-            icon={<History size={18} />}
-            onClick={() => navigate('/speaking/history')}
-            className="flex items-center gap-2 rounded-lg font-bold border-slate-200 hover:text-indigo-600 shadow-sm h-10"
-          >
-            History
-          </Button>
-        </Space>
+        <div style={{ marginTop: 20, height: 1, background: 'linear-gradient(90deg, #e0e7ff 0%, transparent 100%)' }} />
       </div>
 
-      {/* ═══════════════ CONTENT ═══════════════ */}
-
+      {/* ===== CONTENT ===== */}
       {loading ? (
-        <Row gutter={[24, 24]}>
-          {[1, 2, 3].map((i) => (
-            <Col xs={24} md={12} lg={8} key={i}>
-              <Card className="rounded-3xl border-slate-100">
-                <Skeleton active paragraph={{ rows: 3 }} />
-              </Card>
-            </Col>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{
+              background: '#fff', borderRadius: 16, padding: 24,
+              border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            }}>
+              <Skeleton active paragraph={{ rows: 3 }} />
+            </div>
           ))}
-        </Row>
-
-      ) : filteredTests.length === 0 ? (
-        <Empty
-          className="mt-20"
-          description={
-            <Text type="secondary" style={{ fontSize: 16 }}>
-              No tests found matching your criteria.
-            </Text>
-          }
-        />
-
+        </div>
+      ) : finalTests.length === 0 ? (
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', padding: '80px 24px', textAlign: 'center'
+        }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: 20,
+            background: '#eef2ff', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', marginBottom: 16
+          }}>
+            <Mic size={32} color="#4f46e5" />
+          </div>
+          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#374151' }}>
+            No speaking tests found.
+          </p>
+          <p style={{ margin: '6px 0 0', fontSize: 13, color: '#9ca3af' }}>
+            Try a different filter or check back later.
+          </p>
+        </div>
       ) : (
-        <Row gutter={[24, 24]}>
-          {filteredTests.map((test) => {
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          {finalTests.map(test => {
             const config = getStatusConfig(test.status, test.id);
 
             return (
-              <Col xs={24} md={12} lg={8} key={test.id}>
-                <Card
-                  hoverable
-                  className="h-full flex flex-col rounded-3xl shadow-sm transition-all duration-300"
-                  style={{ background: config.cardBg, borderColor: config.cardBorder, borderWidth: 1.5 }}
-                  styles={{ body: { display: 'flex', flexDirection: 'column', height: '100%', padding: '24px' } }}
-                  onMouseEnter={e => { e.currentTarget.style.background = config.hoverBg; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = config.cardBg; }}
-                >
-                  {/* Status tag + time badge */}
-                  <div className="flex justify-between items-center mb-4">
-                    <Tag
-                      color={config.tagColor}
-                      className="flex items-center gap-1 px-3 py-1 m-0 rounded-lg font-bold border-0"
-                    >
-                      {config.icon}
-                      {config.text}
-                    </Tag>
-
-                    <Space className="text-slate-400 text-xs font-bold bg-white/70 px-2 py-1 rounded-md border border-white/80">
-                      <Clock size={12} />
-                      {test.time_limit || 15} Mins
-                    </Space>
+              <div
+                key={test.id}
+                style={{
+                  background: '#fff', borderRadius: 16, overflow: 'hidden',
+                  border: '1px solid #eef2ff',
+                  borderLeft: `4px solid ${config.accentColor}`,
+                  boxShadow: '0 2px 12px rgba(79,70,229,0.06)',
+                  display: 'flex', flexDirection: 'column',
+                  transition: 'transform 0.2s, box-shadow 0.2s'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.boxShadow = '0 8px 28px rgba(79,70,229,0.14)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(79,70,229,0.06)';
+                }}
+              >
+                <div style={{ padding: '20px 20px 16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                    {config.badge}
+                    <span style={{
+                      display: 'flex', alignItems: 'center', gap: 4,
+                      fontSize: 12, fontWeight: 600, color: '#9ca3af',
+                      background: '#f8fafc', padding: '3px 9px', borderRadius: 8
+                    }}>
+                      <Clock size={11} /> {test.time_limit || 15} Mins
+                    </span>
                   </div>
+                  <h3 style={{
+                    margin: '0 0 6px', fontSize: 15, fontWeight: 800,
+                    color: '#1e1b4b', lineHeight: 1.4,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                  }}>
+                    {test.title}
+                  </h3>
+                  <p style={{
+                    margin: 0, fontSize: 13, color: '#6b7280', lineHeight: 1.5,
+                    display: '-webkit-box', WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical', overflow: 'hidden'
+                  }}>
+                    {test.description || 'Includes Part 1, Part 2, and Part 3 with real-time AI feedback and band score prediction.'}
+                  </p>
+                </div>
 
-                  {/* Title + description */}
-                  <div className="flex-1 mb-6">
-                    <Title
-                      level={4}
-                      className="line-clamp-1"
-                      style={{ marginTop: 0, marginBottom: 8, fontWeight: 800 }}
+                <div style={{ padding: '12px 20px 20px', display: 'flex', flexDirection: 'column', gap: 8, marginTop: 'auto' }}>
+                  <button
+                    onClick={config.mainBtnAction}
+                    style={{
+                      width: '100%', padding: '11px 16px', borderRadius: 10,
+                      cursor: 'pointer', fontSize: 14, fontWeight: 700,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      transition: 'all 0.2s', ...config.mainBtnStyle
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'scale(1.01)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)'; }}
+                  >
+                    {config.isDone
+                      ? <><History size={15} /> {config.mainBtnText}</>
+                      : <><Play size={15} /> {config.mainBtnText} <ArrowRight size={15} /></>
+                    }
+                  </button>
+
+                  {config.showRetry && (
+                    <button
+                      onClick={() => navigate(`/speaking/exam/${test.id}`)}
+                      style={{
+                        width: '100%', padding: '9px 16px', borderRadius: 10,
+                        cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        background: 'transparent', color: '#6b7280',
+                        border: '1.5px solid #e5e7eb', transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#f97316'; e.currentTarget.style.color = '#f97316'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#6b7280'; }}
                     >
-                      {test.title}
-                    </Title>
-                    <Paragraph className="text-slate-500 line-clamp-2 m-0" style={{ fontSize: 13 }}>
-                      {test.description || 'Includes Part 1, Part 2, and Part 3 with real-time AI feedback and band score prediction.'}
-                    </Paragraph>
-                  </div>
-
-                  {/* Action buttons — same structure as AptisListPage */}
-                  <div className="flex flex-col gap-2">
-                    <Button
-                      type={config.isStartBtn ? 'primary' : 'default'}
-                      size="large"
-                      block
-                      onClick={config.mainBtnAction}
-                      className={`h-11 rounded-xl font-bold flex items-center justify-center gap-2 ${config.isStartBtn ? 'bg-indigo-600' : 'bg-white/80'}`}
-                    >
-                      {config.mainBtnText}
-                      <ArrowRight size={18} />
-                    </Button>
-
-                    {config.showRetry && (
-                      <Button
-                        icon={<RotateCcw size={16} />}
-                        block
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/speaking/exam/${test.id}`);
-                        }}
-                        style={{
-                          color: config.retryColor,
-                          borderColor: config.retryBorder,
-                          backgroundColor: config.retryBg,
-                        }}
-                        className="h-11 rounded-xl font-semibold"
-                      >
-                        Retry Test
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              </Col>
+                      <RotateCcw size={13} /> Retry Test
+                    </button>
+                  )}
+                </div>
+              </div>
             );
           })}
-        </Row>
+        </div>
       )}
-
     </div>
   );
 };

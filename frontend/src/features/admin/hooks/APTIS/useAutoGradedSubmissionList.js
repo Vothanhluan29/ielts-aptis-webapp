@@ -49,8 +49,8 @@ export const useAutoGradedSubmissionList = (api, detailRoute) => {
   }, [fetchSubmissions]);
 
   const handleViewDetail = useCallback((id) => {
-    navigate(`${detailRoute}/${id}`);
-  }, [navigate, detailRoute]);
+    window.open(`${detailRoute}/${id}`, '_blank');
+  }, [detailRoute]);
 
   // Client-side search filter
   const filteredData = searchText

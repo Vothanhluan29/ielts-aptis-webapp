@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 
 import { useExamResult } from '../../../hooks/IELTS/exam/useExamResult';
+import SmartBackButton from '../../../../../components/common/SmartBackButton';
 
 const { Title, Text } = Typography;
 
@@ -73,15 +74,8 @@ const ExamResultPage = () => {
     <div className="min-h-screen bg-slate-50 py-10 px-4 md:px-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
         
-        {/* Nút Back */}
-        <Button 
-          type="text" 
-          icon={<ArrowLeftOutlined />} 
-          onClick={() => navigate('/exam/history')}
-          className="text-slate-500 hover:text-indigo-600 font-semibold px-0 hover:bg-transparent"
-        >
-          Back to History
-        </Button>
+        {/* Nút Back thông minh */}
+        <SmartBackButton fallbackPath="/exam/history" customText="Back to Exam History" themeClass="text-indigo-600" />
 
         {/* ================= HERO CARD (OVERALL SCORE) ================= */}
         <div className="relative bg-linear-to-br from-indigo-700 via-indigo-600 to-violet-800 rounded-3xl shadow-xl border border-indigo-500 p-8 md:p-12 overflow-hidden text-white">

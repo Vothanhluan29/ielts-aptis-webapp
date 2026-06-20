@@ -1,10 +1,11 @@
 import React from 'react';
-import { Spin, Result, Typography, Layout, Row, Col, Card, Tag, Alert, Tabs } from 'antd';
-import { ArrowLeftOutlined, CheckCircleFilled, SyncOutlined } from '@ant-design/icons';
-import { Mic, Trophy, Target, MessageSquare, PlayCircle, UserCheck } from 'lucide-react';
+import { Spin, Result, Typography, Layout, Tag, Alert, Tabs } from 'antd';
+import { SyncOutlined } from '@ant-design/icons';
+import { Mic, MessageSquare, PlayCircle, UserCheck } from 'lucide-react';
 
-// Nhúng Custom Hook
 import { useSpeakingAptisResult } from '../../../hooks/APTIS/speaking/useSpeakingAptisResult';
+import ResultHeader from '../../../components/APTIS/result/ResultHeader';
+import ScoreHeroCard from '../../../components/APTIS/result/ScoreHeroCard';
 
 const { Content } = Layout;
 const { Text, Title, Paragraph } = Typography;
@@ -34,7 +35,7 @@ const PartFeedback = ({ isGraded, feedback, score }) => {
 /* ─── MAIN PAGE ─── */
 const SpeakingAptisResultPage = () => {
   const {
-    loading, submission, testDetail, computedData, handleGoBack, getCefrColor
+    loading, submission, testDetail, computedData, handleGoBack
   } = useSpeakingAptisResult();
 
   if (loading) return (
@@ -62,7 +63,6 @@ const SpeakingAptisResultPage = () => {
   );
 
   const { parts, resultsArray, isGraded, cefrLevel, scoreVal, submitDate, overallFeedback } = computedData;
-  const cefrStyle = getCefrColor(cefrLevel);
 
   // Map dữ liệu vào cấu trúc Tabs của Ant Design
   const tabItems = parts.map((part) => {
@@ -125,7 +125,6 @@ const SpeakingAptisResultPage = () => {
               )}
             </div>
 
-            {/* Gọi component PartFeedback */}
             <PartFeedback isGraded={isGraded} feedback={feedback} score={score} />
           </div>
         </div>
@@ -144,21 +143,16 @@ const SpeakingAptisResultPage = () => {
         .ant-tabs-ink-bar { background: #9333ea !important; height: 3px !important; border-radius: 3px 3px 0 0 !important; }
       `}</style>
 
-      {/* CUSTOM HEADER */}
-      <div className="flex items-center gap-3 mb-4 px-6 pt-6 max-w-5xl mx-auto w-full">
-        <button onClick={handleGoBack} className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 font-semibold hover:border-purple-300 hover:text-purple-600 transition-all text-sm">
-          <ArrowLeftOutlined /> Test List
-        </button>
-        <div className="w-px h-5 bg-purple-200" />
-        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-purple-700 font-bold text-[13px]">
-          <Mic size={16} strokeWidth={2.5} /> SPEAKING
-        </div>
-        <span className="text-base font-bold text-slate-800 truncate">{testDetail.title}</span>
-      </div>
+      <ResultHeader
+        onGoBack={handleGoBack}
+        skillName="SPEAKING"
+        skillIcon={<Mic size={16} strokeWidth={2.5} />}
+        skillColor="purple"
+        testTitle={testDetail.title}
+      />
 
       <Content className="px-6 pb-8 max-w-5xl mx-auto w-full">
         
-        {/* SCORING SECTION */}
         <div className="animate-in fade-in slide-in-from-bottom-2 mb-6">
           {!isGraded && (
             <Alert
@@ -171,29 +165,15 @@ const SpeakingAptisResultPage = () => {
             />
           )}
 
-          <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200" styles={{ body: { padding: '32px' } }}>
-            <Row gutter={[24, 24]} align="middle" justify="center">
-              <Col xs={12} md={8} className="text-center md:border-r border-slate-200">
-                <div className={`mx-auto flex items-center justify-center w-28 h-28 rounded-full mb-3 shadow-inner border-4 ${isGraded ? cefrStyle : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
-                  <span className="text-4xl font-black">{isGraded ? cefrLevel : '?'}</span>
-                </div>
-                <Text strong className="text-slate-500 uppercase tracking-widest text-xs">CEFR Level</Text>
-              </Col>
-
-              <Col xs={12} md={8} className="text-center">
-                <Target className={`w-8 h-8 mx-auto mb-2 ${isGraded ? 'text-purple-500' : 'text-slate-300'}`} />
-                <div className="text-4xl font-black text-slate-800 mb-1">
-                  {isGraded ? scoreVal : '--'} <span className="text-xl text-slate-400">/ 50</span>
-                </div>
-                <Text strong className="text-slate-500 uppercase tracking-widest text-xs">Speaking Score</Text>
-              </Col>
-            </Row>
-            
-            <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-center gap-2 text-slate-500 text-sm">
-              <CheckCircleFilled className="text-green-500" />
-              <span>Successfully submitted at: <strong className="text-slate-700">{submitDate}</strong></span>
-            </div>
-          </Card>
+          <ScoreHeroCard
+            score={scoreVal}
+            maxScore={50}
+            cefrLevel={cefrLevel}
+            submitDate={submitDate}
+            skillColor="purple"
+            isGraded={isGraded}
+            scoreLabel="Speaking Score"
+          />
         </div>
 
         {/* OVERALL FEEDBACK */}

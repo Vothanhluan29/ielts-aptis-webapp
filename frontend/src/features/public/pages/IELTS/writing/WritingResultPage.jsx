@@ -7,6 +7,7 @@ import {
   Info, AlertTriangle, SpellCheck, Link, PenTool,
   Bot, RefreshCw
 } from 'lucide-react';
+import SmartBackButton from '../../../../../components/common/SmartBackButton';
 
 const getCorrectionTheme = (type = '') => {
   const t = type.toLowerCase();
@@ -151,6 +152,8 @@ const WritingResultPage = () => {
       `}</style>
 
       <div className="max-w-6xl mx-auto">
+        <SmartBackButton fallbackPath="/writing/history" customText="Back to Writing Library" themeClass="text-rose-600" />
+        
         {/* --- HEADER --- */}
         <div className="header-grad fu rounded-3xl p-8 md:p-10 mb-8 overflow-hidden relative shadow-xl shadow-rose-300/30">
           <div className="absolute -top-10 -right-10 w-64 h-64 rounded-full bg-white/5 pointer-events-none"></div>

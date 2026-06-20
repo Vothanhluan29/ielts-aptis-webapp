@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  Form, Input, Button, Card, Switch, InputNumber,
-  Select, Spin, Row, Col, Typography, Collapse, Popconfirm, Tabs,
+  Form, Button, Card, Switch, InputNumber,
+  Select, Spin, Row, Col, Typography, Collapse, Popconfirm, Tabs, Input
 } from 'antd';
 import {
   ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined,
@@ -12,6 +12,7 @@ import {
 import MultipleChoiceAdmin from '../../../components/APTIS/question-types/MultipleChoiceAdmin';
 import MatchingAdmin from '../../../components/APTIS/question-types/MatchingAdmin';
 import { useGramVocabEdit, MAX_QUESTIONS } from '../../../hooks/APTIS/grammar_vocab/useGramVocabEdit';
+import { BlurInput, BlurTextArea } from '../../../../../components/common/BlurInput';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -50,7 +51,7 @@ const buildGrammarItems = (fields, add, remove, form, activeKeys, setActiveKeys,
         <Form.Item label="Question Text" required>
           <div style={{ display: 'flex', gap: 8 }}>
             <Form.Item {...rf} name={[name, 'question_text']} label="" rules={[{ required: true, message: 'Question text is required' }]} style={{ flex: 1, marginBottom: 0 }}>
-              <Input placeholder="He ___ to the store yesterday." />
+              <BlurInput placeholder="He ___ to the store yesterday." />
             </Form.Item>
             <Button type="dashed" onClick={() => {
               const cur = form.getFieldValue(['grammar_questions', name, 'question_text']) || '';
@@ -60,7 +61,7 @@ const buildGrammarItems = (fields, add, remove, form, activeKeys, setActiveKeys,
         </Form.Item>
         <MultipleChoiceAdmin relativePath={[name]} absolutePath={['grammar_questions', name]} restField={rf} form={form} />
         <Form.Item {...rf} name={[name, 'explanation']} label="Explanation (Optional)" style={{ marginTop: 8 }}>
-          <Input.TextArea rows={1} placeholder="Why is this answer correct?" />
+          <BlurTextArea rows={1} placeholder="Why is this answer correct?" />
         </Form.Item>
       </>
     ),
@@ -89,11 +90,11 @@ const buildVocabQItems = (fields, add, remove, form, gName, refreshCounts, isMax
     children: (
       <>
         <Form.Item {...rf} name={[name, 'question_text']} label="Definition / Meaning" rules={[{ required: true, message: 'Definition is required' }]}>
-          <Input placeholder="A large fruit with a green shell..." />
+          <BlurInput placeholder="A large fruit with a green shell..." />
         </Form.Item>
         <MatchingAdmin relativePath={[name]} absolutePath={['vocab_groups', gName, 'questions', name]} restField={rf} form={form} />
         <Form.Item {...rf} name={[name, 'explanation']} label="Explanation (Optional)" style={{ marginTop: 8 }}>
-          <Input.TextArea rows={1} placeholder="Why is this answer correct?" />
+          <BlurTextArea rows={1} placeholder="Why is this answer correct?" />
         </Form.Item>
       </>
     ),
@@ -135,7 +136,7 @@ const VocabGroupCard = ({ gKey, gName, removeGroup, form, totalCount, refreshCou
           <Form.Item name={[gName, 'instruction']}
             label={<><InfoCircleOutlined /> Instruction (shown to students)</>}
             rules={[{ required: true, message: 'Instruction is required' }]}>
-            <Input.TextArea rows={2} placeholder="Choose the word that best matches the definition..." />
+            <BlurTextArea rows={2} placeholder="Choose the word that best matches the definition..." />
           </Form.Item>
         </Col>
       </Row>

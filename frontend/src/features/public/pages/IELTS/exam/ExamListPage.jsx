@@ -1,14 +1,18 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Button, Tag, Typography, Row, Col, Skeleton, Empty, Space, Radio, Input } from 'antd';
+import { Skeleton } from 'antd';
 import {
-  AppstoreOutlined, ClockCircleOutlined, CheckCircleOutlined,
-  ExclamationCircleOutlined, ArrowRightOutlined, HistoryOutlined, 
-  SearchOutlined, ReloadOutlined
-} from '@ant-design/icons';
+  Clock, CheckCircle, AlertCircle, ArrowRight,
+  History, RotateCcw, ClipboardList, RefreshCw, Play
+} from 'lucide-react';
 import { useExamList } from '../../../hooks/IELTS/exam/useExamList';
 
-const { Title, Paragraph, Text } = Typography;
+const FILTER_OPTIONS = [
+  { value: 'ALL', label: 'All' },
+  { value: 'NOT_STARTED', label: 'Not Started' },
+  { value: 'IN_PROGRESS', label: 'In Progress' },
+  { value: 'COMPLETED', label: 'Completed' },
+];
 
 const ExamListPage = () => {
   const navigate = useNavigate();
@@ -22,211 +26,289 @@ const ExamListPage = () => {
     handleAction 
   } = useExamList();
 
-  const getStatusConfig = (userStatus, exam) => {
-    const s = userStatus?.toUpperCase();
+  const finalTests = useMemo(() => {
+    if (!filteredExams) return [];
+    return filteredExams.filter(t =>
+      t.title?.toLowerCase().includes((searchTerm || '').toLowerCase())
+    );
+  }, [filteredExams, searchTerm]);
 
-    if (s === 'COMPLETED') {
+  const getStatusConfig = (exam) => {
+    const status = exam.user_status?.toUpperCase() || 'NOT_STARTED';
+
+    if (['GRADED', 'COMPLETED', 'FINISHED'].includes(status)) {
       return {
-        tagColor: 'success',
-        text: 'Completed',
-        icon: <CheckCircleOutlined className="mr-1" />,
+        badge: (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            background: '#dcfce7', color: '#16a34a',
+            padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
+          }}>
+            <CheckCircle size={12} /> Completed
+          </span>
+        ),
         mainBtnText: 'View Result',
-        mainBtnAction: () => handleAction(exam), 
-        isStartBtn: false,
+        mainBtnAction: () => handleAction(exam),
+        mainBtnStyle: {
+          background: 'transparent', color: '#6366f1',
+          border: '1.5px solid #a5b4fc', fontWeight: 700
+        },
+        isDone: true,
         showRetry: true,
-        cardBg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 60%, #bbf7d0 100%)',
-        cardBorder: '#86efac',
-        hoverBg: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 60%, #a7f3d0 100%)',
-        retryColor: '#16a34a',
-        retryBorder: '#86efac',
-        retryBg: '#f0fdf4',
+        accentColor: '#22c55e'
       };
-    }
-
-    if (s === 'IN_PROGRESS') {
+    } else if (status === 'IN_PROGRESS') {
       return {
-        tagColor: 'warning',
-        text: exam.current_step ? `In Progress · ${exam.current_step}` : 'In Progress',
-        icon: <ClockCircleOutlined className="mr-1" />,
+        badge: (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            background: '#fef3c7', color: '#d97706',
+            padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
+          }}>
+            <RefreshCw size={12} /> {exam.current_step ? `In Progress · ${exam.current_step}` : 'In Progress'}
+          </span>
+        ),
         mainBtnText: 'Resume Test',
         mainBtnAction: () => handleAction(exam),
-        isStartBtn: false,
+        mainBtnStyle: {
+          background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
+          color: '#fff', border: 'none', fontWeight: 700,
+          boxShadow: '0 4px 14px rgba(245,158,11,0.35)'
+        },
+        isDone: false,
         showRetry: false,
-        cardBg: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 60%, #fde68a 100%)',
-        cardBorder: '#fcd34d',
-        hoverBg: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 60%, #fcd34d 100%)',
+        accentColor: '#f59e0b'
+      };
+    } else {
+      return {
+        badge: (
+          <span style={{
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            background: '#ede9fe', color: '#7c3aed',
+            padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
+          }}>
+            <AlertCircle size={12} /> Not Started
+          </span>
+        ),
+        mainBtnText: 'Start Test',
+        mainBtnAction: () => handleAction(exam),
+        mainBtnStyle: {
+          background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
+          color: '#fff', border: 'none', fontWeight: 700,
+          boxShadow: '0 4px 14px rgba(99,102,241,0.35)'
+        },
+        isDone: false,
+        showRetry: false,
+        accentColor: '#6366f1'
       };
     }
-
-
-    return {
-      tagColor: 'purple',
-      text: 'Not Started',
-      icon: <ExclamationCircleOutlined className="mr-1" />,
-      mainBtnText: 'Start Test',
-      mainBtnAction: () => handleAction(exam),
-      isStartBtn: true,
-      showRetry: false,
-      cardBg: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 60%, #e9d5ff 100%)',
-      cardBorder: '#d8b4fe',
-      hoverBg: 'linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 60%, #d8b4fe 100%)',
-    };
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto p-4 md:p-8 animate-in fade-in duration-500 font-sans bg-transparent">
+    <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
 
-      {/* ═══════════════ HEADER ═══════════════ */}
-      <div className="mb-8 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <div className="p-4 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-200 flex items-center justify-center">
-            <AppstoreOutlined style={{ fontSize: '32px' }} />
+      {/* ===== HEADER ===== */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{
+          display: 'flex', flexWrap: 'wrap',
+          alignItems: 'center', justifyContent: 'space-between', gap: 16
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{
+              width: 56, height: 56, borderRadius: 16,
+              background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 20px rgba(99,102,241,0.3)', flexShrink: 0
+            }}>
+              <ClipboardList size={28} color="#fff" strokeWidth={2} />
+            </div>
+            <div>
+              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#1e1b4b', lineHeight: 1.3 }}>
+                IELTS Full Mock Test
+              </h1>
+              <p style={{ margin: 0, fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+                Complete mock exam covering all 4 skills with real timing
+              </p>
+            </div>
           </div>
-          <div>
-            <Title level={2} style={{ margin: 0, fontWeight: 800, color: '#1e293b' }}>
-              IELTS Full Test Simulation
-            </Title>
-            <Text className="text-slate-500 font-medium">
-              Complete mock exam covering all 4 skills with real timing
-            </Text>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              placeholder="Search tests..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              style={{
+                padding: '8px 14px', borderRadius: 10, border: '1.5px solid #e2e8f0',
+                background: '#fff', fontSize: 13, color: '#374151', outline: 'none',
+                minWidth: 180, transition: 'all 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
+              }}
+              onFocus={e => e.currentTarget.style.borderColor = '#a5b4fc'}
+              onBlur={e => e.currentTarget.style.borderColor = '#e2e8f0'}
+            />
+
+            <div style={{
+              display: 'flex', background: '#f1f0fe', borderRadius: 12,
+              padding: 4, gap: 4
+            }}>
+              {FILTER_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setFilterStatus(opt.value)}
+                  style={{
+                    padding: '6px 14px', borderRadius: 9, border: 'none', cursor: 'pointer',
+                    fontSize: 13, fontWeight: 600, transition: 'all 0.2s',
+                    background: filterStatus === opt.value ? '#6366f1' : 'transparent',
+                    color: filterStatus === opt.value ? '#fff' : '#6b7280',
+                    boxShadow: filterStatus === opt.value ? '0 2px 8px rgba(99,102,241,0.3)' : 'none'
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => navigate('/exam/history')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '8px 16px', borderRadius: 10, border: '1.5px solid #e2e8f0',
+                background: '#fff', cursor: 'pointer', fontSize: 13,
+                fontWeight: 600, color: '#374151', transition: 'all 0.2s',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#a5b4fc'; e.currentTarget.style.color = '#6366f1'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#374151'; }}
+            >
+              <History size={15} /> History
+            </button>
           </div>
         </div>
-
-        <Space size="middle" wrap>
-          <Input
-            prefix={<SearchOutlined className="text-slate-400" />}
-            placeholder="Search full exams..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="rounded-xl h-10 w-full sm:w-48 lg:w-64 border-slate-200 bg-white shadow-sm"
-            allowClear
-          />
-
-          <Radio.Group
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            optionType="button"
-            buttonStyle="solid"
-            className="shadow-sm"
-          >
-            <Radio.Button value="ALL" className="rounded-l-xl">All</Radio.Button>
-            <Radio.Button value="NOT_STARTED">New</Radio.Button>
-            <Radio.Button value="IN_PROGRESS">In Progress</Radio.Button>
-            <Radio.Button value="COMPLETED" className="rounded-r-xl">Completed</Radio.Button>
-          </Radio.Group>
-
-          <Button
-            icon={<HistoryOutlined />}
-            onClick={() => navigate('/exam/history')}
-            className="flex items-center gap-2 rounded-xl font-bold border-slate-200 hover:text-indigo-600 shadow-sm h-10"
-          >
-            History
-          </Button>
-        </Space>
+        <div style={{ marginTop: 20, height: 1, background: 'linear-gradient(90deg, #e0e7ff 0%, transparent 100%)' }} />
       </div>
 
-      {/* ═══════════════ CONTENT ═══════════════ */}
+      {/* ===== CONTENT ===== */}
       {loading ? (
-        <Row gutter={[24, 24]}>
-          {[1, 2, 3].map((i) => (
-            <Col xs={24} md={12} lg={8} key={i}>
-              <Card className="rounded-3xl border-slate-100 shadow-sm h-48">
-                <Skeleton active paragraph={{ rows: 3 }} />
-              </Card>
-            </Col>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{
+              background: '#fff', borderRadius: 16, padding: 24,
+              border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+            }}>
+              <Skeleton active paragraph={{ rows: 3 }} />
+            </div>
           ))}
-        </Row>
-
-      ) : filteredExams.length === 0 ? (
-        <Empty
-          className="mt-20 p-10 bg-white rounded-3xl shadow-sm border border-slate-100"
-          description={
-            <Text type="secondary" className="text-base font-medium">
-              No exams found matching your criteria.
-            </Text>
-          }
-        />
-
+        </div>
+      ) : finalTests.length === 0 ? (
+        <div style={{
+          display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', padding: '80px 24px', textAlign: 'center'
+        }}>
+          <div style={{
+            width: 72, height: 72, borderRadius: 20,
+            background: '#ede9fe', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', marginBottom: 16
+          }}>
+            <ClipboardList size={32} color="#6366f1" />
+          </div>
+          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#374151' }}>
+            No tests found.
+          </p>
+          <p style={{ margin: '6px 0 0', fontSize: 13, color: '#9ca3af' }}>
+            Try a different filter or search term.
+          </p>
+        </div>
       ) : (
-        <Row gutter={[24, 24]}>
-          {filteredExams.map((exam) => {
-            const config = getStatusConfig(exam.user_status, exam);
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          {finalTests.map(test => {
+            const config = getStatusConfig(test);
 
             return (
-              <Col xs={24} md={12} lg={8} key={exam.id}>
-                <Card
-                  hoverable
-                  className="h-full flex flex-col rounded-3xl shadow-sm transition-all duration-300"
-                  style={{ background: config.cardBg, borderColor: config.cardBorder, borderWidth: 1.5 }}
-                  styles={{ body: { display: 'flex', flexDirection: 'column', height: '100%', padding: '24px' } }}
-                  onMouseEnter={e => { e.currentTarget.style.background = config.hoverBg; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = config.cardBg; }}
-                >
-                  {/* Status tag + skills badge */}
-                  <div className="flex justify-between items-center mb-4">
-                    <Tag
-                      color={config.tagColor}
-                      className="flex items-center gap-1 px-3 py-1.5 m-0 rounded-lg font-bold border-0 shadow-sm"
+              <div
+                key={test.id}
+                style={{
+                  background: '#fff', borderRadius: 16, overflow: 'hidden',
+                  border: '1px solid #e8e7ff',
+                  borderLeft: `4px solid ${config.accentColor}`,
+                  boxShadow: '0 2px 12px rgba(99,102,241,0.06)',
+                  display: 'flex', flexDirection: 'column',
+                  transition: 'transform 0.2s, box-shadow 0.2s'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.boxShadow = '0 8px 28px rgba(99,102,241,0.14)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(99,102,241,0.06)';
+                }}
+              >
+                <div style={{ padding: '20px 20px 16px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+                    {config.badge}
+                    <span style={{
+                      display: 'flex', alignItems: 'center', gap: 4,
+                      fontSize: 12, fontWeight: 600, color: '#9ca3af',
+                      background: '#f8fafc', padding: '3px 9px', borderRadius: 8
+                    }}>
+                      <Clock size={11} /> 160 phút
+                    </span>
+                  </div>
+                  <h3 style={{
+                    margin: '0 0 6px', fontSize: 15, fontWeight: 800,
+                    color: '#1e1b4b', lineHeight: 1.4,
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                  }}>
+                    {test.title}
+                  </h3>
+                  <p style={{
+                    margin: 0, fontSize: 13, color: '#6b7280', lineHeight: 1.5,
+                    display: '-webkit-box', WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical', overflow: 'hidden'
+                  }}>
+                    {test.description || 'Complete IELTS mock exam with Listening, Reading, Writing and Speaking sections.'}
+                  </p>
+                </div>
+
+                <div style={{ padding: '12px 20px 20px', display: 'flex', flexDirection: 'column', gap: 8, marginTop: 'auto' }}>
+                  <button
+                    onClick={config.mainBtnAction}
+                    style={{
+                      width: '100%', padding: '11px 16px', borderRadius: 10,
+                      cursor: 'pointer', fontSize: 14, fontWeight: 700,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                      transition: 'all 0.2s', ...config.mainBtnStyle
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'scale(1.01)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)'; }}
+                  >
+                    {config.isDone
+                      ? <><History size={15} /> {config.mainBtnText}</>
+                      : <><Play size={15} /> {config.mainBtnText} <ArrowRight size={15} /></>
+                    }
+                  </button>
+
+                  {config.showRetry && (
+                    <button
+                      onClick={() => navigate(`/exam/lobby/${test.id}`)}
+                      style={{
+                        width: '100%', padding: '9px 16px', borderRadius: 10,
+                        cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                        background: 'transparent', color: '#6b7280',
+                        border: '1.5px solid #e5e7eb', transition: 'all 0.2s'
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#f97316'; e.currentTarget.style.color = '#f97316'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#6b7280'; }}
                     >
-                      {config.icon}
-                      {config.text}
-                    </Tag>
-
-                    <Space className="text-slate-500 text-xs font-bold bg-white/60 px-2.5 py-1 rounded-lg border border-white shadow-sm">
-                      <AppstoreOutlined />
-                      4 Skills
-                    </Space>
-                  </div>
-
-                  {/* Title + description */}
-                  <div className="flex-1 mb-6">
-                    <Title level={4} className="line-clamp-1 mt-0! mb-2! font-bold! text-slate-800">
-                      {exam.title}
-                    </Title>
-                    <Paragraph className="text-slate-600 line-clamp-2 m-0 text-sm font-medium">
-                      {exam.description || 'Complete IELTS mock exam with Listening, Reading, Writing and Speaking sections.'}
-                    </Paragraph>
-                  </div>
-
-                  {/* Action buttons */}
-                  <div className="flex flex-col gap-3">
-                    <Button
-                      type={config.isStartBtn ? 'primary' : 'default'}
-                      size="large"
-                      block
-                      onClick={config.mainBtnAction}
-                      className={`h-12 rounded-xl font-bold flex items-center justify-center gap-2 shadow-sm ${config.isStartBtn ? 'bg-indigo-600 hover:bg-indigo-500' : 'bg-white hover:border-indigo-400 hover:text-indigo-600'}`}
-                    >
-                      {config.mainBtnText}
-                      <ArrowRightOutlined />
-                    </Button>
-
-                    {config.showRetry && (
-                      <Button
-                        icon={<ReloadOutlined />}
-                        block
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/exam/lobby/${exam.id}`);
-                        }}
-                        style={{
-                          color: config.retryColor,
-                          borderColor: config.retryBorder,
-                          backgroundColor: config.retryBg,
-                        }}
-                        className="h-12 rounded-xl font-bold shadow-sm"
-                      >
-                        Retake Test
-                      </Button>
-                    )}
-                  </div>
-                </Card>
-              </Col>
+                      <RotateCcw size={13} /> Retake Test
+                    </button>
+                  )}
+                </div>
+              </div>
             );
           })}
-        </Row>
+        </div>
       )}
-
     </div>
   );
 };

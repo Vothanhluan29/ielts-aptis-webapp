@@ -3,7 +3,6 @@ import {
   Input,
   Select,
   Button,
-  Card,
   Space
 } from 'antd';
 
@@ -28,65 +27,61 @@ const UserFilterBar = ({ filterLogic }) => {
   } = filterLogic;
 
   return (
-    <Card
-      size="small"
-      style={{
-        borderRadius: 16
-      }}
-    >
-      <Space
-        style={{ width: '100%' }}
-        direction="horizontal"
-        wrap
-        align="center"
-        justify="space-between"
-      >
-        {/* SEARCH */}
+    <div className="flex flex-col md:flex-row gap-4 items-center justify-between w-full">
+      {/* SEARCH */}
+      <div className="w-full md:w-auto flex-1 max-w-md">
         <Input
-          placeholder="Search users..."
-          prefix={<SearchOutlined />}
+          placeholder="Search users by name or email..."
+          prefix={<SearchOutlined className="text-gray-400" />}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           allowClear
-          style={{ width: 280 }}
+          size="large"
+          className="rounded-xl border-gray-200 hover:border-indigo-400 focus:border-indigo-500 shadow-sm"
         />
+      </div>
 
-        {/* FILTERS */}
-        <Space wrap>
-          <Select
-            value={filterRole}
-            onChange={setFilterRole}
-            style={{ width: 140 }}
-            prefix={<FilterOutlined />}
+      {/* FILTERS */}
+      <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <Select
+          value={filterRole}
+          onChange={setFilterRole}
+          size="large"
+          className="w-full sm:w-[140px] rounded-xl"
+          suffixIcon={<FilterOutlined className="text-gray-400" />}
+          popupClassName="rounded-xl"
+        >
+          <Option value="all">All Roles</Option>
+          <Option value="admin">Admin</Option>
+          <Option value="student">Student</Option>
+        </Select>
+
+        <Select
+          value={filterStatus}
+          onChange={setFilterStatus}
+          size="large"
+          className="w-full sm:w-[140px] rounded-xl"
+          popupClassName="rounded-xl"
+        >
+          <Option value="all">All Status</Option>
+          <Option value="active">Active</Option>
+          <Option value="banned">Suspended</Option>
+        </Select>
+
+        {/* RESET */}
+        {hasFilter && (
+          <Button
+            danger
+            icon={<CloseOutlined />}
+            onClick={resetFilters}
+            size="large"
+            className="rounded-xl border-red-100 bg-red-50 hover:bg-red-100 hover:text-red-600 transition-colors shadow-sm"
           >
-            <Option value="all">All Roles</Option>
-            <Option value="admin">Admin</Option>
-            <Option value="student">Student</Option>
-          </Select>
-
-          <Select
-            value={filterStatus}
-            onChange={setFilterStatus}
-            style={{ width: 140 }}
-          >
-            <Option value="all">All Status</Option>
-            <Option value="active">Active</Option>
-            <Option value="banned">Banned</Option>
-          </Select>
-
-          {/* RESET */}
-          {hasFilter && (
-            <Button
-              danger
-              icon={<CloseOutlined />}
-              onClick={resetFilters}
-            >
-              Reset
-            </Button>
-          )}
-        </Space>
-      </Space>
-    </Card>
+            Reset
+          </Button>
+        )}
+      </div>
+    </div>
   );
 };
 

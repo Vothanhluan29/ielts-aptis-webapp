@@ -14,6 +14,7 @@ import ReorderSentencesAdmin from '../../../components/APTIS/question-types/Reor
 
 // Import Custom Hook
 import { useReadingAptisEdit } from '../../../hooks/APTIS/reading/useReadingAptisEdit';
+import { BlurInput, BlurTextArea } from '../../../../../components/common/BlurInput';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -164,7 +165,7 @@ const ReadingAptisEditPage = () => {
 
                       {showPassage && (
                         <Form.Item name={[partName, 'content']} label={<Text strong style={{ color: '#ea580c' }}>Reading Passage</Text>}>
-                          <TextArea 
+                          <BlurTextArea 
                             rows={8} 
                             placeholder="Paste the main reading passage here..." 
                             style={{ backgroundColor: '#fff7ed', borderColor: '#fdba74' }}
@@ -249,7 +250,7 @@ const ReadingAptisEditPage = () => {
                                       </Col>
                                       <Col span={16}>
                                         <Form.Item {...restQField} name={[qName, 'question_text']} label="Question / Prompt">
-                                          <Input placeholder="Enter question text or prompt..." />
+                                          <BlurInput placeholder="Enter question text or prompt..." />
                                         </Form.Item>
                                       </Col>
                                     </Row>

@@ -1,31 +1,28 @@
 import React from 'react';
-import { Typography, Spin, Card, Row, Col, Tag, Alert, Tabs, Result, Layout } from 'antd';
-import { 
-  ArrowLeftOutlined, CheckCircleFilled, SyncOutlined,
-  MessageOutlined, FormOutlined, FileTextOutlined, MailOutlined,
-} from '@ant-design/icons';
-import { Trophy, Target, UserCheck } from 'lucide-react';
+import { Typography, Spin, Card, Tag, Alert, Tabs, Result, Layout } from 'antd';
+import { SyncOutlined, MessageOutlined, FormOutlined, FileTextOutlined, MailOutlined } from '@ant-design/icons';
+import { UserCheck } from 'lucide-react';
 
-// Nhúng Custom Hook
 import { useWritingAptisResult } from '../../../hooks/APTIS/writing/useWritingAptisResult';
+import ResultHeader from '../../../components/APTIS/result/ResultHeader';
+import ScoreHeroCard from '../../../components/APTIS/result/ScoreHeroCard';
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
 
-// 🔥 Đưa component này ra ngoài component chính và nhận props
 const PartFeedback = ({ partKey, isGraded, feedback }) => {
   const fb = feedback?.[partKey];
   if (!isGraded || !fb) return null;
 
   return (
-    <div className="mt-4 p-4 rounded-xl bg-purple-50/80 border border-purple-100 flex gap-3">
+    <div className="mt-4 p-4 rounded-xl bg-indigo-50/80 border border-indigo-100 flex gap-3">
       <div className="shrink-0 mt-0.5">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       </div>
       <div>
         <div className="flex items-center gap-3 mb-1">
-          <Text className="font-bold text-purple-700 block">Teacher's Feedback</Text>
-          <Tag color="purple" className="m-0 text-xs font-bold border-0 px-2 py-0.5">Score: {fb.score}</Tag>
+          <Text className="font-bold text-indigo-700 block">Teacher's Feedback</Text>
+          <Tag color="indigo" className="m-0 text-xs font-bold border-0 px-2 py-0.5">Score: {fb.score}</Tag>
         </div>
         <Text className="text-slate-600 whitespace-pre-wrap leading-relaxed text-sm">
           {fb.comments || "No specific comments for this part."}
@@ -37,13 +34,11 @@ const PartFeedback = ({ partKey, isGraded, feedback }) => {
 
 /* ─── 2. MAIN PAGE COMPONENT ─── */
 const WritingAptisResultPage = () => {
-  // 🔥 Rút Data và Logic từ Hook
   const {
     loading,
     submission,
     computedData,
     handleGoBack,
-    getCefrColor,
     getPartInfo,
     getQText,
     renderSafeText,
@@ -75,7 +70,6 @@ const WritingAptisResultPage = () => {
   );
 
   const { isGraded, testInfo, ansPart1, ansPart2, ansPart3, ansPart4, cefrLevel, scoreVal, submitDate, feedback, overallFeedback } = computedData;
-  const cefrStyle = getCefrColor(cefrLevel);
 
   // Cấu hình Tabs cho 4 Part
   const tabItems = [
@@ -103,7 +97,6 @@ const WritingAptisResultPage = () => {
               </div>
             ))}
           </div>
-          {/* 🔥 Gọi component và truyền props */}
           <PartFeedback partKey="PART_1" isGraded={isGraded} feedback={feedback} />
         </div>
       ),
@@ -130,7 +123,6 @@ const WritingAptisResultPage = () => {
             </div>
             <div className="text-right mt-3 text-xs text-slate-400">Word count: {countWords(ansPart2)}</div>
           </div>
-          {/* 🔥 Gọi component và truyền props */}
           <PartFeedback partKey="PART_2" isGraded={isGraded} feedback={feedback} />
         </div>
       ),
@@ -159,7 +151,6 @@ const WritingAptisResultPage = () => {
               </div>
             ))}
           </div>
-          {/* 🔥 Gọi component và truyền props */}
           <PartFeedback partKey="PART_3" isGraded={isGraded} feedback={feedback} />
         </div>
       ),
@@ -215,22 +206,16 @@ const WritingAptisResultPage = () => {
         .ant-tabs-ink-bar { background: #6366f1 !important; height: 3px !important; border-radius: 3px 3px 0 0 !important; }
       `}</style>
 
-      {/* CUSTOM HEADER */}
-      <div className="flex items-center gap-3 mb-4 px-6 pt-6 max-w-5xl mx-auto w-full">
-        <button onClick={handleGoBack} className="flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 font-semibold hover:border-indigo-300 hover:text-indigo-600 transition-all text-sm">
-          <ArrowLeftOutlined /> Test List
-        </button>
-        <div className="w-px h-5 bg-indigo-200" />
-        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 font-bold text-[13px]">
-          <FormOutlined /> WRITING
-        </div>
-        <span className="text-base font-bold text-slate-800 truncate">{testInfo.title}</span>
-      </div>
+      <ResultHeader
+        onGoBack={handleGoBack}
+        skillName="WRITING"
+        skillIcon={<FormOutlined />}
+        skillColor="indigo"
+        testTitle={testInfo.title}
+      />
 
-      {/* MAIN CONTENT */}
       <Content className="px-6 pb-8 max-w-5xl mx-auto w-full">
         
-        {/* SCORING CARD */}
         <div className="animate-in fade-in slide-in-from-bottom-2 mb-6">
           {!isGraded && (
             <Alert
@@ -243,28 +228,15 @@ const WritingAptisResultPage = () => {
             />
           )}
 
-          <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200" styles={{ body: { padding: '32px' } }}>
-            <Row gutter={[24, 24]} align="middle" justify="center">
-              <Col xs={12} md={8} className="text-center md:border-r border-slate-200">
-                <div className={`mx-auto flex items-center justify-center w-28 h-28 rounded-full mb-3 shadow-inner border-4 ${isGraded ? cefrStyle : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
-                  <span className="text-4xl font-black">{isGraded ? cefrLevel : '?'}</span>
-                </div>
-                <Text strong className="text-slate-500 uppercase tracking-widest text-xs">CEFR Level</Text>
-              </Col>
-
-              <Col xs={12} md={8} className="text-center">
-                <Target className={`w-8 h-8 mx-auto mb-2 ${isGraded ? 'text-indigo-500' : 'text-slate-300'}`} />
-                <div className="text-4xl font-black text-slate-800 mb-1">
-                  {isGraded ? scoreVal : '--'} <span className="text-xl text-slate-400">/ 50</span>
-                </div>
-                <Text strong className="text-slate-500 uppercase tracking-widest text-xs">Writing Score</Text>
-              </Col>
-            </Row>
-            <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-center gap-2 text-slate-500 text-sm">
-              <CheckCircleFilled className="text-green-500" />
-              <span>Successfully submitted at: <strong className="text-slate-700">{submitDate}</strong></span>
-            </div>
-          </Card>
+          <ScoreHeroCard
+            score={scoreVal}
+            maxScore={50}
+            cefrLevel={cefrLevel}
+            submitDate={submitDate}
+            skillColor="indigo"
+            isGraded={isGraded}
+            scoreLabel="Writing Score"
+          />
         </div>
 
         {/* OVERALL FEEDBACK */}

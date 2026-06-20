@@ -14,6 +14,7 @@ import {
   Bot,      
   RefreshCw    
 } from 'lucide-react';
+import SmartBackButton from '../../../../../components/common/SmartBackButton';
 
 // --- HELPER: XÁC ĐỊNH MÀU SẮC DỰA TRÊN LOẠI LỖI ---
 const getCorrectionTheme = (type = '') => {
@@ -134,6 +135,8 @@ const SpeakingResultPage = () => {
       `}</style>
 
       <div className="max-w-6xl mx-auto">
+
+        <SmartBackButton fallbackPath="/speaking/history" customText="Back to Speaking Library" themeClass="text-violet-600" />
 
         {/* --- HEADER CHUNG CỦA BÀI THI --- */}
         <div className="header-grad fu rounded-3xl p-8 md:p-10 mb-8 overflow-hidden relative shadow-xl shadow-violet-300/30">

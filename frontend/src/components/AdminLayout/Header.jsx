@@ -7,8 +7,6 @@ import {
   BookOutlined,
   ReadOutlined,
   ClockCircleOutlined,
-  WifiOutlined,
-  DisconnectOutlined,
   DownOutlined,
 } from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
@@ -16,55 +14,6 @@ import { useAdminHeader } from "../../hooks/AdminLayout/useAdminHeader";
 import { useAdminLayout } from "../../hooks/AdminLayout/useAdminLayout";
 
 const { Header } = Layout;
-
-/* ─── tiny inline styles kept as constants to stay under 180 lines ─── */
-
-const HDR = {
-  height: 56,
-  padding: "0 24px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  background: "linear-gradient(90deg,#0f0c29 0%,#1a1760 55%,#0f0c29 100%)",
-  borderBottom: "1px solid rgba(139,92,246,.25)",
-  boxShadow: "0 1px 24px rgba(109,40,217,.35)",
-  position: "sticky",
-  top: 0,
-  zIndex: 50,
-};
-
-const PILL = (active) => ({
-  display: "inline-flex",
-  alignItems: "center",
-  gap: 6,
-  padding: "4px 14px",
-  borderRadius: 999,
-  fontSize: 12,
-  fontWeight: 700,
-  letterSpacing: "0.08em",
-  cursor: "pointer",
-  transition: "all .2s",
-  border: active
-    ? "1px solid rgba(167,139,250,.6)"
-    : "1px solid rgba(255,255,255,.1)",
-  background: active
-    ? "linear-gradient(135deg,rgba(139,92,246,.35),rgba(99,102,241,.25))"
-    : "transparent",
-  color: active ? "#c4b5fd" : "rgba(255,255,255,.45)",
-  backdropFilter: "blur(8px)",
-  WebkitBackdropFilter: "blur(8px)",
-});
-
-const STATUS_DOT = (ok) => ({
-  width: 7,
-  height: 7,
-  borderRadius: "50%",
-  background: ok ? "#34d399" : "#f87171",
-  boxShadow: ok
-    ? "0 0 0 3px rgba(52,211,153,.25)"
-    : "0 0 0 3px rgba(248,113,113,.25)",
-  flexShrink: 0,
-});
 
 export default function AntdAdminHeader() {
   const { time, isBackendHealthy, admin } = useAdminHeader();
@@ -87,8 +36,8 @@ export default function AntdAdminHeader() {
       key: "profile",
       label: (
         <Link to={isAptis ? "/admin/aptis/profile" : "/admin/profile"}>
-          <Space>
-            <SettingOutlined />
+          <Space className="text-gray-700 font-medium px-2 py-1">
+            <SettingOutlined className="text-indigo-500" />
             Profile Settings
           </Space>
         </Link>
@@ -99,7 +48,7 @@ export default function AntdAdminHeader() {
       key: "logout",
       danger: true,
       label: (
-        <Space onClick={logout}>
+        <Space onClick={logout} className="font-medium px-2 py-1 text-red-500">
           <LogoutOutlined />
           Sign Out
         </Space>
@@ -108,57 +57,56 @@ export default function AntdAdminHeader() {
   ];
 
   return (
-    <Header style={HDR}>
+    <Header className="h-16 px-6 flex items-center justify-between sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/50 shadow-sm transition-all duration-300">
 
       {/* ── LEFT: clock + status ── */}
-      <Space size={16}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <ClockCircleOutlined style={{ color: "rgba(196,181,253,.7)", fontSize: 13 }} />
-          <span style={{ color: "#e2e8f0", fontFamily: "'DM Mono',monospace", fontSize: 13, letterSpacing: "0.06em", fontWeight: 500 }}>
+      <Space size={20}>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50/80 border border-gray-100 shadow-inner">
+          <ClockCircleOutlined className="text-indigo-500 text-sm" />
+          <span className="text-gray-700 font-mono text-sm tracking-widest font-semibold">
             {time.toLocaleTimeString("en-GB")}
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
-          <span style={STATUS_DOT(isBackendHealthy)} />
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", color: isBackendHealthy ? "#6ee7b7" : "#fca5a5" }}>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50/80 border border-gray-100 shadow-inner">
+          <span className={`w-2 h-2 rounded-full shadow-[0_0_0_3px] ${isBackendHealthy ? 'bg-emerald-400 shadow-emerald-400/20' : 'bg-rose-400 shadow-rose-400/20'}`} />
+          <span className={`text-xs font-bold tracking-[0.15em] ${isBackendHealthy ? "text-emerald-600" : "text-rose-600"}`}>
             {isBackendHealthy ? "ONLINE" : "OFFLINE"}
           </span>
         </div>
       </Space>
 
       {/* ── CENTER: module switcher ── */}
-      <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", display: "flex", gap: 6 }}>
+      <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 p-1 bg-gray-100/80 backdrop-blur-md rounded-full shadow-inner border border-gray-200/50">
         <Link to="/admin/dashboard">
-          <div style={PILL(!isAptis)}>
-            <BookOutlined style={{ fontSize: 12 }} />
+          <div className={`flex items-center gap-2 px-5 py-1.5 rounded-full text-xs font-bold tracking-widest cursor-pointer transition-all duration-300 ${!isAptis ? 'bg-white text-indigo-600 shadow-sm border border-gray-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
+            <BookOutlined className="text-sm" />
             IELTS
           </div>
         </Link>
         <Link to="/admin/aptis/dashboard">
-          <div style={PILL(isAptis)}>
-            <ReadOutlined style={{ fontSize: 12 }} />
+          <div className={`flex items-center gap-2 px-5 py-1.5 rounded-full text-xs font-bold tracking-widest cursor-pointer transition-all duration-300 ${isAptis ? 'bg-white text-fuchsia-600 shadow-sm border border-gray-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
+            <ReadOutlined className="text-sm" />
             APTIS
           </div>
         </Link>
       </div>
 
       {/* ── RIGHT: avatar dropdown ── */}
-      <Dropdown menu={{ items }} placement="bottomRight" trigger={["click"]}>
-        <Button
-          type="text"
-          style={{ display: "flex", alignItems: "center", gap: 8, color: "rgba(226,232,240,.9)", fontWeight: 600, fontFamily: "'DM Sans',sans-serif", fontSize: 13, border: "1px solid rgba(139,92,246,.2)", borderRadius: 999, padding: "4px 10px 4px 6px", height: "auto", background: "rgba(139,92,246,.08)", backdropFilter: "blur(6px)" }}
-        >
+      <Dropdown menu={{ items }} placement="bottomRight" trigger={["click"]} className="cursor-pointer">
+        <div className="flex items-center gap-3 px-2 py-1 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors duration-200">
           <Avatar
-            size={28}
+            size={32}
             src={admin?.avatar_url}
-            style={{ background: "linear-gradient(135deg,#7c3aed,#4f46e5)", fontWeight: 700, fontSize: 11, flexShrink: 0 }}
+            className="bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md font-bold text-xs"
           >
             {admin?.avatar_url ? null : initials || <UserOutlined />}
           </Avatar>
-          {lastName}
-          <DownOutlined style={{ fontSize: 10, opacity: 0.6 }} />
-        </Button>
+          <span className="text-gray-700 font-semibold text-sm">
+            {lastName}
+          </span>
+          <DownOutlined className="text-gray-400 text-[10px] mr-1" />
+        </div>
       </Dropdown>
 
     </Header>

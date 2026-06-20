@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CheckCircle, XCircle, Target, BarChart2, Clock, PlayCircle, Headphones } from 'lucide-react';
 import { useListeningResult } from '../../../hooks/IELTS/listening/useListeningResult';
 import ListeningResultItem from '../../../components/IELTS/listening/ListeningResultItem';
+import SmartBackButton from '../../../../../components/common/SmartBackButton';
 
 const ListeningResultPage = () => {
   const navigate = useNavigate();
@@ -76,10 +77,7 @@ const ListeningResultPage = () => {
       <div className="max-w-5xl mx-auto">
 
         {/* Back */}
-        <button onClick={() => navigate('/listening')} className="mb-8 flex items-center gap-2 text-slate-400 hover:text-purple-600 text-sm font-semibold transition-all group">
-          <ArrowLeft size={15} className="group-hover:-translate-x-1 transition-transform duration-200" />
-          Back to Listening Library
-        </button>
+        <SmartBackButton fallbackPath="/listening/history" customText="Back to Listening Library" themeClass="text-purple-600" />
 
         {/* --- HEADER --- */}
         <div className="header-grad fu rounded-3xl p-8 md:p-10 mb-8 overflow-hidden relative shadow-xl shadow-purple-300/30">

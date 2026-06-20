@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Radio, Button, Modal, Typography, message } from 'antd';
 import { ThunderboltOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { BlurInput } from '../../../../../components/common/BlurInput';
 
 const { TextArea } = Input;
 const { Text } = Typography;
@@ -81,7 +82,7 @@ const MultipleChoiceAdmin = ({ relativePath, absolutePath, form }) => {
                           rules={[{ required: true, message: `Enter Option ${letter}` }]}
                           style={{ flex: 1, marginBottom: 0 }}
                         >
-                          <Input placeholder={`Option ${letter}`} />
+                          <BlurInput placeholder={`Option ${letter}`} />
                         </Form.Item>
 
                         {fields.length > 2 && (

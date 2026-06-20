@@ -6,13 +6,12 @@ import {
   Statistic,
   Typography,
   Spin,
-  Tag,
   Space
 } from 'antd';
 
 import {
   UserOutlined,
-  UserAddOutlined, // Icon cho user mới
+  UserAddOutlined, 
   FileTextOutlined,
   BarChartOutlined,
   BookOutlined,
@@ -34,43 +33,43 @@ const STAT_CARDS = [
     title: 'Total Users',
     key: 'total_users',
     icon: <UserOutlined />,
-    color: '#1677ff',
-    bg: 'linear-gradient(135deg, #e6f4ff, #ffffff)'
+    color: '#3b82f6', // blue-500
+    bg: 'linear-gradient(135deg, #eff6ff, #ffffff)' // blue-50
   },
   {
     title: 'IELTS Tests',
     key: 'total_full_tests',
     icon: <BookOutlined />,
-    color: '#fa541c',
-    bg: 'linear-gradient(135deg, #fff2e8, #ffffff)'
+    color: '#f97316', // orange-500
+    bg: 'linear-gradient(135deg, #fff7ed, #ffffff)' // orange-50
   },
   {
     title: 'IELTS Attempts',
     key: 'total_submissions',
     icon: <FileTextOutlined />,
-    color: '#faad14',
-    bg: 'linear-gradient(135deg, #fffbe6, #ffffff)'
+    color: '#eab308', // yellow-500
+    bg: 'linear-gradient(135deg, #fefce8, #ffffff)' // yellow-50
   },
   {
     title: 'New Users Today',
     key: 'new_users_today',
     icon: <UserAddOutlined />,
-    color: '#52c41a',
-    bg: 'linear-gradient(135deg, #f6ffed, #ffffff)'
+    color: '#22c55e', // green-500
+    bg: 'linear-gradient(135deg, #f0fdf4, #ffffff)' // green-50
   },
   {
     title: 'APTIS Tests',
-    key: 'total_aptis_full_tests', // Dữ liệu mới 1
+    key: 'total_aptis_full_tests', 
     icon: <TrophyOutlined />,
-    color: '#722ed1',
-    bg: 'linear-gradient(135deg, #f9f0ff, #ffffff)'
+    color: '#a855f7', // purple-500
+    bg: 'linear-gradient(135deg, #faf5ff, #ffffff)' // purple-50
   },
   {
     title: 'APTIS Attempts',
-    key: 'total_aptis_submissions', // Dữ liệu mới 2
+    key: 'total_aptis_submissions', 
     icon: <BarChartOutlined />,
-    color: '#eb2f96',
-    bg: 'linear-gradient(135deg, #fff0f6, #ffffff)'
+    color: '#ec4899', // pink-500
+    bg: 'linear-gradient(135deg, #fdf2f8, #ffffff)' // pink-50
   }
 ];
 
@@ -90,54 +89,42 @@ const APTIS_SKILLS = [
 ];
 
 const SKILL_COLOR_MAP = {
-  Reading: '#1677ff',
-  Listening: '#13c2c2',
-  Writing: '#faad14',
-  Speaking: '#722ed1',
-  GrammarVocab: '#eb2f96'
+  Reading: '#3b82f6',
+  Listening: '#14b8a6',
+  Writing: '#eab308',
+  Speaking: '#a855f7',
+  GrammarVocab: '#ec4899'
 };
 
 /* ================= SKILL CARD ================= */
 
 const SkillCard = ({ title, skills, data }) => (
   <Card
-    title={title}
+    title={<span className="text-xl font-bold text-gray-800 tracking-tight">{title}</span>}
     bordered={false}
-    style={{
-      borderRadius: 20,
-      boxShadow: '0 6px 20px rgba(0,0,0,0.05)'
-    }}
+    className="rounded-[24px] shadow-sm hover:shadow-xl transition-all duration-500 h-full border border-gray-100 bg-white"
+    styles={{ header: { borderBottom: '1px solid #f3f4f6', padding: '20px 24px' }, body: { padding: '24px' } }}
   >
-    <Row gutter={[12, 12]}>
+    <Row gutter={[16, 16]}>
       {skills.map((skill) => (
         <Col span={12} key={skill.key}>
-          <Card
-            size="small"
-            bordered={false}
-            style={{
-              borderRadius: 14,
-              background: '#fafafa'
-            }}
-            hoverable
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Space>
-                <div
-                  style={{
-                    background: SKILL_COLOR_MAP[skill.key],
-                    color: '#fff',
-                    padding: 6,
-                    borderRadius: 8
-                  }}
-                >
-                  {skill.icon}
-                </div>
-                <Text strong>{skill.key}</Text>
-              </Space>
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50/80 hover:bg-white border border-transparent hover:border-gray-200 hover:shadow-lg transition-all duration-300 group cursor-pointer">
+            <Space size="middle">
+              <div
+                className="p-3 rounded-xl text-white shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3"
+                style={{ background: SKILL_COLOR_MAP[skill.key] }}
+              >
+                {skill.icon}
+              </div>
+              <Text className="font-semibold text-gray-600 group-hover:text-gray-900 transition-colors">
+                {skill.key}
+              </Text>
+            </Space>
 
-              <Text strong>{data?.[skill.key] || 0}</Text>
-            </div>
-          </Card>
+            <Text className="font-bold text-xl text-gray-800 bg-white px-3 py-1 rounded-lg shadow-sm border border-gray-100 group-hover:border-indigo-100 group-hover:text-indigo-600 transition-all duration-300">
+              {data?.[skill.key] || 0}
+            </Text>
+          </div>
         </Col>
       ))}
     </Row>
@@ -151,59 +138,53 @@ const AdminDashboardPage = () => {
 
   if (loading) {
     return (
-      <div style={{ height: 300 }} className="flex items-center justify-center">
-        <Spin size="large" />
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <Spin size="large" tip="Loading dashboard data..." className="text-indigo-600" />
       </div>
     );
   }
 
   return (
-    <div style={{ maxWidth: 1400, margin: '0 auto', padding: 10 }}>
+    <div className="max-w-[1440px] mx-auto p-4 md:p-6 lg:p-8 animate-fade-in">
 
       {/* HEADER */}
-      <div
-        style={{
-          padding: 24,
-          borderRadius: 24,
-          background: 'linear-gradient(135deg, #1677ff, #722ed1)',
-          color: '#fff',
-          marginBottom: 24,
-          boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
-        }}
-      >
-        <Title level={3} style={{ color: '#fff', margin: 0 }}>
-          Admin Dashboard
-        </Title>
-        <Text style={{ color: '#f0f0f0' }}>
-          Overview of platform performance
-        </Text>
+      <div className="relative overflow-hidden rounded-[32px] mb-8 p-10 bg-gradient-to-br from-indigo-600 via-purple-600 to-fuchsia-600 shadow-2xl shadow-indigo-500/20">
+        <div className="relative z-10">
+          <Title level={2} className="!text-white !mb-2 !font-extrabold tracking-tight drop-shadow-md">
+            Admin Dashboard
+          </Title>
+          <Text className="!text-indigo-100 text-lg font-medium tracking-wide">
+            Overview of platform performance and key metrics
+          </Text>
+        </div>
+        {/* Decorative background shapes */}
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl mix-blend-overlay animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-48 h-48 rounded-full bg-white opacity-5 blur-2xl mix-blend-overlay" />
+        <div className="absolute top-1/2 right-1/3 w-32 h-32 rounded-full bg-fuchsia-400 opacity-20 blur-2xl mix-blend-overlay" />
       </div>
 
       {/* STATS */}
-      <Row gutter={[16, 16]}>
+      <Row gutter={[24, 24]}>
         {STAT_CARDS.map((item) => (
-          /* 🔥 Đổi thành lg=8 để chia thành 3 cột, tạo thành lưới 2 hàng cực đẹp */
           <Col xs={24} sm={12} lg={8} key={item.key}>
             <Card
               bordered={false}
+              className="rounded-[28px] overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl group border border-white/60"
               style={{
-                borderRadius: 20,
                 background: item.bg,
-                boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+                boxShadow: '0 10px 30px rgba(0,0,0,0.02)'
               }}
-              hoverable
             >
               <Statistic
-                title={item.title}
+                title={<span className="text-gray-500 font-bold text-xs uppercase tracking-widest">{item.title}</span>}
                 value={stats?.[item.key] || 0}
-                valueStyle={{ fontWeight: 700 }}
+                valueStyle={{ fontWeight: 800, fontSize: '36px', color: '#111827', marginTop: '12px', letterSpacing: '-0.02em' }}
                 prefix={
                   <div
+                    className="p-4 rounded-2xl mr-5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-md"
                     style={{
-                      background: item.color,
+                      background: `linear-gradient(135deg, ${item.color}, ${item.color}cc)`,
                       color: '#fff',
-                      padding: 10,
-                      borderRadius: 12
                     }}
                   >
                     {item.icon}
@@ -216,30 +197,36 @@ const AdminDashboardPage = () => {
       </Row>
 
       {/* CHARTS */}
-      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+      <Row gutter={[24, 24]} className="mt-8">
         <Col xs={24} lg={12}>
           <Card
-            title="IELTS Distribution"
+            title={<span className="text-xl font-bold text-gray-800 tracking-tight">IELTS Distribution</span>}
             bordered={false}
-            style={{ borderRadius: 20 }}
+            className="rounded-[24px] shadow-sm hover:shadow-xl transition-shadow duration-500 border border-gray-100 h-full bg-white"
+            styles={{ header: { borderBottom: '1px solid #f3f4f6', padding: '20px 24px' } }}
           >
-            <SkillPieChart skills={stats?.ielts_skills} />
+            <div className="py-4">
+              <SkillPieChart skills={stats?.ielts_skills} />
+            </div>
           </Card>
         </Col>
 
         <Col xs={24} lg={12}>
           <Card
-            title="APTIS Distribution"
+            title={<span className="text-xl font-bold text-gray-800 tracking-tight">APTIS Distribution</span>}
             bordered={false}
-            style={{ borderRadius: 20 }}
+            className="rounded-[24px] shadow-sm hover:shadow-xl transition-shadow duration-500 border border-gray-100 h-full bg-white"
+            styles={{ header: { borderBottom: '1px solid #f3f4f6', padding: '20px 24px' } }}
           >
-            <SkillPieChart skills={stats?.aptis_skills} />
+            <div className="py-4">
+              <SkillPieChart skills={stats?.aptis_skills} />
+            </div>
           </Card>
         </Col>
       </Row>
 
       {/* SKILLS */}
-      <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+      <Row gutter={[24, 24]} className="mt-8 mb-8">
         <Col xs={24} lg={12}>
           <SkillCard
             title="IELTS Question Bank"

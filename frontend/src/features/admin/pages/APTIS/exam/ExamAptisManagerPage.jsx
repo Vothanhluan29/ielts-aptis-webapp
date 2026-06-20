@@ -116,41 +116,50 @@ const ExamAptisManagerPage = () => {
   ];
 
   return (
-    <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
+    <div className="max-w-[1440px] mx-auto animate-fade-in space-y-6">
       
-      {/* MANAGEMENT HEADER */}
-      <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <Title level={3} className="mb-1! text-indigo-900 font-bold!">
-            <AppstoreOutlined className="mr-2 text-indigo-500" /> Aptis Full Test Management
+      {/* ================= HEADER ================= */}
+      <div className="relative overflow-hidden rounded-[32px] p-8 md:p-10 bg-gradient-to-br from-purple-600 via-fuchsia-600 to-pink-600 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div className="relative z-10">
+          <Title level={2} className="!text-white !mb-2 !font-extrabold tracking-tight drop-shadow-md flex items-center gap-3">
+            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm border border-white/30 text-white">
+              <AppstoreOutlined />
+            </div>
+            Aptis Full Test Management
           </Title>
-          <Text className="text-gray-500">List of Aptis Full Tests (5 skills)</Text>
+          <Text className="!text-white/80 text-lg font-medium tracking-wide block">
+            List of Aptis Full Tests (5 skills)
+          </Text>
         </div>
-        
-        <Space>
+
+        <Space className="relative z-10">
           <Button 
             icon={<ReloadOutlined />} 
             onClick={fetchTests} 
             loading={loading}
-            className="rounded-full"
+            className="bg-white/20 text-white hover:bg-white/30 hover:text-white border-white/30 shadow-lg font-semibold rounded-xl h-12 px-6 backdrop-blur-sm transition-all duration-300"
           >
             Refresh
           </Button>
-          <Button 
-            type="primary" 
-            size="large" 
-            icon={<PlusOutlined />} 
-            className="bg-indigo-600 hover:bg-indigo-500 shadow-md font-medium rounded-full px-6 border-0"
-            onClick={() => navigate('/admin/aptis/full-tests/create')}
+          <Button
+            type="primary"
+            size="large"
+            icon={<PlusOutlined />}
+            onClick={() => navigate("/admin/aptis/full-tests/create")}
+            className="bg-white text-fuchsia-600 hover:bg-fuchsia-50 hover:text-fuchsia-700 hover:scale-105 border-none shadow-lg font-bold rounded-xl h-12 px-6 transition-all duration-300"
           >
             Create New Test
           </Button>
         </Space>
+
+        {/* Decorative background shapes */}
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl mix-blend-overlay animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-48 h-48 rounded-full bg-white opacity-5 blur-2xl mix-blend-overlay" />
       </div>
 
       {/* DATA TABLE */}
       <Card 
-        className="shadow-sm rounded-2xl border-0 overflow-hidden" 
+        className="rounded-[24px] shadow-sm hover:shadow-xl transition-shadow duration-500 border border-gray-100 bg-white overflow-hidden" 
         styles={{ body: { padding: 0 } }}
       >
         <Table
@@ -167,7 +176,7 @@ const ExamAptisManagerPage = () => {
           onRow={(record) => ({
             // Double click to quickly edit
             onDoubleClick: () => navigate(`/admin/aptis/full-tests/edit/${record.id}`),
-            className: "cursor-pointer hover:bg-indigo-50/30 transition-colors"
+            className: "cursor-pointer hover:bg-fuchsia-50/50 transition-colors"
           })}
         />
       </Card>
