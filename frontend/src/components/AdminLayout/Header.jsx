@@ -4,8 +4,7 @@ import {
   SettingOutlined,
   LogoutOutlined,
   UserOutlined,
-  BookOutlined,
-  ReadOutlined,
+  DatabaseOutlined,
   ClockCircleOutlined,
   DownOutlined,
 } from "@ant-design/icons";
@@ -36,78 +35,99 @@ export default function AntdAdminHeader() {
       key: "profile",
       label: (
         <Link to={isAptis ? "/admin/aptis/profile" : "/admin/profile"}>
-          <Space className="text-gray-700 font-medium px-2 py-1">
-            <SettingOutlined className="text-indigo-500" />
-            Profile Settings
+          <Space className="text-slate-300 font-mono text-xs px-2 py-1 hover:text-blue-400 transition-colors">
+            <SettingOutlined className="text-blue-500" />
+            SYS_CONFIG
           </Space>
         </Link>
       ),
     },
-    { type: "divider" },
+    { type: "divider", className: "bg-slate-700/50 my-1" },
     {
       key: "logout",
       danger: true,
       label: (
-        <Space onClick={logout} className="font-medium px-2 py-1 text-red-500">
+        <Space onClick={logout} className="font-mono text-xs px-2 py-1 text-orange-500 hover:text-orange-400 transition-colors">
           <LogoutOutlined />
-          Sign Out
+          TERMINATE_SESSION
         </Space>
       ),
     },
   ];
 
   return (
-    <Header className="h-16 px-6 flex items-center justify-between sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/50 shadow-sm transition-all duration-300">
+    <Header className="h-20 px-8 flex items-center justify-between sticky top-0 z-50 !bg-slate-950 border-b border-slate-800 shadow-lg shadow-black/20 transition-all duration-300 relative">
 
-      {/* ── LEFT: clock + status ── */}
-      <Space size={20}>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50/80 border border-gray-100 shadow-inner">
-          <ClockCircleOutlined className="text-indigo-500 text-sm" />
-          <span className="text-gray-700 font-mono text-sm tracking-widest font-semibold">
-            {time.toLocaleTimeString("en-GB")}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50/80 border border-gray-100 shadow-inner">
-          <span className={`w-2 h-2 rounded-full shadow-[0_0_0_3px] ${isBackendHealthy ? 'bg-emerald-400 shadow-emerald-400/20' : 'bg-rose-400 shadow-rose-400/20'}`} />
-          <span className={`text-xs font-bold tracking-[0.15em] ${isBackendHealthy ? "text-emerald-600" : "text-rose-600"}`}>
-            {isBackendHealthy ? "ONLINE" : "OFFLINE"}
-          </span>
-        </div>
-      </Space>
-
-      {/* ── CENTER: module switcher ── */}
-      <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 p-1 bg-gray-100/80 backdrop-blur-md rounded-full shadow-inner border border-gray-200/50">
-        <Link to="/admin/dashboard">
-          <div className={`flex items-center gap-2 px-5 py-1.5 rounded-full text-xs font-bold tracking-widest cursor-pointer transition-all duration-300 ${!isAptis ? 'bg-white text-indigo-600 shadow-sm border border-gray-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
-            <BookOutlined className="text-sm" />
-            IELTS
+      {/* ── LEFT: clock + status (Terminal Style) ── */}
+      <div className="flex-1 flex justify-start z-10 relative">
+        <Space size={16}>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-900 border border-slate-800 shadow-inner">
+            <ClockCircleOutlined className="text-blue-500 text-xs" />
+            <span className="text-blue-400 font-mono text-xs tracking-[0.1em] font-semibold">
+              {time.toLocaleTimeString("en-GB")}
+            </span>
           </div>
-        </Link>
-        <Link to="/admin/aptis/dashboard">
-          <div className={`flex items-center gap-2 px-5 py-1.5 rounded-full text-xs font-bold tracking-widest cursor-pointer transition-all duration-300 ${isAptis ? 'bg-white text-fuchsia-600 shadow-sm border border-gray-100' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
-            <ReadOutlined className="text-sm" />
-            APTIS
+
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-slate-900 border border-slate-800 shadow-inner">
+            <span className={`w-2 h-2 rounded-sm shadow-[0_0_0_2px] ${isBackendHealthy ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-red-500 shadow-red-500/20'} animate-pulse`} />
+            <span className={`text-[10px] font-mono tracking-[0.15em] uppercase ${isBackendHealthy ? "text-emerald-400" : "text-red-400"}`}>
+              {isBackendHealthy ? "SYS:ONLINE" : "SYS:OFFLINE"}
+            </span>
           </div>
-        </Link>
+        </Space>
+      </div>
+
+      {/* ── CENTER: module switcher (Data Control Style) ── */}
+      <div className="flex-1 flex justify-center z-10 relative">
+        <div className="flex items-center gap-1.5 p-1.5 bg-slate-900 rounded-lg border border-slate-800 shadow-inner">
+          <Link to="/admin/dashboard">
+            <div className={`flex items-center gap-2 px-6 py-1.5 rounded-md text-[11px] font-mono tracking-[0.15em] cursor-pointer transition-all duration-300 uppercase ${!isAptis ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-[0_0_10px_rgba(59,130,246,0.1)]' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>
+              <DatabaseOutlined className="text-xs" />
+              IELTS
+            </div>
+          </Link>
+          <Link to="/admin/aptis/dashboard">
+            <div className={`flex items-center gap-2 px-6 py-1.5 rounded-md text-[11px] font-mono tracking-[0.15em] cursor-pointer transition-all duration-300 uppercase ${isAptis ? 'bg-orange-600/20 text-orange-400 border border-orange-500/30 shadow-[0_0_10px_rgba(249,115,22,0.1)]' : 'text-slate-500 hover:text-slate-300 border border-transparent'}`}>
+              <DatabaseOutlined className="text-xs" />
+              APTIS
+            </div>
+          </Link>
+        </div>
       </div>
 
       {/* ── RIGHT: avatar dropdown ── */}
-      <Dropdown menu={{ items }} placement="bottomRight" trigger={["click"]} className="cursor-pointer">
-        <div className="flex items-center gap-3 px-2 py-1 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-colors duration-200">
-          <Avatar
-            size={32}
-            src={admin?.avatar_url}
-            className="bg-gradient-to-br from-indigo-500 to-purple-600 shadow-md font-bold text-xs"
-          >
-            {admin?.avatar_url ? null : initials || <UserOutlined />}
-          </Avatar>
-          <span className="text-gray-700 font-semibold text-sm">
-            {lastName}
-          </span>
-          <DownOutlined className="text-gray-400 text-[10px] mr-1" />
-        </div>
-      </Dropdown>
+      <div className="flex-1 flex justify-end z-10 relative">
+        <Dropdown 
+          menu={{ 
+            items, 
+            style: { backgroundColor: '#0f172a', border: '1px solid #1e293b', padding: '4px', borderRadius: '8px' }
+          }} 
+          placement="bottomRight" 
+          trigger={["click"]} 
+          className="cursor-pointer"
+          getPopupContainer={(triggerNode) => triggerNode.parentNode}
+        >
+          <div className="flex items-center gap-3 px-2 py-1.5 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-700 transition-colors duration-200">
+            <Avatar
+              size={28}
+              src={admin?.avatar_url}
+              className="bg-slate-800 border border-slate-700 text-blue-400 font-mono text-[10px] uppercase shadow-sm rounded-md"
+              shape="square"
+            >
+              {admin?.avatar_url ? null : initials || <UserOutlined />}
+            </Avatar>
+            <div className="flex flex-col justify-center">
+              <span className="text-blue-100 font-mono text-[10px] tracking-wider uppercase leading-none">
+                {lastName || "ADMIN"}
+              </span>
+              <span className="text-slate-500 font-mono text-[8px] tracking-[0.2em] leading-none mt-1">
+                ROOT_ACCESS
+              </span>
+            </div>
+            <DownOutlined className="text-blue-500 text-[10px] ml-1" />
+          </div>
+        </Dropdown>
+      </div>
 
     </Header>
   );

@@ -37,13 +37,13 @@ const SideBar = ({ layoutProps }) => {
       <div className="h-16 flex items-center justify-between px-5 border-b border-gray-800/60 shrink-0 relative z-10">
         {!isCollapsed && (
           <h1 className="text-lg font-extrabold uppercase tracking-widest m-0 flex items-center gap-1">
-            <span className="text-indigo-500 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]">ADMIN</span>
+            <span className="text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">ADMIN</span>
             <span className="text-white">PANEL</span>
           </h1>
         )}
         <button
           onClick={toggleSidebar}
-          className="p-1.5 rounded-lg bg-gray-800/50 hover:bg-indigo-500/20 text-gray-400 hover:text-indigo-400 transition-all duration-300"
+          className="p-1.5 rounded-lg bg-gray-800/50 hover:bg-blue-500/20 text-gray-400 hover:text-blue-400 transition-all duration-300"
         >
           {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
@@ -102,11 +102,11 @@ const SideBar = ({ layoutProps }) => {
             } ${isCollapsed ? "justify-center" : ""}`}
           >
             <div className="flex items-center gap-3">
-              <BookOpen size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:text-indigo-400" />
+              <BookOpen size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:text-blue-400" />
               {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide">Skills Library</span>}
             </div>
             {!isCollapsed && (
-              <ChevronRight size={16} className={`transition-transform duration-300 ${openSkills ? "rotate-90 text-indigo-400" : "opacity-40 group-hover:text-indigo-400 group-hover:opacity-100"}`} />
+              <ChevronRight size={16} className={`transition-transform duration-300 ${openSkills ? "rotate-90 text-blue-400" : "opacity-40 group-hover:text-blue-400 group-hover:opacity-100"}`} />
             )}
           </button>
 
@@ -120,7 +120,7 @@ const SideBar = ({ layoutProps }) => {
                     to={`/admin/skills/${skill}`}
                     className={`block px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                       active
-                        ? "text-white bg-indigo-500/20 border border-indigo-500/30 shadow-[0_0_10px_rgba(99,102,241,0.2)]"
+                        ? "text-white bg-blue-500/20 border border-blue-500/30 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
                         : "text-gray-400 hover:text-white hover:bg-gray-800/60"
                     }`}
                   >
@@ -135,15 +135,15 @@ const SideBar = ({ layoutProps }) => {
       </nav>
 
       {/* LOGOUT */}
-      <div className="p-4 border-t border-gray-800/60 shrink-0 relative z-10">
+      <div className="p-4 border-t border-slate-800/60 shrink-0 relative z-10 bg-[#0B0F19]">
         <button
           onClick={logout}
-          className={`flex items-center gap-3 w-full rounded-xl transition-all duration-300 ${
-            isCollapsed ? "justify-center h-12" : "px-4 py-3"
-          } text-gray-400 hover:text-white hover:bg-rose-500 hover:shadow-[0_0_15px_rgba(244,63,94,0.4)] group`}
+          className={`flex items-center gap-3 w-full rounded-xl transition-colors ${
+            isCollapsed ? "justify-center h-12" : "px-4 py-2.5"
+          } text-slate-400 hover:text-red-500 hover:bg-red-500/10 bg-slate-900 border border-slate-800 shadow-sm`}
         >
-          <LogOut size={18} className="shrink-0 group-hover:-translate-x-1 transition-transform" />
-          {!isCollapsed && <span className="text-xs font-bold uppercase tracking-[0.15em]">Log out</span>}
+          <LogOut size={18} className="shrink-0" />
+          {!isCollapsed && <span className="text-[15px] font-semibold">Sign Out</span>}
         </button>
       </div>
 
@@ -159,12 +159,12 @@ const SidebarLink = ({ to, label, icon, isActive, isCollapsed }) => (
     to={to}
     className={`group flex items-center gap-3 rounded-xl font-semibold transition-all duration-300 relative overflow-hidden ${
       isActive 
-        ? "text-white bg-indigo-600 shadow-[0_0_15px_rgba(79,70,229,0.4)] border border-indigo-500" 
+        ? "text-white bg-blue-700 shadow-[0_0_15px_rgba(29,78,216,0.5)] border border-blue-600" 
         : "text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent"
     } ${isCollapsed ? "justify-center h-12 w-12 mx-auto" : "px-3.5 py-3"}`}
   >
     {isActive && <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2s_infinite]" />}
-    {icon && React.createElement(icon, { size: 20, className: `shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-indigo-400'}` })}
+    {icon && React.createElement(icon, { size: 20, className: `shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-blue-400'}` })}
     {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide relative z-10">{label}</span>}
   </Link>
 );

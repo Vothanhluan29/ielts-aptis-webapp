@@ -44,9 +44,9 @@ const SIDEBAR_GROUPS = [
     ]
   },
   {
-    title: "Settings",
+    title: "Tools",
     items: [
-      { to: "/aptis/profile", label: "Profile", icon: UserOutlined }
+      { to: "/aptis/dictionary", label: "AI Dictionary", icon: ReadOutlined }
     ]
   }
 ];
@@ -72,7 +72,9 @@ const AptisSidebar = ({
       {/* LOGO */}
       <div className="h-20 flex items-center justify-between px-5 border-b border-slate-100 shrink-0">
         {!sidebarCollapsed && (
-          <img src="/logo.jpg" alt="Elitek Logo" className="h-14 object-contain" />
+          <div className="flex items-center gap-3">
+            <span className="text-orange-600 font-black text-2xl tracking-tight">APTIS</span>
+          </div>
         )}
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
@@ -136,7 +138,7 @@ const SidebarLink = ({ to, label, icon, active, collapsed }) => {
   const baseStyle = "flex items-center gap-3 rounded-xl font-semibold transition-all relative overflow-hidden group";
   const sizeStyle = collapsed ? "justify-center h-11 w-11 mx-auto" : "px-3 py-3";
   
-  const activeStyle = "bg-indigo-50 text-indigo-600";
+  const activeStyle = "bg-orange-600 text-white shadow-md";
   const inactiveStyle = "text-slate-500 hover:bg-slate-50 hover:text-slate-700";
 
   return (
@@ -157,7 +159,7 @@ const SidebarLink = ({ to, label, icon, active, collapsed }) => {
 
       {/* Active Indicator */}
       {collapsed && active && (
-        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-indigo-600 rounded-l-full" />
+        <span className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-white rounded-l-full" />
       )}
     </Link>
   );

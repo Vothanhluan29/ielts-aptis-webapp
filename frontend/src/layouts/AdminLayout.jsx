@@ -8,7 +8,7 @@ import { useAdminLayout } from '../hooks/AdminLayout/useAdminLayout';
 const AdminLayout = () => {
 
   const layoutProps = useAdminLayout();
-  
+
 
   const location = useLocation();
 
@@ -17,7 +17,7 @@ const AdminLayout = () => {
 
   return (
     <div className="flex h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
-      
+
       {isAptis ? (
         <AptisSideBar layoutProps={layoutProps} />
       ) : (

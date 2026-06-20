@@ -43,14 +43,14 @@ const AptisSideBar = ({ layoutProps }) => {
   const linkClass = ({ isActive }) =>
     `group flex items-center gap-3 rounded-xl font-semibold transition-all duration-300 relative overflow-hidden ${
       isActive
-        ? "bg-fuchsia-600 text-white shadow-[0_0_15px_rgba(192,38,211,0.4)] border border-fuchsia-500"
+        ? "bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.4)] border border-orange-500"
         : "text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent"
     } ${isCollapsed ? "justify-center h-12 w-12 mx-auto" : "px-3.5 py-3"}`;
 
   const subLinkClass = ({ isActive }) =>
     `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
       isActive
-        ? "text-white bg-fuchsia-500/20 ring-1 ring-fuchsia-500/40 shadow-[0_0_10px_rgba(192,38,211,0.2)]"
+        ? "text-white bg-orange-500/20 ring-1 ring-orange-500/40 shadow-[0_0_10px_rgba(234,88,12,0.2)]"
         : "text-gray-400 hover:text-white hover:bg-gray-800/60"
     }`;
 
@@ -68,19 +68,19 @@ const AptisSideBar = ({ layoutProps }) => {
       }`}
     >
       {/* Decorative Light */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-fuchsia-500/5 blur-[80px] pointer-events-none" />
+      <div className="absolute top-0 left-0 w-full h-32 bg-orange-500/5 blur-[80px] pointer-events-none" />
 
       {/* LOGO */}
       <div className="h-16 flex items-center justify-between px-5 border-b border-gray-800/60 shrink-0 relative z-10">
         {!isCollapsed && (
-          <h1 className="text-lg font-extrabold uppercase tracking-widest m-0 flex items-center gap-1">
-            <span className="text-fuchsia-500 drop-shadow-[0_0_8px_rgba(192,38,211,0.5)]">APTIS</span>
+          <div className="flex items-center gap-3">
+            <span className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)] font-black text-xl tracking-tight">APTIS</span>
             <span className="text-white">PANEL</span>
-          </h1>
+          </div>
         )}
         <button
           onClick={toggleSidebar}
-          className="p-1.5 rounded-lg bg-gray-800/50 hover:bg-fuchsia-500/20 text-gray-400 hover:text-fuchsia-400 transition-all duration-300"
+          className="p-1.5 rounded-lg bg-gray-800/50 hover:bg-orange-500/20 text-gray-400 hover:text-orange-400 transition-all duration-300"
         >
           {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
@@ -95,7 +95,7 @@ const AptisSideBar = ({ layoutProps }) => {
           {({ isActive }) => (
             <>
               {isActive && <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2s_infinite]" />}
-              <LayoutDashboard size={20} className={`shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-fuchsia-400'}`} />
+              <LayoutDashboard size={20} className={`shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-orange-400'}`} />
               {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide relative z-10">Dashboard</span>}
             </>
           )}
@@ -107,7 +107,7 @@ const AptisSideBar = ({ layoutProps }) => {
           {({ isActive }) => (
             <>
               {isActive && <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2s_infinite]" />}
-              <Users size={20} className={`shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-fuchsia-400'}`} />
+              <Users size={20} className={`shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-orange-400'}`} />
               {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide relative z-10">Users</span>}
             </>
           )}
@@ -118,10 +118,10 @@ const AptisSideBar = ({ layoutProps }) => {
         <div>
           <button onClick={toggleGrading} className={dropdownBtnClass(openGrading)}>
             <div className="flex items-center gap-3">
-              <ClipboardCheck size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:text-fuchsia-400" />
-              {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide">Submissions</span>}
+              <ClipboardCheck size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:text-orange-400" />
+              {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide">Grading</span>}
             </div>
-            {!isCollapsed && <ChevronRight size={16} className={`transition-transform duration-300 ${openGrading ? "rotate-90 text-fuchsia-400" : "opacity-40 group-hover:text-fuchsia-400 group-hover:opacity-100"}`} />}
+            {!isCollapsed && <ChevronRight size={16} className={`transition-transform duration-300 ${openGrading ? "rotate-90 text-orange-400" : "opacity-40 group-hover:text-orange-400 group-hover:opacity-100"}`} />}
           </button>
 
           {!isCollapsed && openGrading && (
@@ -154,7 +154,7 @@ const AptisSideBar = ({ layoutProps }) => {
           {({ isActive }) => (
             <>
               {isActive && <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2s_infinite]" />}
-              <FileText size={20} className={`shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-fuchsia-400'}`} />
+              <FileText size={20} className={`shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-orange-400'}`} />
               {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide relative z-10">Full Mock Tests</span>}
             </>
           )}
@@ -165,10 +165,10 @@ const AptisSideBar = ({ layoutProps }) => {
         <div>
           <button onClick={toggleSkills} className={dropdownBtnClass(openSkills)}>
             <div className="flex items-center gap-3">
-              <BookOpen size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:text-fuchsia-400" />
+              <BookOpen size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:text-orange-400" />
               {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide">Skills Library</span>}
             </div>
-            {!isCollapsed && <ChevronRight size={16} className={`transition-transform duration-300 ${openSkills ? "rotate-90 text-fuchsia-400" : "opacity-40 group-hover:text-fuchsia-400 group-hover:opacity-100"}`} />}
+            {!isCollapsed && <ChevronRight size={16} className={`transition-transform duration-300 ${openSkills ? "rotate-90 text-orange-400" : "opacity-40 group-hover:text-orange-400 group-hover:opacity-100"}`} />}
           </button>
 
           {!isCollapsed && openSkills && (
@@ -187,15 +187,15 @@ const AptisSideBar = ({ layoutProps }) => {
       </nav>
 
       {/* LOGOUT */}
-      <div className="p-4 border-t border-gray-800/60 shrink-0 relative z-10">
+      <div className="p-4 border-t border-slate-800/60 shrink-0 relative z-10 bg-[#0B0F19]">
         <button
           onClick={logout}
-          className={`flex items-center gap-3 w-full rounded-xl transition-all duration-300 ${
-            isCollapsed ? "justify-center h-12" : "px-4 py-3"
-          } text-gray-400 hover:text-white hover:bg-rose-500 hover:shadow-[0_0_15px_rgba(244,63,94,0.4)] group`}
+          className={`flex items-center gap-3 w-full rounded-xl transition-colors ${
+            isCollapsed ? "justify-center h-12" : "px-4 py-2.5"
+          } text-slate-400 hover:text-red-500 hover:bg-red-500/10 bg-slate-900 border border-slate-800 shadow-sm`}
         >
-          <LogOut size={18} className="shrink-0 group-hover:-translate-x-1 transition-transform" />
-          {!isCollapsed && <span className="text-xs font-bold uppercase tracking-[0.15em]">Log out</span>}
+          <LogOut size={18} className="shrink-0" />
+          {!isCollapsed && <span className="text-[15px] font-semibold">Sign Out</span>}
         </button>
       </div>
 
