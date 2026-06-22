@@ -70,8 +70,8 @@ export default function LoginPage() {
         
         <div className="relative z-10 opacity-0 animate-fade-in-up">
           <div className="flex items-center gap-3 mb-10 xl:mb-12">
-            <div className="bg-white p-2.5 rounded-xl border border-slate-200 shadow-sm">
-              <GraduationCap className="text-blue-600" size={24} strokeWidth={2.5} />
+            <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-sm flex items-center justify-center overflow-hidden w-12 h-12">
+              <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain rounded-lg" />
             </div>
             <div>
               <p className="text-blue-600/80 text-[10px] font-bold uppercase tracking-[0.2em]">Learning Platform</p>

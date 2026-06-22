@@ -73,6 +73,7 @@ const AptisSidebar = ({
       <div className="h-20 flex items-center justify-between px-5 border-b border-slate-100 shrink-0">
         {!sidebarCollapsed && (
           <div className="flex items-center gap-3">
+            <img src="/logo.jpg" alt="Logo" className="w-8 h-8 object-contain rounded-md shadow-sm" />
             <span className="text-orange-600 font-black text-2xl tracking-tight">APTIS</span>
           </div>
         )}

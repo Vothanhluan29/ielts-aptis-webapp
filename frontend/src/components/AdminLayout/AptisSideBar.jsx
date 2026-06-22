@@ -73,10 +73,10 @@ const AptisSideBar = ({ layoutProps }) => {
       {/* LOGO */}
       <div className="h-16 flex items-center justify-between px-5 border-b border-gray-800/60 shrink-0 relative z-10">
         {!isCollapsed && (
-          <div className="flex items-center gap-3">
-            <span className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)] font-black text-xl tracking-tight">APTIS</span>
+          <h1 className="text-lg font-extrabold uppercase tracking-widest m-0 flex items-center gap-1">
+            <span className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]">APTIS</span>
             <span className="text-white">PANEL</span>
-          </div>
+          </h1>
         )}
         <button
           onClick={toggleSidebar}
