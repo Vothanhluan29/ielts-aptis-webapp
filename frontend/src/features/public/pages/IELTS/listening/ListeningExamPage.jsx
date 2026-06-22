@@ -1,7 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useListeningExam } from "../../../hooks/IELTS/listening/useListeningExam";
 import StudentQuestionDisplay from '../../../components/IELTS/Question Display/StudentQuestionDisplay';
-import { Clock, Send, Headphones, ChevronRight, ChevronLeft, Info, PlayCircle, CheckCircle, Volume2, Lock } from 'lucide-react';
+import { Clock, Send, Headphones, ChevronRight, ChevronLeft, Info, PlayCircle, CheckCircle, Volume2, Lock, ArrowLeft, ArrowRight } from 'lucide-react';
 
 const ListeningExamPage = ({ testId, onFinish }) => {
   const {
@@ -10,16 +10,32 @@ const ListeningExamPage = ({ testId, onFinish }) => {
     handleAnswerChange, handleSubmit, isFullTestMode, nextPart, prevPart
   } = useListeningExam(testId, onFinish);
 
-  // STATE QUẢN LÝ TRẠNG THÁI AUDIO TỪNG PART: 'ready' | 'playing' | 'ended'
   const [audioStatus, setAudioStatus] = useState({});
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
   const audioRef = useRef(null);
 
   // ==========================================
-  // AUDIO STRICT LOGIC (1 LẦN, NO SEEK)
+  // AUDIO STRICT LOGIC (AUTOPLAY, NO SEEK)
   // ==========================================
   const currentAudioStatus = audioStatus[currentPart?.id] || 'ready';
 
-  const handlePlayAudio = () => {
+  useEffect(() => {
+    // Autoplay logic when the part changes
+    if (currentPart && audioRef.current && currentAudioStatus === 'ready') {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          setAudioStatus(prev => ({ ...prev, [currentPart.id]: 'playing' }));
+        }).catch(err => {
+          console.warn("Autoplay was prevented by browser:", err);
+          // Wait for user interaction if autoplay is blocked
+        });
+      }
+    }
+  }, [currentPart, currentAudioStatus]);
+
+  const handlePlayAudioFallback = () => {
+    // If autoplay was blocked, the user can click the button
     if (audioRef.current && currentAudioStatus === 'ready') {
       audioRef.current.play();
       setAudioStatus(prev => ({ ...prev, [currentPart.id]: 'playing' }));
@@ -31,9 +47,42 @@ const ListeningExamPage = ({ testId, onFinish }) => {
   };
 
   const handleAudioPause = (e) => {
-    // Ép phát tiếp nếu học viên dùng thủ thuật chuột phải chọn Pause
+    // Force resume if user tries to pause
     if (currentAudioStatus === 'playing' && e.target.currentTime < e.target.duration) {
       e.target.play();
+    }
+  };
+
+  useEffect(() => {
+    const questionContainer = document.getElementById('listening-question-container');
+    const textWrapper = document.getElementById('listening-left-wrapper');
+    if (questionContainer) questionContainer.scrollTo({ top: 0, behavior: 'auto' });
+    if (textWrapper) textWrapper.scrollTo({ top: 0, behavior: 'auto' });
+  }, [currentPartIndex]);
+
+  const allQuestions = useMemo(() => {
+    if (!test?.parts) return [];
+    const questions = [];
+    test.parts.forEach((p, pIndex) => {
+      p.groups?.forEach(g => {
+        g.questions?.forEach(q => {
+          questions.push({ ...q, partIndex: pIndex });
+        });
+      });
+    });
+    return questions.sort((a, b) => a.question_number - b.question_number);
+  }, [test]);
+
+  const scrollToQuestion = (qNumber, pIndex) => {
+    if (currentPartIndex !== pIndex) {
+      setCurrentPartIndex(pIndex);
+      setTimeout(() => {
+        const el = document.getElementById(`question-${qNumber}`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    } else {
+      const el = document.getElementById(`question-${qNumber}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
@@ -46,14 +95,8 @@ const ListeningExamPage = ({ testId, onFinish }) => {
 
   if (loading) {
     return (
-      <div className="h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-14 h-14 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-          <div className="text-center">
-            <div className="text-lg font-bold text-indigo-900">Loading Listening Test</div>
-            <div className="text-sm text-indigo-600 mt-1">Please wait...</div>
-          </div>
-        </div>
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center text-blue-600 font-bold text-xl">Loading Listening Test...</div>
       </div>
     );
   }
@@ -61,36 +104,27 @@ const ListeningExamPage = ({ testId, onFinish }) => {
   if (!test) return null;
 
   const isTimeWarning = timeLeft !== null && timeLeft <= 300;
-  const isLastPart = currentPartIndex === (test.parts?.length || 1) - 1; // Kiểm tra xem có phải Part cuối chưa
 
   return (
-    <div className="h-screen flex flex-col bg-linear-to-br from-slate-50 to-blue-50/30 font-sans overflow-hidden">
+    <div className="h-screen flex flex-col bg-slate-50 font-sans overflow-hidden text-slate-800">
 
       {/* HEADER */}
       {!isFullTestMode && (
-        <header className="bg-white border-b-2 border-indigo-200 shadow-sm h-14 shrink-0 z-30">
-          <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
-            {/* Left: Title */}
-            <div className="flex items-center gap-3">
-              <div className="w-1 h-9 bg-linear-to-b from-indigo-600 to-blue-600 rounded-full"></div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-bold bg-linear-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent uppercase tracking-widest">
-                  IELTS Listening
-                </span>
-                <h1 className="text-sm font-bold text-slate-800 truncate max-w-xs" title={test.title}>
-                  {test.title}
-                </h1>
-              </div>
-            </div>
+        <header className="bg-blue-600 text-white h-[56px] shrink-0 z-30 flex items-center justify-between px-8 border-b border-slate-300">
+          <div className="flex items-center gap-4">
+            <h1 className="text-lg font-bold tracking-wide" title={test.title}>
+              {test.title}
+            </h1>
+          </div>
 
-            {/* Right: Timer (Đã bỏ nút Submit ở đây) */}
-            <div className="flex items-center gap-4">
-              <div className={`flex items-center gap-2 font-mono text-lg font-bold px-5 py-1.5 rounded-lg border-2 ${
-                isTimeWarning ? 'text-red-600 bg-red-50 border-red-300 animate-pulse' : 'text-indigo-700 bg-indigo-50 border-indigo-200'
-              }`}>
-                <Clock size={18} className={isTimeWarning ? 'text-red-500' : 'text-indigo-600'} />
-                {formatTime(timeLeft)}
-              </div>
+          <div className="flex items-center gap-8">
+            <button className="flex items-center gap-2 hover:bg-white/10 px-3 py-1.5 border border-transparent hover:border-white/30 transition-all text-sm font-semibold">
+              <Volume2 size={18} />
+              Volume
+            </button>
+            <div className={`flex items-center gap-2 font-bold text-xl px-4 py-1.5 ${isTimeWarning ? 'text-red-300 animate-pulse' : 'text-white'}`}>
+              <Clock size={20} />
+              {formatTime(timeLeft)}
             </div>
           </div>
         </header>
@@ -99,39 +133,37 @@ const ListeningExamPage = ({ testId, onFinish }) => {
       {/* MAIN BODY - Split View */}
       <div className="flex-1 overflow-hidden relative">
         {currentPart && (
-          <div className="grid grid-cols-1 lg:grid-cols-[40%_60%] h-full divide-x-2 divide-indigo-200">
+          <div className="grid grid-cols-1 lg:grid-cols-2 h-full divide-x divide-slate-300">
 
-            {/* LEFT PANEL: Audio & Navigation */}
-            <div className="bg-white h-full overflow-y-auto scroll-smooth" style={{ scrollbarWidth: 'thin', scrollbarColor: '#818cf8 #f1f5f9' }}>
-              <div className="p-8 md:p-12 max-w-4xl mx-auto">
+            {/* LEFT PANEL: Audio & Images */}
+            <div id="listening-left-wrapper" className="bg-white h-full overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
+              <div className="p-8 max-w-3xl mx-auto flex flex-col items-center">
                 
-                {/* AUDIO PLAYER THU GỌN */}
-                <div className="bg-linear-to-r from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-5 mb-8 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-linear-to-br from-indigo-600 to-blue-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                          {currentPart.part_number}
-                        </div>
-                        <div>
-                          <h2 className="text-lg font-bold text-slate-800 leading-tight">Audio Track - Part {currentPart.part_number}</h2>
-                          <p className="text-[11px] font-semibold text-red-500 uppercase tracking-wider">Audio can only be played once</p>
-                        </div>
-                     </div>
+                {/* AUDIO PLAYER */}
+                <div className="w-full bg-slate-50 border border-slate-300 p-5 mb-8 text-center transition-all">
+                  <div className="flex flex-col items-center justify-center mb-4 gap-2">
+                    <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-lg shadow-sm">
+                      {currentPart.part_number}
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-semibold text-slate-800 leading-tight">Audio Track - Part {currentPart.part_number}</h2>
+                      <p className="text-[12px] font-bold text-red-500 uppercase tracking-wider mt-1">Audio will only play once</p>
+                    </div>
                   </div>
                   
                   {currentPart.audio_url ? (
-                    <div className="w-full">
+                    <div className="w-full mt-4">
                       <button
-                        onClick={handlePlayAudio}
+                        onClick={handlePlayAudioFallback}
                         disabled={currentAudioStatus !== 'ready'}
-                        className={`w-full py-3 rounded-lg flex items-center justify-center gap-2 font-bold text-sm shadow-sm transition-all 
-                          ${currentAudioStatus === 'ready' ? 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer hover:shadow-md' : 
-                            currentAudioStatus === 'playing' ? 'bg-amber-100 border-2 border-amber-400 text-amber-700 cursor-not-allowed' : 
-                            'bg-slate-200 border-2 border-slate-300 text-slate-500 cursor-not-allowed'}`}
+                        className={`w-full py-3.5 flex items-center justify-center gap-2 font-bold text-[15px] transition-all 
+                          ${currentAudioStatus === 'ready' ? 'bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer' : 
+                            currentAudioStatus === 'playing' ? 'bg-amber-50 border border-amber-400 text-amber-700 cursor-not-allowed' : 
+                            'bg-slate-100 border border-slate-300 text-slate-500 cursor-not-allowed'}`}
                       >
-                        {currentAudioStatus === 'ready' && <><PlayCircle size={20} /> PLAY AUDIO</>}
-                        {currentAudioStatus === 'playing' && <><Volume2 size={20} className="animate-pulse" /> PLAYING... DO NOT CLOSE</>}
-                        {currentAudioStatus === 'ended' && <><Lock size={20} /> AUDIO ENDED</>}
+                        {currentAudioStatus === 'ready' && <><PlayCircle size={22} /> CLICK TO START AUDIO</>}
+                        {currentAudioStatus === 'playing' && <><Volume2 size={22} className="animate-pulse" /> AUDIO PLAYING... DO NOT PAUSE</>}
+                        {currentAudioStatus === 'ended' && <><Lock size={22} /> AUDIO ENDED</>}
                       </button>
                       
                       <audio
@@ -146,99 +178,57 @@ const ListeningExamPage = ({ testId, onFinish }) => {
                       />
                     </div>
                   ) : (
-                    <div className="text-sm text-amber-700 italic py-2 px-3 bg-amber-50 rounded border-2 border-amber-200 text-center">
+                    <div className="text-[15px] text-slate-500 font-semibold italic py-3">
                       No audio available
                     </div>
                   )}
                 </div>
 
-                {/* Question Navigator Map */}
-                <div className="bg-linear-to-br from-white to-slate-50 border-2 border-indigo-200 rounded-lg shadow-sm p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-2 h-2 rounded-full bg-linear-to-r from-indigo-600 to-blue-600"></div>
-                    <h3 className="font-bold text-sm text-slate-800 uppercase tracking-wider">Question Navigator</h3>
-                  </div>
-                  <div className="grid grid-cols-8 gap-2">
-                    {test.parts?.flatMap(p => p.groups?.flatMap(g => g.questions)).map((q) => {
-                      if (!q) return null;
-
-                      const qNum = String(q.question_number);
-                      const ansVal = answers[qNum];
-                      const isAnswered = ansVal !== undefined && ansVal !== "" && ansVal !== null && (Array.isArray(ansVal) ? ansVal.length > 0 : true);
-
-                      return (
-                        <button
-                          key={q.id || q.question_number}
-                          onClick={() => {
-                            const element = document.getElementById(`question-${q.question_number}`);
-                            if (element) {
-                              element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                            }
-                          }}
-                          className={`h-10 text-xs font-bold border-2 transition-all rounded flex items-center justify-center ${
-                            isAnswered
-                              ? "bg-linear-to-br from-emerald-500 to-teal-600 text-white border-emerald-500 shadow-sm"
-                              : "bg-white text-slate-600 border-indigo-200 hover:bg-indigo-50 hover:border-indigo-400"
-                          }`}
-                          title={`Question ${q.question_number}`}
-                        >
-                          {isAnswered && <CheckCircle size={10} className="mr-1" />}
-                          {q.question_number}
-                        </button>
-                      );
-                    })}
-                  </div>
+                {/* IMAGES FROM GROUPS */}
+                <div className="w-full space-y-6">
+                  {currentPart.groups?.map((group, gIndex) => (
+                    group.image_url && (
+                      <div key={`img-${gIndex}`} className="flex flex-col items-center">
+                         <div className="bg-white p-3 border border-slate-300">
+                           <img 
+                             src={group.image_url.startsWith('http') ? group.image_url : `http://localhost:8000${group.image_url}`} 
+                             alt="Map or Diagram" 
+                             className="max-w-full"
+                             style={{ maxHeight: '450px', objectFit: 'contain' }}
+                           />
+                         </div>
+                      </div>
+                    )
+                  ))}
                 </div>
+
               </div>
             </div>
 
-            {/* RIGHT PANEL: Questions & Images */}
-            <div className="bg-linear-to-br from-white to-slate-50/50 h-full flex flex-col overflow-hidden">
-              <div className="px-6 py-4 border-b-2 border-indigo-200 bg-white shrink-0 flex items-center justify-between shadow-sm">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-linear-to-r from-indigo-600 to-blue-600"></div>
-                  <h3 className="font-bold text-slate-800 uppercase tracking-wider text-sm">
-                    Questions - Part {currentPart.part_number}
-                  </h3>
-                </div>
-                <div className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full flex items-center gap-4">
-                  <span>Questions answered: <span className="font-bold">{answeredCount}</span>/{totalQuestions}</span>
-                </div>
+            {/* RIGHT PANEL: Questions */}
+            <div className="bg-slate-50 h-full flex flex-col overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-300 bg-white shrink-0 flex items-center justify-between">
+                <h3 className="font-bold text-slate-800 text-sm">
+                  Part {currentPart.part_number}: Questions {currentPart.groups?.[0]?.questions?.[0]?.question_number} - {currentPart.groups?.[currentPart.groups.length - 1]?.questions?.slice(-1)[0]?.question_number}
+                </h3>
               </div>
 
-              <div className="flex-1 overflow-y-auto scroll-smooth bg-white" style={{ scrollbarWidth: 'thin', scrollbarColor: '#818cf8 #f1f5f9' }}>
-                <div className="p-6 md:p-8 max-w-3xl mx-auto">
-                  <div className="space-y-8 pb-10">
+              <div id="listening-question-container" className="flex-1 overflow-y-auto bg-white" style={{ scrollbarWidth: 'thin' }}>
+                <div className="p-8 max-w-2xl mx-auto">
+                  <div className="space-y-10 pb-10">
                     
                     {currentPart.groups?.map((group, gIndex) => (
-                      <div key={group.id || gIndex} className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div key={group.id || gIndex}>
 
                         {group.instruction && (
-                          <div className="bg-linear-to-r from-indigo-50 via-blue-50 to-indigo-50 border-l-4 border-indigo-600 p-5 rounded-r-lg mb-6 shadow-sm">
-                            <p className="font-semibold text-slate-800 text-sm flex gap-2 items-start leading-relaxed whitespace-pre-wrap">
-                              <Info size={18} className="text-indigo-600 mt-0.5 shrink-0" />
-                              <span>{group.instruction}</span>
-                            </p>
+                          <div className="bg-slate-100 border border-slate-300 p-4 mb-6 text-sm font-bold text-slate-800 whitespace-pre-wrap rounded-lg">
+                            {group.instruction}
                           </div>
                         )}
 
-                        {/* HIỂN THỊ HÌNH ẢNH MAP/DIAGRAM NẾU CÓ */}
-                        {group.image_url && (
-                           <div className="mb-6 flex justify-center">
-                              <div className="bg-white p-2 border-2 border-slate-200 rounded-xl shadow-sm hover:border-indigo-300 transition-colors">
-                                <img 
-                                  src={group.image_url.startsWith('http') ? group.image_url : `http://localhost:8000${group.image_url}`} 
-                                  alt="Map or Diagram" 
-                                  className="max-w-full rounded-lg"
-                                  style={{ maxHeight: '400px', objectFit: 'contain' }}
-                                />
-                              </div>
-                           </div>
-                        )}
-
-                        <div className="space-y-6 whitespace-pre-wrap">
+                        <div className="space-y-8">
                           {group.questions?.map((q) => (
-                            <div key={q.id || q.question_number} id={`question-${q.question_number}`}>
+                            <div key={q.id || q.question_number} id={`question-${q.question_number}`} className="scroll-mt-6">
                               <StudentQuestionDisplay
                                 question={q}
                                 currentAnswer={answers[String(q.question_number)]}
@@ -247,26 +237,12 @@ const ListeningExamPage = ({ testId, onFinish }) => {
                             </div>
                           ))}
                         </div>
-
-                        {gIndex < (currentPart.groups?.length || 0) - 1 && (
-                          <div className="relative my-10">
-                            <div className="absolute inset-0 flex items-center">
-                              <div className="w-full border-t-2 border-indigo-100"></div>
-                            </div>
-                            <div className="relative flex justify-center">
-                              <span className="bg-white px-4 text-xs font-bold text-indigo-600 uppercase tracking-wider border border-indigo-200 rounded-full">
-                                Section {gIndex + 1}
-                              </span>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     ))}
 
                     {(!currentPart.groups || currentPart.groups.length === 0) && (
-                      <div className="text-center py-24 bg-linear-to-br from-indigo-50 to-blue-50 rounded-xl border-2 border-dashed border-indigo-300">
-                        <Headphones className="mx-auto mb-4 text-indigo-300" size={56} />
-                        <p className="text-indigo-600 font-semibold">No questions available for this part.</p>
+                      <div className="text-center py-24 text-slate-500 font-semibold">
+                        No questions available for this part.
                       </div>
                     )}
                   </div>
@@ -279,73 +255,100 @@ const ListeningExamPage = ({ testId, onFinish }) => {
       </div>
 
       {/* FOOTER - Part Navigation */}
-      <footer className="bg-white border-t-2 border-indigo-200 h-16 shrink-0 z-30 shadow-sm">
-        <div className="h-full max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <footer className="bg-slate-200 border-t border-slate-300 flex flex-col shrink-0 z-30">
+        
+        {/* Navigation Bar */}
+        <div className="bg-slate-100 border-b border-slate-300 h-12 px-6 flex items-center justify-between">
+          <div className="flex gap-4">
+            <button
+              onClick={prevPart}
+              disabled={currentPartIndex === 0}
+              className="flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-none"
+            >
+              <ArrowLeft size={16} />
+              Previous Part
+            </button>
 
-          <button
-            onClick={prevPart}
-            disabled={currentPartIndex === 0}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg disabled:opacity-30 disabled:hover:bg-transparent transition-all border-2 border-transparent hover:border-indigo-200"
-          >
-            <ChevronLeft size={18} />
-            Previous
-          </button>
-
-          <div className="flex gap-2">
-            {test.parts?.map((part, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentPartIndex(index)}
-                className={`px-5 py-2 rounded-lg text-xs font-bold transition-all border-2 ${
-                  currentPartIndex === index
-                    ? 'bg-linear-to-r from-indigo-600 to-blue-600 text-white border-indigo-600 shadow-md'
-                    : 'bg-white text-slate-700 border-indigo-200 hover:bg-indigo-50 hover:border-indigo-400'
-                }`}
-              >
-                Part {part.part_number}
-              </button>
-            ))}
+            <button
+              onClick={nextPart}
+              disabled={currentPartIndex === (test.parts?.length || 1) - 1}
+              className="flex items-center gap-1.5 px-4 py-1.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-none"
+            >
+              Next Part
+              <ArrowRight size={16} />
+            </button>
           </div>
 
-          {/* 🔥 RIGHT: PHÂN TÁCH LOGIC SUBMIT & NEXT RÕ RÀNG */}
           <div>
-            {isLastPart ? (
-              // NẾU LÀ PART CUỐI CÙNG
-              isFullTestMode ? (
-                // 🔵 Chế độ thi Full Test: Hiện nút Finish Section
-                <button
-                  onClick={() => handleSubmit(false)}
-                  disabled={submitting}
-                  className="flex items-center gap-2 px-6 py-2 text-sm font-bold bg-linear-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-lg shadow-md disabled:from-slate-400 disabled:to-slate-400 transition-all border-2 border-transparent"
-                >
-                  {submitting ? 'Processing...' : 'Finish Section'}
-                  <Send size={16} />
-                </button>
-              ) : (
-                // 🟢 Chế độ Practice thông thường: Hiện nút Submit Test (Màu Xanh Ngọc)
-                <button
-                  onClick={() => handleSubmit(false)}
-                  disabled={submitting}
-                  className="flex items-center gap-2 px-6 py-2 text-sm font-bold bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-lg shadow-md disabled:from-slate-400 disabled:to-slate-400 transition-all border-2 border-transparent"
-                >
-                  {submitting ? 'Submitting...' : 'Submit Test'}
-                  <Send size={16} />
-                </button>
-              )
-            ) : (
-              // NẾU CHƯA PHẢI LÀ PART CUỐI CÙNG -> Hiển thị nút NEXT
+            {currentPartIndex === (test.parts?.length || 1) - 1 && (
               <button
-                onClick={nextPart}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all border-2 border-transparent hover:border-indigo-200"
+                onClick={() => setShowSubmitModal(true)}
+                disabled={submitting}
+                className="flex items-center gap-2 px-6 py-2 text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 disabled:bg-slate-400 transition-none"
               >
-                Next
-                <ChevronRight size={18} />
+                {submitting ? 'Processing...' : (isFullTestMode ? 'Finish Section' : 'Submit Test')}
+                <Send size={16} />
               </button>
             )}
           </div>
+        </div>
 
+        {/* Question Grid */}
+        <div className="overflow-x-auto py-3 px-6 flex items-center gap-1.5 bg-slate-200 scrollbar-hide">
+          {allQuestions.map((q) => {
+            const qNum = q.question_number;
+            const hasAnswer = answers[String(qNum)] && String(answers[String(qNum)]).trim() !== '';
+            return (
+              <button
+                key={qNum}
+                onClick={() => scrollToQuestion(qNum, q.partIndex)}
+                className={`flex-shrink-0 w-9 h-9 flex flex-col items-center justify-center font-semibold text-sm border transition-none ${
+                  hasAnswer ? 'bg-slate-600 text-white border-slate-600' : 'bg-white text-slate-800 border-slate-400 hover:bg-slate-100'
+                }`}
+              >
+                {qNum}
+                {hasAnswer && <div className="w-[80%] h-[3px] bg-white opacity-80 mt-0.5"></div>}
+              </button>
+            );
+          })}
         </div>
       </footer>
+
+      {/* Submit Confirmation Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Send size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">
+                {isFullTestMode ? 'Finish Section?' : 'Submit Test?'}
+              </h3>
+              <p className="text-slate-600 mb-6">
+                You still have <span className="font-bold text-red-500">{formatTime(timeLeft)}</span> remaining. Are you sure you want to submit now?
+              </p>
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setShowSubmitModal(false)}
+                  className="flex-1 py-2.5 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowSubmitModal(false);
+                    handleSubmit(false);
+                  }}
+                  className="flex-1 py-2.5 font-bold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-md shadow-blue-500/30 transition-all"
+                >
+                  Submit Now
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
