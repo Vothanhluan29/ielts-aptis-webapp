@@ -59,6 +59,9 @@ const writingAptisAdminApi = {
 
   getUserHistory: (userId) =>
     axiosClient.get(`${PREFIX}/users/${userId}/submissions`),
+
+  getAISuggestion: (text, partContext) =>
+    axiosClient.post(`${PREFIX}/ai-suggest`, { text, part_context: partContext }),
 };
 
 export default writingAptisAdminApi;

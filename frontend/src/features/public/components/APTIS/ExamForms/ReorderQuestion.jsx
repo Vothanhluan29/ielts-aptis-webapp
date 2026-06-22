@@ -120,10 +120,26 @@ const ReorderQuestion = ({
         </div>
         <div className="flex-1">
           <Paragraph className="text-slate-800 text-base font-bold m-0 leading-relaxed">
-            {questionText || "Arrange the following sentences in the correct order to form a meaningful paragraph:"}
+            Arrange the following sentences in the correct order to form a meaningful story/paragraph:
           </Paragraph>
         </div>
       </div>
+
+      {/* EXAMPLE SENTENCE */}
+      {questionText && (
+        <div className="flex items-start md:items-center gap-3 p-3.5 bg-slate-100 border border-slate-200 rounded-xl mb-4 ml-0 md:ml-2 shadow-sm">
+          <div className="flex items-center justify-center px-1 text-slate-300 opacity-0 shrink-0">
+             <HolderOutlined className="text-lg" />
+          </div>
+          <div className="flex flex-col gap-1 shrink-0 w-8 opacity-0"></div>
+          <div className="flex items-center justify-center min-w-9 h-9 font-bold text-slate-500 bg-white border border-slate-200 shadow-sm rounded-lg shrink-0">
+             0
+          </div>
+          <div className="flex-1 text-slate-700 text-sm md:text-base leading-relaxed font-semibold">
+             {questionText}
+          </div>
+        </div>
+      )}
 
       {/* DANH SÁCH LỰA CHỌN */}
       <div className="flex flex-col gap-3 pl-0 md:pl-2">

@@ -78,6 +78,22 @@ const ReorderSentencesAdmin = ({ relativePath, absolutePath, form }) => {
         </Text>
       </div>
 
+      <div style={{ marginBottom: 20 }}>
+        <Text strong style={{ color: '#0369a1', fontSize: 14 }}>
+          Example Sentence (Optional)
+        </Text>
+        <Form.Item name={[...relativePath, 'question_text']} style={{ marginTop: 8, marginBottom: 4 }}>
+          <TextArea 
+            rows={2} 
+            placeholder="e.g. 0. Once upon a time, there was a little boy..." 
+            style={{ borderColor: '#bae6fd' }}
+          />
+        </Form.Item>
+        <Text type="secondary" style={{ fontSize: 12 }}>
+          This sentence will be displayed fixed at the top as an example (Index 0) to set the context of the story.
+        </Text>
+      </div>
+
       {/* DRAGGABLE / REORDERABLE SENTENCE LIST */}
       <Form.List name={[...relativePath, 'options']}>
         {(fields, { add, remove, move }) => (

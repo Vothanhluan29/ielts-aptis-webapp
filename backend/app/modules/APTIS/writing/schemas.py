@@ -180,3 +180,7 @@ class WritingGradeRequest(BaseModel):
     cefr_level: str            # CEFR Level (A1, A2, B1, B2, C)
     teacher_feedback: Optional[Dict[str, Any]] = None  
     overall_feedback: Optional[str] = None            
+
+class AISuggestionRequest(BaseModel):
+    text: str
+    part_context: Optional[str] = None

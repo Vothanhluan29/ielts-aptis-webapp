@@ -277,25 +277,6 @@ const ReadingAptisEditPage = () => {
                                   ),
                                   children: (
                                     <div style={{ paddingTop: 8 }}>
-                                      <Row gutter={16} style={{ marginBottom: 12 }}>
-                                        <Col span={8}>
-                                          <Form.Item {...restQField} name={[qName, 'question_type']} label="Question Type" rules={[{ required: true }]}>
-                                            <Select>
-                                              <Option value="MULTIPLE_CHOICE">Multiple Choice</Option>
-                                              <Option value="FILL_IN_BLANKS">Fill in the Blanks</Option>
-                                              <Option value="MATCHING_OPINIONS">Matching Opinions (P3)</Option>
-                                              <Option value="MATCHING_HEADINGS">Matching Headings (P4)</Option>
-                                              <Option value="REORDER_SENTENCES">Reorder Sentences (P2)</Option>
-                                            </Select>
-                                          </Form.Item>
-                                        </Col>
-                                        <Col span={16}>
-                                          <Form.Item {...restQField} name={[qName, 'question_text']} label="Question / Prompt">
-                                            <BlurInput placeholder="Enter question text or prompt..." />
-                                          </Form.Item>
-                                        </Col>
-                                      </Row>
-
                                       <Form.Item shouldUpdate noStyle>
                                         {({ getFieldValue }) => {
                                           const qType = getFieldValue(['parts', partName, 'questions', qName, 'question_type']);
@@ -306,10 +287,35 @@ const ReadingAptisEditPage = () => {
                                             form: form
                                           };
 
-                                          if (qType === 'REORDER_SENTENCES') return <ReorderSentencesAdmin {...pathProps} />;
-                                          if (qType === 'MATCHING_OPINIONS' || qType === 'MATCHING_HEADINGS') return <MatchingAdmin {...pathProps} />;
-                                          if (qType === 'FILL_IN_BLANKS') return <FillInBlankAdmin {...pathProps} />;
-                                          return <MultipleChoiceAdmin {...pathProps} />;
+                                          return (
+                                            <>
+                                              <Row gutter={16} style={{ marginBottom: 12 }}>
+                                                <Col span={qType === 'REORDER_SENTENCES' ? 24 : 8}>
+                                                  <Form.Item {...restQField} name={[qName, 'question_type']} label="Question Type" rules={[{ required: true }]}>
+                                                    <Select>
+                                                      <Option value="MULTIPLE_CHOICE">Multiple Choice</Option>
+                                                      <Option value="FILL_IN_BLANKS">Fill in the Blanks</Option>
+                                                      <Option value="MATCHING_OPINIONS">Matching Opinions (P3)</Option>
+                                                      <Option value="MATCHING_HEADINGS">Matching Headings (P4)</Option>
+                                                      <Option value="REORDER_SENTENCES">Reorder Sentences (P2)</Option>
+                                                    </Select>
+                                                  </Form.Item>
+                                                </Col>
+                                                {qType !== 'REORDER_SENTENCES' && (
+                                                  <Col span={16}>
+                                                    <Form.Item {...restQField} name={[qName, 'question_text']} label="Question / Prompt">
+                                                      <BlurInput placeholder="Enter question text or prompt..." />
+                                                    </Form.Item>
+                                                  </Col>
+                                                )}
+                                              </Row>
+
+                                              {qType === 'REORDER_SENTENCES' && <ReorderSentencesAdmin {...pathProps} />}
+                                              {(qType === 'MATCHING_OPINIONS' || qType === 'MATCHING_HEADINGS') && <MatchingAdmin {...pathProps} />}
+                                              {qType === 'FILL_IN_BLANKS' && <FillInBlankAdmin {...pathProps} />}
+                                              {(!qType || qType === 'MULTIPLE_CHOICE') && <MultipleChoiceAdmin {...pathProps} />}
+                                            </>
+                                          );
                                         }}
                                       </Form.Item>
                                     </div>

@@ -15,6 +15,8 @@ class AptisReadingSubmissionService:
         # Khởi tạo các biến tính điểm thay vì gộp mảng
         raw_score = 0              # Tổng điểm học viên đạt được
         total_max_points = 0       # Tổng điểm tối đa của đề thi (Theo barem chuẩn sẽ là 50)
+        correct_items = 0          # Số lượng item làm đúng (max 29)
+        total_items = 0            # Tổng số item (max 29)
         answers_to_store = submission_data.answers or {}
         detailed_results = []
         
@@ -52,21 +54,25 @@ class AptisReadingSubmissionService:
                         correct_arr = cleaned_correct.split('-')
                         
                         max_points = len(correct_arr) if len(correct_arr) > 0 else 1
+                        total_items += max_points
                         
                         if len(user_arr) == len(correct_arr) and len(correct_arr) > 0:
                             # Đếm số vị trí trùng khớp
                             matches = sum(1 for u, c in zip(user_arr, correct_arr) if u == c)
                             points_to_add = matches # Đúng vị trí nào ăn 1 điểm vị trí đó
+                            correct_items += matches
                             
                             if matches == max_points:
                                 is_correct = True
                                 
                     # 3. CHẤM CÁC CÂU TRẮC NGHIỆM/ĐIỀN TỪ BÌNH THƯỜNG
                     else:
+                        total_items += 1
                         accepted_answers = [ans.strip() for ans in cleaned_correct.replace('|', '/').split('/')]
                         if cleaned_student in accepted_answers:
                             is_correct = True
                             points_to_add = weight # Trả lời đúng nhận trọn điểm trọng số
+                            correct_items += 1
 
                     # Cộng dồn điểm vào tổng bài thi
                     raw_score += points_to_add
@@ -89,7 +95,7 @@ class AptisReadingSubmissionService:
             user_id=user_id,
             test_id=test.id,
             user_answers=answers_to_store,
-            correct_count=raw_score,       # Lưu tổng điểm 50
+            correct_count=correct_items,   # Lưu số câu đúng (max 29)
             score=scoring_result["score"],
             cefr_level=scoring_result["cefr_level"],
             submitted_at=datetime.now(),
@@ -111,7 +117,7 @@ class AptisReadingSubmissionService:
             correct_count=db_submission.correct_count,
             score=db_submission.score,
             cefr_level=db_submission.cefr_level,
-            total_questions=total_max_points, # Trả về mốc 50 cho Frontend
+            total_questions=total_items, # Trả về tổng câu (29)
             
             submitted_at=db_submission.submitted_at,
             user_answers=db_submission.user_answers,
@@ -140,7 +146,7 @@ class AptisReadingSubmissionService:
                 correct_count=sub.correct_count,
                 score=sub.score,
                 cefr_level=sub.cefr_level,
-                total_questions=25, 
+                total_questions=29, # 29 câu
                 
                 submitted_at=sub.submitted_at
             ) for sub, test in results
@@ -197,7 +203,7 @@ class AptisReadingSubmissionService:
             correct_count=submission.correct_count,
             score=submission.score,
             cefr_level=submission.cefr_level,
-            total_questions=len(all_questions),
+            total_questions=29, # Trả về 29 câu
             
             submitted_at=submission.submitted_at,
             user_answers=submission.user_answers,
@@ -230,7 +236,7 @@ class AptisReadingSubmissionService:
                     correct_count=sub.correct_count,
                     score=sub.score,
                     cefr_level=sub.cefr_level,
-                    total_questions=25,
+                    total_questions=29, # Trả về 29 câu
                     
                     submitted_at=sub.submitted_at,
                     user_answers={}, 
@@ -263,7 +269,7 @@ class AptisReadingSubmissionService:
                     correct_count=sub.correct_count,
                     score=sub.score,
                     cefr_level=sub.cefr_level,
-                    total_questions=25,
+                    total_questions=29, # Trả về 29 câu
                     
                     submitted_at=sub.submitted_at,
                     user_answers={},

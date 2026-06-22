@@ -9,6 +9,7 @@ from app.core.dependencies import get_current_user, get_admin_user
 from app.modules.APTIS.writing import schemas
 from app.modules.APTIS.writing.services.test_service import AptisWritingTestService
 from app.modules.APTIS.writing.services.submission_service import AptisWritingSubmissionService
+from app.core.AI.writing_aptis_suggestion import suggestion_service
 
 router = APIRouter(prefix="/aptis/writing", tags=["Aptis Writing"])
 
@@ -196,3 +197,14 @@ def admin_grade_submission(
     if not sub:
         raise HTTPException(status_code=404, detail="Submission not found")
     return sub
+
+@router.post("/admin/ai-suggest")
+def admin_ai_suggest(
+    req: schemas.AISuggestionRequest,
+    admin=Depends(get_admin_user),
+):
+    try:
+        result = suggestion_service.get_suggestion(req.text, req.part_context)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
