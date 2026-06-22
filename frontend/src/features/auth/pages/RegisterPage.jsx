@@ -133,14 +133,14 @@ export default function RegisterPage() {
               <BookOpen size={16} className="text-blue-600" />
               <div>
                 <p className="text-slate-800 font-bold text-sm tracking-wider">IELTS</p>
-                <p className="text-slate-500 text-[10px] font-bold tracking-widest uppercase">V.1.2</p>
+                
               </div>
             </div>
             <div className="bg-white border border-slate-200 px-5 py-3 rounded-lg flex items-center gap-3 shadow-sm">
               <BookOpen size={16} className="text-indigo-600" />
               <div>
                 <p className="text-slate-800 font-bold text-sm tracking-wider">APTIS</p>
-                <p className="text-slate-500 text-[10px] font-bold tracking-widest uppercase">V.2.0</p>
+                
               </div>
             </div>
           </div>
