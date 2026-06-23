@@ -6,9 +6,9 @@ import authApi from '../api/authApi';
 import { CheckCircle2, GraduationCap, BookOpen, Sparkles } from 'lucide-react';
 
 const FEATURES = [
-  'Full-length mock tests for IELTS & APTIS',
-  'AI-powered scoring & instant feedback',
-  'Adaptive practice based on your level',
+  'Authentic mock tests for IELTS & APTIS',
+  'Instant AI grading with detailed feedback',
+  'Personalized practice to boost your score',
 ];
 
 export default function LoginPage() {
@@ -79,14 +79,14 @@ export default function LoginPage() {
           </div>
 
           <h2 className="text-4xl xl:text-5xl font-black text-slate-900 leading-[1.1] mb-6 tracking-tight">
-            Data-Driven <br />
+            Achieve Your <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-              Exam Preparation.
+              Dream Score.
             </span>
           </h2>
 
           <p className="text-slate-600 text-sm xl:text-base leading-relaxed max-w-md mb-8 font-medium">
-            Advanced analytics and AI-powered scoring engine designed to mathematically improve your IELTS and APTIS performance.
+            Experience the smartest way to prepare for IELTS & APTIS. Get instant AI feedback, track your progress, and boost your confidence.
           </p>
 
           <div className="space-y-4">
@@ -103,7 +103,7 @@ export default function LoginPage() {
 
         <div className="relative z-10 opacity-0 animate-fade-in-up animation-delay-200 mt-8">
           <p className="text-[10px] font-bold text-slate-500 tracking-[0.2em] uppercase mb-4 flex items-center gap-2">
-            <Sparkles size={12} className="text-blue-600" /> Supported Frameworks
+            Supported Frameworks
           </p>
           <div className="flex gap-4">
             <div className="bg-white border border-slate-200 px-5 py-3 rounded-lg flex items-center gap-3 shadow-sm">
