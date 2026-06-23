@@ -3,7 +3,7 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { GoogleLogin } from '@react-oauth/google';
 import authApi from '../api/authApi';
-import { CheckCircle2, GraduationCap, BookOpen, Sparkles } from 'lucide-react';
+import { CheckCircle2, GraduationCap, BookOpen, Sparkles, Eye, EyeOff } from 'lucide-react';
 
 const FEATURES = [
   'Authentic mock tests for IELTS & APTIS',
@@ -16,6 +16,7 @@ export default function LoginPage() {
   const location = useLocation();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -168,20 +169,26 @@ export default function LoginPage() {
                 </div>
 
                 <div>
-                  <div className="flex justify-between items-center mb-1.5">
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">Password</label>
-                    <a href="#" className="text-[11px] font-bold text-blue-600 hover:text-blue-700 transition-colors">Forgot Password?</a>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Password</label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      required
+                      disabled={loading}
+                      value={formData.password}
+                      onChange={handleChange}
+                      placeholder="••••••••"
+                      className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-medium text-slate-900 placeholder:text-slate-400 tracking-widest pr-12"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
-                  <input
-                    type="password"
-                    name="password"
-                    required
-                    disabled={loading}
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-medium text-slate-900 placeholder:text-slate-400 tracking-widest"
-                  />
                 </div>
 
                 <button
