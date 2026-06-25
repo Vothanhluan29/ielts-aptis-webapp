@@ -43,12 +43,6 @@ const SIDEBAR_GROUPS = [
       { to: "/aptis/speaking", label: "Speaking", icon: AudioOutlined }
     ]
   },
-  {
-    title: "Tools",
-    items: [
-      { to: "/aptis/dictionary", label: "AI Dictionary", icon: ReadOutlined }
-    ]
-  }
 ];
 
 /* =========================

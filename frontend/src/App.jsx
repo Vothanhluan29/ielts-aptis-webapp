@@ -95,8 +95,6 @@ import ExamAptisExamPage from './features/public/pages/APTIS/exam/ExamAptisExamP
 import ExamAptisResultPage from './features/public/pages/APTIS/exam/ExamAptisResultPage';
 import ExamAptisHistoryPage from './features/public/pages/APTIS/exam/ExamAptisHistoryPage';
 
-// DICTIONARY
-import DictionaryPage from './features/public/pages/dictionary/DictionaryPage';
 
 
 /* --- ADMIN PAGES --- */
@@ -175,7 +173,6 @@ function App() {
           {/* --- IELTS ROUTES --- */}
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="profile" element={<StudentProfile />} />
-          <Route path="dictionary" element={<DictionaryPage />} />
           
           <Route path="exam" element={<ExamListPage />} /> 
           <Route path="exam/lobby/:id" element={<ExamLobbyPage />} /> 
@@ -201,7 +198,6 @@ function App() {
           {/*  --- APTIS STUDENT ROUTES ---*/}
           <Route path="aptis/dashboard" element={<DashboardAptisStudentPage />} />
           <Route path="aptis/profile" element={<StudentProfile />} /> 
-          <Route path="aptis/dictionary" element={<DictionaryPage />} />
 
           <Route path="aptis/grammar-vocab" element={<GrammarVocabAptisListPage/>} />
           <Route path="aptis/grammar-vocab/lobby/:id" element={<GrammarVocabLobbyPage />} />

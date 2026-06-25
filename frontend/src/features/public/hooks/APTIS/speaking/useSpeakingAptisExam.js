@@ -4,8 +4,19 @@ import { message } from 'antd';
 import speakingAptisStudentApi from '../../../api/APTIS/speaking/speakingAptisStudentApi';
 
 // --- CONFIGURATIONS ---
-const PREP_TIME = 15; 
-const RECORD_TIME = 45;
+// Per-part timing based on official APTIS Speaking specifications:
+// Part 1: 30s answer per question (no prep phase)
+// Part 2: 45s answer per question (no prep phase)
+// Part 3: 45s answer per question (no prep phase)
+// Part 4: 60s prep + 120s answer for ALL questions at once (single recording)
+const PART_TIMING = {
+  1: { prep: 0,  record: 30  },
+  2: { prep: 0,  record: 45  },
+  3: { prep: 0,  record: 45  },
+  4: { prep: 60, record: 120 },
+};
+const DEFAULT_TIMING = { prep: 0, record: 45 };
+
 const EXAM_STEPS = {
   INTRO: 'INTRO',
   PREP: 'PREP',
@@ -42,6 +53,14 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
   // --- DERIVED DATA ---
   const currentPart = testDetail?.parts?.[currentPartIdx];
   const currentQuestion = currentPart?.questions?.[currentQuestionIdx];
+  const allQuestions = currentPart?.questions || [];
+
+  // --- PER-PART TIMING ---
+  const partNumber = currentPart?.part_number || 1;
+  const isPart4 = partNumber === 4;
+  const timing = PART_TIMING[partNumber] || DEFAULT_TIMING;
+  const PREP_TIME = timing.prep;
+  const RECORD_TIME = timing.record;
 
   // 1. DATA FETCHING EFFECT
   const fetchTest = useCallback(async () => {
@@ -114,8 +133,13 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
 
   const startPrep = () => {
     stopExaminerAudio();
-    setStep(EXAM_STEPS.PREP);
-    setTimer(PREP_TIME);
+    // If no prep time for this part, go straight to recording
+    if (PREP_TIME === 0) {
+      startRecording();
+    } else {
+      setStep(EXAM_STEPS.PREP);
+      setTimer(PREP_TIME);
+    }
   };
 
   const startRecording = async () => {
@@ -161,13 +185,15 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
       const uploadRes = await speakingAptisStudentApi.uploadAudio(file);
       const audioUrl = uploadRes.data?.url || uploadRes.url;
 
+      // Part 4: single recording covers all questions — stored at index 0
+      // Parts 1–3: per-question recording uses actual index
       const payload = {
         test_id: testDetail.id,
         is_full_test_only: isFullTest, 
         part_id: currentPart.id,
         part_number: currentPart.part_number,
-        question_index: currentQuestionIdx,  // Vị trí câu hỏi (0-indexed) trong part
-        question_id: currentQuestion.id,
+        question_index: isPart4 ? 0 : currentQuestionIdx,
+        question_id: isPart4 ? null : currentQuestion?.id,
         audio_url: audioUrl,
         ...(submissionId && { submission_id: submissionId })
       };
@@ -184,6 +210,19 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
   };
 
   const moveToNext = () => {
+    // Part 4: single block — skip per-question iteration, go directly to next part / DONE
+    if (isPart4) {
+      if (currentPartIdx < testDetail.parts.length - 1) {
+        setCurrentPartIdx(prev => prev + 1);
+        setCurrentQuestionIdx(0);
+        setStep(EXAM_STEPS.INTRO);
+      } else {
+        setStep(EXAM_STEPS.DONE);
+      }
+      return;
+    }
+
+    // Parts 1–3: per-question flow
     if (currentQuestionIdx < currentPart.questions.length - 1) {
       setCurrentQuestionIdx(prev => prev + 1);
       setStep(EXAM_STEPS.INTRO);
@@ -232,6 +271,8 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
     currentQuestion,
     currentPartIdx,
     currentQuestionIdx,
+    allQuestions,
+    isPart4,
     step,
     timer,
     audioBlocked,

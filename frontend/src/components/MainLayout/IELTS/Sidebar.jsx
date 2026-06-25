@@ -42,12 +42,6 @@ const SIDEBAR_GROUPS = [
       { to: "/speaking", label: "Speaking", icon: AudioOutlined }
     ]
   },
-  {
-    title: "Tools",
-    items: [
-      { to: "/dictionary", label: "AI Dictionary", icon: ReadOutlined }
-    ]
-  }
 ];
 
 /* =========================
