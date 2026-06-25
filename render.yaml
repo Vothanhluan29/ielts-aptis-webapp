@@ -1,0 +1,51 @@
+databases:
+  - name: ielts-aptis-db
+    databaseName: ielts_platform
+    user: postgres
+    plan: free
+
+services:
+  # ── BACKEND (FastAPI - Docker) ──
+  - type: web
+    name: ielts-aptis-backend
+    env: docker
+    dockerContext: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ielts-aptis-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1200"
+      - key: USE_CLOUDINARY
+        value: "True"
+      - key: CORS_ORIGINS
+        value: "https://ielts-aptis-frontend.onrender.com,http://localhost:5173"
+      # Các secret keys dưới đây bạn sẽ tự điền trên Dashboard của Render (không commit lên Git)
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+  # ── FRONTEND (React Static Site - Native Build) ──
+  - type: static
+    name: ielts-aptis-frontend
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: "https://ielts-aptis-backend.onrender.com"
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
