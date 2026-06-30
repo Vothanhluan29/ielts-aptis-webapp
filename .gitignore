@@ -37,3 +37,4 @@ backend/.dockerignore
 frontend/Dockerfile
 frontend/.dockerignore
 frontend/nginx.conf
+DOCKER_CHEATSHEET.md
