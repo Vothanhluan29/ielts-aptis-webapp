@@ -78,6 +78,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",                       
+        "http://localhost",
+        "http://127.0.0.1",
         "https://ielts-aptis-frontend.onrender.com"    
     ],
     allow_credentials=True,

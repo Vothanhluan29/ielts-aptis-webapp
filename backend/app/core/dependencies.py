@@ -41,8 +41,8 @@ def get_admin_user(current_user = Depends(get_current_user)):
     role_in_db = str(current_user.role).upper()
     role_required = str(UserRole.ADMIN.value).upper()
     
-    # 2. Compare roles
-    if role_in_db != role_required:
+    # 2. Compare roles robustly (handle Python 3.11 enum stringification)
+    if role_required not in role_in_db:
         raise HTTPException(
             status_code=403,
             detail=f"Insufficient permissions. DB role is '{current_user.role}', required '{UserRole.ADMIN.value}'"

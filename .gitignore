@@ -26,3 +26,14 @@ yarn-error.log*
 
 # OS
 .DS_Store
+
+# Docker & Deployment Files
+docker-compose.yml
+build_and_push.ps1
+project/
+postgres_init/
+backend/Dockerfile
+backend/.dockerignore
+frontend/Dockerfile
+frontend/.dockerignore
+frontend/nginx.conf

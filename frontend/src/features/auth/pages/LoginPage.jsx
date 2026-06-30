@@ -23,8 +23,10 @@ export default function LoginPage() {
   const redirect = async () => {
     try {
       const user = await authApi.getMe();
-      navigate(user.role === 'admin' ? '/admin/dashboard' : '/choose-mode');
-    } catch {
+      const isAdmin = user.role && (user.role.toLowerCase() === 'admin' || user.role.includes('ADMIN'));
+      navigate(isAdmin ? '/admin/dashboard' : '/choose-mode');
+    } catch (error) {
+      console.error("Failed to fetch user in redirect:", error);
       navigate('/choose-mode');
     }
   };
