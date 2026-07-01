@@ -49,7 +49,7 @@ const SpeakingEditPage = () => {
         requiredMark="optional"
       >
         {/* Sticky Header Action Bar */}
-        <div className="sticky top-0 z-10 bg-slate-50/90 backdrop-blur-md border-b border-slate-200 px-6 py-4 mb-8 shadow-sm">
+        <div className="sticky top-0 z-[100] bg-slate-50/95 backdrop-blur-md border-b border-slate-200 px-6 py-4 mb-8 shadow-sm" style={{ top: '-1px' }}>
           <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div className="flex items-center gap-4">
               <Button 
