@@ -43,15 +43,29 @@ const SpeakingEditPage = () => {
   return (
     <div className="p-6 bg-slate-50 min-h-screen font-sans pb-24">
       <div className="max-w-5xl mx-auto">
-        {/* Nav Back */}
-        <Button 
-          type="text" 
-          icon={<ArrowLeftOutlined />} 
-          onClick={() => navigate('/admin/skills/speaking')}
-          className="mb-6 font-semibold text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 -ml-4"
-        >
-          Back to list
-        </Button>
+        <Space className="mb-6 w-full flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div className="flex items-center gap-4">
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/skills/speaking')} className="rounded-lg shadow-sm font-medium">
+              Back
+            </Button>
+            <Title level={3} className="!m-0 text-slate-800">
+              {isEditMode ? 'Edit Speaking Test' : 'Create New Speaking Test'}
+            </Title>
+          </div>
+
+          <Space>
+            <Button
+              type="primary"
+              size="large"
+              icon={<SaveOutlined />}
+              onClick={() => form.submit()}
+              loading={loading}
+              className="bg-blue-600 font-bold rounded-lg shadow-md px-8 hover:bg-blue-500"
+            >
+              {isEditMode ? 'Update Test' : 'Save Test'}
+            </Button>
+          </Space>
+        </Space>
 
         <Form 
           form={form} 
@@ -59,28 +73,6 @@ const SpeakingEditPage = () => {
           onFinish={handleSubmit}
           requiredMark="optional"
         >
-          {/* Header Action */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center text-lg">
-                <AudioOutlined />
-              </div>
-              <Title level={3} className="m-0 text-slate-800">
-                {isEditMode ? "Edit Speaking Test" : "Create New Speaking Test"}
-              </Title>
-            </div>
-
-            <Button 
-              type="primary" 
-              htmlType="submit" 
-              icon={<SaveOutlined />} 
-              loading={loading}
-              size="large"
-              className="bg-indigo-600 hover:bg-indigo-500 shadow-md font-bold rounded-xl px-8 w-full md:w-auto h-11"
-            >
-              {loading ? "Saving..." : "Save Changes"}
-            </Button>
-          </div>
 
           <div className="flex flex-col gap-8">
           

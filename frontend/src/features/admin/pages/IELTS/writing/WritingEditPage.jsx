@@ -40,37 +40,31 @@ const WritingEditPage = () => {
     <div className="p-6 bg-slate-50 min-h-screen font-sans pb-20">
       <div className="max-w-5xl mx-auto">
         
-        {/* ================= BACK BUTTON ================= */}
-        <Button
-          type="link"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate('/admin/skills/writing')}
-          className="mb-4 px-0 text-slate-500 hover:text-pink-600 font-semibold"
-        >
-          Back to List
-        </Button>
-
         <form onSubmit={handleSubmit}>
           {/* ================= HEADER ================= */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-            <Title level={2} className="m-0 flex items-center gap-3 text-slate-800">
-              <div className="p-2 bg-pink-600 text-white rounded-lg shadow-sm">
-                <FormOutlined />
-              </div>
-              {isEditMode ? 'Edit Writing Test' : 'Create New Writing Test'}
-            </Title>
+          <Space className="mb-6 w-full flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="flex items-center gap-4">
+              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/skills/writing')} className="rounded-lg shadow-sm font-medium">
+                Back
+              </Button>
+              <Title level={3} className="!m-0 text-slate-800">
+                {isEditMode ? 'Edit Writing Test' : 'Create New Writing Test'}
+              </Title>
+            </div>
 
-            <Button
-              type="primary"
-              htmlType="submit"
-              size="large"
-              loading={loading}
-              icon={<SaveOutlined />}
-              className="bg-pink-600 hover:bg-pink-500 shadow-md font-bold px-8 rounded-xl border-none"
-            >
-              Save Changes
-            </Button>
-          </div>
+            <Space>
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="large"
+                icon={<SaveOutlined />}
+                loading={loading}
+                className="bg-blue-600 font-bold rounded-lg shadow-md px-8 hover:bg-blue-500 border-none"
+              >
+                {isEditMode ? 'Update Test' : 'Save Test'}
+              </Button>
+            </Space>
+          </Space>
 
           <Space direction="vertical" size="large" className="w-full">
             
