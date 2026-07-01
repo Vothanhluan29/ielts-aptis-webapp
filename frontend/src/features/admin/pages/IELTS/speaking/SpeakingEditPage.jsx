@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons';
 import { 
   Button, Form, Input, InputNumber, Switch, 
-  Card, Space, Typography, Tooltip, Row, Col, Spin 
+  Card, Space, Typography, Tooltip, Row, Col, Spin, Tag 
 } from 'antd';
 
 const { Title, Text, Paragraph } = Typography;
