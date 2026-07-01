@@ -6,7 +6,6 @@ import {
   Tag,
   Space,
   Typography,
-  Card,
   Popconfirm,
   Tooltip,
   Switch,
@@ -16,6 +15,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   AudioOutlined,
+  FilterOutlined,
 } from "@ant-design/icons";
 import { useSpeakingManager } from "../../../hooks/IELTS/speaking/useSpeakingManager";
 
@@ -37,10 +37,12 @@ const SpeakingManagerPage = () => {
       title: "Test Title",
       key: "title",
       render: (_, record) => (
-        <Space>
-          <AudioOutlined style={{ color: '#ec4899' }} />
-          <Text strong style={{ color: '#9d174d', fontSize: '15px' }}>{record.title}</Text>
-        </Space>
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500">
+            <AudioOutlined />
+          </div>
+          <Text strong className="text-slate-700 text-base">{record.title}</Text>
+        </div>
       ),
     },
     {
@@ -50,7 +52,7 @@ const SpeakingManagerPage = () => {
       width: 120,
       align: "center",
       render: (time) => (
-        <Tag color="pink" style={{ borderRadius: 20, fontWeight: 500 }}>
+        <Tag className="rounded-full px-3 py-1 bg-slate-100 text-slate-600 border-none font-medium">
           {time} min
         </Tag>
       ),
@@ -64,7 +66,13 @@ const SpeakingManagerPage = () => {
       render: (isMock, record) => {
         const isMockTest = isMock || record.is_full_test_only; 
         return (
-          <Tag color={isMockTest ? 'magenta' : 'purple'} bordered={false} style={{ borderRadius: 20, fontWeight: 500 }}>
+          <Tag 
+            className={`rounded-full px-3 py-1 border-none font-medium ${
+              isMockTest 
+                ? 'bg-purple-100 text-purple-700' 
+                : 'bg-blue-100 text-blue-700'
+            }`}
+          >
             {isMockTest ? 'Full Mock Test' : 'Practice'}
           </Tag>
         );
@@ -76,12 +84,16 @@ const SpeakingManagerPage = () => {
       key: "is_published",
       width: 130,
       align: "center",
-      render: (isPublished) =>
-        isPublished ? (
-          <Text style={{ fontSize: 13, fontWeight: 500, color: '#16a34a' }}>Published</Text>
-        ) : (
-          <Text style={{ fontSize: 13, fontWeight: 500, color: '#6b7280' }}>Draft</Text>
-        ),
+      render: (isPublished) => (
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+          isPublished 
+            ? 'bg-green-50 text-green-600' 
+            : 'bg-slate-100 text-slate-500'
+        }`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${isPublished ? 'bg-green-500' : 'bg-slate-400'}`}></span>
+          {isPublished ? 'Published' : 'Draft'}
+        </span>
+      ),
     },
     {
       title: "Created",
@@ -90,7 +102,7 @@ const SpeakingManagerPage = () => {
       width: 130,
       align: "center",
       render: (date) => (
-        <Text type="secondary" style={{ fontSize: 13 }}>
+        <Text className="text-slate-500 text-sm">
           {date ? new Date(date).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" }) : "—"}
         </Text>
       ),
@@ -101,26 +113,32 @@ const SpeakingManagerPage = () => {
       width: 100,
       align: "center",
       render: (_, record) => (
-        <Space size={2}>
+        <Space size="small">
           <Tooltip title="Edit Test">
             <Button
               type="text"
               icon={<EditOutlined />}
               onClick={() => navigate(`/admin/skills/speaking/edit/${record.id}`)}
-              style={{ color: '#ec4899' }}
+              className="text-indigo-500 hover:text-indigo-700 hover:bg-indigo-50"
             />
           </Tooltip>
 
           <Tooltip title="Delete Test">
             <Popconfirm
-              title="Are you sure you want to delete this test?"
+              title="Delete this test?"
               description="This action cannot be undone."
               onConfirm={() => handleDelete(record.id)}
               okText="Delete"
               cancelText="Cancel"
-              okButtonProps={{ danger: true }}
+              okButtonProps={{ danger: true, className: 'rounded-lg' }}
+              cancelButtonProps={{ className: 'rounded-lg' }}
             >
-              <Button type="text" danger icon={<DeleteOutlined />} />
+              <Button 
+                type="text" 
+                danger 
+                icon={<DeleteOutlined />} 
+                className="hover:bg-red-50"
+              />
             </Popconfirm>
           </Tooltip>
         </Space>
@@ -129,69 +147,71 @@ const SpeakingManagerPage = () => {
   ];
 
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
-      <Card
-        variant="borderless"
-        style={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}
-      >
-        <div style={{
-          display: 'flex', justifyContent: 'space-between',
-          alignItems: 'center', marginBottom: 32,
-        }}>
-          <Space size="large">
-            <div style={{
-              padding: '12px', backgroundColor: '#fdf2f8',
-              borderRadius: '14px', color: '#ec4899',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <AudioOutlined style={{ fontSize: 32 }} />
+    <div className="p-6 bg-slate-50 min-h-screen font-sans">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center text-indigo-600 text-2xl">
+              <AudioOutlined />
             </div>
             <div>
-              <Title level={3} style={{ margin: 0, color: '#1a1a2e' }}>
+              <Title level={2} className="m-0 text-slate-800 font-bold">
                 Speaking Test Bank
               </Title>
-              <Text type="secondary">
-                Manage IELTS Speaking test content
+              <Text className="text-slate-500">
+                Manage and create IELTS Speaking tests
               </Text>
             </div>
-          </Space>
-
-          <Space size="middle">
-            <Space size="small">
-              <Text style={{ fontWeight: 500, color: '#6b7280' }}>Mock only</Text>
-              <Switch
-                size="small"
-                checked={isMockOnly}
-                onChange={(checked) => setIsMockOnly(checked)}
-              />
-            </Space>
-
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              size="large"
-              onClick={() => navigate("/admin/skills/speaking/create")}
-              style={{
-                backgroundColor: '#ec4899', borderColor: '#ec4899',
-                height: '45px', borderRadius: '10px', fontWeight: '600',
-              }}
-            >
-              New Test
-            </Button>
-          </Space>
+          </div>
+          
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            size="large"
+            onClick={() => navigate("/admin/skills/speaking/create")}
+            className="bg-indigo-600 hover:bg-indigo-500 shadow-md font-semibold rounded-xl px-6 h-12"
+          >
+            Create New Test
+          </Button>
         </div>
 
-        <Table
-          columns={columns}
-          dataSource={filteredTests}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            pageSize: 10,
-            showTotal: (total, range) => `${range[0]}–${range[1]} of ${total} tests`,
-          }}
-        />
-      </Card>
+        {/* Content Card */}
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+          
+          {/* Toolbar / Filters */}
+          <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+            <div className="flex items-center gap-2 text-slate-600 font-medium">
+              <FilterOutlined />
+              <span>Filters</span>
+            </div>
+            <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+              <span className="text-sm font-medium text-slate-600">Mock Exams Only</span>
+              <Switch
+                checked={isMockOnly}
+                onChange={(checked) => setIsMockOnly(checked)}
+                className="bg-slate-300 checked:bg-indigo-600"
+              />
+            </div>
+          </div>
+
+          {/* Table */}
+          <Table
+            columns={columns}
+            dataSource={filteredTests}
+            rowKey="id"
+            loading={loading}
+            pagination={{
+              pageSize: 10,
+              showTotal: (total, range) => `${range[0]}–${range[1]} of ${total} tests`,
+              className: "px-6 pb-4",
+            }}
+            className="[&_.ant-table-thead_th]:bg-slate-50 [&_.ant-table-thead_th]:text-slate-500 [&_.ant-table-thead_th]:font-semibold [&_.ant-table-row:hover>td]:bg-slate-50/50"
+          />
+        </div>
+
+      </div>
     </div>
   );
 };
