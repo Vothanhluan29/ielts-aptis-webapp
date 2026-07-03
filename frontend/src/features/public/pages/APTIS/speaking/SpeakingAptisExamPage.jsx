@@ -2,7 +2,7 @@ import React from 'react';
 import { Image } from 'antd';
 import {
   Mic, Square, CheckCircle2, Loader2, Send,
-  PlayCircle, ChevronRight, FileText
+  PlayCircle, ChevronRight, FileText, Clock
 } from 'lucide-react';
 import { useSpeakingAptisExam } from '../../../hooks/APTIS/speaking/useSpeakingAptisExam';
 
@@ -75,10 +75,12 @@ const SpeakingAptisExamPage = ({
   const {
     loading, submitting, testDetail, currentPart, currentQuestion,
     currentQuestionIdx, allQuestions, isPart4,
-    step, timer, audioBlocked, setAudioBlocked,
+    step, timer, globalTimeLeft, audioBlocked, setAudioBlocked,
     examinerAudioRef, startPrep, startRecording, stopRecording, handleFinishTest,
-    PREP_TIME, RECORD_TIME, EXAM_STEPS
+    PREP_TIME, RECORD_TIME, EXAM_STEPS, formatTime
   } = useSpeakingAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
+
+  const isTimeRunningOut = globalTimeLeft !== null && globalTimeLeft < 120;
 
   /* ── Loading ── */
   if (loading || !testDetail) return (
@@ -166,7 +168,7 @@ const SpeakingAptisExamPage = ({
   const RecordingPanel = () => (
     <div style={{
       background: '#fff', borderRadius: 20, border: '1px solid #e9d5ff',
-      padding: '32px',
+      padding: '32px', height: '100%',
       minHeight: isPart4 ? 'auto' : 320,
       boxShadow: '0 4px 20px rgba(124,58,237,0.08)',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -325,9 +327,23 @@ const SpeakingAptisExamPage = ({
           )}
         </div>
 
-        {/* Right: progress indicator */}
+        {/* Right: progress indicator and timer */}
         {!isPart4 ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            {globalTimeLeft !== null && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                color: isTimeRunningOut ? '#ef4444' : '#64748b',
+                padding: '4px 12px', borderRadius: 20,
+                background: isTimeRunningOut ? '#fef2f2' : '#f8fafc',
+                border: `1px solid ${isTimeRunningOut ? '#fecaca' : '#e2e8f0'}`,
+              }}>
+                <Clock size={14} />
+                <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                  {formatTime(globalTimeLeft)}
+                </span>
+              </div>
+            )}
             <ProgressDots total={totalQ} current={currentQuestionIdx} />
             <div style={{
               background: '#f3f4f6', borderRadius: 8, padding: '4px 12px',
@@ -338,14 +354,30 @@ const SpeakingAptisExamPage = ({
             </div>
           </div>
         ) : (
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: '#faf5ff', color: '#7c3aed',
-            padding: '4px 12px', borderRadius: 20, fontWeight: 700, fontSize: 12,
-            border: '1px solid #e9d5ff',
-          }}>
-            <FileText size={12} />
-            {totalQ} questions — 1 recording
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            {globalTimeLeft !== null && (
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                color: isTimeRunningOut ? '#ef4444' : '#64748b',
+                padding: '4px 12px', borderRadius: 20,
+                background: isTimeRunningOut ? '#fef2f2' : '#f8fafc',
+                border: `1px solid ${isTimeRunningOut ? '#fecaca' : '#e2e8f0'}`,
+              }}>
+                <Clock size={14} />
+                <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                  {formatTime(globalTimeLeft)}
+                </span>
+              </div>
+            )}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: '#faf5ff', color: '#7c3aed',
+              padding: '4px 12px', borderRadius: 20, fontWeight: 700, fontSize: 12,
+              border: '1px solid #e9d5ff',
+            }}>
+              <FileText size={12} />
+              {totalQ} questions — 1 recording
+            </div>
           </div>
         )}
       </div>
@@ -355,23 +387,23 @@ const SpeakingAptisExamPage = ({
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '20px 16px', overflow: 'auto',
       }}>
-        <div style={{ width: '100%', maxWidth: isPart4 ? 1100 : 900 }}>
+        <div style={{ width: '100%', maxWidth: isPart4 ? 1300 : 1200 }}>
 
           {/* ═══ PART 4: All questions shown at once ═══ */}
           {isPart4 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 20, alignItems: 'start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: 24, alignItems: 'stretch' }}>
 
               {/* LEFT: Image + all questions */}
               <div style={{
                 background: '#fff', borderRadius: 20, border: '1px solid #e9d5ff',
-                padding: '28px 32px',
+                padding: '28px 32px', height: '100%',
                 boxShadow: '0 4px 20px rgba(124,58,237,0.08)',
                 display: 'flex', flexDirection: 'column', gap: 20,
               }}>
                 {/* Image */}
                 {img1 && (
                   <div style={{ textAlign: 'center' }}>
-                    <Image src={img1} style={{ borderRadius: 12, maxHeight: 200, objectFit: 'contain' }} />
+                    <Image src={img1} style={{ borderRadius: 12, maxHeight: 300, objectFit: 'contain' }} />
                   </div>
                 )}
 
@@ -393,7 +425,7 @@ const SpeakingAptisExamPage = ({
                     <div
                       key={q.id || idx}
                       style={{
-                        display: 'flex', gap: 14, alignItems: 'flex-start',
+                        display: 'flex', gap: 14, alignItems: 'center',
                         padding: '16px 18px',
                         background: '#f8f7ff',
                         borderRadius: 14,
@@ -414,9 +446,9 @@ const SpeakingAptisExamPage = ({
                       {/* Question text */}
                       <p style={{
                         margin: 0, fontSize: 15, fontWeight: 600, color: '#1e1b4b',
-                        lineHeight: 1.6, whiteSpace: 'pre-wrap',
+                        lineHeight: 1.6, whiteSpace: 'pre-wrap', flex: 1
                       }}>
-                        {q.question_text}
+                        {q.question_text?.trim()}
                       </p>
                     </div>
                   ))}
@@ -429,24 +461,24 @@ const SpeakingAptisExamPage = ({
 
           ) : (
             /* ═══ PARTS 1-3: Single question per screen ═══ */
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: 24, alignItems: 'stretch' }}>
 
               {/* LEFT: Question card */}
               <div style={{
                 background: '#fff', borderRadius: 20, border: '1px solid #e9d5ff',
-                padding: '28px 32px', minHeight: 320,
+                padding: '28px 32px', minHeight: 320, height: '100%',
                 boxShadow: '0 4px 20px rgba(124,58,237,0.08)',
                 display: 'flex', flexDirection: 'column', justifyContent: 'center',
               }}>
                 {/* Images */}
                 {hasTwoImages ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                    <Image src={img1} style={{ borderRadius: 12, maxHeight: 200, objectFit: 'contain' }} />
-                    <Image src={img2} style={{ borderRadius: 12, maxHeight: 200, objectFit: 'contain' }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+                    <Image src={img1} style={{ borderRadius: 12, height: 320, objectFit: 'contain', width: '100%', backgroundColor: '#f8fafc' }} />
+                    <Image src={img2} style={{ borderRadius: 12, height: 320, objectFit: 'contain', width: '100%', backgroundColor: '#f8fafc' }} />
                   </div>
                 ) : img1 ? (
-                  <div style={{ marginBottom: 20, textAlign: 'center' }}>
-                    <Image src={img1} style={{ borderRadius: 12, maxHeight: 220, objectFit: 'contain' }} />
+                  <div style={{ marginBottom: 24, textAlign: 'center' }}>
+                    <Image src={img1} style={{ borderRadius: 12, maxHeight: 420, objectFit: 'contain', maxWidth: '100%' }} />
                   </div>
                 ) : null}
 
@@ -486,7 +518,7 @@ const SpeakingAptisExamPage = ({
                   margin: 0, fontSize: 18, fontWeight: 700, color: '#1e1b4b',
                   lineHeight: 1.55, whiteSpace: 'pre-wrap',
                 }}>
-                  {currentQuestion?.question_text}
+                  {currentQuestion?.question_text?.trim()}
                 </h3>
               </div>
 

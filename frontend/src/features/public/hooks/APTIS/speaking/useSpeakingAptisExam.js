@@ -43,6 +43,7 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
   // --- STATE: EXAM ROOM ---
   const [step, setStep] = useState(EXAM_STEPS.INTRO);
   const [timer, setTimer] = useState(0);
+  const [globalTimeLeft, setGlobalTimeLeft] = useState(null);
   const [audioBlocked, setAudioBlocked] = useState(false);
 
   // --- REFS ---
@@ -78,6 +79,11 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
       }
       
       setTestDetail(data);
+      if (data.time_limit) {
+        setGlobalTimeLeft(data.time_limit * 60);
+      } else {
+        setGlobalTimeLeft(12 * 60); // Default 12 minutes if not set
+      }
     } catch (error) {
       console.error("Error loading test:", error);
       message.error(`Unable to load the test: ${error.message}`);
@@ -125,6 +131,19 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step, timer]);
+
+  // 3.5 GLOBAL TIMER EFFECT
+  useEffect(() => {
+    if (globalTimeLeft === null || globalTimeLeft <= 0 || loading || submitting || step === EXAM_STEPS.DONE) {
+      if (globalTimeLeft === 0 && step !== EXAM_STEPS.DONE && !submitting) {
+        message.warning({ content: "Time's up! The system is submitting your test.", duration: 5 });
+        handleFinishTest();
+      }
+      return;
+    }
+    const interval = setInterval(() => setGlobalTimeLeft(prev => prev - 1), 1000);
+    return () => clearInterval(interval);
+  }, [globalTimeLeft, loading, submitting, step]);
 
   // 4. ACTION HANDLERS
   const stopExaminerAudio = () => {
@@ -275,6 +294,7 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
     isPart4,
     step,
     timer,
+    globalTimeLeft,
     audioBlocked,
     setAudioBlocked,
     examinerAudioRef,

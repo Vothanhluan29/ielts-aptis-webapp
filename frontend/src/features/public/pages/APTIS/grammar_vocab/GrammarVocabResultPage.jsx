@@ -125,6 +125,7 @@ const GrammarVocabResultPage = () => {
                       questionNumber={q.question_number}
                       userAnswerKey={userAnswers[q.id]}
                       answerDetail={answerDetails[q.id] || {}}
+                      showExplanationDefault={true}
                     />
                   ))}
                 </div>

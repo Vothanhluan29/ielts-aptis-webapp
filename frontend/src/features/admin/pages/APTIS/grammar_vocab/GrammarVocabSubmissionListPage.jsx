@@ -6,7 +6,7 @@ const GrammarVocabSubmissionListPage = () => (
   <AutoGradedSubmissionListPage
     skill="grammar_vocab"
     api={grammarVocabAdminApi}
-    detailRoute="/aptis/grammar-vocab/result"
+    detailRoute="/admin/aptis/submissions/grammar-vocab"
   />
 );
 

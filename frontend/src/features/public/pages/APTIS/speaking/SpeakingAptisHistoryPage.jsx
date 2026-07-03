@@ -21,7 +21,8 @@ const SpeakingAptisHistoryPage = () => {
     history, 
     stats, 
     handleGoBack, 
-    handleViewResult 
+    handleViewResult,
+    testTitles
   } = useSpeakingAptisHistory();
 
   return (
@@ -95,7 +96,7 @@ const SpeakingAptisHistoryPage = () => {
               const score = record.score || 0;
               const cefr = record.cefr_level || 'N/A';
               const cefrStyle = getCefrColorStyle(cefr);
-              const title = record.test?.title || `Test #${record.test_id}`;
+              const title = record.test?.title || testTitles[record.test_id] || `Test #${record.test_id}`;
               const isGraded = record.status === 'GRADED';
               const date = new Date(record.submitted_at).toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'

@@ -169,6 +169,7 @@ const ReadingAptisEditPage = () => {
                 return {
                   key: partKey.toString(),
                   label: <span style={{ fontWeight: 'bold' }}>{partTitle}</span>,
+                  forceRender: true,
                   children: (
                     <div style={{ padding: '8px 4px' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
@@ -341,6 +342,10 @@ const ReadingAptisEditPage = () => {
                                               {(qType === 'MATCHING_OPINIONS' || qType === 'MATCHING_HEADINGS') && <MatchingAdmin {...pathProps} />}
                                               {qType === 'FILL_IN_BLANKS' && <FillInBlankAdmin {...pathProps} />}
                                               {(!qType || qType === 'MULTIPLE_CHOICE') && <MultipleChoiceAdmin {...pathProps} />}
+
+                                              <Form.Item {...restQField} name={[qName, 'explanation']} label="Explanation (Optional)" style={{ marginTop: 12 }}>
+                                                <Input.TextArea rows={2} placeholder="Explain why this answer is correct (will be shown in the result page)..." />
+                                              </Form.Item>
                                             </>
                                           );
                                         }}

@@ -4,7 +4,7 @@ import {
   Spin, Row, Col, Typography, Popconfirm, Upload, Select, Tabs, Tooltip, Collapse
 } from 'antd';
 import { 
-  ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, UploadOutlined, ExclamationCircleOutlined, SoundOutlined
+  ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, UploadOutlined, ExclamationCircleOutlined, SoundOutlined, CopyOutlined
 } from '@ant-design/icons';
 
 import MultipleChoiceAdmin from '../../../components/APTIS/question-types/MultipleChoiceAdmin';
@@ -47,7 +47,7 @@ const ListeningAptisEditPage = () => {
     return total + (part?.questions?.length || 0);
   }, 0);
 
-  const MAX_PARTS = 4;
+  const MAX_PARTS = 5;
   const MAX_QUESTIONS = 25;
 
   if (loading) return <div style={{ textAlign: 'center', padding: '50px' }}><Spin size="large" /></div>;
@@ -154,6 +154,7 @@ const ListeningAptisEditPage = () => {
                 return {
                   key: partKey.toString(),
                   label: <span style={{ fontWeight: 'bold' }}>{partTitle}</span>,
+                  forceRender: true,
                   children: (
                     <div style={{ padding: '8px 4px' }}>
                       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
@@ -221,6 +222,22 @@ const ListeningAptisEditPage = () => {
                                 label: <span style={{ fontWeight: 600, color: '#4f46e5' }}>Question {globalQNum}</span>,
                                 extra: (
                                   <span onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 8 }}>
+                                    <Button 
+                                      type="text" 
+                                      size="small" 
+                                      icon={<CopyOutlined />} 
+                                      disabled={totalQuestionsCount >= MAX_QUESTIONS}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const currentQuestion = form.getFieldValue(['parts', partName, 'questions', qName]);
+                                        addQ({ 
+                                          ...currentQuestion, 
+                                          question_text: '', 
+                                          correct_answer: currentQuestion?.question_type === 'MATCHING' ? undefined : '0' 
+                                        }, qIndex + 1);
+                                        setActiveQuestionKeys([...activeQuestionKeys, qFields.length.toString()]);
+                                      }}
+                                    />
                                     <Popconfirm title="Delete question?" onConfirm={(e) => { e.stopPropagation(); removeQ(qName); }} okText="Yes" cancelText="No">
                                       <Button type="text" size="small" danger icon={<DeleteOutlined />} />
                                     </Popconfirm>

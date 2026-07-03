@@ -109,6 +109,7 @@ const ReadingAptisResultPage = () => {
                 questionNumber={qNumDisplay} 
                 userAnswerKey={qResult?.user_answer}
                 answerDetail={qResult || {}}
+                showExplanationDefault={true}
               />
             );
           })}

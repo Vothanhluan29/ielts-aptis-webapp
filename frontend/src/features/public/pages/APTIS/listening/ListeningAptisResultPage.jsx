@@ -97,30 +97,41 @@ const ListeningAptisResultPage = () => {
               <div className="text-center py-10 text-slate-400">No data available for this part.</div>
             ) : (
               activePart.groups.map(group => {
-                const src = group.audio_url || group.media_url || group.audio_file || group.attached_audio;
+                const groupSrc = group.audio_url || group.media_url || group.audio_file || group.attached_audio;
+                const hasQuestionAudio = group.questions?.some(q => q.audio_url || q.media_url || q.audio_file || q.attached_audio);
                 return (
                   <div key={group.id} className="mb-8 last:mb-0 pb-6 border-b border-dashed border-slate-300 last:border-0 last:pb-0">
 
-                    {src ? (
+                    {groupSrc ? (
                       <div className="mb-4 p-4 rounded-xl bg-blue-50/70 border border-blue-100 shadow-sm flex flex-col gap-2">
                         <Text className="font-bold text-blue-800 text-[13px] flex items-center gap-2"><CustomerServiceOutlined /> Audio Recording:</Text>
-                        <audio controls src={src.startsWith('http') ? src : `http://localhost:8000${src}`} className="w-full h-10 outline-none review-audio" controlsList="nodownload" />
+                        <audio controls src={groupSrc.startsWith('http') ? groupSrc : `http://localhost:8000${groupSrc}`} className="w-full h-10 outline-none review-audio" controlsList="nodownload" />
                       </div>
                     ) : (
-                      <div className="mb-4 p-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 italic text-[13px]">No audio file attached.</div>
+                      !hasQuestionAudio && (
+                        <div className="mb-4 p-3 rounded-lg bg-slate-50 border border-slate-200 text-slate-400 italic text-[13px]">No audio file attached.</div>
+                      )
                     )}
 
                     <div className="pl-1">
                       {group.questions?.map((q, idx) => {
                         const qResult = resultsArray.find(r => String(r.id) === String(q.id) || String(r.question_number) === String(q.question_number));
+                        const qSrc = q.audio_url || q.media_url || q.audio_file || q.attached_audio;
                         return (
-                          <QuestionReviewCard 
-                            key={q.id} 
-                            q={q} 
-                            questionNumber={q.question_number || idx + 1}
-                            userAnswerKey={qResult?.user_answer}
-                            answerDetail={qResult || {}}
-                          />
+                          <div key={q.id} className="mb-6">
+                            {qSrc && (
+                              <div className="mb-3 p-3 rounded-xl bg-blue-50/50 border border-blue-100/50 flex flex-col gap-2">
+                                <Text className="font-semibold text-blue-700 text-[12px] flex items-center gap-2"><CustomerServiceOutlined /> Question Audio:</Text>
+                                <audio controls src={qSrc.startsWith('http') ? qSrc : `http://localhost:8000${qSrc}`} className="w-full h-8 outline-none review-audio" controlsList="nodownload" />
+                              </div>
+                            )}
+                            <QuestionReviewCard 
+                              q={q} 
+                              questionNumber={q.question_number || idx + 1}
+                              userAnswerKey={qResult?.user_answer}
+                              answerDetail={qResult || {}}
+                            />
+                          </div>
                         );
                       })}
                     </div>

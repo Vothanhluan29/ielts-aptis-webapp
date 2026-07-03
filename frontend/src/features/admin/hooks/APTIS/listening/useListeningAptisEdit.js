@@ -142,9 +142,9 @@ export const useListeningAptisEdit = () => {
   const onFinish = async (values) => {
     const partsCount = values.parts?.length || 0;
 
-    if (partsCount > 4) {
+    if (partsCount > 5) {
       message.error(
-        `Limit exceeded: Listening test can only contain a maximum of 4 parts (Current: ${partsCount}).`
+        `Limit exceeded: Listening test can only contain a maximum of 5 parts (Current: ${partsCount}).`
       );
       return;
     }
