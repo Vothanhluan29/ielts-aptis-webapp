@@ -273,12 +273,12 @@ const SpeakingAptisExamPage = ({
 
       {/* UPLOADING */}
       {isUploading && (
-        <div style={{ textAlign: 'center', width: '100%', padding: '20px 0' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', width: '100%', padding: '30px 0' }}>
           <Loader2 size={48} color="#a855f7" style={{ animation: 'aptis-spin 1s linear infinite', marginBottom: 20 }} />
-          <h4 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 700, color: '#1e1b4b' }}>
+          <h4 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 700, color: '#1e1b4b', textAlign: 'center' }}>
             Saving your recording...
           </h4>
-          <p style={{ margin: 0, fontSize: 14, color: '#94a3b8' }}>
+          <p style={{ margin: 0, fontSize: 14, color: '#94a3b8', textAlign: 'center' }}>
             Please do not close this page
           </p>
         </div>

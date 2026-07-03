@@ -27,6 +27,7 @@ from app.modules.users import web as users_web
 from app.modules.admin import web as admin_web
 from app.modules.IELTS.user_stats import web as user_stats_web
 from app.modules.subscriptions import web as subscriptions_web
+from app.modules.notifications import web as notifications_web
 
 # IELTS Routers
 from app.modules.IELTS.reading import web as reading_web
@@ -116,6 +117,7 @@ app.include_router(users_web.router)
 app.include_router(user_stats_web.router)
 app.include_router(admin_web.router)
 app.include_router(subscriptions_web.router)
+app.include_router(notifications_web.router)
 
 # --- IELTS ---
 app.include_router(reading_web.router)

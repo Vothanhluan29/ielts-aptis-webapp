@@ -7,11 +7,11 @@ import {
   Mic2,
   Zap,
   GraduationCap,
-  ChevronDown,
-  Bell
+  ChevronDown
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import useUserUsage from "../../../hooks/MainLayout/useUserUsage";
+import NotificationBell from "../../common/NotificationBell";
 
 const QuotaCard = ({ icon, title, value, color }) => {
   const colorMap = {
@@ -96,10 +96,7 @@ const Header = ({
       <div className="flex items-center gap-4 md:gap-6 relative" ref={profileRef}>
         
         {/* Notification Bell */}
-        <button className="relative p-2 text-slate-400 hover:text-blue-600 transition-colors rounded-full hover:bg-blue-50">
-          <Bell size={20} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-        </button>
+        <NotificationBell />
 
         <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
 

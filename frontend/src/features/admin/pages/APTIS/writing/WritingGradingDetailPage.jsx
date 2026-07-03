@@ -118,15 +118,24 @@ const WritingGradingDetailPage = () => {
                         
                         // 🔥 BỘ GIẢI MÃ: Khớp vị trí câu hỏi với dữ liệu vừa giải mã
                         let finalAnswer = "";
+                        let isScenario = false;
                         
-                        if (Array.isArray(decodedPartAnswers)) {
+                        if (part.part_type === 'PART_4' || q.sub_type === 'scenario' || q.sub_type === 'informal' || q.sub_type === 'formal') {
+                          if (q.sub_type === 'scenario') {
+                            isScenario = true;
+                          } else if (q.sub_type === 'informal') {
+                            finalAnswer = typeof decodedPartAnswers === 'object' && decodedPartAnswers !== null ? (decodedPartAnswers.informal || "") : "";
+                          } else if (q.sub_type === 'formal') {
+                            finalAnswer = typeof decodedPartAnswers === 'object' && decodedPartAnswers !== null ? (decodedPartAnswers.formal || "") : "";
+                          } else {
+                            // Fallback if sub_type is missing in older data
+                            if (qIndex === 0) isScenario = true;
+                            else if (qIndex === 1) finalAnswer = decodedPartAnswers?.informal || "";
+                            else if (qIndex === 2) finalAnswer = decodedPartAnswers?.formal || "";
+                          }
+                        } else if (Array.isArray(decodedPartAnswers)) {
                           // Nếu là mảng (như Part 1, Part 3) -> Lấy theo vị trí index
                           finalAnswer = decodedPartAnswers[qIndex] || "";
-                        } else if (typeof decodedPartAnswers === 'object' && decodedPartAnswers !== null) {
-                          // Nếu là Object (như Part 4) -> Phân biệt informal / formal
-                          finalAnswer = qIndex === 0 
-                            ? (decodedPartAnswers.informal || "") 
-                            : (decodedPartAnswers.formal || "");
                         } else {
                           // Nếu là chuỗi trơn (như Part 2)
                           finalAnswer = decodedPartAnswers || "";
@@ -137,14 +146,18 @@ const WritingGradingDetailPage = () => {
                         return (
                           <div key={q.id || qIndex} className={`p-3 border rounded-lg ${theme.bg} ${theme.border}`}>
                             <Text strong className={`text-sm block mb-1 ${theme.text}`}>{q.question_text}</Text>
-                            <div className="p-2 bg-white border border-gray-200 rounded min-h-12.5 whitespace-pre-wrap text-sm text-gray-800">
-                              {finalAnswer || <Text type="danger" italic>Student left this blank</Text>}
-                            </div>
-                            <div className="mt-1 text-right">
-                              <Text type="secondary" className="text-[11px] font-medium">
-                                Word Count: <span className={wordCount === 0 ? "text-red-500" : "text-green-600"}>{wordCount}</span>
-                              </Text>
-                            </div>
+                            {!isScenario && (
+                              <>
+                                <div className="p-2 bg-white border border-gray-200 rounded min-h-12.5 whitespace-pre-wrap text-sm text-gray-800">
+                                  {finalAnswer || <Text type="danger" italic>Student left this blank</Text>}
+                                </div>
+                                <div className="mt-1 text-right">
+                                  <Text type="secondary" className="text-[11px] font-medium">
+                                    Word Count: <span className={wordCount === 0 ? "text-red-500" : "text-green-600"}>{wordCount}</span>
+                                  </Text>
+                                </div>
+                              </>
+                            )}
                           </div>
                         );
                       })}

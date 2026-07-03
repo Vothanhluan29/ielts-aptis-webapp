@@ -8,6 +8,8 @@ from app.modules.APTIS.speaking.models import (
     AptisSpeakingPartAnswer, AptisSpeakingStatus
 )
 from app.modules.APTIS.speaking import schemas
+from app.modules.notifications import models as notif_models
+from app.core.websockets import manager
 
 class AptisSpeakingSubmissionService:
     @staticmethod
@@ -160,5 +162,27 @@ class AptisSpeakingSubmissionService:
         sub.graded_at = datetime.now()
         sub.graded_by = grader_id
 
+        # ----------------------------------------------------
+        # NOTIFICATION SYSTEM
+        # ----------------------------------------------------
+        notification = notif_models.Notification(
+            student_id=sub.user_id,
+            title="Speaking test graded",
+            message=f"Your Speaking test has been graded by a teacher. You achieved CEFR level {req.cefr_level}.",
+            type="SUCCESS"
+        )
+        db.add(notification)
         db.commit()
+
+        # Emit to WS
+        payload = {
+            "id": str(notification.id),
+            "title": notification.title,
+            "message": notification.message,
+            "type": notification.type,
+            "created_at": notification.created_at.isoformat() if notification.created_at else datetime.now().isoformat(),
+            "is_read": False
+        }
+        manager.send_personal_message_sync(payload, str(sub.user_id))
+
         return AptisSpeakingSubmissionService.get_submission_detail(db, submission_id)

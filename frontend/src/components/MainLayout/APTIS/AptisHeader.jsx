@@ -1,6 +1,7 @@
 import React, { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, User, LogOut, ChevronDown, Bell } from "lucide-react";
+import { Menu, User, LogOut, ChevronDown } from "lucide-react";
+import NotificationBell from "../../common/NotificationBell";
 
 /* ================= PAGE TITLE MAP ================= */
 const PAGE_TITLES = {
@@ -59,10 +60,7 @@ const AptisHeader = ({
       <div className="relative flex items-center gap-4 md:gap-6" ref={profileRef}>
 
         {/* Notification Bell */}
-        <button className="relative p-2 text-slate-400 hover:text-orange-600 transition-colors rounded-full hover:bg-orange-50">
-          <Bell size={20} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-        </button>
+        <NotificationBell />
 
         <div className="w-px h-8 bg-slate-200 hidden sm:block"></div>
 

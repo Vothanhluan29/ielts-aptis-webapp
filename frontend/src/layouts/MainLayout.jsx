@@ -9,6 +9,7 @@ import AptisSidebar from '../components/MainLayout/APTIS/AptisSidebar';
 import AptisHeader from '../components/MainLayout/APTIS/AptisHeader';
 
 import { useMainLayout } from '../hooks/MainLayout/useMainLayout';
+import { NotificationProvider } from '../contexts/NotificationContext';
 
 const MainLayout = () => {
   const navigate = useNavigate();
@@ -74,16 +75,17 @@ const MainLayout = () => {
 
   /* ===================== RENDER ===================== */
   return (
-    <div className="h-screen flex bg-[#F8FAFC] text-slate-800 overflow-hidden font-sans">
-      
-      {/* ===================== SIDEBAR (DYNAMIC) ===================== */}
-      <ActiveSidebar
-        sidebarOpen={sidebarOpen}
-        sidebarCollapsed={sidebarCollapsed}
-        setSidebarCollapsed={setSidebarCollapsed}
-        pathname={location.pathname}
-        handleLogout={handleLogout}
-      />
+    <NotificationProvider>
+      <div className="h-screen flex bg-[#F8FAFC] text-slate-800 overflow-hidden font-sans">
+        
+        {/* ===================== SIDEBAR (DYNAMIC) ===================== */}
+        <ActiveSidebar
+          sidebarOpen={sidebarOpen}
+          sidebarCollapsed={sidebarCollapsed}
+          setSidebarCollapsed={setSidebarCollapsed}
+          pathname={location.pathname}
+          handleLogout={handleLogout}
+        />
 
       {/* ===================== MAIN ===================== */}
       <div className="flex-1 flex flex-col min-w-0 relative">
@@ -117,7 +119,8 @@ const MainLayout = () => {
           onClick={() => setSidebarOpen(false)}
         />
       )}
-    </div>
+      </div>
+    </NotificationProvider>
   );
 };
 

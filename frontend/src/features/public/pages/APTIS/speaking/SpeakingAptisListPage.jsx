@@ -34,7 +34,7 @@ const SpeakingAptisListPage = () => {
               background: '#dcfce7', color: '#16a34a',
               padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
             }}>
-              <CheckCircle size={12} /> Đã chấm điểm
+              <CheckCircle size={12} /> Graded
             </span>
           ),
           mainBtnText: 'View History',
@@ -60,7 +60,7 @@ const SpeakingAptisListPage = () => {
               <Clock size={12} /> Pending Review
             </span>
           ),
-          mainBtnText: 'Xem bài nộp',
+          mainBtnText: 'View Submission',
           mainBtnAction: () => handleNavigateResult(testId),
           mainBtnStyle: {
             background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
