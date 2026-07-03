@@ -4,7 +4,7 @@ import {
   Spin, Row, Col, Typography, Popconfirm, Select, Tabs, Tooltip, Collapse 
 } from 'antd';
 import { 
-  ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, BookOutlined, ExclamationCircleOutlined
+  ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, BookOutlined, ExclamationCircleOutlined, CopyOutlined
 } from '@ant-design/icons';
 
 import MultipleChoiceAdmin from '../../../components/APTIS/question-types/MultipleChoiceAdmin';
@@ -15,6 +15,7 @@ import ReorderSentencesAdmin from '../../../components/APTIS/question-types/Reor
 // Import Custom Hook
 import { useReadingAptisEdit } from '../../../hooks/APTIS/reading/useReadingAptisEdit';
 import { BlurInput, BlurTextArea } from '../../../../../components/common/BlurInput';
+import DraftRestoreBanner from '../../../../../components/common/DraftRestoreBanner';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -29,7 +30,12 @@ const ReadingAptisEditPage = () => {
     submitting,
     onFinish,
     onFinishFailed,
-    navigate
+    navigate,
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft
   } = useReadingAptisEdit();
 
   const [activeTabKey, setActiveTabKey] = useState('0');
@@ -83,16 +89,24 @@ const ReadingAptisEditPage = () => {
             {totalQuestionsCount} / {MAX_QUESTIONS} questions
           </span>
           <Button type="primary" onClick={() => form.submit()} icon={<SaveOutlined />} loading={submitting} size="large" style={{ backgroundColor: '#ea580c' }}>
-            {isEditMode ? 'Update Test' : 'Save Test'}
+            {isEditMode ? 'Save Changes' : 'Create Test'}
           </Button>
         </Space>
       </div>
+
+      <DraftRestoreBanner 
+        draftExists={draftExists}
+        lastSavedTime={lastSavedTime}
+        onRestore={() => restoreDraft()}
+        onDiscard={() => clearDraft()}
+      />
 
       <Form 
         form={form} 
         layout="vertical" 
         onFinish={onFinish}
         onFinishFailed={onFinishFailed} 
+        onValuesChange={handleFormChange}
         preserve={true}                 
       >
         {/* ================= GENERAL SETTINGS ================= */}
@@ -146,7 +160,7 @@ const ReadingAptisEditPage = () => {
             {(partFields, { add: addPart, remove: removePart }) => {
               
               const tabItems = partFields.map(({ key: partKey, name: partName }, pIndex) => {
-                const partTitle = form.getFieldValue(['parts', partName, 'title']) || `Part ${pIndex + 1}`;
+                const partTitle = `Part ${pIndex + 1}`;
                 
                 // Show passage if it has content (edit mode) or if user clicked "Add Reading Passage"
                 const currentContent = form.getFieldValue(['parts', partName, 'content']);
@@ -270,6 +284,19 @@ const ReadingAptisEditPage = () => {
                                   label: <span style={{ fontWeight: 600, color: '#ea580c' }}>{questionTitle}</span>,
                                   extra: (
                                     <span onClick={e => e.stopPropagation()} style={{ display: 'flex', gap: 8 }}>
+                                      <Button 
+                                        type="text" 
+                                        size="small" 
+                                        icon={<CopyOutlined />}
+                                        disabled={totalQuestionsCount >= MAX_QUESTIONS}
+                                        onClick={() => {
+                                          const currentQData = form.getFieldValue(['parts', partName, 'questions', qName]);
+                                          // Duplicate it to the end of this part
+                                          addQ({ ...currentQData });
+                                          // Auto-expand the newly added tab
+                                          setActiveQuestionKeys(prev => [...prev, qFields.length.toString()]);
+                                        }}
+                                      />
                                       <Popconfirm title="Delete question?" onConfirm={(e) => { e.stopPropagation(); removeQ(qName); }} okText="Yes" cancelText="No">
                                         <Button type="text" size="small" danger icon={<DeleteOutlined />} />
                                       </Popconfirm>

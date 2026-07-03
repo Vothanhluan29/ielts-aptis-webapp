@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Form, message } from 'antd';
 import speakingAptisApi from '../../../api/APTIS/speaking/speakingAptisAdminApi';
+import { useAutoSaveDraft } from '../../../../../hooks/useAutoSaveDraft';
 
 // Define the standard Aptis Speaking structure
 export const PART_CONFIGS = [
@@ -17,6 +18,17 @@ export const useSpeakingAptisEdit = () => {
   const [form] = Form.useForm();
   
   const isEditMode = Boolean(id);
+  const storageKey = isEditMode ? `aptis-speaking-edit-${id}-draft` : `aptis-speaking-create-draft`;
+
+  const {
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
+    enableAutoSave
+  } = useAutoSaveDraft(storageKey, form);
+
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -54,7 +66,8 @@ export const useSpeakingAptisEdit = () => {
       is_full_test_only: false, 
       parts: defaultParts 
     });
-  }, [form]);
+    enableAutoSave();
+  }, [form, enableAutoSave]);
 
   // 2. FETCH DATA & MERGE WITH DEFAULT STRUCTURE
   const fetchDetail = useCallback(async () => {
@@ -98,6 +111,7 @@ export const useSpeakingAptisEdit = () => {
         ...data,
         parts: mergedParts
       });
+      enableAutoSave();
 
     } catch (error) {
       message.error('Failed to load Speaking test data. Please try again!');
@@ -105,7 +119,7 @@ export const useSpeakingAptisEdit = () => {
     } finally {
       setLoading(false);
     }
-  }, [id, form, navigate]);
+  }, [id, form, navigate, enableAutoSave]);
 
   useEffect(() => {
     if (isEditMode) {
@@ -141,6 +155,7 @@ export const useSpeakingAptisEdit = () => {
         await speakingAptisApi.createTest(values);
         message.success('New test created successfully!');
       }
+      clearDraft();
       navigate('/admin/aptis/speaking');
     } catch (error) {
       message.error(error.response?.data?.detail || 'Failed to save the test. Please try again!');
@@ -157,6 +172,11 @@ export const useSpeakingAptisEdit = () => {
     submitting,
     handleUploadFile,
     onFinish,
-    navigate
+    navigate,
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
   };
 };

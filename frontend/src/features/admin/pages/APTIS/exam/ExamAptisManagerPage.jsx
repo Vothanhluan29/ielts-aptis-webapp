@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Plus, 
@@ -23,6 +23,29 @@ const ExamAptisManagerPage = () => {
   const navigate = useNavigate();
   const { tests, loading, fetchTests, handleDelete } = useExamAptisManager();
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, testId: null });
+
+  // Pagination State
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0
+  });
+
+  useEffect(() => {
+    setPagination(prev => ({
+      ...prev,
+      total: tests.length
+    }));
+  }, [tests]);
+
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, current: newPage }));
+  };
+
+  const paginatedTests = tests.slice(
+    (pagination.current - 1) * pagination.pageSize,
+    pagination.current * pagination.pageSize
+  );
 
   const renderComponentBadge = (testObj, label, icon, colors) => {
     const Icon = icon;
@@ -130,7 +153,7 @@ const ExamAptisManagerPage = () => {
 
         {/* List Items */}
         <div className="divide-y divide-zinc-100">
-          {!loading && tests.map((test) => (
+          {!loading && paginatedTests.map((test) => (
             <div 
               key={test.id} 
               onDoubleClick={() => navigate(`/admin/aptis/full-tests/edit/${test.id}`)}
@@ -190,11 +213,35 @@ const ExamAptisManagerPage = () => {
           ))}
         </div>
 
-        {/* Footer info */}
+        {/* Footer info & Pagination */}
         {tests.length > 0 && (
-          <div className="bg-zinc-50/50 px-6 py-4 border-t border-zinc-100 flex justify-between items-center text-xs font-bold text-zinc-500">
-            <span>Total: {tests.length} full tests</span>
-            <span className="hidden sm:inline">Double-click any row to edit</span>
+          <div className="bg-zinc-50/50 px-6 py-4 border-t border-zinc-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="text-xs font-bold text-zinc-500">
+              Showing {(pagination.current - 1) * pagination.pageSize + 1} to {Math.min(pagination.current * pagination.pageSize, pagination.total)} of {pagination.total} tests
+            </div>
+            
+            {/* Simple Pagination Controls */}
+            {pagination.total > pagination.pageSize && (
+              <div className="flex items-center gap-1 bg-white rounded-lg border border-zinc-200 p-1 shadow-sm">
+                <button 
+                  disabled={pagination.current <= 1}
+                  onClick={() => handlePageChange(pagination.current - 1)}
+                  className="px-3 py-1 rounded-md text-xs font-bold text-zinc-600 hover:bg-zinc-100 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+                >
+                  Prev
+                </button>
+                <div className="px-3 py-1 rounded-md text-xs font-bold bg-blue-50 text-blue-600">
+                  {pagination.current}
+                </div>
+                <button 
+                  disabled={pagination.current * pagination.pageSize >= pagination.total}
+                  onClick={() => handlePageChange(pagination.current + 1)}
+                  className="px-3 py-1 rounded-md text-xs font-bold text-zinc-600 hover:bg-zinc-100 disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

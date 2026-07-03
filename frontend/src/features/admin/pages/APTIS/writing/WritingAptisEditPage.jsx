@@ -11,6 +11,7 @@ import {
 // Import Custom Hook và cấu hình
 import { useWritingAptisEdit, PART_CONFIGS } from '../../../hooks/APTIS/writing/useWritingAptisEdit';
 import { BlurInput, BlurTextArea } from '../../../../../components/common/BlurInput';
+import DraftRestoreBanner from '../../../../../components/common/DraftRestoreBanner';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -23,7 +24,12 @@ const WritingAptisEditPage = () => {
     loading,
     submitting,
     onFinish,
-    navigate
+    navigate,
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft
   } = useWritingAptisEdit();
 
   const [activePartKeys, setActivePartKeys] = useState(['0']);
@@ -139,12 +145,26 @@ const WritingAptisEditPage = () => {
         </Space>
         <Space>
           <Button type="primary" onClick={() => form.submit()} icon={<SaveOutlined />} loading={submitting} size="large" style={{ backgroundColor: '#7c3aed' }}>
-            {isEditMode ? 'Update Test' : 'Save Test'}
+            {isEditMode ? 'Save Changes' : 'Create Test'}
           </Button>
         </Space>
       </div>
 
-      <Form form={form} layout="vertical" onFinish={onFinish} autoComplete="off">
+      <DraftRestoreBanner 
+        draftExists={draftExists}
+        lastSavedTime={lastSavedTime}
+        onRestore={() => restoreDraft()}
+        onDiscard={() => clearDraft()}
+      />
+
+      <Form 
+        form={form} 
+        layout="vertical" 
+        onFinish={onFinish} 
+        onValuesChange={handleFormChange}
+        autoComplete="off"
+        preserve={true}
+      >
         {/* ================= GENERAL SETTINGS ================= */}
         <Card size="small" title="1. General Settings" style={{ marginBottom: 16, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
           <Row gutter={16}>

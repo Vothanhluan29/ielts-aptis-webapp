@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Form, message } from 'antd';
 import readingAptisAdminApi from '../../../api/APTIS/reading/readingAptisAdminApi';
+import { useAutoSaveDraft } from '../../../../../hooks/useAutoSaveDraft';
 
 const MAX_PARTS = 5;
 const MAX_QUESTIONS = 30; 
@@ -12,6 +13,16 @@ export const useReadingAptisEdit = () => {
   const [form] = Form.useForm();
 
   const isEditMode = Boolean(id);
+  const storageKey = isEditMode ? `aptis-reading-edit-${id}-draft` : `aptis-reading-create-draft`;
+  
+  const {
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
+    enableAutoSave
+  } = useAutoSaveDraft(storageKey, form);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [activePartKeys, setActivePartKeys] = useState(['0']);
@@ -86,13 +97,14 @@ export const useReadingAptisEdit = () => {
       });
 
       setActivePartKeys(formattedParts.map((_, idx) => idx.toString()));
+      enableAutoSave();
     } catch (error) {
       message.error('Failed to load Reading test data. Please try again!');
       navigate('/admin/aptis/reading');
     } finally {
       setLoading(false);
     }
-  }, [id, form, navigate]);
+  }, [id, form, navigate, enableAutoSave]);
 
   // ==========================================
   // 2. INITIALIZE FORM
@@ -121,8 +133,9 @@ export const useReadingAptisEdit = () => {
           },
         ],
       });
+      enableAutoSave();
     }
-  }, [isEditMode, fetchTestDetail, form]);
+  }, [isEditMode, fetchTestDetail, form, enableAutoSave]);
 
   const onFinishFailed = (errorInfo) => {
     console.error('Validation Failed:', errorInfo);
@@ -247,7 +260,8 @@ export const useReadingAptisEdit = () => {
         await readingAptisAdminApi.createTest(payload);
         message.success('Test created successfully!');
       }
-
+      
+      clearDraft();
       navigate('/admin/aptis/reading');
     } catch (error) {
       console.error('Payload error:', error);
@@ -268,5 +282,10 @@ export const useReadingAptisEdit = () => {
     onFinish,
     onFinishFailed,
     navigate,
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
   };
 };

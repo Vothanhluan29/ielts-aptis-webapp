@@ -12,6 +12,7 @@ import MatchingAdmin from '../../../components/APTIS/question-types/MatchingAdmi
 import FillInBlankAdmin from '../../../components/APTIS/question-types/FillInBlankAdmin';
 import { useListeningAptisEdit } from '../../../hooks/APTIS/listening/useListeningAptisEdit'; 
 import { BlurInput, BlurTextArea } from '../../../../../components/common/BlurInput';
+import DraftRestoreBanner from '../../../../../components/common/DraftRestoreBanner';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -27,7 +28,12 @@ const ListeningAptisEditPage = () => {
     onFinish,
     onFinishFailed,
     handleUploadAudio,
-    navigate
+    navigate,
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft
   } = useListeningAptisEdit();
 
   const [activeTabKey, setActiveTabKey] = useState('0');
@@ -69,17 +75,25 @@ const ListeningAptisEditPage = () => {
             {totalQuestionsCount >= MAX_QUESTIONS && <ExclamationCircleOutlined style={{ marginRight: 6 }} />}
             {totalQuestionsCount} / {MAX_QUESTIONS} questions
           </span>
-          <Button type="primary" onClick={() => form.submit()} icon={<SaveOutlined />} loading={submitting} size="large" style={{ backgroundColor: '#4f46e5' }}>
-            {isEditMode ? 'Update Test' : 'Save Test'}
+          <Button type="primary" onClick={() => form.submit()} icon={<SaveOutlined />} loading={submitting} size="large" style={{ backgroundColor: '#312e81' }}>
+            {isEditMode ? 'Save Changes' : 'Create Test'}
           </Button>
         </Space>
       </div>
+
+      <DraftRestoreBanner 
+        draftExists={draftExists}
+        lastSavedTime={lastSavedTime}
+        onRestore={() => restoreDraft()}
+        onDiscard={() => clearDraft()}
+      />
 
       <Form 
         form={form} 
         layout="vertical" 
         onFinish={onFinish} 
         onFinishFailed={onFinishFailed} 
+        onValuesChange={handleFormChange}
         autoComplete="off" 
         preserve={true}
       >
@@ -134,7 +148,7 @@ const ListeningAptisEditPage = () => {
             {(partFields, { add: addPart, remove: removePart }) => {
               
               const tabItems = partFields.map(({ key: partKey, name: partName }, pIndex) => {
-                const partTitle = form.getFieldValue(['parts', partName, 'title']) || `Part ${pIndex + 1}`;
+                const partTitle = `Part ${pIndex + 1}`;
                 const isPart1 = pIndex === 0;
 
                 return {

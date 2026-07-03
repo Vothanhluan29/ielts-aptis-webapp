@@ -5,9 +5,7 @@ import {
   MessageOutlined, FormOutlined, FileTextOutlined, MailOutlined 
 } from '@ant-design/icons';
 import writingAptisAdminApi from '../../../api/APTIS/writing/writingAptisAdminApi';
-
-
-export const PART_CONFIGS = [
+import { useAutoSaveDraft } from '../../../../../hooks/useAutoSaveDraft';export const PART_CONFIGS = [
   { type: "PART_1", title: "Part 1",  qCount: 5 },
   { type: "PART_2", title: "Part 2",  qCount: 1 },
   { type: "PART_3", title: "Part 3",  qCount: 3 },
@@ -19,10 +17,19 @@ export const useWritingAptisEdit = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const isEditMode = Boolean(id);
+  const storageKey = isEditMode ? `aptis-writing-edit-${id}-draft` : `aptis-writing-create-draft`;
+
+  const {
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
+    enableAutoSave
+  } = useAutoSaveDraft(storageKey, form);
+
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-
-
   const initDefaultData = useCallback(() => {
     const defaultParts = PART_CONFIGS.map((config, pIndex) => {
       let questions = [];
@@ -59,7 +66,8 @@ export const useWritingAptisEdit = () => {
       is_full_test_only: false, 
       parts: defaultParts 
     });
-  }, [form]);
+    enableAutoSave();
+  }, [form, enableAutoSave]);
 
   // ==========================================
   // 2. FETCH & MERGE DATA FROM DB
@@ -112,6 +120,7 @@ export const useWritingAptisEdit = () => {
             ...data,
             parts: mergedParts
           });
+          enableAutoSave();
         } catch (error) {
           message.error('Failed to load Writing test data. Please try again!');
           navigate('/admin/aptis/writing');
@@ -123,7 +132,7 @@ export const useWritingAptisEdit = () => {
     } else {
       initDefaultData();
     }
-  }, [id, isEditMode, initDefaultData, navigate, form]);
+  }, [id, isEditMode, initDefaultData, navigate, form, enableAutoSave]);
 
   // ==========================================
   // 3. SUBMIT DATA
@@ -138,6 +147,7 @@ export const useWritingAptisEdit = () => {
         await writingAptisAdminApi.createTest(values);
         message.success('Test created successfully!');
       }
+      clearDraft();
       navigate('/admin/aptis/writing');
     } catch (error) {
       message.error(error.response?.data?.detail || 'Failed to save the test. Please try again!');
@@ -154,6 +164,11 @@ export const useWritingAptisEdit = () => {
     loading,
     submitting,
     onFinish,
-    navigate
+    navigate,
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
   };
 };

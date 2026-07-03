@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Form, message } from 'antd';
 
 import listeningAptisAdminApi from '../../../api/APTIS/listening/listeningAptisAdminApi';
+import { useAutoSaveDraft } from '../../../../../hooks/useAutoSaveDraft';
 
 export const useListeningAptisEdit = () => {
   const { id } = useParams();
@@ -10,6 +11,17 @@ export const useListeningAptisEdit = () => {
   const [form] = Form.useForm();
 
   const isEditMode = Boolean(id);
+  const storageKey = isEditMode ? `aptis-listening-edit-${id}-draft` : `aptis-listening-create-draft`;
+  
+  const {
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
+    enableAutoSave
+  } = useAutoSaveDraft(storageKey, form);
+
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [activePartKeys, setActivePartKeys] = useState(['0']);
@@ -84,13 +96,14 @@ export const useListeningAptisEdit = () => {
       });
 
       setActivePartKeys(formattedParts.map((_, idx) => idx.toString()));
+      enableAutoSave();
     } catch (error) {
       message.error('Failed to load Listening test data. Please try again!');
       navigate('/admin/aptis/listening');
     } finally {
       setLoading(false);
     }
-  }, [id, form, navigate]);
+  }, [id, form, navigate, enableAutoSave]);
 
   useEffect(() => {
     if (isEditMode) {
@@ -117,8 +130,9 @@ export const useListeningAptisEdit = () => {
           },
         ],
       });
+      enableAutoSave();
     }
-  }, [isEditMode, fetchTestDetail, form]);
+  }, [isEditMode, fetchTestDetail, form, enableAutoSave]);
 
   const onFinishFailed = (errorInfo) => {
     console.error('Validation Failed:', errorInfo);
@@ -226,12 +240,13 @@ export const useListeningAptisEdit = () => {
 
       if (isEditMode) {
         await listeningAptisAdminApi.updateTest(id, payload);
-        message.success('Listening test updated successfully!');
+        message.success('Test updated successfully!');
       } else {
         await listeningAptisAdminApi.createTest(payload);
-        message.success('New Listening test created successfully!');
+        message.success('Test created successfully!');
       }
-
+      
+      clearDraft();
       navigate('/admin/aptis/listening');
     } catch (error) {
       console.error(error.response?.data);
@@ -276,5 +291,10 @@ export const useListeningAptisEdit = () => {
     onFinishFailed,
     handleUploadAudio,
     navigate,
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
   };
 };

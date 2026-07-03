@@ -2,9 +2,20 @@ import { useState, useEffect } from 'react';
 import { message } from 'antd';
 import examAptisAdminApi from '../../../api/APTIS/exam/examAptisAdminApi';
 import axiosClient from '../../../../../services/axiosClient';
+import { useAutoSaveDraft } from '../../../../../hooks/useAutoSaveDraft';
 
 export const useExamAptisEditPage = (id, form, navigate) => {
   const isEditMode = !!id;
+  const storageKey = isEditMode ? `aptis-exam-edit-${id}-draft` : `aptis-exam-create-draft`;
+
+  const {
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
+    enableAutoSave
+  } = useAutoSaveDraft(storageKey, form);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -85,8 +96,9 @@ export const useExamAptisEditPage = (id, form, navigate) => {
   useEffect(() => {
     if (!loading) {
       form.setFieldsValue(initialData);
+      enableAutoSave();
     }
-  }, [loading, initialData, form]);
+  }, [loading, initialData, form, enableAutoSave]);
 
   const onFinish = async (values) => {
     setSaving(true);
@@ -99,6 +111,7 @@ export const useExamAptisEditPage = (id, form, navigate) => {
         message.success('New test created successfully!');
       }
 
+      clearDraft();
       navigate('/admin/aptis/full-tests');
     } catch (error) {
       console.error('Save error:', error);
@@ -117,6 +130,11 @@ export const useExamAptisEditPage = (id, form, navigate) => {
     saving,
     initialData,
     componentOptions,
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
     onFinish,
   };
 };

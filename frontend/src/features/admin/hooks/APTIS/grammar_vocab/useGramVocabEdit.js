@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Form, message } from 'antd';
 import GrammarVocabAdminApi from '../../../api/APTIS/grammar&vocab/grammar_vocabAdminApi';
+import { useAutoSaveDraft } from '../../../../../hooks/useAutoSaveDraft';
 
 export const MAX_QUESTIONS = 50;
 export const MAX_GRAMMAR   = 25;
@@ -49,6 +50,17 @@ export const useGramVocabEdit = () => {
   const [form] = Form.useForm();
 
   const isEditMode = Boolean(id);
+  const storageKey = isEditMode ? `aptis-grammar-edit-${id}-draft` : `aptis-grammar-create-draft`;
+
+  const {
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
+    enableAutoSave
+  } = useAutoSaveDraft(storageKey, form);
+
   const [loading, setLoading]       = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [activeGrammarKeys, setActiveGrammarKeys] = useState(['0']);
@@ -97,9 +109,9 @@ export const useGramVocabEdit = () => {
         vocab_groups:      vocabGroups,
       });
 
-
       setGrammarCount(grammarQuestions.length);
       setVocabCount(vocabGroups.reduce((sum, g) => sum + g.questions.length, 0));
+      enableAutoSave();
     } catch (err) {
       console.error(err);
       message.error('Unable to load test details!');
@@ -107,7 +119,7 @@ export const useGramVocabEdit = () => {
     } finally {
       setLoading(false);
     }
-  }, [id, form, navigate]);
+  }, [id, form, navigate, enableAutoSave]);
 
   useEffect(() => {
     if (isEditMode) {
@@ -125,8 +137,9 @@ export const useGramVocabEdit = () => {
       });
       setGrammarCount(defaultGrammar.length);
       setVocabCount(defaultVocab[0].questions.length);
+      enableAutoSave();
     }
-  }, [isEditMode, fetchTestDetail, form]);
+  }, [isEditMode, fetchTestDetail, form, enableAutoSave]);
 
   const warnUnderfilledGroups = (vocabGroups = []) => {
     vocabGroups
@@ -203,6 +216,7 @@ export const useGramVocabEdit = () => {
         message.success('New test created successfully!');
       }
 
+      clearDraft();
       navigate('/admin/aptis/grammar-vocab');
     } catch (err) {
       console.error(err);
@@ -225,5 +239,10 @@ export const useGramVocabEdit = () => {
     onFinish,
     onFinishFailed,
     navigate,
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
   };
 };

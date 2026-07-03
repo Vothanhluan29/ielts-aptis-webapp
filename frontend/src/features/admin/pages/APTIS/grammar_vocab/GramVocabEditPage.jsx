@@ -13,6 +13,7 @@ import MultipleChoiceAdmin from '../../../components/APTIS/question-types/Multip
 import MatchingAdmin from '../../../components/APTIS/question-types/MatchingAdmin';
 import { useGramVocabEdit, MAX_QUESTIONS } from '../../../hooks/APTIS/grammar_vocab/useGramVocabEdit';
 import { BlurInput, BlurTextArea } from '../../../../../components/common/BlurInput';
+import DraftRestoreBanner from '../../../../../components/common/DraftRestoreBanner';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -165,6 +166,7 @@ const GramVocabEditPage = () => {
     activeGrammarKeys, setActiveGrammarKeys,
     totalCount, refreshCounts,
     onFinish, onFinishFailed, navigate,
+    draftExists, lastSavedTime, handleFormChange, restoreDraft, clearDraft
   } = useGramVocabEdit();
 
   if (loading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>;
@@ -250,12 +252,19 @@ const GramVocabEditPage = () => {
           </span>
           <Button type="primary" size="large" icon={<SaveOutlined />} loading={submitting}
             style={{ backgroundColor: '#4f46e5' }} onClick={() => form.submit()}>
-            {isEditMode ? 'Update' : 'Save'}
+            {isEditMode ? 'Save Changes' : 'Create Test'}
           </Button>
         </span>
       </div>
 
-      <Form form={form} layout="vertical" onFinish={onFinish} onFinishFailed={onFinishFailed} preserve autoComplete="off">
+      <DraftRestoreBanner 
+        draftExists={draftExists}
+        lastSavedTime={lastSavedTime}
+        onRestore={() => restoreDraft()}
+        onDiscard={() => clearDraft()}
+      />
+
+      <Form form={form} layout="vertical" onFinish={onFinish} onFinishFailed={onFinishFailed} onValuesChange={handleFormChange} preserve autoComplete="off">
         <Card size="small" title="General Settings" style={{ marginBottom: 16, borderRadius: 12 }}>
           <Row gutter={16}>
             <Col span={10}>

@@ -28,6 +28,7 @@ import {
 } from '@ant-design/icons';
 
 import { useExamAptisEditPage } from '../../../hooks/APTIS/exam/useExamAptisEditPage';
+import DraftRestoreBanner from '../../../../../components/common/DraftRestoreBanner';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -43,6 +44,11 @@ const ExamAptisEditPage = () => {
     saving,
     initialData,
     componentOptions,
+    draftExists,
+    lastSavedTime,
+    handleFormChange,
+    restoreDraft,
+    clearDraft,
     onFinish,
   } = useExamAptisEditPage(id, form, navigate);
 
@@ -91,12 +97,21 @@ const ExamAptisEditPage = () => {
         </Space>
       </div>
 
+      <DraftRestoreBanner 
+        draftExists={draftExists}
+        lastSavedTime={lastSavedTime}
+        onRestore={() => restoreDraft()}
+        onDiscard={() => clearDraft()}
+      />
+
       <Form
         form={form}
         layout="vertical"
         onFinish={onFinish}
+        onValuesChange={handleFormChange}
         requiredMark={false}
         initialValues={initialData}
+        preserve={true}
       >
         <Row gutter={[32, 32]}>
           {/* LEFT COLUMN */}
