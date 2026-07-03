@@ -1,185 +1,216 @@
-import React from 'react';
-import { Table, Tag, Button, Space, Card, Typography, Popconfirm, Tooltip, Empty } from 'antd';
-import { 
-  PlusOutlined, EditOutlined, DeleteOutlined, 
-  AppstoreOutlined, EyeOutlined, EyeInvisibleOutlined,
-  ReloadOutlined
-} from '@ant-design/icons';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  Plus, 
+  Edit2, 
+  Trash2, 
+  Eye, 
+  EyeOff, 
+  RefreshCcw,
+  BookOpen,
+  Headphones,
+  Edit3,
+  Mic,
+  GraduationCap,
+  Sparkles,
+  LayoutGrid
+} from 'lucide-react';
 import dayjs from 'dayjs';
-
-// Import Custom Hook
 import { useExamAptisManager } from '../../../hooks/APTIS/exam/useExamAptisManager';
-
-const { Title, Text } = Typography;
+import ConfirmModal from '../../../../../components/common/ConfirmModal';
 
 const ExamAptisManagerPage = () => {
   const navigate = useNavigate();
-  
   const { tests, loading, fetchTests, handleDelete } = useExamAptisManager();
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, testId: null });
 
-  // Helper function: Render component skill tag
-  const renderComponentTag = (testObj, label, colorClass) => {
-    if (!testObj) return (
-      <Tag className="bg-gray-50 text-gray-400 border-dashed border-gray-200 rounded-md">
-        No {label[0]}
-      </Tag>
-    );
-    
+  const renderComponentBadge = (testObj, label, icon, colors) => {
+    const Icon = icon;
+    if (!testObj) {
+      return (
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-zinc-100/50 border border-zinc-200/50 border-dashed text-zinc-400">
+          <Icon size={12} className="opacity-50" />
+          <span className="text-[11px] font-medium opacity-60 line-through decoration-zinc-300">No {label}</span>
+        </div>
+      );
+    }
     return (
-      <Tooltip title={`ID: ${testObj.id} - ${testObj.title}`}>
-        <Tag className={`${colorClass} border-0 font-medium px-2 py-0.5 rounded-md shadow-sm cursor-help`}>
-          {label}
-        </Tag>
-      </Tooltip>
+      <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-semibold text-[11px] ${colors}`}>
+        <Icon size={12} />
+        {label}
+      </div>
     );
   };
 
-  // Table columns definition
-  const columns = [
-    {
-      title: 'Full Test Title',
-      dataIndex: 'title',
-      key: 'title',
-      width: '35%',
-      render: (text, record) => (
-        <div className="py-1">
-          <Text strong className="text-indigo-900 text-base block">{text}</Text>
-          <Text type="secondary" className="text-xs italic truncate block max-w-md">
-            {record.description || 'No detailed description'}
-          </Text>
-        </div>
-      ),
-    },
-    {
-      title: 'Skill Structure',
-      key: 'components',
-      render: (_, record) => (
-        <Space size={[4, 4]} wrap>
-          {renderComponentTag(record.grammar_vocab_test, 'Core', 'bg-blue-100 text-blue-700')}
-          {renderComponentTag(record.listening_test, 'Listen', 'bg-green-100 text-green-700')}
-          {renderComponentTag(record.reading_test, 'Read', 'bg-orange-100 text-orange-700')}
-          {renderComponentTag(record.writing_test, 'Write', 'bg-purple-100 text-purple-700')}
-          {renderComponentTag(record.speaking_test, 'Speak', 'bg-rose-100 text-rose-700')}
-        </Space>
-      ),
-    },
-    {
-      title: 'Status',
-      dataIndex: 'is_published',
-      align: 'center',
-      width: 140,
-      render: (isPublished) => (
-        <Tag 
-          icon={isPublished ? <EyeOutlined /> : <EyeInvisibleOutlined />} 
-          className={`rounded-full px-3 py-1 border-0 font-bold ${
-            isPublished ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
-          }`}
-        >
-          {isPublished ? 'PUBLISHED' : 'DRAFT'}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Created Date',
-      dataIndex: 'created_at',
-      width: 120,
-      render: (date) => <Text className="text-gray-400 text-sm">{dayjs(date).format('DD/MM/YYYY')}</Text>,
-    },
-    {
-      title: 'Actions',
-      align: 'right',
-      width: 110,
-      render: (_, record) => (
-        <Space>
-          <Tooltip title="Edit test">
-            <Button 
-              type="text" 
-              icon={<EditOutlined />} 
-              className="text-indigo-600 hover:bg-indigo-50 rounded-full"
-              onClick={() => navigate(`/admin/aptis/full-tests/edit/${record.id}`)}
-            />
-          </Tooltip>
-          <Popconfirm 
-            title="Delete test?" 
-            description="Warning: This action cannot be undone."
-            onConfirm={() => handleDelete(record.id)} 
-            okText="Delete" 
-            cancelText="Cancel"
-            okButtonProps={{ danger: true, size: 'small' }}
-          >
-            <Button type="text" danger icon={<DeleteOutlined />} className="hover:bg-red-50 rounded-full" />
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
   return (
-    <div className="max-w-[1440px] mx-auto animate-fade-in space-y-6">
+    <div className="max-w-[1200px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-12">
       
-      {/* ================= HEADER ================= */}
-      <div className="relative overflow-hidden rounded-[32px] p-8 md:p-10 bg-gradient-to-br from-purple-600 via-fuchsia-600 to-pink-600 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="relative z-10">
-          <Title level={2} className="!text-white !mb-2 !font-extrabold tracking-tight drop-shadow-md flex items-center gap-3">
-            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm border border-white/30 text-white">
-              <AppstoreOutlined />
+      {/* ── HEADER SECTION ── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 mt-4">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2.5 bg-orange-500/10 text-orange-600 rounded-xl ring-1 ring-orange-500/20">
+              <LayoutGrid size={24} />
             </div>
-            Aptis Full Test Management
-          </Title>
-          <Text className="!text-white/80 text-lg font-medium tracking-wide block">
-            List of Aptis Full Tests (5 skills)
-          </Text>
+            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Aptis Full Tests</h1>
+          </div>
+          <p className="text-zinc-500 font-medium text-[15px] ml-[52px]">
+            Manage complete 5-skill Aptis mock exams
+          </p>
         </div>
 
-        <Space className="relative z-10">
-          <Button 
-            icon={<ReloadOutlined />} 
-            onClick={fetchTests} 
-            loading={loading}
-            className="bg-white/20 text-white hover:bg-white/30 hover:text-white border-white/30 shadow-lg font-semibold rounded-xl h-12 px-6 backdrop-blur-sm transition-all duration-300"
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <button 
+            onClick={fetchTests}
+            disabled={loading}
+            className="flex items-center justify-center p-2.5 text-zinc-500 bg-white border border-zinc-200 rounded-xl hover:bg-zinc-50 hover:text-zinc-700 transition-all shadow-sm focus:outline-none disabled:opacity-50"
+            title="Refresh list"
           >
-            Refresh
-          </Button>
-          <Button
-            type="primary"
-            size="large"
-            icon={<PlusOutlined />}
+            <RefreshCcw size={18} className={loading ? "animate-spin" : ""} />
+          </button>
+          
+          <button
             onClick={() => navigate("/admin/aptis/full-tests/create")}
-            className="bg-white text-fuchsia-600 hover:bg-fuchsia-50 hover:text-fuchsia-700 hover:scale-105 border-none shadow-lg font-bold rounded-xl h-12 px-6 transition-all duration-300"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-orange-600/20 focus:outline-none"
           >
+            <Plus size={18} />
             Create New Test
-          </Button>
-        </Space>
-
-        {/* Decorative background shapes */}
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 rounded-full bg-white opacity-10 blur-3xl mix-blend-overlay animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-48 h-48 rounded-full bg-white opacity-5 blur-2xl mix-blend-overlay" />
+          </button>
+        </div>
       </div>
 
-      {/* DATA TABLE */}
-      <Card 
-        className="rounded-[24px] shadow-sm hover:shadow-xl transition-shadow duration-500 border border-gray-100 bg-white overflow-hidden" 
-        styles={{ body: { padding: 0 } }}
-      >
-        <Table
-          columns={columns}
-          dataSource={tests}
-          rowKey="id"
-          loading={loading}
-          locale={{ emptyText: <Empty description="No tests have been created yet" /> }}
-          pagination={{ 
-            pageSize: 10, 
-            showTotal: (total) => <span className="text-gray-400 font-medium">Total: {total} tests</span>,
-            className: "px-6 py-4"
-          }}
-          onRow={(record) => ({
-            // Double click to quickly edit
-            onDoubleClick: () => navigate(`/admin/aptis/full-tests/edit/${record.id}`),
-            className: "cursor-pointer hover:bg-fuchsia-50/50 transition-colors"
-          })}
-        />
-      </Card>
+      {/* ── LIST VIEW ── */}
+      <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-sm overflow-hidden">
+        
+        {/* Table Header (Desktop only) */}
+        <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 text-xs font-bold text-zinc-500 uppercase tracking-wider">
+          <div className="col-span-4">Test Name</div>
+          <div className="col-span-5">Structure</div>
+          <div className="col-span-2">Status</div>
+          <div className="col-span-1 text-right">Actions</div>
+        </div>
+
+        {/* Loading State */}
+        {loading && tests.length === 0 && (
+          <div className="divide-y divide-zinc-100">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="px-6 py-5 animate-pulse grid grid-cols-12 gap-4 items-center">
+                <div className="col-span-12 md:col-span-4 space-y-2">
+                  <div className="h-5 bg-zinc-200 rounded-md w-3/4"></div>
+                  <div className="h-3 bg-zinc-100 rounded-md w-1/2"></div>
+                </div>
+                <div className="col-span-12 md:col-span-5 flex gap-2">
+                  <div className="h-6 bg-zinc-100 rounded-md w-16"></div>
+                  <div className="h-6 bg-zinc-100 rounded-md w-16"></div>
+                </div>
+                <div className="col-span-6 md:col-span-2">
+                  <div className="h-6 bg-zinc-100 rounded-full w-24"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && tests.length === 0 && (
+          <div className="py-20 flex flex-col items-center justify-center text-center px-4">
+            <div className="w-16 h-16 bg-zinc-100 text-zinc-400 rounded-full flex items-center justify-center mb-4">
+              <Sparkles size={28} />
+            </div>
+            <h3 className="text-lg font-bold text-zinc-900 mb-1">No full tests found</h3>
+            <p className="text-zinc-500 max-w-sm mb-6">You haven't created any Aptis full tests yet. Click the button above to create one.</p>
+            <button
+              onClick={() => navigate("/admin/aptis/full-tests/create")}
+              className="text-orange-600 font-bold hover:text-orange-700 flex items-center gap-1.5"
+            >
+              <Plus size={16} /> Create your first test
+            </button>
+          </div>
+        )}
+
+        {/* List Items */}
+        <div className="divide-y divide-zinc-100">
+          {!loading && tests.map((test) => (
+            <div 
+              key={test.id} 
+              onDoubleClick={() => navigate(`/admin/aptis/full-tests/edit/${test.id}`)}
+              className="px-6 py-4 flex flex-col md:grid md:grid-cols-12 gap-4 md:items-center hover:bg-orange-50/30 transition-colors group relative"
+            >
+              {/* Col 1: Title & Date */}
+              <div className="col-span-12 md:col-span-4 pr-4">
+                <h3 className="text-[15px] font-bold text-zinc-900 truncate mb-1">
+                  {test.title}
+                </h3>
+                <div className="flex items-center gap-2 text-xs text-zinc-500 font-medium">
+                  <span>ID: {test.id}</span>
+                  <span className="w-1 h-1 bg-zinc-300 rounded-full"></span>
+                  <span>Created {dayjs(test.created_at).format('MMM D, YYYY')}</span>
+                </div>
+              </div>
+
+              {/* Col 2: Skills Structure */}
+              <div className="col-span-12 md:col-span-5 flex flex-wrap gap-2">
+                {renderComponentBadge(test.grammar_vocab_test, 'Grammar', GraduationCap, 'bg-pink-100 text-pink-700')}
+                {renderComponentBadge(test.reading_test, 'Read', BookOpen, 'bg-blue-100 text-blue-700')}
+                {renderComponentBadge(test.listening_test, 'Listen', Headphones, 'bg-teal-100 text-teal-700')}
+                {renderComponentBadge(test.writing_test, 'Write', Edit3, 'bg-amber-100 text-amber-700')}
+                {renderComponentBadge(test.speaking_test, 'Speak', Mic, 'bg-purple-100 text-purple-700')}
+              </div>
+
+              {/* Col 3: Status */}
+              <div className="col-span-6 md:col-span-2">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                  test.is_published 
+                    ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-500/20' 
+                    : 'bg-zinc-100 text-zinc-600 ring-1 ring-zinc-500/20'
+                }`}>
+                  {test.is_published ? <Eye size={12} /> : <EyeOff size={12} />}
+                  {test.is_published ? 'PUBLISHED' : 'DRAFT'}
+                </span>
+              </div>
+
+              {/* Col 4: Actions */}
+              <div className="col-span-6 md:col-span-1 flex justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                <button 
+                  onClick={() => navigate(`/admin/aptis/full-tests/edit/${test.id}`)}
+                  className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors focus:outline-none"
+                  title="Edit Test"
+                >
+                  <Edit2 size={16} />
+                </button>
+                <button 
+                  onClick={() => setDeleteModal({ isOpen: true, testId: test.id })}
+                  className="p-2 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors focus:outline-none"
+                  title="Delete Test"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer info */}
+        {tests.length > 0 && (
+          <div className="bg-zinc-50/50 px-6 py-4 border-t border-zinc-100 flex justify-between items-center text-xs font-bold text-zinc-500">
+            <span>Total: {tests.length} full tests</span>
+            <span className="hidden sm:inline">Double-click any row to edit</span>
+          </div>
+        )}
+      </div>
+
+      <ConfirmModal 
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, testId: null })}
+        onConfirm={async () => {
+          if (deleteModal.testId) {
+            await handleDelete(deleteModal.testId);
+          }
+          setDeleteModal({ isOpen: false, testId: null });
+        }}
+        title="Delete Full Test"
+        message="Are you sure you want to delete this full test? All associated data will be removed. This action cannot be undone."
+      />
     </div>
   );
 };

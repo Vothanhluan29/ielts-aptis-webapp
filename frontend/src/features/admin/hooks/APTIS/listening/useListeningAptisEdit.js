@@ -85,10 +85,7 @@ export const useListeningAptisEdit = () => {
 
       setActivePartKeys(formattedParts.map((_, idx) => idx.toString()));
     } catch (error) {
-      message.error(
-        'Failed to load Listening test details!',
-        error.response?.data?.message || error.message
-      );
+      message.error('Failed to load Listening test data. Please try again!');
       navigate('/admin/aptis/listening');
     } finally {
       setLoading(false);
@@ -125,7 +122,7 @@ export const useListeningAptisEdit = () => {
 
   const onFinishFailed = (errorInfo) => {
     console.error('Validation Failed:', errorInfo);
-    message.error('Update failed! Please complete all required fields.');
+    message.error('Validation failed! Please fill in all required fields.');
   };
 
   const onFinish = async (values) => {
@@ -238,7 +235,9 @@ export const useListeningAptisEdit = () => {
       navigate('/admin/aptis/listening');
     } catch (error) {
       console.error(error.response?.data);
-      message.error('Failed to submit data! Please review and try again.');
+      message.error(
+        error.response?.data?.detail || 'Failed to save the test. Please try again!'
+      );
     } finally {
       setSubmitting(false);
     }

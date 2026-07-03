@@ -229,7 +229,7 @@ const ExamAptisListPage = () => {
                       fontSize: 12, fontWeight: 600, color: '#9ca3af',
                       background: '#f8fafc', padding: '3px 9px', borderRadius: 8
                     }}>
-                      <Clock size={11} /> {test.time_limit || 160} phút
+                      <Clock size={11} /> {test.time_limit || 160} min
                     </span>
                   </div>
                   <h3 style={{

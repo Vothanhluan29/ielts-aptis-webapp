@@ -66,7 +66,7 @@ export const useWritingSubmissionList = () => {
       }
     } catch (error) {
       console.error("Error loading submission list:", error);
-      message.error("Unable to load submission data!");
+      message.error('Failed to load Writing submission list. Please try again!');
     } finally {
       setLoading(false);
     }

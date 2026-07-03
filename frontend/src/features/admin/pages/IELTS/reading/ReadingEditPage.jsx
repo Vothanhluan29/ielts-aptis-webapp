@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Form, Input, Button, Card, Space, Typography, InputNumber, Switch, Divider, Tabs, message } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, SortAscendingOutlined } from '@ant-design/icons';
 import { useReadingEdit } from '../../../hooks/IELTS/reading/useReadingEdit';
@@ -15,11 +15,16 @@ const ReadingEditPage = () => {
 
   const [activeTabKey, setActiveTabKey] = useState(null);
 
-  const watchedPassages = Form.useWatch('passages', form) || [];
+  // ✅ FIX #2: Local state thay vì Form.useWatch toàn bộ 'passages' để tránh re-render mỗi khi gõ phím
+  const [totalQuestions, setTotalQuestions] = useState(0);
 
-  const totalQuestions = watchedPassages.reduce((sum, passage) =>
-    sum + (passage?.groups || []).reduce((groupSum, group) =>
-      groupSum + (group?.questions?.length || 0), 0), 0);
+  const recountQuestions = useCallback(() => {
+    const passages = form.getFieldValue('passages') || [];
+    const total = passages.reduce((sum, passage) =>
+      sum + (passage?.groups || []).reduce((gs, g) =>
+        gs + (g?.questions?.length || 0), 0), 0);
+    setTotalQuestions(total);
+  }, [form]);
 
   const isMaxQuestions = totalQuestions >= 40;
 
@@ -113,6 +118,7 @@ const ReadingEditPage = () => {
         onFinishFailed={onFinishFailed}
         autoComplete="off"
         preserve={true}
+        onValuesChange={recountQuestions}
       >
 
         <Card className="mb-6 shadow-sm rounded-xl border-slate-200" styles={{ body: { padding: '20px 24px' } }}>
@@ -190,11 +196,13 @@ const ReadingEditPage = () => {
                       question_number: getNextQuestionNumber(),
                       question_type: 'MULTIPLE_CHOICE',
                       question_text: '',
-                      correct_answers: []
+                      correct_answers: [],
+                      options: { A: '', B: '', C: '', D: '' }  // ✅ FIX #4: default options
                     }]
                   }]
                 });
                 setTimeout(() => {
+                  recountQuestions();
                   const passages = form.getFieldValue('passages');
                   if (passages?.length > 0) setActiveTabKey((passages.length - 1).toString());
                 }, 50);
@@ -214,7 +222,8 @@ const ReadingEditPage = () => {
               key: pField.key.toString(),
               label: <Text strong className="text-base px-4 py-1">Passage {pIndex + 1}</Text>,
               closable: true,
-              forceRender: true,
+              // ✅ FIX #1: Đã xóa forceRender: true — chỉ render tab đang active,
+              // Ant Design mặc định giữ state của tab đã mở (không destroy)
               children: (
                 <div className="pt-4 animate-fade-in">
 
@@ -301,8 +310,10 @@ const ReadingEditPage = () => {
                                             question_number: getNextQuestionNumber(),
                                             question_type: 'MULTIPLE_CHOICE',
                                             question_text: '',
-                                            correct_answers: []
+                                            correct_answers: [],
+                                            options: { A: '', B: '', C: '', D: '' }  // ✅ FIX #4
                                           });
+                                          recountQuestions();
                                         }}
                                         block
                                         icon={<PlusOutlined />}
@@ -329,9 +340,11 @@ const ReadingEditPage = () => {
                                   questions: [{
                                     question_number: getNextQuestionNumber(),
                                     question_type: 'MULTIPLE_CHOICE',
-                                    correct_answers: []
+                                    correct_answers: [],
+                                    options: { A: '', B: '', C: '', D: '' }  // ✅ FIX #4
                                   }]
                                 });
+                                recountQuestions();
                               }}
                               block
                               icon={<PlusOutlined />}

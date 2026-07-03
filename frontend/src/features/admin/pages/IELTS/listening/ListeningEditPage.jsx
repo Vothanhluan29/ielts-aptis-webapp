@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Form, Input, Button, Card, Space, Typography, InputNumber, Switch, Divider, Tabs, message, Tooltip, Upload } from 'antd'; 
 import { 
   ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, 
@@ -20,14 +20,16 @@ const ListeningEditPage = () => {
   
   const [activeTabKey, setActiveTabKey] = useState(null);
 
-  // THEO DÕI REALTIME SỐ LƯỢNG CÂU HỎI
-  const watchedParts = Form.useWatch('parts', form) || [];
-  
-  const totalQuestions = watchedParts.reduce((sum, part) => {
-    return sum + (part?.groups || []).reduce((groupSum, group) => {
-      return groupSum + (group?.questions?.length || 0);
-    }, 0);
-  }, 0);
+  // ✅ FIX #2: Local state thay vì Form.useWatch toàn bộ 'parts' để tránh re-render mỗi khi gõ phím
+  const [totalQuestions, setTotalQuestions] = useState(0);
+
+  const recountQuestions = useCallback(() => {
+    const parts = form.getFieldValue('parts') || [];
+    const total = parts.reduce((sum, part) =>
+      sum + (part?.groups || []).reduce((gs, g) =>
+        gs + (g?.questions?.length || 0), 0), 0);
+    setTotalQuestions(total);
+  }, [form]);
 
   const isMaxQuestions = totalQuestions >= 40;
 
@@ -84,7 +86,7 @@ const ListeningEditPage = () => {
         
         <Space>
           <div className={`px-4 py-2 rounded-lg font-bold text-sm border-2 mr-2 transition-colors ${isMaxQuestions ? 'bg-green-50 text-green-600 border-green-200' : 'bg-blue-50 text-blue-600 border-blue-200'}`}>
-            Questions: {totalQuestions} / 40
+          Questions: {totalQuestions} / 40
           </div>
 
           <Button 
@@ -115,7 +117,8 @@ const ListeningEditPage = () => {
         onFinish={onFinish} 
         onFinishFailed={onFinishFailed}
         autoComplete="off"
-        preserve={true} 
+        preserve={true}
+        onValuesChange={recountQuestions}
       >
         
         {/* ================= TEST INFO ================= */}
@@ -198,12 +201,14 @@ const ListeningEditPage = () => {
                       question_number: nextNum,
                       question_type: 'MULTIPLE_CHOICE',
                       question_text: '',
-                      correct_answers: []
+                      correct_answers: [],
+                      options: { A: '', B: '', C: '', D: '' }  // ✅ FIX #4: default options
                     }]
                   }]
                 });
 
                 setTimeout(() => {
+                  recountQuestions();
                   const newKeys = form.getFieldValue('parts');
                   if (newKeys && newKeys.length > 0) {
                     setActiveTabKey((newKeys.length - 1).toString());
@@ -225,7 +230,8 @@ const ListeningEditPage = () => {
               key: pField.key.toString(),
               label: <Text strong className="text-base px-4 py-1">Part {pIndex + 1}</Text>,
               closable: true,
-              forceRender: true, 
+              // ✅ FIX #1: Đã xóa forceRender: true — chỉ render tab đang active,
+              // Ant Design mặc định giữ state của tab đã mở (không destroy)
               children: (
                 <div className="pt-4 animate-fade-in">
 
@@ -408,8 +414,10 @@ const ListeningEditPage = () => {
                                             question_number: nextNum,
                                             question_type: 'MULTIPLE_CHOICE',
                                             question_text: '',
-                                            correct_answers: []
+                                            correct_answers: [],
+                                            options: { A: '', B: '', C: '', D: '' }  // ✅ FIX #4
                                           });
+                                          recountQuestions();
                                         }}
                                         block
                                         icon={<PlusOutlined />}
@@ -432,14 +440,16 @@ const ListeningEditPage = () => {
                                 if (isMaxQuestions) return;
                                 const nextNum = getNextQuestionNumber();
                                 addGroup({
-                                  order: groupFields.length + 1,
-                                  instruction: '',
-                                  questions: [{
-                                    question_number: nextNum,
-                                    question_type: 'MULTIPLE_CHOICE',
-                                    correct_answers: []
-                                  }]
-                                });
+                                   order: groupFields.length + 1,
+                                   instruction: '',
+                                   questions: [{
+                                     question_number: nextNum,
+                                     question_type: 'MULTIPLE_CHOICE',
+                                     correct_answers: [],
+                                     options: { A: '', B: '', C: '', D: '' }  // ✅ FIX #4
+                                   }]
+                                 });
+                                 recountQuestions();
                               }}
                               block
                               icon={<PlusOutlined />}

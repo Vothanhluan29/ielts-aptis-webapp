@@ -72,7 +72,7 @@ export const useSpeakingEdit = () => {
           setParts(newPartsState);
         } catch (error) {
           console.error("Error fetching test detail:", error);
-          message.error("Failed to load test details.");
+          message.error('Failed to load Speaking test data. Please try again!');
           navigate('/admin/skills/speaking');
         } finally {
           setLoading(false);

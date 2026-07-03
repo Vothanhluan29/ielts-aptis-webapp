@@ -31,7 +31,7 @@ export const useListeningEdit = () => {
                           q.options = JSON.parse(q.options);
                         } catch (e) {
                           q.options = {};
-                          message.error('Failed to parse options for question:', q, e);
+                          console.error('Failed to parse options for question:', q, e);
                         }
                       }
                       if (!q.options) q.options = {};
@@ -46,7 +46,7 @@ export const useListeningEdit = () => {
           form.setFieldsValue(data);
         } catch (error) {
           console.error('Failed to fetch test details:', error);
-          message.error('Unable to load test data!');
+          message.error('Failed to load Listening test data. Please try again!');
           navigate('/admin/skills/listening');
         } finally {
           setLoading(false);
@@ -156,7 +156,7 @@ export const useListeningEdit = () => {
       if (typeof errDetail === 'string') {
         message.error(errDetail);
       } else {
-        message.error('Data error (422) - Please check for missing required fields!');
+        message.error('Failed to save the test. Please check for missing required fields!');
       }
     } finally {
       setLoading(false);

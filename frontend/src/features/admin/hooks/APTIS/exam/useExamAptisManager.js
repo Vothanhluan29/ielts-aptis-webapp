@@ -17,7 +17,7 @@ export const useExamAptisManager = () => {
       setTests(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Fetch Error:", error);
-      message.error("Unable to load Aptis test list!");
+      message.error('Failed to load APTIS exam list. Please try again!');
     } finally {
       setLoading(false);
     }
@@ -36,7 +36,7 @@ export const useExamAptisManager = () => {
       fetchTests(); 
     } catch (error) {
       console.error("Delete Error:", error);
-      message.error("Unable to delete this test. Please try again!");
+      message.error(error.response?.data?.detail || 'Failed to delete exam. Please try again!');
     } finally {
       hide();
     }

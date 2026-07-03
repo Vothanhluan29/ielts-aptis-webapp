@@ -19,7 +19,7 @@ export const useReadingEdit = () => {
       form.setFieldsValue(data);
     } catch (error) {
       console.error("Fetch Test Detail Error:", error);
-      message.error("Failed to load test data.");
+      message.error('Failed to load Reading test data. Please try again!');
       navigate('/admin/skills/reading');
     } finally {
       setLoading(false);

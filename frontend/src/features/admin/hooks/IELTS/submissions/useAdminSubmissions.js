@@ -49,8 +49,9 @@ export const useAdminSubmissions = () => {
 
     } catch (error) {
       console.error("Fetch submissions error:", error);
-      message.error(`Failed to load ${activeSkill === 'exam' ? 'Full Test' : activeSkill} submissions`);
-      setSubmissions([]); 
+      const skillName = activeSkill === 'exam' ? 'Full Test' : activeSkill.charAt(0).toUpperCase() + activeSkill.slice(1);
+      message.error(`Failed to load ${skillName} submission list. Please try again!`);
+      setSubmissions([]);
       setTotalSubmissions(0);
     } finally {
       setLoading(false);

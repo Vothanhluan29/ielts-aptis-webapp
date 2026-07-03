@@ -8,8 +8,8 @@ import {
   Users,
   FileText,
   BookOpen,
-  UserCog,
-  ClipboardCheck
+  ClipboardCheck,
+  Zap
 } from "lucide-react";
 
 const SideBar = ({ layoutProps }) => {
@@ -22,38 +22,42 @@ const SideBar = ({ layoutProps }) => {
     isActive
   } = layoutProps;
 
-  const titleClass = "text-[10px] font-extrabold text-gray-500 uppercase ml-2 tracking-[0.2em]";
+  // Professional color palette: dark slate for sidebar
+  const bgSidebar = "bg-[#09090b]"; // Zinc 950
+  const borderSidebar = "border-zinc-800/60";
+  const sectionTitle = "text-[10px] font-bold text-zinc-500 uppercase ml-3 tracking-[0.15em] mb-3 mt-6";
 
   return (
     <aside
-      className={`flex flex-col transition-all duration-300 ease-in-out border-r border-gray-800/60 shadow-2xl bg-gradient-to-b from-[#0B0F19] via-[#111827] to-[#0B0F19] text-gray-200 z-50 relative ${
-        isCollapsed ? "w-20" : "w-64"
+      className={`flex flex-col transition-all duration-300 ease-in-out border-r ${borderSidebar} shadow-xl ${bgSidebar} text-zinc-300 z-50 relative ${
+        isCollapsed ? "w-[80px]" : "w-[260px]"
       }`}
     >
-      {/* Decorative Light */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-indigo-500/5 blur-[80px] pointer-events-none" />
-
-      {/* LOGO */}
-      <div className="h-16 flex items-center justify-between px-5 border-b border-gray-800/60 shrink-0 relative z-10">
+      {/* ── TOP: BRANDING ── */}
+      <div className={`h-[76px] flex items-center justify-between px-5 border-b ${borderSidebar} shrink-0`}>
         {!isCollapsed && (
-          <h1 className="text-lg font-extrabold uppercase tracking-widest m-0 flex items-center gap-1">
-            <span className="text-blue-500 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]">ADMIN</span>
-            <span className="text-white">PANEL</span>
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+              <Zap size={18} className="text-white fill-white" />
+            </div>
+            <h1 className="text-[15px] font-bold tracking-wide m-0 text-white">
+              IELTS<span className="text-zinc-400 font-medium ml-1">Admin</span>
+            </h1>
+          </div>
         )}
         <button
           onClick={toggleSidebar}
-          className="p-1.5 rounded-lg bg-gray-800/50 hover:bg-blue-500/20 text-gray-400 hover:text-blue-400 transition-all duration-300"
+          className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition-colors focus:outline-none"
         >
           {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
       </div>
 
-      {/* NAVIGATION */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar relative z-10">
+      {/* ── MIDDLE: NAVIGATION SCROLL AREA ── */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
         
-        {/* DASHBOARD */}
-        {!isCollapsed && <p className={`${titleClass} mb-2 mt-2`}>Overview</p>}
+        {/* OVERVIEW */}
+        {!isCollapsed && <p className={sectionTitle}>Overview</p>}
         <SidebarLink
           to="/admin/dashboard"
           label="Dashboard"
@@ -62,8 +66,8 @@ const SideBar = ({ layoutProps }) => {
           isCollapsed={isCollapsed}
         />
 
-        {/* USER MANAGEMENT */}
-        {!isCollapsed && <p className={`${titleClass} mb-2 mt-6`}>User Management</p>}
+        {/* MANAGEMENT */}
+        {!isCollapsed && <p className={sectionTitle}>Management</p>}
         <SidebarLink
           to="/admin/users"
           label="Users"
@@ -71,9 +75,6 @@ const SideBar = ({ layoutProps }) => {
           isActive={isActive("/admin/users")}
           isCollapsed={isCollapsed}
         />
-
-        {/* GRADING & REVIEW */}
-        {!isCollapsed && <p className={`${titleClass} mb-2 mt-6`}>Grading & Review</p>}
         <SidebarLink
           to="/admin/submissions"
           label="Submissions"
@@ -82,46 +83,44 @@ const SideBar = ({ layoutProps }) => {
           isCollapsed={isCollapsed}
         />
 
-        {/* MOCK EXAMS */}
-        {!isCollapsed && <p className={`${titleClass} mb-2 mt-6`}>Mock Exams</p>}
+        {/* EXAMS & CONTENT */}
+        {!isCollapsed && <p className={sectionTitle}>Content</p>}
         <SidebarLink
           to="/admin/full-tests"
-          label="Full Tests"
+          label="Mock Exams"
           icon={FileText}
           isActive={isActive("/admin/full-tests")}
           isCollapsed={isCollapsed}
         />
 
-        {/* SKILLS CONTENT */}
-        {!isCollapsed && <p className={`${titleClass} mb-2 mt-6`}>Skills Content</p>}
         <div>
           <button
             onClick={toggleSkills}
-            className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-semibold transition-all duration-300 group ${
-              openSkills ? "bg-gray-800/80 text-white" : "text-gray-400 hover:bg-gray-800/50 hover:text-white"
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-colors ${
+              openSkills ? "bg-zinc-800/50 text-white" : "text-zinc-400 hover:bg-zinc-800/30 hover:text-white"
             } ${isCollapsed ? "justify-center" : ""}`}
           >
             <div className="flex items-center gap-3">
-              <BookOpen size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:text-blue-400" />
-              {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide">Skills Library</span>}
+              <BookOpen size={18} className={openSkills ? "text-indigo-400" : ""} />
+              {!isCollapsed && <span className="text-[14px]">Skills Library</span>}
             </div>
             {!isCollapsed && (
-              <ChevronRight size={16} className={`transition-transform duration-300 ${openSkills ? "rotate-90 text-blue-400" : "opacity-40 group-hover:text-blue-400 group-hover:opacity-100"}`} />
+              <ChevronRight size={14} className={`transition-transform duration-200 ${openSkills ? "rotate-90 text-indigo-400" : "opacity-0 group-hover:opacity-100"}`} />
             )}
           </button>
 
           {!isCollapsed && openSkills && (
-            <div className="ml-5 mt-2 space-y-1 border-l border-gray-700/50 pl-4">
+            <div className="ml-[1.35rem] mt-1 space-y-1 border-l border-zinc-800 pl-3 py-1">
               {["reading", "listening", "writing", "speaking"].map((skill) => {
                 const active = isActive(`/admin/skills/${skill}`);
                 return (
                   <Link
                     key={skill}
                     to={`/admin/skills/${skill}`}
-                    className={`block px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                    className={`block px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all ${
                       active
-                        ? "text-white bg-blue-500/20 border border-blue-500/30 shadow-[0_0_10px_rgba(59,130,246,0.2)]"
-                        : "text-gray-400 hover:text-white hover:bg-gray-800/60"
+                        ? "text-indigo-400 bg-indigo-500/10 font-semibold"
+                        : "text-zinc-400 hover:text-white hover:bg-zinc-800/30"
                     }`}
                   >
                     {skill.charAt(0).toUpperCase() + skill.slice(1)}
@@ -131,41 +130,48 @@ const SideBar = ({ layoutProps }) => {
             </div>
           )}
         </div>
-
       </nav>
 
-      {/* LOGOUT */}
-      <div className="p-4 border-t border-slate-800/60 shrink-0 relative z-10 bg-[#0B0F19]">
+      {/* ── BOTTOM: LOGOUT ── */}
+      <div className={`p-4 border-t ${borderSidebar} shrink-0 bg-[#09090b]`}>
         <button
           onClick={logout}
-          className={`flex items-center gap-3 w-full rounded-xl transition-colors ${
-            isCollapsed ? "justify-center h-12" : "px-4 py-2.5"
-          } text-slate-400 hover:text-red-500 hover:bg-red-500/10 bg-slate-900 border border-slate-800 shadow-sm`}
+          className={`flex items-center gap-3 w-full rounded-xl transition-all ${
+            isCollapsed ? "justify-center h-11" : "px-4 py-2.5"
+          } text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 font-medium`}
         >
-          <LogOut size={18} className="shrink-0" />
-          {!isCollapsed && <span className="text-[15px] font-semibold">Sign Out</span>}
+          <LogOut size={18} />
+          {!isCollapsed && <span className="text-[14px]">Sign Out</span>}
         </button>
       </div>
-
     </aside>
   );
 };
 
 /* =========================
-   SIDEBAR LINK
+   SIDEBAR LINK COMPONENT
 ========================= */
-const SidebarLink = ({ to, label, icon, isActive, isCollapsed }) => (
+const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed }) => (
   <Link
     to={to}
-    className={`group flex items-center gap-3 rounded-xl font-semibold transition-all duration-300 relative overflow-hidden ${
+    className={`group flex items-center gap-3 rounded-xl font-medium transition-all duration-200 relative ${
       isActive 
-        ? "text-white bg-blue-700 shadow-[0_0_15px_rgba(29,78,216,0.5)] border border-blue-600" 
-        : "text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent"
-    } ${isCollapsed ? "justify-center h-12 w-12 mx-auto" : "px-3.5 py-3"}`}
+        ? "bg-zinc-800/80 text-white shadow-sm ring-1 ring-zinc-700/50" 
+        : "text-zinc-400 hover:bg-zinc-800/30 hover:text-white"
+    } ${isCollapsed ? "justify-center h-11 w-11 mx-auto" : "px-3 py-2.5"}`}
   >
-    {isActive && <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2s_infinite]" />}
-    {icon && React.createElement(icon, { size: 20, className: `shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-blue-400'}` })}
-    {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide relative z-10">{label}</span>}
+    {isActive && !isCollapsed && (
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-indigo-500 rounded-r-full" />
+    )}
+    
+    {Icon && (
+      <Icon 
+        size={18} 
+        className={`shrink-0 transition-colors ${isActive ? 'text-indigo-400' : 'group-hover:text-zinc-300'}`} 
+      />
+    )}
+    
+    {!isCollapsed && <span className="text-[14px]">{label}</span>}
   </Link>
 );
 

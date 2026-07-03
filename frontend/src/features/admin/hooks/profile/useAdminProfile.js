@@ -12,7 +12,7 @@ export const useAdminProfile = () => {
             const data = await profileApi.getMe();
             setAdmin(data);
         } catch {
-            message.error("Unable to load profile information");
+            message.error('Failed to load profile information. Please try again!');
         } finally {
             setLoading(false);
         }
@@ -25,7 +25,7 @@ export const useAdminProfile = () => {
             setAdmin(updated);
             message.success("Profile updated successfully!");
         } catch (err) {
-            message.error(err.response?.data?.detail || "Failed to update profile");
+            message.error(err.response?.data?.detail || 'Failed to update profile. Please try again!');
         } finally {
             setUpdating(false);
         }

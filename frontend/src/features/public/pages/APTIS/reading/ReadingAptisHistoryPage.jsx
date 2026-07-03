@@ -28,23 +28,20 @@ const ReadingAptisHistoryPage = () => {
     <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: "'Inter', sans-serif" }}>
       <Content style={{ padding: '40px 24px', maxWidth: 1040, margin: '0 auto', width: '100%' }}>
         
-        {/* NÚT BACK */}
-        <button
-          onClick={handleGoBack}
-          className="group flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-600 font-semibold mb-8 hover:bg-slate-50 hover:text-teal-600 hover:border-teal-200 transition-all shadow-sm"
-        >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          Back
-        </button>
-
         {/* BANNER */}
-        <div className="mb-10 bg-white p-8 rounded-3xl border border-teal-50 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-teal-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-60 pointer-events-none" />
+        <div className="mb-10 bg-white p-8 rounded-3xl border border-blue-50 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-60 pointer-events-none" />
           
           <div className="flex items-center gap-5 relative z-10">
-            <div className="p-4 bg-gradient-to-br from-teal-500 to-emerald-500 text-white rounded-2xl shadow-lg shadow-teal-200">
-              <History size={32} strokeWidth={1.5} />
-            </div>
+            {/* NÚT BACK */}
+            <button
+              onClick={handleGoBack}
+              className="group flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-600 font-semibold hover:bg-slate-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm mr-2"
+            >
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+              Back
+            </button>
+
             <div>
               <Title level={2} style={{ margin: '0 0 4px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>
                 Reading Test History

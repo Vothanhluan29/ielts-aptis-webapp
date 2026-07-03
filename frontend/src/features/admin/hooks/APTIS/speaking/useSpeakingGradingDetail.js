@@ -79,7 +79,7 @@ export const useSpeakingGradingDetail = () => {
         });
       }
     } catch (error) {
-      message.error("Error loading submission details!");
+      message.error('Failed to load submission details. Please try again!');
       console.error(error);
     } finally {
       setLoading(false);
@@ -135,7 +135,7 @@ export const useSpeakingGradingDetail = () => {
       handleBack();
 
     } catch (error) {
-      message.error("Error saving grade!");
+      message.error('Failed to save grade. Please try again!');
       console.error(error);
     } finally {
       setSubmitting(false);

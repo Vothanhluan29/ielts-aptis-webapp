@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Form, Input } from 'antd';
 import { Check, Trash2, Plus, Wand2 } from 'lucide-react';
 
@@ -22,20 +22,9 @@ const MultipleChoice = ({ field, namePath }) => {
   const currentCorrect = Form.useWatch(correctPath, form) || [];
   const errors = form.getFieldError(correctPath) || [];
 
-  // ==============================================
-  // 1. INITIALIZE WITH 4 DEFAULT OPTIONS (A, B, C, D)
-  // ==============================================
-  useEffect(() => {
-    const initOpts = form.getFieldValue(optionsPath);
-    // If no options exist yet, seed 4 empty slots — use setTimeout to avoid setState inside effect
-    if (!initOpts || Object.keys(initOpts).length === 0) {
-      setTimeout(() => {
-        form.setFieldValue(optionsPath, { A: '', B: '', C: '', D: '' });
-        forceUpdate();
-      }, 0);
-    }
-
-  }, [form, optionsPath]);
+  // ✅ FIX #4: Đã xóa useEffect + setTimeout khởi tạo options.
+  // Default options { A, B, C, D } giờ được cung cấp sẵn từ addQuestion() trong EditPage,
+  // tránh 40 setTimeout cascade khi load trang edit có nhiều câu hỏi.
 
   // Always read the freshest data from the Form store
   let optionsObj = form.getFieldValue(optionsPath) || { A: '', B: '', C: '', D: '' };

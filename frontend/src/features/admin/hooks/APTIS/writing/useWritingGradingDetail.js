@@ -71,7 +71,7 @@ export const useWritingGradingDetail = () => {
         });
       }
     } catch {
-      message.error("Unable to load submission details!");
+      message.error('Failed to load submission details. Please try again!');
     } finally {
       setLoading(false);
     }
@@ -127,7 +127,7 @@ export const useWritingGradingDetail = () => {
       handleBack(); 
 
     } catch {
-      message.error("Error saving grade!");
+      message.error('Failed to save grade. Please try again!');
     } finally {
       setSubmitting(false);
     }

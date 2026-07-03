@@ -53,7 +53,7 @@ export const useWritingEdit = (id) => {
       }
     } catch (error) {
       console.error("Fetch detail error:", error);
-      message.error('Failed to load test details.');
+      message.error('Failed to load Writing test data. Please try again!');
       navigate('/admin/skills/writing');
     } finally {
       setLoading(false);
@@ -160,7 +160,7 @@ export const useWritingEdit = (id) => {
       }
     } catch (error) {
       console.error("Submit error:", error);
-      message.error('An error occurred while saving the test.');
+      message.error(error.response?.data?.detail || 'Failed to save the test. Please try again!');
     } finally {
       setLoading(false);
     }

@@ -87,7 +87,7 @@ export const useReadingAptisEdit = () => {
 
       setActivePartKeys(formattedParts.map((_, idx) => idx.toString()));
     } catch (error) {
-      message.error(`Failed to load test data! ${error?.message || ''}`);
+      message.error('Failed to load Reading test data. Please try again!');
       navigate('/admin/aptis/reading');
     } finally {
       setLoading(false);
@@ -126,7 +126,7 @@ export const useReadingAptisEdit = () => {
 
   const onFinishFailed = (errorInfo) => {
     console.error('Validation Failed:', errorInfo);
-    message.error('Please fill in all required fields (check closed parts).');
+    message.error('Validation failed! Please fill in all required fields (check collapsed sections).');
   };
 
   // ==========================================

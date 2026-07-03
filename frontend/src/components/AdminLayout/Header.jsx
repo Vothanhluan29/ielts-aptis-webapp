@@ -1,16 +1,9 @@
 import React from "react";
-import { Layout, Avatar, Space } from "antd";
-import {
-  UserOutlined,
-  DatabaseOutlined,
-  ClockCircleOutlined,
-} from "@ant-design/icons";
 import { Link, useLocation } from "react-router-dom";
+import { Clock, Activity, Zap, Sparkles, UserCircle } from "lucide-react";
 import { useAdminHeader } from "../../hooks/AdminLayout/useAdminHeader";
 
-const { Header } = Layout;
-
-export default function AntdAdminHeader() {
+export default function Header() {
   const { time, isBackendHealthy, admin } = useAdminHeader();
   const location = useLocation();
   const isAptis = location.pathname.includes("/aptis");
@@ -24,50 +17,48 @@ export default function AntdAdminHeader() {
     .toUpperCase();
   const lastName = admin?.full_name?.split(" ").at(-1);
 
-  /* ── no dropdown anymore ── */
-
   return (
-    <Header className="h-[76px] px-8 lg:px-12 flex items-center justify-between sticky top-0 z-50 !bg-[#0B0F19] border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)] transition-all duration-300">
+    <header className="h-[76px] px-6 lg:px-8 flex items-center justify-between sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-zinc-200 shadow-sm transition-all duration-300">
       
       {/* ── LEFT: STATUS & TIME ── */}
-      <div className="flex-1 flex justify-start items-center gap-6 pl-4">
+      <div className="flex-1 flex justify-start items-center gap-6">
         {/* Time Display */}
-        <div className="flex items-center gap-2">
-          <ClockCircleOutlined style={{ color: 'white', fontSize: '16px', filter: 'drop-shadow(0 0 4px rgba(255,255,255,0.5))' }} />
-          <span className="text-white text-[13px] tracking-wider font-bold drop-shadow-sm">
+        <div className="flex items-center gap-2 text-zinc-500">
+          <Clock size={16} className="text-zinc-400" />
+          <span className="text-[13px] tracking-wider font-semibold">
             {time.toLocaleTimeString("en-GB")}
           </span>
         </div>
 
         {/* Health Badge */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 shadow-inner backdrop-blur-sm">
-          <span className={`w-2 h-2 rounded-full ${isBackendHealthy ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]'} animate-pulse`} />
-          <span className={`text-[10px] tracking-[0.1em] uppercase font-bold ${isBackendHealthy ? "text-emerald-400" : "text-rose-500"}`}>
-            {isBackendHealthy ? "SYS ONLINE" : "SYS ERROR"}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-50 border border-zinc-200">
+          <span className={`w-2 h-2 rounded-full ${isBackendHealthy ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]'} animate-pulse`} />
+          <span className={`text-[10px] tracking-wider font-bold ${isBackendHealthy ? "text-emerald-600" : "text-rose-600"}`}>
+            {isBackendHealthy ? "SYSTEM ONLINE" : "SYSTEM ERROR"}
           </span>
         </div>
       </div>
 
       {/* ── CENTER: MODULE SWITCHER ── */}
       <div className="flex-1 flex justify-center">
-        <div className="flex items-center gap-2 p-1.5 bg-[#050810] rounded-2xl border border-white/5 shadow-inner">
-          <Link to="/admin/dashboard" className="block">
-            <div className={`flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl text-xs font-black tracking-[0.2em] transition-all duration-500 ${
+        <div className="flex items-center p-1 bg-zinc-100/80 backdrop-blur-sm rounded-xl border border-zinc-200 shadow-inner">
+          <Link to="/admin/dashboard" className="block focus:outline-none">
+            <div className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-[13px] font-bold tracking-wide transition-all duration-300 ${
               !isAptis 
-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-[0_0_20px_rgba(79,70,229,0.4)] border border-blue-400/50' 
-                : 'text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent'
+                ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-zinc-200/50' 
+                : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'
             }`}>
-              <DatabaseOutlined className={!isAptis ? "text-blue-200" : ""} />
+              <Zap size={16} className={!isAptis ? "text-indigo-500" : ""} />
               IELTS
             </div>
           </Link>
-          <Link to="/admin/aptis/dashboard" className="block">
-            <div className={`flex items-center justify-center gap-2 px-8 py-2.5 rounded-xl text-xs font-black tracking-[0.2em] transition-all duration-500 ${
+          <Link to="/admin/aptis/dashboard" className="block focus:outline-none">
+            <div className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-[13px] font-bold tracking-wide transition-all duration-300 ${
               isAptis 
-                ? 'bg-gradient-to-r from-orange-500 to-rose-600 text-white shadow-[0_0_20px_rgba(249,115,22,0.4)] border border-orange-400/50' 
-                : 'text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent'
+                ? 'bg-white text-orange-600 shadow-sm ring-1 ring-zinc-200/50' 
+                : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'
             }`}>
-              <DatabaseOutlined className={isAptis ? "text-orange-200" : ""} />
+              <Sparkles size={16} className={isAptis ? "text-orange-500" : ""} />
               APTIS
             </div>
           </Link>
@@ -76,25 +67,30 @@ export default function AntdAdminHeader() {
 
       {/* ── RIGHT: PROFILE ── */}
       <div className="flex-1 flex justify-end">
-        <div className="flex items-center gap-4 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-colors cursor-pointer group">
-          <div className="flex flex-col justify-center text-right">
-            <span className="text-white font-black text-[13px] tracking-wide leading-tight group-hover:text-indigo-300 transition-colors">
+        <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-white hover:bg-zinc-50 border border-zinc-200 transition-colors cursor-pointer group shadow-sm">
+          <div className="flex flex-col justify-center text-right pl-2">
+            <span className="text-zinc-800 font-bold text-[13px] tracking-tight leading-none group-hover:text-indigo-600 transition-colors">
               {lastName || "ADMIN"}
             </span>
-            <span className="text-indigo-400 font-bold text-[10px] uppercase tracking-[0.2em] mt-0.5">
-              ADMIN
+            <span className="text-zinc-400 font-semibold text-[10px] uppercase tracking-wider mt-1">
+              Administrator
             </span>
           </div>
-          <Avatar
-            size={38}
-            src={admin?.avatar_url}
-            className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white font-bold text-sm shadow-[0_0_15px_rgba(99,102,241,0.4)] border-2 border-indigo-300/50"
-          >
-            {admin?.avatar_url ? null : initials || <UserOutlined />}
-          </Avatar>
+          
+          {admin?.avatar_url ? (
+            <img 
+              src={admin.avatar_url} 
+              alt="Admin" 
+              className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm ring-1 ring-zinc-200"
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-sm ring-1 ring-zinc-200">
+              {initials || <UserCircle size={20} />}
+            </div>
+          )}
         </div>
       </div>
 
-    </Header>
+    </header>
   );
 }

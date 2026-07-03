@@ -66,8 +66,7 @@ export const useExamEdit = (id) => {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-
-        message.error("Failed to load initial data.");
+        message.error('Failed to load exam data. Please try again!');
       } finally {
         setLoading(false);
       }
@@ -89,7 +88,7 @@ export const useExamEdit = (id) => {
       navigate('/admin/full-tests');
     } catch (error) {
       console.error("Error saving exam:", error);
-      message.error('Failed to save the exam. Please try again.');
+      message.error(error.response?.data?.detail || 'Failed to save the exam. Please try again!');
     } finally {
       setSubmitting(false);
     }

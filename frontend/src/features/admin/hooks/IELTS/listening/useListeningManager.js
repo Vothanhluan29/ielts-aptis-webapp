@@ -21,7 +21,7 @@ export const useListeningManager = () => {
       setTests(data);
     } catch (error) {
       console.error("Error fetching tests:", error);
-      message.error("Failed to load listening tests.");
+      message.error('Failed to load Listening test list. Please try again!');
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,7 @@ export const useListeningManager = () => {
       setTests(prev => prev.filter(test => test.id !== id));
     } catch (error) {
       console.error("Delete failed:", error);
-      message.error(error.response?.data?.detail || "Failed to delete test.");
+      message.error(error.response?.data?.detail || 'Failed to delete test. Please try again!');
     }
   };
 

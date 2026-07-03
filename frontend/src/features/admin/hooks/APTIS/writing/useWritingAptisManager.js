@@ -25,7 +25,7 @@ export const useWritingAptisManager = () => {
       setTests(Array.isArray(data) ? data : []);
       setPagination(prev => ({ ...prev, total }));
     } catch (error) {
-      message.error('Failed to load Writing tests!');
+      message.error('Failed to load Writing test list. Please try again!');
       console.error("Fetch Tests Error:", error);
     } finally {
       setLoading(false);
@@ -50,7 +50,7 @@ export const useWritingAptisManager = () => {
       message.success('Test deleted successfully!');
       fetchTests();
     } catch (error) {
-      message.error(error.response?.data?.detail || 'Unable to delete this test.');
+      message.error(error.response?.data?.detail || 'Failed to delete test. Please try again!');
     }
   };
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
   ChevronRight,
   ChevronLeft,
@@ -8,14 +8,14 @@ import {
   Users,
   FileText,
   BookOpen,
-  UserCog,
   ClipboardCheck,
   PenTool,
   Mic,
   FileCheck,
   Headphones,
   BookMarked,
-  GraduationCap
+  GraduationCap,
+  Sparkles
 } from "lucide-react";
 
 const AptisSideBar = ({ layoutProps }) => {
@@ -37,169 +37,208 @@ const AptisSideBar = ({ layoutProps }) => {
   const toggleSkills = () => setOpenSkills(!openSkills);
   const toggleGrading = () => setOpenGrading(!openGrading);
 
-  /* ======================
-     LINK STYLES
-  ====================== */
-  const linkClass = ({ isActive }) =>
-    `group flex items-center gap-3 rounded-xl font-semibold transition-all duration-300 relative overflow-hidden ${
-      isActive
-        ? "bg-orange-600 text-white shadow-[0_0_15px_rgba(234,88,12,0.4)] border border-orange-500"
-        : "text-gray-400 hover:text-white hover:bg-gray-800/50 border border-transparent"
-    } ${isCollapsed ? "justify-center h-12 w-12 mx-auto" : "px-3.5 py-3"}`;
+  // Helper for checking active paths since we don't have isActive prop from layoutProps here usually
+  const isActive = (path) => location.pathname === path || (path !== "/admin/aptis/submissions" && location.pathname.startsWith(path));
 
-  const subLinkClass = ({ isActive }) =>
-    `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
-      isActive
-        ? "text-white bg-orange-500/20 ring-1 ring-orange-500/40 shadow-[0_0_10px_rgba(234,88,12,0.2)]"
-        : "text-gray-400 hover:text-white hover:bg-gray-800/60"
-    }`;
-
-  const dropdownBtnClass = (isOpen) =>
-    `w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-semibold transition-all duration-300 group ${
-      isOpen ? "bg-gray-800/80 text-white" : "text-gray-400 hover:bg-gray-800/50 hover:text-white"
-    } ${isCollapsed ? "justify-center" : ""}`;
-
-  const titleClass = "text-[10px] font-extrabold text-gray-500 uppercase ml-2 tracking-[0.2em]";
+  // Professional color palette: dark slate for sidebar
+  const bgSidebar = "bg-[#09090b]"; // Zinc 950
+  const borderSidebar = "border-zinc-800/60";
+  const sectionTitle = "text-[10px] font-bold text-zinc-500 uppercase ml-3 tracking-[0.15em] mb-3 mt-6";
 
   return (
     <aside
-      className={`flex flex-col transition-all duration-300 ease-in-out border-r border-gray-800/60 shadow-2xl bg-gradient-to-b from-[#0B0F19] via-[#111827] to-[#0B0F19] text-gray-200 z-50 relative ${
-        isCollapsed ? "w-20" : "w-64"
+      className={`flex flex-col transition-all duration-300 ease-in-out border-r ${borderSidebar} shadow-xl ${bgSidebar} text-zinc-300 z-50 relative ${
+        isCollapsed ? "w-[80px]" : "w-[260px]"
       }`}
     >
-      {/* Decorative Light */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-orange-500/5 blur-[80px] pointer-events-none" />
-
-      {/* LOGO */}
-      <div className="h-16 flex items-center justify-between px-5 border-b border-gray-800/60 shrink-0 relative z-10">
+      {/* ── TOP: BRANDING ── */}
+      <div className={`h-[76px] flex items-center justify-between px-5 border-b ${borderSidebar} shrink-0`}>
         {!isCollapsed && (
-          <h1 className="text-lg font-extrabold uppercase tracking-widest m-0 flex items-center gap-1">
-            <span className="text-orange-500 drop-shadow-[0_0_8px_rgba(249,115,22,0.5)]">APTIS</span>
-            <span className="text-white">PANEL</span>
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-rose-600 flex items-center justify-center shadow-lg shadow-orange-500/20">
+              <Sparkles size={18} className="text-white fill-white" />
+            </div>
+            <h1 className="text-[15px] font-bold tracking-wide m-0 text-white">
+              Aptis<span className="text-zinc-400 font-medium">Admin</span>
+            </h1>
+          </div>
         )}
         <button
           onClick={toggleSidebar}
-          className="p-1.5 rounded-lg bg-gray-800/50 hover:bg-orange-500/20 text-gray-400 hover:text-orange-400 transition-all duration-300"
+          className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition-colors focus:outline-none"
         >
           {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
       </div>
 
-      {/* NAV */}
-      <nav className="flex-1 p-4 space-y-2 overflow-y-auto custom-scrollbar relative z-10">
+      {/* ── MIDDLE: NAVIGATION SCROLL AREA ── */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto custom-scrollbar">
         
-        {/* DASHBOARD */}
-        {!isCollapsed && <p className={`${titleClass} mb-2 mt-2`}>Overview</p>}
-        <NavLink to="/admin/aptis/dashboard" className={linkClass}>
-          {({ isActive }) => (
-            <>
-              {isActive && <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2s_infinite]" />}
-              <LayoutDashboard size={20} className={`shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-orange-400'}`} />
-              {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide relative z-10">Dashboard</span>}
-            </>
-          )}
-        </NavLink>
+        {/* OVERVIEW */}
+        {!isCollapsed && <p className={sectionTitle}>Overview</p>}
+        <SidebarLink
+          to="/admin/aptis/dashboard"
+          label="Dashboard"
+          icon={LayoutDashboard}
+          isActive={location.pathname === "/admin/aptis/dashboard"}
+          isCollapsed={isCollapsed}
+          accentColor="orange"
+        />
 
-        {/* USER MANAGEMENT */}
-        {!isCollapsed && <p className={`${titleClass} mb-2 mt-6`}>User Management</p>}
-        <NavLink to="/admin/aptis/users" className={linkClass}>
-          {({ isActive }) => (
-            <>
-              {isActive && <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2s_infinite]" />}
-              <Users size={20} className={`shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-orange-400'}`} />
-              {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide relative z-10">Users</span>}
-            </>
-          )}
-        </NavLink>
+        {/* MANAGEMENT */}
+        {!isCollapsed && <p className={sectionTitle}>Management</p>}
+        <SidebarLink
+          to="/admin/aptis/users"
+          label="Users"
+          icon={Users}
+          isActive={location.pathname === "/admin/aptis/users"}
+          isCollapsed={isCollapsed}
+          accentColor="orange"
+        />
 
         {/* GRADING */}
-        {!isCollapsed && <p className={`${titleClass} mb-2 mt-6`}>Grading & Review</p>}
         <div>
-          <button onClick={toggleGrading} className={dropdownBtnClass(openGrading)}>
+          <button
+            onClick={toggleGrading}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-colors ${
+              openGrading ? "bg-zinc-800/50 text-white" : "text-zinc-400 hover:bg-zinc-800/30 hover:text-white"
+            } ${isCollapsed ? "justify-center" : "mt-1"}`}
+          >
             <div className="flex items-center gap-3">
-              <ClipboardCheck size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:text-orange-400" />
-              {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide">Grading</span>}
+              <ClipboardCheck size={18} className={openGrading ? "text-orange-400" : ""} />
+              {!isCollapsed && <span className="text-[14px]">Grading</span>}
             </div>
-            {!isCollapsed && <ChevronRight size={16} className={`transition-transform duration-300 ${openGrading ? "rotate-90 text-orange-400" : "opacity-40 group-hover:text-orange-400 group-hover:opacity-100"}`} />}
+            {!isCollapsed && (
+              <ChevronRight size={14} className={`transition-transform duration-200 ${openGrading ? "rotate-90 text-orange-400" : "opacity-0 group-hover:opacity-100"}`} />
+            )}
           </button>
 
           {!isCollapsed && openGrading && (
-            <div className="ml-5 mt-2 space-y-1 border-l border-gray-700/50 pl-4">
-              <NavLink to="/admin/aptis/submissions" end className={subLinkClass}>
-                <FileCheck size={14} className="shrink-0" /> <span className="whitespace-nowrap">Exam (Full Test)</span>
-              </NavLink>
-              <NavLink to="/admin/aptis/submissions/listening" className={subLinkClass}>
-                <Headphones size={14} className="shrink-0" /> <span className="whitespace-nowrap">Listening</span>
-              </NavLink>
-              <NavLink to="/admin/aptis/submissions/reading" className={subLinkClass}>
-                <BookMarked size={14} className="shrink-0" /> <span className="whitespace-nowrap">Reading</span>
-              </NavLink>
-              <NavLink to="/admin/aptis/submissions/grammar-vocab" className={subLinkClass}>
-                <GraduationCap size={14} className="shrink-0" /> <span className="whitespace-nowrap">Grammar &amp; Vocab</span>
-              </NavLink>
-              <NavLink to="/admin/aptis/submissions/writing" className={subLinkClass}>
-                <PenTool size={14} className="shrink-0" /> <span className="whitespace-nowrap">Writing</span>
-              </NavLink>
-              <NavLink to="/admin/aptis/submissions/speaking" className={subLinkClass}>
-                <Mic size={14} className="shrink-0" /> <span className="whitespace-nowrap">Speaking</span>
-              </NavLink>
+            <div className="ml-[1.35rem] mt-1 space-y-1 border-l border-zinc-800 pl-3 py-1">
+              <SubSidebarLink to="/admin/aptis/submissions" label="Full Test" icon={FileCheck} isActive={location.pathname === "/admin/aptis/submissions"} accentColor="orange" />
+              <SubSidebarLink to="/admin/aptis/submissions/listening" label="Listening" icon={Headphones} isActive={location.pathname === "/admin/aptis/submissions/listening"} accentColor="orange" />
+              <SubSidebarLink to="/admin/aptis/submissions/reading" label="Reading" icon={BookMarked} isActive={location.pathname === "/admin/aptis/submissions/reading"} accentColor="orange" />
+              <SubSidebarLink to="/admin/aptis/submissions/grammar-vocab" label="Grammar" icon={GraduationCap} isActive={location.pathname === "/admin/aptis/submissions/grammar-vocab"} accentColor="orange" />
+              <SubSidebarLink to="/admin/aptis/submissions/writing" label="Writing" icon={PenTool} isActive={location.pathname === "/admin/aptis/submissions/writing"} accentColor="orange" />
+              <SubSidebarLink to="/admin/aptis/submissions/speaking" label="Speaking" icon={Mic} isActive={location.pathname === "/admin/aptis/submissions/speaking"} accentColor="orange" />
             </div>
           )}
         </div>
 
-        {/* MOCK EXAMS */}
-        {!isCollapsed && <p className={`${titleClass} mb-2 mt-6`}>Mock Exams</p>}
-        <NavLink to="/admin/aptis/full-tests" className={linkClass}>
-          {({ isActive }) => (
-            <>
-              {isActive && <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2s_infinite]" />}
-              <FileText size={20} className={`shrink-0 transition-all duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-hover:text-orange-400'}`} />
-              {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide relative z-10">Full Mock Tests</span>}
-            </>
-          )}
-        </NavLink>
+        {/* EXAMS & CONTENT */}
+        {!isCollapsed && <p className={sectionTitle}>Content</p>}
+        <SidebarLink
+          to="/admin/aptis/full-tests"
+          label="Mock Exams"
+          icon={FileText}
+          isActive={location.pathname === "/admin/aptis/full-tests"}
+          isCollapsed={isCollapsed}
+          accentColor="orange"
+        />
 
-        {/* SKILLS */}
-        {!isCollapsed && <p className={`${titleClass} mb-2 mt-6`}>Skills Content</p>}
         <div>
-          <button onClick={toggleSkills} className={dropdownBtnClass(openSkills)}>
+          <button
+            onClick={toggleSkills}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-colors ${
+              openSkills ? "bg-zinc-800/50 text-white" : "text-zinc-400 hover:bg-zinc-800/30 hover:text-white"
+            } ${isCollapsed ? "justify-center" : ""}`}
+          >
             <div className="flex items-center gap-3">
-              <BookOpen size={20} className="shrink-0 group-hover:scale-110 transition-transform duration-300 group-hover:text-orange-400" />
-              {!isCollapsed && <span className="text-sm whitespace-nowrap tracking-wide">Skills Library</span>}
+              <BookOpen size={18} className={openSkills ? "text-orange-400" : ""} />
+              {!isCollapsed && <span className="text-[14px]">Skills Library</span>}
             </div>
-            {!isCollapsed && <ChevronRight size={16} className={`transition-transform duration-300 ${openSkills ? "rotate-90 text-orange-400" : "opacity-40 group-hover:text-orange-400 group-hover:opacity-100"}`} />}
+            {!isCollapsed && (
+              <ChevronRight size={14} className={`transition-transform duration-200 ${openSkills ? "rotate-90 text-orange-400" : "opacity-0 group-hover:opacity-100"}`} />
+            )}
           </button>
 
           {!isCollapsed && openSkills && (
-            <div className="ml-5 mt-2 space-y-1 border-l border-gray-700/50 pl-4">
-              {["grammar-vocab", "reading", "listening", "writing", "speaking"].map(skill => (
-                <NavLink key={skill} to={`/admin/aptis/${skill}`} className={subLinkClass}>
-                  <span className="whitespace-nowrap">
+            <div className="ml-[1.35rem] mt-1 space-y-1 border-l border-zinc-800 pl-3 py-1">
+              {["grammar-vocab", "reading", "listening", "writing", "speaking"].map((skill) => {
+                const isSkillActive = location.pathname.includes(`/admin/aptis/${skill}`);
+                return (
+                  <Link
+                    key={skill}
+                    to={`/admin/aptis/${skill}`}
+                    className={`block px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all ${
+                      isSkillActive
+                        ? "text-orange-400 bg-orange-500/10 font-semibold"
+                        : "text-zinc-400 hover:text-white hover:bg-zinc-800/30"
+                    }`}
+                  >
                     {skill.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" & ")}
-                  </span>
-                </NavLink>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
-
       </nav>
 
-      {/* LOGOUT */}
-      <div className="p-4 border-t border-slate-800/60 shrink-0 relative z-10 bg-[#0B0F19]">
+      {/* ── BOTTOM: LOGOUT ── */}
+      <div className={`p-4 border-t ${borderSidebar} shrink-0 bg-[#09090b]`}>
         <button
           onClick={logout}
-          className={`flex items-center gap-3 w-full rounded-xl transition-colors ${
-            isCollapsed ? "justify-center h-12" : "px-4 py-2.5"
-          } text-slate-400 hover:text-red-500 hover:bg-red-500/10 bg-slate-900 border border-slate-800 shadow-sm`}
+          className={`flex items-center gap-3 w-full rounded-xl transition-all ${
+            isCollapsed ? "justify-center h-11" : "px-4 py-2.5"
+          } text-zinc-400 hover:text-rose-400 hover:bg-rose-500/10 font-medium`}
         >
-          <LogOut size={18} className="shrink-0" />
-          {!isCollapsed && <span className="text-[15px] font-semibold">Sign Out</span>}
+          <LogOut size={18} />
+          {!isCollapsed && <span className="text-[14px]">Sign Out</span>}
         </button>
       </div>
-
     </aside>
+  );
+};
+
+/* =========================
+   SIDEBAR LINK COMPONENT
+========================= */
+const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed, accentColor = "indigo" }) => {
+  const activeBg = accentColor === "orange" ? "bg-orange-500" : "bg-indigo-500";
+  const activeText = accentColor === "orange" ? "text-orange-400" : "text-indigo-400";
+  
+  return (
+    <Link
+      to={to}
+      className={`group flex items-center gap-3 rounded-xl font-medium transition-all duration-200 relative ${
+        isActive 
+          ? "bg-zinc-800/80 text-white shadow-sm ring-1 ring-zinc-700/50" 
+          : "text-zinc-400 hover:bg-zinc-800/30 hover:text-white"
+      } ${isCollapsed ? "justify-center h-11 w-11 mx-auto" : "px-3 py-2.5"}`}
+    >
+      {isActive && !isCollapsed && (
+        <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 ${activeBg} rounded-r-full`} />
+      )}
+      
+      {Icon && (
+        <Icon 
+          size={18} 
+          className={`shrink-0 transition-colors ${isActive ? activeText : 'group-hover:text-zinc-300'}`} 
+        />
+      )}
+      
+      {!isCollapsed && <span className="text-[14px]">{label}</span>}
+    </Link>
+  );
+};
+
+const SubSidebarLink = ({ to, label, icon: Icon, isActive, accentColor }) => {
+  const activeBg = accentColor === "orange" ? "bg-orange-500/10" : "bg-indigo-500/10";
+  const activeText = accentColor === "orange" ? "text-orange-400" : "text-indigo-400";
+
+  return (
+    <Link
+      to={to}
+      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all ${
+        isActive
+          ? `${activeText} ${activeBg} font-semibold`
+          : "text-zinc-400 hover:text-white hover:bg-zinc-800/30"
+      }`}
+    >
+      {Icon && <Icon size={14} className="shrink-0" />}
+      <span>{label}</span>
+    </Link>
   );
 };
 

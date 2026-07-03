@@ -99,11 +99,11 @@ export default function RegisterPage() {
               <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain rounded-lg" />
             </div>
             <div>
-              <p className="text-blue-600/80 text-[10px] font-bold uppercase tracking-[0.2em]">Learning Platform</p>
+              <p className="text-blue-600/80 text-[10px] font-['Montserrat'] font-bold uppercase tracking-[0.2em]">Learning Platform</p>
             </div>
           </div>
 
-          <h2 className="text-4xl xl:text-5xl font-black text-slate-900 leading-[1.1] mb-6 tracking-tight">
+          <h2 className="text-4xl xl:text-5xl font-['Poppins'] font-semibold text-slate-900 leading-[1.1] mb-6 tracking-tight">
             Achieve Your <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
               Dream Score.
@@ -158,7 +158,7 @@ export default function RegisterPage() {
             {/* Form Container */}
             <div className="opacity-0 animate-fade-in-up animation-delay-200 bg-white/40 p-8 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white backdrop-blur-sm transition-transform duration-500 hover:scale-[1.01] hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)]">
               <div className="mb-8 text-center">
-                <h2 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">System Registration</h2>
+                <h2 className="text-2xl font-['Poppins'] font-semibold text-slate-900 mb-2 tracking-tight">System Registration</h2>
                 <p className="text-slate-500 text-sm font-medium">Create a new student profile.</p>
               </div>
 
@@ -166,13 +166,13 @@ export default function RegisterPage() {
               <div className="flex border-b border-slate-200 mb-8">
                 <Link
                   to="/login"
-                  className="flex-1 text-center py-3 text-sm font-bold border-b-2 border-transparent text-slate-400 hover:text-blue-600 transition-colors"
+                  className="flex-1 text-center py-3 text-sm font-normal border-b-2 border-transparent text-slate-400 hover:text-blue-600 transition-colors"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/register"
-                  className="flex-1 text-center py-3 text-sm font-bold border-b-2 border-blue-600 text-blue-600"
+                  className="flex-1 text-center py-3 text-sm font-normal border-b-2 border-blue-600 text-blue-600"
                 >
                   Create Account
                 </Link>
@@ -190,7 +190,7 @@ export default function RegisterPage() {
                     value={formData.full_name}
                     onChange={handleChange}
                     placeholder="John Doe"
-                    className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-medium text-slate-900 placeholder:text-slate-400"
+                    className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-normal text-slate-900 placeholder:text-slate-400"
                   />
                 </div>
 
@@ -204,7 +204,7 @@ export default function RegisterPage() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="name@example.com"
-                    className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-medium text-slate-900 placeholder:text-slate-400"
+                    className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-normal text-slate-900 placeholder:text-slate-400"
                   />
                 </div>
 
@@ -219,7 +219,7 @@ export default function RegisterPage() {
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-medium text-slate-900 placeholder:text-slate-400 tracking-widest pr-12"
+                      className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-normal text-slate-900 placeholder:text-slate-400 tracking-widest pr-12"
                     />
                     <button
                       type="button"
@@ -242,7 +242,7 @@ export default function RegisterPage() {
                       value={formData.confirm_password}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-medium text-slate-900 placeholder:text-slate-400 tracking-widest pr-12"
+                      className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-normal text-slate-900 placeholder:text-slate-400 tracking-widest pr-12"
                     />
                     <button
                       type="button"
@@ -257,7 +257,7 @@ export default function RegisterPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 text-white font-bold py-3.5 px-4 rounded-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-4 text-sm tracking-wide shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40"
+                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 text-white font-medium py-3.5 px-4 rounded-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-4 text-sm tracking-wide shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40"
                 >
                   {loading ? (
                     <div className="w-4 h-4 border-2 border-blue-200 border-t-white rounded-full animate-spin" />

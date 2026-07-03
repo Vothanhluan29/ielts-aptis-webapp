@@ -9,14 +9,12 @@ const AdminLayout = () => {
 
   const layoutProps = useAdminLayout();
 
-
   const location = useLocation();
-
 
   const isAptis = location.pathname.includes('/aptis');
 
   return (
-    <div className="flex h-screen bg-gray-50 font-sans text-gray-900 overflow-hidden">
+    <div className="flex h-screen bg-zinc-50 font-sans text-zinc-900 overflow-hidden">
 
       {isAptis ? (
         <AptisSideBar layoutProps={layoutProps} />
@@ -25,13 +23,13 @@ const AdminLayout = () => {
       )}
 
       {/* MAIN VIEWPORT */}
-      <div className="flex-1 flex flex-col overflow-hidden relative">
+      <div className="flex-1 flex flex-col overflow-hidden relative w-full">
         {/* HEADER Component */}
         <Header />
 
         {/* CONTENT AREA */}
-        <main className="flex-1 overflow-auto p-4 md:p-6 lg:p-8 bg-[#f8fafc] relative z-0">
-          <div className="max-w-[1600px] mx-auto">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10 relative z-0 custom-scrollbar">
+          <div className="w-full mx-auto max-w-[1600px]">
             <Outlet />
           </div>
         </main>

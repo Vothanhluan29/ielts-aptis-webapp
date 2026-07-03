@@ -21,7 +21,7 @@ export const useReadingManager = () => {
       setTests(data);
     } catch (error) {
       console.error("Fetch reading tests error:", error);
-      message.error("Unable to load the Reading test list.");
+      message.error('Failed to load Reading test list. Please try again!');
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,7 @@ export const useReadingManager = () => {
       fetchTests();
     } catch (error) {
       console.error("Delete test error:", error);
-      const msg = error.response?.data?.detail || "An error occurred while deleting the test.";
+      const msg = error.response?.data?.detail || 'Failed to delete test. Please try again!';
       message.error(msg);
     }
   };

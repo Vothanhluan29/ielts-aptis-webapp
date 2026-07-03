@@ -200,7 +200,7 @@ const GrammarVocabAptisListPage = () => {
                       fontSize: 12, fontWeight: 600, color: '#9ca3af',
                       background: '#f8fafc', padding: '3px 9px', borderRadius: 8
                     }}>
-                      <Clock size={11} /> {test.time_limit || 25} phút
+                      <Clock size={11} /> {test.time_limit || 25} min
                     </span>
                   </div>
                   <h3 style={{

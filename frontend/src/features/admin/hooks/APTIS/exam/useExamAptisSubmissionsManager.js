@@ -70,7 +70,7 @@ export const useExamAptisSubmissionsManager = () => {
       }
     } catch (error) {
       console.error("Fetch Error:", error);
-      message.error("Unable to load submission list!");
+      message.error('Failed to load APTIS Exam submission list. Please try again!');
     } finally {
       setLoading(false);
     }

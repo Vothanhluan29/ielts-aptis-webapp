@@ -9,7 +9,8 @@ import {
   Typography,
   Card,
   Spin,
-  Empty
+  Empty,
+  Popconfirm
 } from 'antd';
 
 import {
@@ -118,25 +119,32 @@ const UserManagement = () => {
       title: 'Status',
       key: 'status',
       render: (_, user) => (
-        <Button
-          type="text"
-          className="font-bold transition-transform hover:scale-105"
-          style={{ color: user.is_active ? STATUS_COLOR.active : STATUS_COLOR.inactive }}
-          icon={
-            user.is_active ? (
-              <CheckCircleOutlined />
-            ) : (
-              <CloseCircleOutlined />
-            )
-          }
-          onClick={() =>
+        <Popconfirm
+          title={user.is_active ? "Suspend User" : "Activate User"}
+          description={`Are you sure you want to ${user.is_active ? 'suspend' : 'activate'} this user?`}
+          onConfirm={() =>
             handleUpdateUser(user.id, {
               is_active: !user.is_active
             })
           }
+          okText="Yes"
+          cancelText="No"
         >
-          {user.is_active ? 'Active' : 'Suspended'}
-        </Button>
+          <Button
+            type="text"
+            className="font-bold transition-transform hover:scale-105"
+            style={{ color: user.is_active ? STATUS_COLOR.active : STATUS_COLOR.inactive }}
+            icon={
+              user.is_active ? (
+                <CheckCircleOutlined />
+              ) : (
+                <CloseCircleOutlined />
+              )
+            }
+          >
+            {user.is_active ? 'Active' : 'Suspended'}
+          </Button>
+        </Popconfirm>
       )
     },
 
@@ -145,13 +153,21 @@ const UserManagement = () => {
       key: 'actions',
       align: 'right',
       render: (_, user) => (
-        <Button
-          danger
-          type="text"
-          icon={<DeleteOutlined />}
-          onClick={() => handleDeleteUser(user.id)}
-          className="rounded-lg hover:bg-red-50 hover:scale-110 transition-all duration-200"
-        />
+        <Popconfirm
+          title="Delete User"
+          description="Are you sure you want to delete this user? This action cannot be undone."
+          onConfirm={() => handleDeleteUser(user.id)}
+          okText="Yes"
+          cancelText="No"
+          placement="left"
+        >
+          <Button
+            danger
+            type="text"
+            icon={<DeleteOutlined />}
+            className="rounded-lg hover:bg-red-50 hover:scale-110 transition-all duration-200"
+          />
+        </Popconfirm>
       )
     }
   ];

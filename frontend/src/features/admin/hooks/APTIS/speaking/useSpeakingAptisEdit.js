@@ -100,7 +100,7 @@ export const useSpeakingAptisEdit = () => {
       });
 
     } catch (error) {
-      message.error('Failed to load test data!', error.message);
+      message.error('Failed to load Speaking test data. Please try again!');
       navigate('/admin/aptis/speaking');
     } finally {
       setLoading(false);
@@ -143,7 +143,7 @@ export const useSpeakingAptisEdit = () => {
       }
       navigate('/admin/aptis/speaking');
     } catch (error) {
-      message.error('Save failed! Please check the required fields.', error.message);
+      message.error(error.response?.data?.detail || 'Failed to save the test. Please try again!');
     } finally {
       setSubmitting(false);
     }

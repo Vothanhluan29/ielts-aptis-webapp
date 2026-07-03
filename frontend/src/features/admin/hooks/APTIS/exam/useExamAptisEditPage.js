@@ -73,7 +73,7 @@ export const useExamAptisEditPage = (id, form, navigate) => {
         }
       } catch (error) {
         console.error('Initialization error:', error);
-        message.error('Unable to load test structure data!');
+        message.error('Failed to load APTIS Exam data. Please try again!');
       } finally {
         setLoading(false);
       }
@@ -104,7 +104,7 @@ export const useExamAptisEditPage = (id, form, navigate) => {
       console.error('Save error:', error);
       message.error(
         error.response?.data?.detail ||
-          'An error occurred while saving data. Please try again!'
+          'Failed to save the exam. Please try again!'
       );
     } finally {
       setSaving(false);

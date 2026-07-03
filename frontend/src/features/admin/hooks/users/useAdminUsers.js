@@ -18,7 +18,7 @@ export const useAdminUsers = () => {
       setTotalUsers(response.total || 0);
     } catch (error) {
       console.error("Fetch users error:", error);
-      message.error("Failed to load user list");
+      message.error("Failed to load user list. Please try again!");
     } finally {
       setLoading(false);
     }
@@ -33,7 +33,7 @@ export const useAdminUsers = () => {
     try {
       await adminUserApi.updateUserByAdmin(userId, updateData);
       hide();
-      message.success('Update successful');
+      message.success('User information updated successfully!');
 
       setUsers(prev =>
         prev.map(u =>
@@ -42,18 +42,17 @@ export const useAdminUsers = () => {
       );
     } catch (error) {
       hide();
-      message.error('Update failed', error);
+      console.error('Update user error:', error);
+      message.error(error.response?.data?.detail || 'Failed to update user information. Please try again!');
     }
   };
 
   const handleDeleteUser = async (userId) => {
-    if (!window.confirm('This action cannot be undone. Are you sure you want to delete this user?')) return;
-
     const hide = message.loading('Deleting...', 0);
     try {
       await adminUserApi.deleteUserByAdmin(userId);
       hide();
-      message.success('User deleted');
+      message.success('User deleted successfully!');
 
       if (users.length === 1 && currentPage > 1) {
         setCurrentPage(prev => prev - 1);
@@ -62,7 +61,8 @@ export const useAdminUsers = () => {
       }
     } catch (error) {
       hide();
-      message.error('Error deleting user', error);
+      console.error('Delete user error:', error);
+      message.error(error.response?.data?.detail || 'Failed to delete user. Please try again!');
     }
   };
 

@@ -113,7 +113,7 @@ export const useWritingAptisEdit = () => {
             parts: mergedParts
           });
         } catch (error) {
-          message.error('Failed to load test data!', error);
+          message.error('Failed to load Writing test data. Please try again!');
           navigate('/admin/aptis/writing');
         } finally {
           setLoading(false);
@@ -140,7 +140,7 @@ export const useWritingAptisEdit = () => {
       }
       navigate('/admin/aptis/writing');
     } catch (error) {
-      message.error('Save failed! Please check all required fields.');
+      message.error(error.response?.data?.detail || 'Failed to save the test. Please try again!');
       console.error(error);
     } finally {
       setSubmitting(false);

@@ -62,7 +62,7 @@ export const useSpeakingSubmissionList = () => {
       }
     } catch (error) {
       console.error("Error loading submission list:", error);
-      message.error("Unable to load submission data!");
+      message.error('Failed to load Speaking submission list. Please try again!');
     } finally {
       setLoading(false);
     }

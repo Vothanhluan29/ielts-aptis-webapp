@@ -17,7 +17,7 @@ export const useSpeakingManager = () => {
       setTests(data);
     } catch (error) {
       console.error("Fetch speaking tests error:", error);
-      message.error("Failed to load speaking test list.");
+      message.error('Failed to load Speaking test list. Please try again!');
     } finally {
       setLoading(false);
     }
@@ -38,7 +38,7 @@ export const useSpeakingManager = () => {
       setTests(prev => prev.filter(t => t.id !== id));
     } catch (error) {
       console.error("Delete speaking test error:", error);
-      const errorMsg = error.response?.data?.detail || "Error while deleting the test.";
+      const errorMsg = error.response?.data?.detail || 'Failed to delete test. Please try again!';
       message.error(errorMsg);
     }
   };

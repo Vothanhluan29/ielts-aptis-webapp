@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { Form, Input, Button, Select, InputNumber } from 'antd';
 import { DeleteOutlined } from '@ant-design/icons';
 
@@ -46,8 +46,15 @@ const QuestionCard = ({ field, remove, namePath, module = 'reading' }) => {
     return [...namePath, field.name, 'question_type'];
   }, [namePath, field.name]);
 
-  const currentType = Form.useWatch(typePath, form);
+  // ✅ FIX #3: Dùng local state thay vì Form.useWatch — tránh 40 useWatch instances chạy song song.
+  // Giá trị khởi tạo lấy từ form store (hỗ trợ edit mode).
+  const [currentType, setCurrentType] = useState(
+    () => form.getFieldValue(typePath) || 'MULTIPLE_CHOICE'
+  );
 
+  const handleTypeChange = useCallback((newType) => {
+    setCurrentType(newType);
+  }, []);
 
   const currentOptions = module === 'listening' ? LISTENING_TYPES : READING_TYPES;
 
@@ -104,7 +111,8 @@ const QuestionCard = ({ field, remove, namePath, module = 'reading' }) => {
           <Select 
             options={currentOptions} 
             placeholder="Select question type" 
-            size="large" 
+            size="large"
+            onChange={handleTypeChange}
           />
         </Form.Item>
 

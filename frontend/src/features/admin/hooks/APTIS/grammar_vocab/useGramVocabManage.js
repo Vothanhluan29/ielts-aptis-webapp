@@ -25,7 +25,7 @@ export const useGramVocabManage = () => {
       
     } catch (error) {
       console.error('Error loading tests:', error);
-      message.error('Failed to load test list!');
+      message.error('Failed to load Grammar & Vocabulary test list. Please try again!');
     } finally {
       setLoading(false);
     }
@@ -51,9 +51,9 @@ export const useGramVocabManage = () => {
       fetchTests(); 
     } catch (error) {
       if (error.response && error.response.status === 400) {
-        message.error(error.response.data.detail || 'Unable to delete this test as it is currently in use.');
+        message.error(error.response.data.detail || 'This test is currently in use and cannot be deleted.');
       } else {
-        message.error('Failed to delete test!');
+        message.error(error.response?.data?.detail || 'Failed to delete test. Please try again!');
       }
     }
   };
