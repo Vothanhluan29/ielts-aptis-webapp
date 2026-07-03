@@ -55,21 +55,21 @@ const ExamAptisHistoryPage = () => {
 
           {/* Mini Stats */}
           {stats && (
-            <div className="flex flex-wrap md:flex-nowrap bg-slate-50 rounded-2xl border border-slate-100 relative z-10 overflow-hidden">
-              <div className="p-4 px-5 text-center flex-1 border-r border-slate-100">
-                <Text className="block text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1">Total</Text>
+            <div className="flex flex-wrap md:flex-nowrap bg-slate-50 rounded-2xl border border-slate-100 relative z-10 overflow-hidden shrink-0">
+              <div className="p-4 px-4 md:px-5 text-center flex-1 border-r border-slate-100">
+                <Text className="block text-[10px] uppercase tracking-wider font-bold text-slate-400 mb-1 whitespace-nowrap">Total</Text>
                 <Text className="text-xl font-black text-slate-800">{stats.total || 0}</Text>
               </div>
-              <div className="p-4 px-5 text-center flex-1 border-r border-slate-100 bg-emerald-50/30">
-                <Text className="block text-[10px] uppercase tracking-wider font-bold text-emerald-600 mb-1">Completed</Text>
+              <div className="p-4 px-4 md:px-5 text-center flex-1 border-r border-slate-100 bg-emerald-50/30">
+                <Text className="block text-[10px] uppercase tracking-wider font-bold text-emerald-600 mb-1 whitespace-nowrap">Completed</Text>
                 <Text className="text-xl font-black text-emerald-700">{stats.completed || 0}</Text>
               </div>
-              <div className="p-4 px-5 text-center flex-1 border-r border-slate-100 bg-amber-50/30">
-                <Text className="block text-[10px] uppercase tracking-wider font-bold text-amber-600 mb-1">Pending</Text>
+              <div className="p-4 px-4 md:px-5 text-center flex-1 border-r border-slate-100 bg-amber-50/30">
+                <Text className="block text-[10px] uppercase tracking-wider font-bold text-amber-600 mb-1 whitespace-nowrap">Pending</Text>
                 <Text className="text-xl font-black text-amber-600">{stats.pending || 0}</Text>
               </div>
-              <div className="p-4 px-5 text-center flex-1 bg-slate-100/50">
-                <Text className="block text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1">In Progress</Text>
+              <div className="p-4 px-4 md:px-5 text-center flex-1 bg-slate-100/50">
+                <Text className="block text-[10px] uppercase tracking-wider font-bold text-slate-500 mb-1 whitespace-nowrap">In Progress</Text>
                 <Text className="text-xl font-black text-slate-600">{stats.inProgress || 0}</Text>
               </div>
             </div>
