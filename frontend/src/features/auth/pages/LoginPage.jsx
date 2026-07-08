@@ -17,8 +17,17 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (errors[e.target.name] || errors.submit) {
+      const newErrors = { ...errors };
+      delete newErrors[e.target.name];
+      delete newErrors.submit;
+      setErrors(newErrors);
+    }
+  };
 
   const redirect = async () => {
     try {
@@ -33,6 +42,25 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const newErrors = {};
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+    setErrors({});
+
     setLoading(true);
     const tid = toast.loading('Authenticating...');
     try {
@@ -40,8 +68,10 @@ export default function LoginPage() {
       localStorage.setItem('access_token', res.access_token);
       toast.success('Access granted.', { id: tid });
       await redirect();
-    } catch {
-      toast.error('Invalid credentials.', { id: tid });
+    } catch (err) {
+      const errorMsg = err.response?.data?.detail || 'Invalid email or password.';
+      toast.error(errorMsg, { id: tid });
+      setErrors((prev) => ({ ...prev, submit: errorMsg }));
     } finally {
       setLoading(false);
     }
@@ -155,7 +185,13 @@ export default function LoginPage() {
                 </Link>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              {errors.submit && (
+                <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm text-center font-medium animate-fade-in-up">
+                  {errors.submit}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Email Address</label>
                   <input
@@ -166,8 +202,9 @@ export default function LoginPage() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="name@example.com"
-                    className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-normal text-slate-900 placeholder:text-slate-400"
+                    className={`w-full px-4 py-3 rounded-lg bg-slate-50 border ${errors.email ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/20'} focus:bg-white focus:ring-2 outline-none transition-all disabled:opacity-50 text-sm font-normal text-slate-900 placeholder:text-slate-400`}
                   />
+                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
 
                 <div>
@@ -181,7 +218,7 @@ export default function LoginPage() {
                       value={formData.password}
                       onChange={handleChange}
                       placeholder="••••••••"
-                      className="w-full px-4 py-3 rounded-lg bg-slate-50 border border-slate-200 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all disabled:opacity-50 text-sm font-normal text-slate-900 placeholder:text-slate-400 tracking-widest pr-12"
+                      className={`w-full px-4 py-3 rounded-lg bg-slate-50 border ${errors.password ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/20'} focus:bg-white focus:ring-2 outline-none transition-all disabled:opacity-50 text-sm font-normal text-slate-900 placeholder:text-slate-400 tracking-widest pr-12`}
                     />
                     <button
                       type="button"
@@ -191,6 +228,7 @@ export default function LoginPage() {
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
+                  {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
                 </div>
 
                 <button
