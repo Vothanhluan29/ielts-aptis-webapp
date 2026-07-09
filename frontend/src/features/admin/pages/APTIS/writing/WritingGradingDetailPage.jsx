@@ -41,6 +41,45 @@ const WritingGradingDetailPage = () => {
 
   if (loading) return <div className="flex h-screen items-center justify-center bg-gray-50"><Spin size="large" /></div>;
 
+  const parsedUserAnswers = safeParseAnswers(submission?.user_answers);
+  const processedParts = submission?.test?.parts?.map((part) => {
+    const partKey = `part_${part.part_number}`;
+    const rawPartData = parsedUserAnswers[partKey] || "";
+    let decodedPartAnswers;
+    try {
+      decodedPartAnswers = JSON.parse(rawPartData);
+    } catch {
+      decodedPartAnswers = rawPartData; 
+    }
+
+    const questions = part.questions?.map((q, qIndex) => {
+      let finalAnswer = "";
+      let isScenario = false;
+      
+      if (part.part_type === 'PART_4' || q.sub_type === 'scenario' || q.sub_type === 'informal' || q.sub_type === 'formal') {
+        if (q.sub_type === 'scenario') {
+          isScenario = true;
+        } else if (q.sub_type === 'informal') {
+          finalAnswer = typeof decodedPartAnswers === 'object' && decodedPartAnswers !== null ? (decodedPartAnswers.informal || "") : "";
+        } else if (q.sub_type === 'formal') {
+          finalAnswer = typeof decodedPartAnswers === 'object' && decodedPartAnswers !== null ? (decodedPartAnswers.formal || "") : "";
+        } else {
+          if (qIndex === 0) isScenario = true;
+          else if (qIndex === 1) finalAnswer = decodedPartAnswers?.informal || "";
+          else if (qIndex === 2) finalAnswer = decodedPartAnswers?.formal || "";
+        }
+      } else if (Array.isArray(decodedPartAnswers)) {
+        finalAnswer = decodedPartAnswers[qIndex] || "";
+      } else {
+        finalAnswer = decodedPartAnswers || "";
+      }
+      return { ...q, finalAnswer, isScenario };
+    });
+
+    return { ...part, questions };
+  }) || [];
+
+
   return (
     <div className="p-4 bg-gray-50 min-h-screen">
       {/* COMPACT HEADER */}
@@ -84,88 +123,49 @@ const WritingGradingDetailPage = () => {
         {/* TEST QUESTIONS & STUDENT ANSWERS */}
         <Col xs={24} lg={13}>
           <div className="space-y-4">
-            {(() => {
-              // Parse Object bọc ngoài cùng (part_1, part_2...)
-              const parsedUserAnswers = safeParseAnswers(submission?.user_answers);
+            {processedParts.map((part, index) => {
+              const colorKeys = ['blue', 'green', 'orange', 'purple', 'rose'];
+              const theme = themeColors[colorKeys[index % 5]];
 
-              return submission?.test?.parts?.map((part, index) => {
-                const colorKeys = ['blue', 'green', 'orange', 'purple', 'rose'];
-                const theme = themeColors[colorKeys[index % 5]];
+              return (
+                <Card
+                  key={part.id}
+                  size="small"
+                  className={`shadow-sm border-gray-200 rounded-lg border-l-4 ${theme.leftBorder}`}
+                  title={<Text strong className={theme.text}>Part {part.part_number}: {part.part_type}</Text>}
+                >
+                  <Text type="secondary" italic className="block mb-3 text-sm">
+                    {part.instruction}
+                  </Text>
 
-                // 🔥 BỘ GIẢI MÃ: Parse đáp án của từng Part (Lớp 2)
-                const partKey = `part_${part.part_number}`;
-                const rawPartData = parsedUserAnswers[partKey] || "";
-                let decodedPartAnswers;
-                try {
-                  decodedPartAnswers = JSON.parse(rawPartData);
-                } catch {
-                  decodedPartAnswers = rawPartData; // Fallback nếu nó là chuỗi thuần (như part_2)
-                }
+                  <div className="space-y-3">
+                    {part.questions?.map((q, qIndex) => {
+                      const finalAnswer = q.finalAnswer;
+                      const isScenario = q.isScenario;
+                      const wordCount = finalAnswer ? finalAnswer.trim().split(/\s+/).length : 0;
 
-                return (
-                  <Card
-                    key={part.id}
-                    size="small"
-                    className={`shadow-sm border-gray-200 rounded-lg border-l-4 ${theme.leftBorder}`}
-                    title={<Text strong className={theme.text}>Part {part.part_number}: {part.part_type}</Text>}
-                  >
-                    <Text type="secondary" italic className="block mb-3 text-sm">
-                      {part.instruction}
-                    </Text>
-
-                    <div className="space-y-3">
-                      {part.questions?.map((q, qIndex) => {
-                        
-                        // 🔥 BỘ GIẢI MÃ: Khớp vị trí câu hỏi với dữ liệu vừa giải mã
-                        let finalAnswer = "";
-                        let isScenario = false;
-                        
-                        if (part.part_type === 'PART_4' || q.sub_type === 'scenario' || q.sub_type === 'informal' || q.sub_type === 'formal') {
-                          if (q.sub_type === 'scenario') {
-                            isScenario = true;
-                          } else if (q.sub_type === 'informal') {
-                            finalAnswer = typeof decodedPartAnswers === 'object' && decodedPartAnswers !== null ? (decodedPartAnswers.informal || "") : "";
-                          } else if (q.sub_type === 'formal') {
-                            finalAnswer = typeof decodedPartAnswers === 'object' && decodedPartAnswers !== null ? (decodedPartAnswers.formal || "") : "";
-                          } else {
-                            // Fallback if sub_type is missing in older data
-                            if (qIndex === 0) isScenario = true;
-                            else if (qIndex === 1) finalAnswer = decodedPartAnswers?.informal || "";
-                            else if (qIndex === 2) finalAnswer = decodedPartAnswers?.formal || "";
-                          }
-                        } else if (Array.isArray(decodedPartAnswers)) {
-                          // Nếu là mảng (như Part 1, Part 3) -> Lấy theo vị trí index
-                          finalAnswer = decodedPartAnswers[qIndex] || "";
-                        } else {
-                          // Nếu là chuỗi trơn (như Part 2)
-                          finalAnswer = decodedPartAnswers || "";
-                        }
-
-                        const wordCount = finalAnswer ? finalAnswer.trim().split(/\s+/).length : 0;
-
-                        return (
-                          <div key={q.id || qIndex} className={`p-3 border rounded-lg ${theme.bg} ${theme.border}`}>
-                            <Text strong className={`text-sm block mb-1 ${theme.text}`}>{q.question_text}</Text>
-                            {!isScenario && (
-                              <>
-                                <div className="p-2 bg-white border border-gray-200 rounded min-h-12.5 whitespace-pre-wrap text-sm text-gray-800">
-                                  {finalAnswer || <Text type="danger" italic>Student left this blank</Text>}
-                                </div>
-                                <div className="mt-1 text-right">
-                                  <Text type="secondary" className="text-[11px] font-medium">
-                                    Word Count: <span className={wordCount === 0 ? "text-red-500" : "text-green-600"}>{wordCount}</span>
-                                  </Text>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </Card>
-                );
-              });
-            })()}
+                      return (
+                        <div key={q.id || qIndex} className={`p-3 border rounded-lg ${theme.bg} ${theme.border}`}>
+                          <Text strong className={`text-sm block mb-1 ${theme.text}`}>{q.question_text}</Text>
+                          {!isScenario && (
+                            <>
+                              <div className="p-2 bg-white border border-gray-200 rounded min-h-12.5 whitespace-pre-wrap text-sm text-gray-800">
+                                {finalAnswer || <Text type="danger" italic>Student left this blank</Text>}
+                              </div>
+                              <div className="mt-1 text-right">
+                                <Text type="secondary" className="text-[11px] font-medium">
+                                  Word Count: <span className={wordCount === 0 ? "text-red-500" : "text-green-600"}>{wordCount}</span>
+                                </Text>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+              );
+            })}
           </div>
         </Col>
 
@@ -259,6 +259,7 @@ const WritingGradingDetailPage = () => {
         onCopy={() => {
           // It's already copied to clipboard inside AISuggestionModal.
         }} 
+        partsData={processedParts}
       />
     </div>
   );
