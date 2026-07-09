@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useReadingExam } from '../../../hooks/IELTS/reading/useReadingExam';
-import { Clock, Send, BookOpen, ChevronRight, ChevronLeft, Highlighter, ArrowRight, ArrowLeft } from 'lucide-react'; 
+import { Clock, Send, BookOpen, ChevronRight, ChevronLeft, ArrowRight, ArrowLeft } from 'lucide-react'; 
 
 import StudentQuestionDisplay from '../../../components/IELTS/Question Display/StudentQuestionDisplay'; 
 
@@ -75,10 +75,6 @@ const ReadingExamPage = ({ testId, onFinish }) => {
           </div>
 
           <div className="flex items-center gap-8">
-            <button className="flex items-center gap-2 hover:bg-white/10 px-3 py-1.5 rounded-lg border border-transparent hover:border-white/30 transition-all text-sm font-semibold">
-              <Highlighter size={16} />
-              Highlight
-            </button>
             <div className={`flex items-center gap-2 font-bold text-xl bg-white/10 px-4 py-1.5 rounded-lg ${isTimeWarning ? 'text-red-300 animate-pulse' : 'text-white'}`}>
               <Clock size={20} /> 
               {formatTime(timeLeft)}
@@ -102,7 +98,7 @@ const ReadingExamPage = ({ testId, onFinish }) => {
                 </div>
 
                 <div 
-                  className="text-[15px] text-justify font-sans leading-relaxed text-slate-700 whitespace-pre-wrap"
+                  className="text-[15px] text-justify font-sans leading-relaxed text-slate-700 whitespace-pre-wrap selection:bg-blue-100"
                   dangerouslySetInnerHTML={{ __html: currentPassage.content }}
                 />
               </div>
