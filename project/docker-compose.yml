@@ -1,0 +1,54 @@
+services:
+  db:
+    image: vothanhluan/ielts-aptis-db:latest
+    build:
+      context: ../postgres_init
+      dockerfile: Dockerfile
+    container_name: ielts_aptis_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "123456"
+      POSTGRES_DB: ielts_platform
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    restart: unless-stopped
+
+  backend:
+    image: vothanhluan/ielts-aptis-backend:latest
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: ielts_aptis_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:123456@db:5432/ielts_platform
+      - SECRET_KEY=thay_doi_key_nay_de_bao_mat_hon_nhe
+      - ACCESS_TOKEN_EXPIRE_MINUTES=1200
+      - GEMINI_API_KEY=AIzaSyD_4xJgfBY56qdbEiO-hGgTnmtWCXEU4S0
+      - GOOGLE_CLIENT_ID=694070636684-5t0s4cbp3luge9hmgoju87qj6lr50ac0.apps.googleusercontent.com
+      - CLOUDINARY_CLOUD_NAME=dfjpu4ly3
+      - CLOUDINARY_API_KEY=539492116951978
+      - CLOUDINARY_API_SECRET=sOhb0cBDiOYHWXVilhuhcDuWOF8
+      - USE_CLOUDINARY=True
+      - BASE_URL=http://localhost:8000
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    image: vothanhluan/ielts-aptis-frontend:latest
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: ielts_aptis_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
