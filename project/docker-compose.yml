@@ -27,7 +27,7 @@ services:
       - CLOUDINARY_API_KEY=539492116951978
       - CLOUDINARY_API_SECRET=sOhb0cBDiOYHWXVilhuhcDuWOF8
       - USE_CLOUDINARY=True
-      - BASE_URL=http://localhost:8000
+      - BASE_URL=https://english.greenwich-it.com
     depends_on:
       - db
     restart: unless-stopped
