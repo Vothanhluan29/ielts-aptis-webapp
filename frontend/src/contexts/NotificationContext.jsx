@@ -29,7 +29,7 @@ export const NotificationProvider = ({ children }) => {
     if (!token) return;
 
     // Use environment variable or default to localhost
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000';
+    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/api';
     const ws = new WebSocket(`${wsUrl}/notifications/ws?token=${token}`);
 
     ws.onmessage = (event) => {

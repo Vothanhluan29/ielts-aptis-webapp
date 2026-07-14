@@ -14,6 +14,7 @@ services:
     restart: unless-stopped
 
   backend:
+    image: vothanhluan/ielts-aptis-backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -29,6 +30,7 @@ services:
     restart: unless-stopped
 
   frontend:
+    image: vothanhluan/ielts-aptis-frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile

@@ -81,7 +81,8 @@ app.add_middleware(
         "http://localhost:5173",                       
         "http://localhost",
         "http://127.0.0.1",
-        "https://ielts-aptis-frontend.onrender.com"    
+        "https://ielts-aptis-frontend.onrender.com",
+        "https://english.greenwich-it.com"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -111,39 +112,43 @@ print(f"Static Directory mounted at: {static_dir}")
 # 6. Register Routers 
 # ==========================================
 
+api_router = APIRouter(prefix="/api")
+
 # --- Core & System ---
-app.include_router(auth_web.router)
-app.include_router(users_web.router)
-app.include_router(user_stats_web.router)
-app.include_router(admin_web.router)
-app.include_router(subscriptions_web.router)
-app.include_router(notifications_web.router)
+api_router.include_router(auth_web.router)
+api_router.include_router(users_web.router)
+api_router.include_router(user_stats_web.router)
+api_router.include_router(admin_web.router)
+api_router.include_router(subscriptions_web.router)
+api_router.include_router(notifications_web.router)
 
 # --- IELTS ---
-app.include_router(reading_web.router)
-app.include_router(listening_web.router)
-app.include_router(writing_web.router)
-app.include_router(speaking_web.router)
-app.include_router(exam_web.router)
+api_router.include_router(reading_web.router)
+api_router.include_router(listening_web.router)
+api_router.include_router(writing_web.router)
+api_router.include_router(speaking_web.router)
+api_router.include_router(exam_web.router)
 
 # --- APTIS ---
-app.include_router(aptis_grammar_vocab_web.router)
-app.include_router(aptis_listening_web.router)
-app.include_router(aptis_reading_web.router)
-app.include_router(aptis_writing_web.router)
-app.include_router(aptis_speaking_web.router)
-app.include_router(aptis_exam_web.router) 
-app.include_router(aptis_user_stats_web.router)
+api_router.include_router(aptis_grammar_vocab_web.router)
+api_router.include_router(aptis_listening_web.router)
+api_router.include_router(aptis_reading_web.router)
+api_router.include_router(aptis_writing_web.router)
+api_router.include_router(aptis_speaking_web.router)
+api_router.include_router(aptis_exam_web.router) 
+api_router.include_router(aptis_user_stats_web.router)
+
+app.include_router(api_router)
 
 
 # ==========================================
 # 7. Health Check
 # ==========================================
-@app.get("/", tags=["System"])
+@app.get("/api/", tags=["System"])
 def root():
     return {"status": "ok", "message": f"{settings.PROJECT_NAME} System Ready!"}
 
-@app.get("/health", tags=["System"])
+@app.get("/api/health", tags=["System"])
 def health_check():
     return {
         "status": "healthy",

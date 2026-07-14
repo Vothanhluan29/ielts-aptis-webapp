@@ -1,9 +1,6 @@
 services:
   db:
     image: vothanhluan/ielts-aptis-db:latest
-    build:
-      context: ../postgres_init
-      dockerfile: Dockerfile
     container_name: ielts_aptis_db
     environment:
       POSTGRES_USER: postgres
@@ -17,15 +14,12 @@ services:
 
   backend:
     image: vothanhluan/ielts-aptis-backend:latest
-    build:
-      context: ../backend
-      dockerfile: Dockerfile
     container_name: ielts_aptis_backend
     ports:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://postgres:123456@db:5432/ielts_platform
-      - SECRET_KEY=thay_doi_key_nay_de_bao_mat_hon_nhe
+      - SECRET_KEY=9b7c2a1d4f8e6c5a3b2d1f0e9c8b7a6d5f4e3c2b1a0d9e8f7c6b5a4d3c2b1a0f
       - ACCESS_TOKEN_EXPIRE_MINUTES=1200
       - GEMINI_API_KEY=AIzaSyD_4xJgfBY56qdbEiO-hGgTnmtWCXEU4S0
       - GOOGLE_CLIENT_ID=694070636684-5t0s4cbp3luge9hmgoju87qj6lr50ac0.apps.googleusercontent.com
@@ -40,9 +34,6 @@ services:
 
   frontend:
     image: vothanhluan/ielts-aptis-frontend:latest
-    build:
-      context: ../frontend
-      dockerfile: Dockerfile
     container_name: ielts_aptis_frontend
     ports:
       - "80:80"

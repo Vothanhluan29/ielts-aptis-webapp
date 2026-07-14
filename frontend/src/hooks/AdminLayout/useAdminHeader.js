@@ -22,7 +22,7 @@ export const useAdminHeader = () => {
 
   const checkHealth = useCallback(async () => {
     try {
-      await axios.get(`${import.meta.env.VITE_API_URL}/health`);
+      await axios.get(`${import.meta.env.VITE_API_BASE_URL}/health`);
       if (isMounted.current) {
         setIsBackendHealthy(true);
       }
