@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.modules.users import schemas
 from app.modules.users.service import UserService
-from app.core.dependencies import get_current_user, get_admin_user
+from app.core.dependencies import get_current_user, get_admin_user, get_aptis_manager_user
 from app.core.database import get_db
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -51,7 +51,7 @@ def get_all_users_by_admin(
     skip: int = 0, 
     limit: int = 10, 
     db: Session = Depends(get_db),
-    admin_user = Depends(get_admin_user) 
+    manager = Depends(get_aptis_manager_user) 
 ):
     return UserService.get_all(db, skip=skip, limit=limit)
 
@@ -59,7 +59,7 @@ def get_all_users_by_admin(
 def get_user_by_admin(
     user_id: int,
     db: Session = Depends(get_db),
-    admin_user = Depends(get_admin_user)
+    manager = Depends(get_aptis_manager_user)
 ):
    
     user = UserService.get_by_id(db, user_id)

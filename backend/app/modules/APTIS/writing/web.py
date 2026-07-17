@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, get_admin_user
+from app.core.dependencies import get_current_user, get_aptis_manager_user
 
 from app.modules.APTIS.writing import schemas
 from app.modules.APTIS.writing.services.test_service import AptisWritingTestService
@@ -24,7 +24,7 @@ def get_tests_for_admin(
     limit: int = 100,
     is_mock_selector: bool = Query(False),
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     return AptisWritingTestService.get_all_tests(
         db, skip=skip, limit=limit, admin_view=True, fetch_mock_only=is_mock_selector
@@ -35,7 +35,7 @@ def get_tests_for_admin(
 def get_test_detail_for_admin(
     test_id: int,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     test = AptisWritingTestService.get_test_detail(db, test_id)
     if not test:
@@ -47,7 +47,7 @@ def get_test_detail_for_admin(
 def create_test(
     test_in: schemas.WritingTestCreate,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     try:
         return AptisWritingTestService.create_test(db, test_in)
@@ -61,7 +61,7 @@ def update_test(
     test_id: int,
     test_in: schemas.WritingTestUpdate,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     try:
         test = AptisWritingTestService.update_test(db, test_id, test_in)
@@ -77,7 +77,7 @@ def update_test(
 def delete_test(
     test_id: int,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     try:
         if not AptisWritingTestService.delete_test(db, test_id):
@@ -116,7 +116,7 @@ def get_test_detail_public(
     if not test:
         raise HTTPException(status_code=404, detail="Test not found")
 
-    is_admin = str(getattr(current_user, "role", "")).upper() == "ADMIN"
+    is_admin = str(getattr(current_user, "role", "")).upper() in ["ADMIN", "TEACHER"]
     if not test.is_published and not is_admin and not test.is_full_test_only:
         raise HTTPException(status_code=403, detail="This test has not been published yet.")
 
@@ -154,7 +154,7 @@ def get_submission_detail(
     if not sub:
         raise HTTPException(status_code=404, detail="Submission not found")
 
-    is_admin = str(getattr(user, "role", "")).upper() == "ADMIN"
+    is_admin = str(getattr(user, "role", "")).upper() in ["ADMIN", "TEACHER"]
     if not is_admin and sub.user_id != user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
@@ -172,7 +172,7 @@ def admin_get_all_submissions(
     status: Optional[schemas.SubmissionStatus] = Query(None),
     is_full_test_only: Optional[bool] = Query(False),
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     return AptisWritingSubmissionService.get_all_submissions_for_admin(db, skip, limit, is_full_test_only, status)
 
@@ -181,7 +181,7 @@ def admin_get_all_submissions(
 def admin_get_user_submissions(
     user_id: int,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     return AptisWritingSubmissionService.get_user_history_for_admin(db, user_id)
 
@@ -191,7 +191,7 @@ def admin_grade_submission(
     submission_id: int,
     req: schemas.WritingGradeRequest,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     sub = AptisWritingSubmissionService.grade_submission(db, submission_id, admin.id, req)
     if not sub:
@@ -201,7 +201,7 @@ def admin_grade_submission(
 @router.post("/admin/ai-suggest")
 def admin_ai_suggest(
     req: schemas.AISuggestionRequest,
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     try:
         result = suggestion_service.get_suggestion(req.text, req.part_context)

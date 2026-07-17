@@ -19,26 +19,26 @@ import {
 } from "lucide-react";
 
 const AptisSideBar = ({ layoutProps }) => {
-  const { isCollapsed, toggleSidebar, logout } = layoutProps;
+  const { isCollapsed, toggleSidebar, logout, basePath = "/admin/aptis" } = layoutProps;
   const location = useLocation();
 
   const [openSkills, setOpenSkills] = useState(
-    location.pathname.includes("/admin/aptis/reading") ||
-    location.pathname.includes("/admin/aptis/listening") ||
-    location.pathname.includes("/admin/aptis/writing") ||
-    location.pathname.includes("/admin/aptis/speaking") ||
-    location.pathname.includes("/admin/aptis/grammar-vocab")
+    location.pathname.includes(`${basePath}/reading`) ||
+    location.pathname.includes(`${basePath}/listening`) ||
+    location.pathname.includes(`${basePath}/writing`) ||
+    location.pathname.includes(`${basePath}/speaking`) ||
+    location.pathname.includes(`${basePath}/grammar-vocab`)
   );
 
   const [openGrading, setOpenGrading] = useState(
-    location.pathname.includes("/admin/aptis/submissions")
+    location.pathname.includes(`${basePath}/submissions`)
   );
 
   const toggleSkills = () => setOpenSkills(!openSkills);
   const toggleGrading = () => setOpenGrading(!openGrading);
 
   // Helper for checking active paths since we don't have isActive prop from layoutProps here usually
-  const isActive = (path) => location.pathname === path || (path !== "/admin/aptis/submissions" && location.pathname.startsWith(path));
+  const isActive = (path) => location.pathname === path || (path !== `${basePath}/submissions` && location.pathname.startsWith(path));
 
   // Professional color palette: dark slate for sidebar
   const bgSidebar = "bg-[#09090b]"; // Zinc 950
@@ -59,7 +59,7 @@ const AptisSideBar = ({ layoutProps }) => {
               <Sparkles size={18} className="text-white fill-white" />
             </div>
             <h1 className="text-[15px] font-bold tracking-wide m-0 text-white">
-              Aptis<span className="text-zinc-400 font-medium">Admin</span>
+              Aptis<span className="text-zinc-400 font-medium">{basePath === '/teacher' ? 'Teacher' : 'Admin'}</span>
             </h1>
           </div>
         )}
@@ -77,10 +77,10 @@ const AptisSideBar = ({ layoutProps }) => {
         {/* OVERVIEW */}
         {!isCollapsed && <p className={sectionTitle}>Overview</p>}
         <SidebarLink
-          to="/admin/aptis/dashboard"
+          to={`${basePath}/dashboard`}
           label="Dashboard"
           icon={LayoutDashboard}
-          isActive={location.pathname === "/admin/aptis/dashboard"}
+          isActive={location.pathname === `${basePath}/dashboard`}
           isCollapsed={isCollapsed}
           accentColor="orange"
         />
@@ -88,10 +88,10 @@ const AptisSideBar = ({ layoutProps }) => {
         {/* MANAGEMENT */}
         {!isCollapsed && <p className={sectionTitle}>Management</p>}
         <SidebarLink
-          to="/admin/aptis/users"
-          label="Users"
+          to={`${basePath}/users`}
+          label={basePath === '/teacher' ? 'Students' : 'Users'}
           icon={Users}
-          isActive={location.pathname === "/admin/aptis/users"}
+          isActive={location.pathname === `${basePath}/users`}
           isCollapsed={isCollapsed}
           accentColor="orange"
         />
@@ -115,12 +115,12 @@ const AptisSideBar = ({ layoutProps }) => {
 
           {!isCollapsed && openGrading && (
             <div className="ml-[1.35rem] mt-1 space-y-1 border-l border-zinc-800 pl-3 py-1">
-              <SubSidebarLink to="/admin/aptis/submissions" label="Full Test" icon={FileCheck} isActive={location.pathname === "/admin/aptis/submissions"} accentColor="orange" />
-              <SubSidebarLink to="/admin/aptis/submissions/listening" label="Listening" icon={Headphones} isActive={location.pathname === "/admin/aptis/submissions/listening"} accentColor="orange" />
-              <SubSidebarLink to="/admin/aptis/submissions/reading" label="Reading" icon={BookMarked} isActive={location.pathname === "/admin/aptis/submissions/reading"} accentColor="orange" />
-              <SubSidebarLink to="/admin/aptis/submissions/grammar-vocab" label="Grammar" icon={GraduationCap} isActive={location.pathname === "/admin/aptis/submissions/grammar-vocab"} accentColor="orange" />
-              <SubSidebarLink to="/admin/aptis/submissions/writing" label="Writing" icon={PenTool} isActive={location.pathname === "/admin/aptis/submissions/writing"} accentColor="orange" />
-              <SubSidebarLink to="/admin/aptis/submissions/speaking" label="Speaking" icon={Mic} isActive={location.pathname === "/admin/aptis/submissions/speaking"} accentColor="orange" />
+              <SubSidebarLink to={`${basePath}/submissions`} label="Full Test" isActive={location.pathname === `${basePath}/submissions`} accentColor="orange" />
+              <SubSidebarLink to={`${basePath}/submissions/listening`} label="Listening" isActive={location.pathname === `${basePath}/submissions/listening`} accentColor="orange" />
+              <SubSidebarLink to={`${basePath}/submissions/reading`} label="Reading" isActive={location.pathname === `${basePath}/submissions/reading`} accentColor="orange" />
+              <SubSidebarLink to={`${basePath}/submissions/grammar-vocab`} label="Grammar" isActive={location.pathname === `${basePath}/submissions/grammar-vocab`} accentColor="orange" />
+              <SubSidebarLink to={`${basePath}/submissions/writing`} label="Writing" isActive={location.pathname === `${basePath}/submissions/writing`} accentColor="orange" />
+              <SubSidebarLink to={`${basePath}/submissions/speaking`} label="Speaking" isActive={location.pathname === `${basePath}/submissions/speaking`} accentColor="orange" />
             </div>
           )}
         </div>
@@ -128,10 +128,10 @@ const AptisSideBar = ({ layoutProps }) => {
         {/* EXAMS & CONTENT */}
         {!isCollapsed && <p className={sectionTitle}>Content</p>}
         <SidebarLink
-          to="/admin/aptis/full-tests"
+          to={`${basePath}/full-tests`}
           label="Mock Exams"
           icon={FileText}
-          isActive={location.pathname === "/admin/aptis/full-tests"}
+          isActive={location.pathname === `${basePath}/full-tests`}
           isCollapsed={isCollapsed}
           accentColor="orange"
         />
@@ -155,11 +155,11 @@ const AptisSideBar = ({ layoutProps }) => {
           {!isCollapsed && openSkills && (
             <div className="ml-[1.35rem] mt-1 space-y-1 border-l border-zinc-800 pl-3 py-1">
               {["grammar-vocab", "reading", "listening", "writing", "speaking"].map((skill) => {
-                const isSkillActive = location.pathname.includes(`/admin/aptis/${skill}`);
+                const isSkillActive = location.pathname.includes(`${basePath}/${skill}`);
                 return (
                   <Link
                     key={skill}
-                    to={`/admin/aptis/${skill}`}
+                    to={`${basePath}/${skill}`}
                     className={`block px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all ${
                       isSkillActive
                         ? "text-orange-400 bg-orange-500/10 font-semibold"
@@ -223,20 +223,19 @@ const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed, accentColor
   );
 };
 
-const SubSidebarLink = ({ to, label, icon: Icon, isActive, accentColor }) => {
+const SubSidebarLink = ({ to, label, isActive, accentColor }) => {
   const activeBg = accentColor === "orange" ? "bg-orange-500/10" : "bg-indigo-500/10";
   const activeText = accentColor === "orange" ? "text-orange-400" : "text-indigo-400";
 
   return (
     <Link
       to={to}
-      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all ${
+      className={`flex items-center px-3 py-2 rounded-lg text-[13.5px] font-medium transition-all ${
         isActive
           ? `${activeText} ${activeBg} font-semibold`
           : "text-zinc-400 hover:text-white hover:bg-zinc-800/30"
       }`}
     >
-      {Icon && <Icon size={14} className="shrink-0" />}
       <span>{label}</span>
     </Link>
   );

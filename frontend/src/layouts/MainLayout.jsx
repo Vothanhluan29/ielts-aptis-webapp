@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 import Sidebar from '../components/MainLayout/IELTS/Sidebar';
@@ -34,8 +34,30 @@ const MainLayout = () => {
   /* ===================== WORKSPACE LOGIC ===================== */
 
   const [examMode, setExamMode] = useState(() => {
-    return localStorage.getItem('student_exam_mode') || 'IELTS';
+    if (window.location.pathname.includes('/aptis')) {
+      return 'APTIS';
+    }
+    return localStorage.getItem('student_exam_mode') || 'APTIS';
   });
+
+  useEffect(() => {
+    if (location.pathname.includes('/aptis') && examMode !== 'APTIS') {
+      setExamMode('APTIS');
+      localStorage.setItem('student_exam_mode', 'APTIS');
+    } else if (
+      (location.pathname === '/dashboard' || 
+       location.pathname.startsWith('/exam') || 
+       location.pathname.startsWith('/reading') || 
+       location.pathname.startsWith('/listening') || 
+       location.pathname.startsWith('/writing') || 
+       location.pathname.startsWith('/speaking')) && 
+      !location.pathname.includes('/aptis') && 
+      examMode !== 'IELTS'
+    ) {
+      setExamMode('IELTS');
+      localStorage.setItem('student_exam_mode', 'IELTS');
+    }
+  }, [location.pathname, examMode]);
 
 
   const handleSwitchMode = (mode) => {

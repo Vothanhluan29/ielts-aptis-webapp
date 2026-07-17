@@ -136,7 +136,7 @@ const WritingAptisEditPage = () => {
       {/* ================= HEADER ================= */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
         <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/aptis/writing')}>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/writing' : '/admin/aptis/writing')}>
             Back
           </Button>
           <Title level={4} style={{ margin: 0, color: '#7c3aed' }}>

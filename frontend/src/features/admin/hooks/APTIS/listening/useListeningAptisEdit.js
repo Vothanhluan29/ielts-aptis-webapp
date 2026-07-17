@@ -99,7 +99,7 @@ export const useListeningAptisEdit = () => {
       enableAutoSave();
     } catch (error) {
       message.error('Failed to load Listening test data. Please try again!');
-      navigate('/admin/aptis/listening');
+      navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/listening' : '/admin/aptis/listening');
     } finally {
       setLoading(false);
     }
@@ -247,7 +247,7 @@ export const useListeningAptisEdit = () => {
       }
       
       clearDraft();
-      navigate('/admin/aptis/listening');
+      navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/listening' : '/admin/aptis/listening');
     } catch (error) {
       console.error(error.response?.data);
       message.error(

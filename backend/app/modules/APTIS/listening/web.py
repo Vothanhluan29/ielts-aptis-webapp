@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError 
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, get_admin_user
+from app.core.dependencies import get_current_user, get_aptis_manager_user
 
 from app.modules.APTIS.listening import schemas
 from app.modules.APTIS.listening.services.utils import AptisListeningUtils
@@ -19,7 +19,7 @@ router = APIRouter(prefix="/aptis/listening", tags=["Aptis Listening"])
 @router.post("/upload", status_code=status.HTTP_201_CREATED)
 async def upload_audio(
     file: UploadFile = File(...), 
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
 
     try:
@@ -41,7 +41,7 @@ def get_tests_for_admin(
     limit: int = 100,
     is_mock_selector: bool = Query(False, description="Nếu True: Chỉ lấy bài Mock để ghép đề"),
     db: Session = Depends(get_db),
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
     return AptisListeningTestService.get_all_tests(
         db, 
@@ -53,7 +53,7 @@ def get_tests_for_admin(
 def create_test(
     test_data: schemas.ListeningTestCreate,
     db: Session = Depends(get_db),
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
     return AptisListeningTestService.create_test(db, test_data)
 
@@ -61,7 +61,7 @@ def create_test(
 def get_test_detail_admin(
     test_id: int, 
     db: Session = Depends(get_db), 
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
 
     test = AptisListeningTestService.get_test_detail(db, test_id)
@@ -74,7 +74,7 @@ def update_test(
     test_id: int,
     test_data: schemas.ListeningTestUpdate,
     db: Session = Depends(get_db),
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
 
     test = AptisListeningTestService.update_test(db, test_id, test_data)
@@ -86,7 +86,7 @@ def update_test(
 def delete_test(
     test_id: int, 
     db: Session = Depends(get_db), 
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
     try:
         if not AptisListeningTestService.delete_test(db, test_id):
@@ -134,7 +134,7 @@ def get_test_detail_for_student(
         raise HTTPException(status_code=404, detail="Test not found")
     
     user_role = str(getattr(current_user, "role", "")).upper()
-    is_admin = user_role == "ADMIN"
+    is_admin = user_role in ["ADMIN", "TEACHER"]
     
     if not is_admin and not test.is_published and not test.is_full_test_only:
         raise HTTPException(status_code=403, detail="Test is not published yet.")
@@ -176,7 +176,7 @@ def get_submission_detail(
         raise HTTPException(status_code=404, detail="Submission not found")
     
     user_role = str(getattr(user, "role", "")).upper()
-    is_admin = user_role == "ADMIN"
+    is_admin = user_role in ["ADMIN", "TEACHER"]
     
     if not is_admin and sub.user_id != user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
@@ -194,7 +194,7 @@ def admin_get_all_submissions(
     limit: int = Query(50, ge=1, le=100),
     status: Optional[str] = Query(None, description="Filter by submission status"),
     db: Session = Depends(get_db),
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
 
     return AptisListeningSubmissionService.get_all_submissions_for_admin(db, skip, limit, status)
@@ -203,7 +203,7 @@ def admin_get_all_submissions(
 def admin_get_user_history(
     target_user_id: int,
     db: Session = Depends(get_db),
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
 
     return AptisListeningSubmissionService.get_user_history_for_admin(db, target_user_id)

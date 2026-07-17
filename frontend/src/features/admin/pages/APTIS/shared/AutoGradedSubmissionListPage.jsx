@@ -165,7 +165,7 @@ const AutoGradedSubmissionListPage = ({ skill, api, detailRoute }) => {
       <div className="mb-6 flex justify-between items-center flex-wrap gap-3">
         <div>
           <Title level={3} className="mb-1 font-bold" style={{ color: cfg.color }}>
-            <span className="mr-2">{cfg.icon}</span> {cfg.label} Submissions
+            {cfg.label} Submissions
           </Title>
           <Text className="text-gray-500">
             Admin view-only · Standalone practice submissions · Auto-graded

@@ -49,3 +49,16 @@ def get_admin_user(current_user = Depends(get_current_user)):
         )
     
     return current_user
+
+
+def get_aptis_manager_user(current_user = Depends(get_current_user)):
+    role_in_db = str(current_user.role).upper()
+    role_admin = str(UserRole.ADMIN.value).upper()
+    role_teacher = str(UserRole.TEACHER.value).upper()
+    
+    if role_admin not in role_in_db and role_teacher not in role_in_db:
+        raise HTTPException(
+            status_code=403,
+            detail=f"Insufficient permissions. Role '{current_user.role}' is not allowed."
+        )
+    return current_user

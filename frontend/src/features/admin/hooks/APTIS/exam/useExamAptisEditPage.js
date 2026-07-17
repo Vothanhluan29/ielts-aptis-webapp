@@ -112,7 +112,7 @@ export const useExamAptisEditPage = (id, form, navigate) => {
       }
 
       clearDraft();
-      navigate('/admin/aptis/full-tests');
+      navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/full-tests' : '/admin/aptis/full-tests');
     } catch (error) {
       console.error('Save error:', error);
       message.error(

@@ -70,7 +70,7 @@ const ReadingAptisEditPage = () => {
       {/* ================= HEADER ================= */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
         <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/aptis/reading')}>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/reading' : '/admin/aptis/reading')}>
             Back
           </Button>
           <Title level={4} style={{ margin: 0, color: '#ea580c' }}>

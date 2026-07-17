@@ -128,7 +128,7 @@ const SpeakingSubmissionListPage = () => {
           <Button
             type="primary"
             icon={isPending ? <EditOutlined /> : <EyeOutlined />}
-            onClick={() => navigate(`/admin/aptis/submissions/speaking/${record.id}`)}
+            onClick={() => navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/submissions/speaking/${record.id}` : `/admin/aptis/submissions/speaking/${record.id}`))}
             className={`shadow-sm font-bold rounded-xl border-0 ${
               isPending 
                 ? 'bg-amber-500 hover:bg-amber-400' 
@@ -180,7 +180,7 @@ const SpeakingSubmissionListPage = () => {
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="mb-6">
         <Title level={3} className="mb-1 text-indigo-900 font-bold">
-          <AudioOutlined className="mr-2 text-indigo-500" /> Speaking Practice Submissions
+          Speaking Practice Submissions
         </Title>
         <Text className="text-gray-500">Listen to audio recordings and evaluate standalone speaking practice submissions</Text>
       </div>

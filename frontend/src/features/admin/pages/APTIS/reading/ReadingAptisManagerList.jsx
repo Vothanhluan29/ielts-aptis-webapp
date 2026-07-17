@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Plus, 
   Edit2, 
@@ -35,9 +35,12 @@ const ReadingAptisManagerList = () => {
     handleTableChange({ current: newPage, pageSize: pagination.pageSize });
   };
 
+  const location = useLocation();
+  const isTeacher = location.pathname.startsWith('/teacher');
+  const base = isTeacher ? '/teacher' : '/admin/aptis';
   const ROUTES = {
-    CREATE: '/admin/aptis/reading/create',
-    EDIT: (id) => `/admin/aptis/reading/edit/${id}`,
+    CREATE: `${base}/reading/create`,
+    EDIT: (id) => `${base}/reading/edit/${id}`,
   };
 
   return (
@@ -256,3 +259,4 @@ const ReadingAptisManagerList = () => {
 };
 
 export default ReadingAptisManagerList;
+

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Plus, 
   Edit2, 
@@ -35,9 +35,12 @@ const GramVocabManagePage = () => {
     handleTableChange({ current: newPage, pageSize: pagination.pageSize });
   };
 
+  const location = useLocation();
+  const isTeacher = location.pathname.startsWith('/teacher');
+  const base = isTeacher ? '/teacher' : '/admin/aptis';
   const ROUTES = {
-    CREATE: '/admin/aptis/grammar-vocab/create',
-    EDIT: (id) => `/admin/aptis/grammar-vocab/edit/${id}`,
+    CREATE: `${base}/grammar-vocab/create`,
+    EDIT: (id) => `${base}/grammar-vocab/edit/${id}`,
   };
 
   return (

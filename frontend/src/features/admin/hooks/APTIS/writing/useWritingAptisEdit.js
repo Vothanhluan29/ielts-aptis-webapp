@@ -123,7 +123,7 @@ export const useWritingAptisEdit = () => {
           enableAutoSave();
         } catch (error) {
           message.error('Failed to load Writing test data. Please try again!');
-          navigate('/admin/aptis/writing');
+          navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/writing' : '/admin/aptis/writing');
         } finally {
           setLoading(false);
         }
@@ -148,7 +148,7 @@ export const useWritingAptisEdit = () => {
         message.success('Test created successfully!');
       }
       clearDraft();
-      navigate('/admin/aptis/writing');
+      navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/writing' : '/admin/aptis/writing');
     } catch (error) {
       message.error(error.response?.data?.detail || 'Failed to save the test. Please try again!');
       console.error(error);

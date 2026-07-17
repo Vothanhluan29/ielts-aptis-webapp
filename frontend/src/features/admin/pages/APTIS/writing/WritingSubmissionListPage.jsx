@@ -129,7 +129,7 @@ const WritingSubmissionListPage = () => {
           <Button
             type="primary"
             icon={isPending ? <EditOutlined /> : <EyeOutlined />}
-            onClick={() => navigate(`/admin/aptis/submissions/writing/${record.id}`)}
+            onClick={() => navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/submissions/writing/${record.id}` : `/admin/aptis/submissions/writing/${record.id}`))}
             className={`shadow-sm font-bold rounded-xl border-0 ${
               isPending 
                 ? 'bg-amber-500 hover:bg-amber-400' 
@@ -184,7 +184,7 @@ const WritingSubmissionListPage = () => {
       <div className="mb-6 flex justify-between items-center">
         <div>
           <Title level={3} className="mb-1 text-indigo-900 font-bold">
-            <FileTextOutlined className="mr-2 text-indigo-500" /> Writing Practice Submissions
+            Writing Practice Submissions
           </Title>
           <Text className="text-gray-500">Read and evaluate students' standalone writing practice submissions</Text>
         </div>

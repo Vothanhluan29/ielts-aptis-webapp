@@ -100,7 +100,7 @@ export const useReadingAptisEdit = () => {
       enableAutoSave();
     } catch (error) {
       message.error('Failed to load Reading test data. Please try again!');
-      navigate('/admin/aptis/reading');
+      navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/reading' : '/admin/aptis/reading');
     } finally {
       setLoading(false);
     }
@@ -262,7 +262,7 @@ export const useReadingAptisEdit = () => {
       }
       
       clearDraft();
-      navigate('/admin/aptis/reading');
+      navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/reading' : '/admin/aptis/reading');
     } catch (error) {
       console.error('Payload error:', error);
       message.error('Save failed! Please check your input data.');

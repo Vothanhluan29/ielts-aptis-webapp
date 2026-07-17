@@ -5,6 +5,7 @@ from app.core.database import Base
 
 class UserRole(str, enum.Enum):
     STUDENT = "student"
+    TEACHER = "teacher"
     ADMIN = "admin"
 
 # app/modules/users/models.py

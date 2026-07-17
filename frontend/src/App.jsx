@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 /* --- LAYOUTS --- */
 import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
+import TeacherLayout from './layouts/TeacherLayout';
 
 /* --- AUTH --- */
 import LoginPage from './features/auth/pages/LoginPage';
@@ -168,7 +169,7 @@ function App() {
 
         {/* ================= STUDENT LAYOUT (IELTS AND APTIS) ================= */}
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<Navigate to="/choose-mode" replace />} />
+          <Route index element={<Navigate to="/aptis/dashboard" replace />} />
           
           {/* --- IELTS ROUTES --- */}
           <Route path="dashboard" element={<DashboardPage />} />
@@ -326,6 +327,56 @@ function App() {
             <Route path="aptis/full-tests/edit/:id" element={<ExamAptisEditPage />} />
 
           </Route>  
+        </Route>
+
+        {/* ================= TEACHER LAYOUT ================= */}
+        <Route element={<AdminRoute />}>
+          <Route path="/teacher" element={<TeacherLayout />}>
+            <Route index element={<Navigate to="/teacher/dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route path="users" element={<UserManagement/>}/>
+            <Route path="profile" element={<AdminProfilePage/>}/>
+
+            {/* APTIS GRADING (CHAM BAI) */}
+            <Route path="submissions/listening" element={<ListeningSubmissionListPage />} />
+            <Route path="submissions/listening/:id" element={<ListeningSubmissionViewPage />} />
+            <Route path="submissions/reading" element={<ReadingSubmissionListPage />} />
+            <Route path="submissions/reading/:id" element={<ReadingSubmissionViewPage />} />
+            <Route path="submissions/grammar-vocab" element={<GrammarVocabSubmissionListPage />} />
+            <Route path="submissions/grammar-vocab/:id" element={<GrammarVocabSubmissionViewPage />} />
+            <Route path="submissions/writing" element={<WritingSubmissionListPage />} />
+            <Route path="submissions/writing/:id" element={<WritingGradingDetailPage />} />
+            <Route path="submissions/speaking" element={<SpeakingSubmissionListPage/>} />
+            <Route path="submissions/speaking/:id" element={<SpeakingGradingDetailPage/>} />
+
+            <Route path="submissions" element={<ExamAptisSubmissionsManager />} />
+            <Route path="submissions/:id" element={<ExamAptisSubmissionDetailPage />} />
+
+            {/* ADMIN APTIS SKILLS */}
+            <Route path="grammar-vocab" element={<GramVocabManagePage />} />
+            <Route path="grammar-vocab/create" element={<GramVocabEditPage />} />
+            <Route path="grammar-vocab/edit/:id" element={<GramVocabEditPage />} />
+
+            <Route path="listening" element={<ListeningAptisManageList />} />
+            <Route path="listening/create" element={<ListeningAptisEditPage />} />
+            <Route path="listening/edit/:id" element={<ListeningAptisEditPage />} />
+
+            <Route path="reading" element={<ReadingAptisManagerList />} />
+            <Route path="reading/create" element={<ReadingAptisEditPage />} />
+            <Route path="reading/edit/:id" element={<ReadingAptisEditPage />} />
+
+            <Route path="writing" element={<WritingAptisManagerList />} />
+            <Route path="writing/create" element={<WritingAptisEditPage />} />
+            <Route path="writing/edit/:id" element={<WritingAptisEditPage />} />
+
+            <Route path="speaking" element={<SpeakingAptisManagerList />} />
+            <Route path="speaking/create" element={<SpeakingAptisEditPage />} />
+            <Route path="speaking/edit/:id" element={<SpeakingAptisEditPage />} />
+
+            <Route path="full-tests" element={<ExamAptisManagerPage />} />
+            <Route path="full-tests/create" element={<ExamAptisEditPage />} />
+            <Route path="full-tests/edit/:id" element={<ExamAptisEditPage />} />
+          </Route>
         </Route>
 
         {/* 404 Fallback */}

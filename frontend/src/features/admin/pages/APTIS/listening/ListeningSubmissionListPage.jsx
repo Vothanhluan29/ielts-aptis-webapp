@@ -6,8 +6,9 @@ const ListeningSubmissionListPage = () => (
   <AutoGradedSubmissionListPage
     skill="listening"
     api={listeningAptisAdminApi}
-    detailRoute="/admin/aptis/submissions/listening"
+    detailRoute={window.location.pathname.startsWith("/teacher") ? "/teacher/submissions/listening" : "/admin/aptis/submissions/listening"}
   />
 );
 
 export default ListeningSubmissionListPage;
+

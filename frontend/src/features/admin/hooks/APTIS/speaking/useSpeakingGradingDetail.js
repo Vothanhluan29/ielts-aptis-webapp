@@ -108,9 +108,9 @@ export const useSpeakingGradingDetail = () => {
 
   const handleBack = useCallback(() => {
     if (location.state && location.state.fromExamId) {
-      navigate(`/admin/aptis/submissions/${location.state.fromExamId}`);
+      navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/submissions/${location.state.fromExamId}` : `/admin/aptis/submissions/${location.state.fromExamId}`));
     } else {
-      navigate("/admin/aptis/submissions/speaking");
+      navigate(window.location.pathname.startsWith("/teacher") ? "/teacher/submissions/speaking" : "/admin/aptis/submissions/speaking");
     }
   }, [location.state, navigate]);
 
@@ -165,3 +165,4 @@ export const useSpeakingGradingDetail = () => {
     location
   };
 };
+

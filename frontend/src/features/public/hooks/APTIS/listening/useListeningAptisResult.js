@@ -83,8 +83,9 @@ export const useListeningAptisResult = () => {
 
   // 3. Navigation
   const handleGoBack = () => {
-    if (window.location.pathname.includes('/admin/aptis/submissions')) {
-      navigate('/admin/aptis/submissions/listening');
+    const path = window.location.pathname;
+    if (path.includes('/submissions')) {
+      navigate(path.startsWith('/teacher') ? '/teacher/submissions/listening' : '/admin/aptis/submissions/listening');
     } else {
       navigate('/aptis/listening');
     }

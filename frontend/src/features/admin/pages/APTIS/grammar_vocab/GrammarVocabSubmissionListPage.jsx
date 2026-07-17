@@ -6,8 +6,9 @@ const GrammarVocabSubmissionListPage = () => (
   <AutoGradedSubmissionListPage
     skill="grammar_vocab"
     api={grammarVocabAdminApi}
-    detailRoute="/admin/aptis/submissions/grammar-vocab"
+    detailRoute={window.location.pathname.startsWith("/teacher") ? "/teacher/submissions/grammar-vocab" : "/admin/aptis/submissions/grammar-vocab"}
   />
 );
 
 export default GrammarVocabSubmissionListPage;
+

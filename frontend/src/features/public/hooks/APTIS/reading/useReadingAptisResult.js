@@ -93,8 +93,9 @@ export const useReadingAptisResult = () => {
 
   // 3. Navigation Handlers
   const handleGoBack = () => {
-    if (window.location.pathname.includes('/admin/aptis/submissions')) {
-      navigate('/admin/aptis/submissions/reading');
+    const path = window.location.pathname;
+    if (path.includes('/submissions')) {
+      navigate(path.startsWith('/teacher') ? '/teacher/submissions/reading' : '/admin/aptis/submissions/reading');
     } else {
       navigate('/aptis/reading');
     }

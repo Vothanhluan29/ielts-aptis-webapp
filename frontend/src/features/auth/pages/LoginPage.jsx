@@ -33,10 +33,18 @@ export default function LoginPage() {
     try {
       const user = await authApi.getMe();
       const isAdmin = user.role && (user.role.toLowerCase() === 'admin' || user.role.includes('ADMIN'));
-      navigate(isAdmin ? '/admin/dashboard' : '/choose-mode');
+      const isTeacher = user.role && (user.role.toLowerCase() === 'teacher' || user.role.includes('TEACHER'));
+      
+      if (isAdmin) {
+        navigate('/admin/dashboard');
+      } else if (isTeacher) {
+        navigate('/teacher/dashboard');
+      } else {
+        navigate('/aptis/dashboard');
+      }
     } catch (error) {
       console.error("Failed to fetch user in redirect:", error);
-      navigate('/choose-mode');
+      navigate('/aptis/dashboard');
     }
   };
 

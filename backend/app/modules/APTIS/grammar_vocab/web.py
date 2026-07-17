@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, get_admin_user 
+from app.core.dependencies import get_current_user, get_aptis_manager_user 
 
 from app.modules.APTIS.grammar_vocab import schemas
 
@@ -22,7 +22,7 @@ router = APIRouter(prefix="/aptis/grammar-vocab", tags=["Aptis Grammar & Vocabul
 def create_test(
     test_in: schemas.TestCreate, 
     db: Session = Depends(get_db), 
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
     return GrammarVocabTestService.create_test(db, test_in)
 
@@ -33,7 +33,7 @@ def get_tests_for_admin(
     limit: int = Query(100, ge=1),
     is_mock_selector: bool = Query(False, description="True: Only return mock tests for full test assembly"),
     db: Session = Depends(get_db),
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
     """[ADMIN] Retrieve the list of tests. Supports filtering mock tests."""
     return GrammarVocabTestService.get_all_tests(
@@ -48,7 +48,7 @@ def get_tests_for_admin(
 def get_test_detail_admin(
     test_id: int, 
     db: Session = Depends(get_db), 
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
     """[ADMIN] View full test details (including correct answers)"""
     return GrammarVocabTestService.get_test_detail_admin(db, test_id)
@@ -59,7 +59,7 @@ def update_test(
     test_id: int, 
     test_in: schemas.TestUpdate, 
     db: Session = Depends(get_db), 
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
     return GrammarVocabTestService.update_test(db, test_id, test_in)
 
@@ -68,7 +68,7 @@ def update_test(
 def delete_test(
     test_id: int, 
     db: Session = Depends(get_db), 
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
     try:
         GrammarVocabTestService.delete_test(db, test_id)
@@ -146,7 +146,7 @@ def get_submission_detail(
         raise HTTPException(status_code=404, detail="Submission not found")
     
     user_role = str(getattr(user, "role", "")).upper()
-    is_admin = user_role == "ADMIN"
+    is_admin = user_role in ["ADMIN", "TEACHER"]
     if not is_admin and sub.user_id != user.id: 
         raise HTTPException(status_code=403, detail="Not authorized to view this submission")
         
@@ -166,7 +166,7 @@ def admin_get_all_submissions(
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=100),
     db: Session = Depends(get_db),
-    admin = Depends(get_admin_user),
+    admin = Depends(get_aptis_manager_user),
 ):
     """[ADMIN] Lay danh sach tat ca bai lam Grammar&Vocab thi le (is_full_test_only=False)."""
     return GrammarVocabSubmissionService.get_all_submissions_for_admin(
@@ -182,10 +182,10 @@ def admin_get_all_submissions(
 def admin_get_submission_detail(
     submission_id: int,
     db: Session = Depends(get_db),
-    admin = Depends(get_admin_user),
+    admin = Depends(get_aptis_manager_user),
 ):
     """[ADMIN] Xem chi tiet ket qua bai lam Grammar&Vocab (read-only)."""
     sub = GrammarVocabSubmissionService.get_submission_detail(db, submission_id)
     if not sub:
         raise HTTPException(status_code=404, detail="Submission not found")
-    return sub
+    return sub

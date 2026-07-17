@@ -112,8 +112,10 @@ export const useGrammarVocabResult = () => {
   }, [submission, testDetail, activeTab]);
 
   const handleGoBack = () => {
-    if (window.location.pathname.includes('/admin/aptis/submissions')) {
-      navigate('/admin/aptis/submissions/grammar-vocab');
+    const path = window.location.pathname;
+    const isTeacher = path.startsWith('/teacher');
+    if (path.includes('/submissions')) {
+      navigate(isTeacher ? '/teacher/submissions/grammar-vocab' : '/admin/aptis/submissions/grammar-vocab');
     } else {
       navigate('/aptis/grammar-vocab');
     }

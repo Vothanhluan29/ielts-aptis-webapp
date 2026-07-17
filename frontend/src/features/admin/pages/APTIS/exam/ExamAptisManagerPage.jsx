@@ -93,7 +93,7 @@ const ExamAptisManagerPage = () => {
           </button>
           
           <button
-            onClick={() => navigate("/admin/aptis/full-tests/create")}
+            onClick={() => navigate(window.location.pathname.startsWith("/teacher") ? "/teacher/full-tests/create" : "/admin/aptis/full-tests/create")}
             className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-orange-600/20 focus:outline-none"
           >
             <Plus size={18} />
@@ -143,7 +143,7 @@ const ExamAptisManagerPage = () => {
             <h3 className="text-lg font-bold text-zinc-900 mb-1">No full tests found</h3>
             <p className="text-zinc-500 max-w-sm mb-6">You haven't created any Aptis full tests yet. Click the button above to create one.</p>
             <button
-              onClick={() => navigate("/admin/aptis/full-tests/create")}
+              onClick={() => navigate(window.location.pathname.startsWith("/teacher") ? "/teacher/full-tests/create" : "/admin/aptis/full-tests/create")}
               className="text-orange-600 font-bold hover:text-orange-700 flex items-center gap-1.5"
             >
               <Plus size={16} /> Create your first test
@@ -156,7 +156,7 @@ const ExamAptisManagerPage = () => {
           {!loading && paginatedTests.map((test) => (
             <div 
               key={test.id} 
-              onDoubleClick={() => navigate(`/admin/aptis/full-tests/edit/${test.id}`)}
+              onDoubleClick={() => navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/full-tests/edit/${test.id}` : `/admin/aptis/full-tests/edit/${test.id}`))}
               className="px-6 py-4 flex flex-col md:grid md:grid-cols-12 gap-4 md:items-center hover:bg-orange-50/30 transition-colors group relative"
             >
               {/* Col 1: Title & Date */}
@@ -195,7 +195,7 @@ const ExamAptisManagerPage = () => {
               {/* Col 4: Actions */}
               <div className="col-span-6 md:col-span-1 flex justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
-                  onClick={() => navigate(`/admin/aptis/full-tests/edit/${test.id}`)}
+                  onClick={() => navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/full-tests/edit/${test.id}` : `/admin/aptis/full-tests/edit/${test.id}`))}
                   className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors focus:outline-none"
                   title="Edit Test"
                 >
@@ -263,3 +263,4 @@ const ExamAptisManagerPage = () => {
 };
 
 export default ExamAptisManagerPage;
+

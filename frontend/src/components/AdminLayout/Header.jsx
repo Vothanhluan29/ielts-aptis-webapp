@@ -17,6 +17,8 @@ export default function Header() {
     .toUpperCase();
   const lastName = admin?.full_name?.split(" ").at(-1);
 
+  const isTeacher = admin?.role?.toLowerCase() === 'teacher' || admin?.role?.includes('TEACHER');
+
   return (
     <header className="h-[76px] px-6 lg:px-8 flex items-center justify-between sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-zinc-200 shadow-sm transition-all duration-300">
       
@@ -41,28 +43,28 @@ export default function Header() {
 
       {/* ── CENTER: MODULE SWITCHER ── */}
       <div className="flex-1 flex justify-center">
-        <div className="flex items-center p-1 bg-zinc-100/80 backdrop-blur-sm rounded-xl border border-zinc-200 shadow-inner">
-          <Link to="/admin/dashboard" className="block focus:outline-none">
-            <div className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-[13px] font-bold tracking-wide transition-all duration-300 ${
-              !isAptis 
-                ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-zinc-200/50' 
-                : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'
-            }`}>
-              <Zap size={16} className={!isAptis ? "text-indigo-500" : ""} />
-              IELTS
-            </div>
-          </Link>
-          <Link to="/admin/aptis/dashboard" className="block focus:outline-none">
-            <div className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg text-[13px] font-bold tracking-wide transition-all duration-300 ${
-              isAptis 
-                ? 'bg-white text-orange-600 shadow-sm ring-1 ring-zinc-200/50' 
-                : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'
-            }`}>
-              <Sparkles size={16} className={isAptis ? "text-orange-500" : ""} />
-              APTIS
-            </div>
-          </Link>
-        </div>
+        {!isTeacher && (
+          <div className="flex items-center p-1 bg-zinc-100/80 backdrop-blur-sm rounded-xl border border-zinc-200 shadow-inner">
+            <Link to="/admin/dashboard" className="block focus:outline-none">
+              <div className={`flex items-center justify-center px-6 py-2 rounded-lg text-[13px] font-bold tracking-wide transition-all duration-300 ${
+                !isAptis 
+                  ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-zinc-200/50' 
+                  : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'
+              }`}>
+                IELTS
+              </div>
+            </Link>
+            <Link to="/admin/aptis/dashboard" className="block focus:outline-none">
+              <div className={`flex items-center justify-center px-6 py-2 rounded-lg text-[13px] font-bold tracking-wide transition-all duration-300 ${
+                isAptis 
+                  ? 'bg-white text-orange-600 shadow-sm ring-1 ring-zinc-200/50' 
+                  : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'
+              }`}>
+                APTIS
+              </div>
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* ── RIGHT: PROFILE ── */}
@@ -70,10 +72,10 @@ export default function Header() {
         <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-white hover:bg-zinc-50 border border-zinc-200 transition-colors cursor-pointer group shadow-sm">
           <div className="flex flex-col justify-center text-right pl-2">
             <span className="text-zinc-800 font-bold text-[13px] tracking-tight leading-none group-hover:text-indigo-600 transition-colors">
-              {lastName || "ADMIN"}
+              {lastName || (isTeacher ? "TEACHER" : "ADMIN")}
             </span>
             <span className="text-zinc-400 font-semibold text-[10px] uppercase tracking-wider mt-1">
-              Administrator
+              {isTeacher ? "Teacher" : "Administrator"}
             </span>
           </div>
           

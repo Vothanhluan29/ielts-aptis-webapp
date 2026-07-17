@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, get_admin_user
+from app.core.dependencies import get_current_user, get_aptis_manager_user
 from app.modules.users.models import User
 
 
@@ -22,7 +22,7 @@ router = APIRouter(prefix="/aptis/exam", tags=["Aptis Exam (Full Test)"])
 @router.get("/admin/tests", response_model=List[schemas.AptisFullTestListItem]) 
 def admin_get_all_tests(
     db: Session = Depends(get_db),
-    admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_aptis_manager_user),
 ):
     return AptisExamTestService.get_all_full_tests(db, admin_view=True)
 
@@ -31,7 +31,7 @@ def admin_get_all_tests(
 def create_full_test(
     data: schemas.AptisFullTestCreate,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_aptis_manager_user),
 ):
     return AptisExamTestService.create_full_test(db, data)
 
@@ -40,7 +40,7 @@ def create_full_test(
 def get_test_detail_admin(
     test_id: int,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_aptis_manager_user),
 ):
     test = AptisExamTestService.get_full_test_detail(db, test_id)
     if not test:
@@ -53,7 +53,7 @@ def update_full_test(
     test_id: int,
     data: schemas.AptisFullTestUpdate,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_aptis_manager_user),
 ):
     updated = AptisExamTestService.update_full_test(db, test_id, data)
     if not updated:
@@ -65,7 +65,7 @@ def update_full_test(
 def delete_full_test(
     test_id: int,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_aptis_manager_user),
 ):
     success = AptisExamTestService.delete_full_test(db, test_id)
     if not success:
@@ -86,7 +86,7 @@ def admin_get_all_submissions(
     limit: int = Query(50, ge=1, le=100),
     status: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_aptis_manager_user),
 ):
     return AptisExamSubmissionService.get_all_submissions_for_admin(db, skip, limit, status)
 
@@ -100,7 +100,7 @@ def admin_update_cefr_level(
     submission_id: int,
     data: schemas.AdminUpdateCefrRequest,
     db: Session = Depends(get_db),
-    admin: User = Depends(get_admin_user),
+    admin: User = Depends(get_aptis_manager_user),
 ):
     """Admin đặt thủ công CEFR level cho một submission. Không bị auto-reset sau khi đã set."""
     return AptisExamSubmissionService.update_cefr_level(db, submission_id, data.cefr_level)
@@ -132,7 +132,7 @@ def get_library_test_detail(
     if not test:
         raise HTTPException(status_code=404, detail="Test not found")
 
-    is_admin = str(getattr(current_user, "role", "")).upper() == "ADMIN"
+    is_admin = str(getattr(current_user, "role", "")).upper() in ["ADMIN", "TEACHER"]
     if not is_admin and not test.is_published:
         raise HTTPException(status_code=403, detail="Test is not published")
 
@@ -220,7 +220,7 @@ def get_exam_result(
     if not sub:
         raise HTTPException(status_code=404, detail="Result not found")
 
-    is_admin = str(getattr(current_user, "role", "")).upper() == "ADMIN"
+    is_admin = str(getattr(current_user, "role", "")).upper() in ["ADMIN", "TEACHER"]
     if not is_admin and sub.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 

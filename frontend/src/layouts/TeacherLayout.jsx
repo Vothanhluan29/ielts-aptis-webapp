@@ -1,42 +1,35 @@
-import React, { useEffect } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import SideBar from '../components/AdminLayout/SideBar';
+import React from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
 import AptisSideBar from '../components/AdminLayout/AptisSideBar';
 import Header from '../components/AdminLayout/Header';
 import { useAdminLayout } from '../hooks/AdminLayout/useAdminLayout';
 import authApi from '../features/auth/api/authApi';
 
-const AdminLayout = () => {
-
+const TeacherLayout = () => {
   const layoutProps = useAdminLayout();
-  const location = useLocation();
   const navigate = useNavigate();
+  layoutProps.basePath = '/teacher';
 
-  const isAptis = location.pathname.includes('/aptis');
-
-  useEffect(() => {
+  React.useEffect(() => {
     const checkAccess = async () => {
       try {
         const user = await authApi.getMe();
-        const isTeacher = user.role && (user.role.toLowerCase() === 'teacher' || user.role.includes('TEACHER'));
-        if (isTeacher) {
-          navigate('/teacher/dashboard', { replace: true });
+        const isAdmin = user.role && (user.role.toLowerCase() === 'admin' || user.role.includes('ADMIN'));
+        if (isAdmin) {
+          navigate('/admin/dashboard', { replace: true });
         }
       } catch (err) {
-        console.error("Failed to check role in AdminLayout", err);
+        console.error("Failed to check role in TeacherLayout", err);
       }
     };
     checkAccess();
-  }, [isAptis, navigate]);
+  }, [navigate]);
 
   return (
     <div className="flex h-screen bg-zinc-50 font-sans text-zinc-900 overflow-hidden">
 
-      {isAptis ? (
-        <AptisSideBar layoutProps={layoutProps} />
-      ) : (
-        <SideBar layoutProps={layoutProps} />
-      )}
+      {/* Teacher uses ONLY Aptis SideBar */}
+      <AptisSideBar layoutProps={layoutProps} />
 
       {/* MAIN VIEWPORT */}
       <div className="flex-1 flex flex-col overflow-hidden relative w-full">
@@ -54,4 +47,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default TeacherLayout;

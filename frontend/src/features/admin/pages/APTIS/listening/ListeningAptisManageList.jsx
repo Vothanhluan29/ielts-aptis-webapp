@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Plus, 
   Edit2, 
@@ -35,9 +35,11 @@ const ListeningAptisManageList = () => {
     handleTableChange({ current: newPage, pageSize: pagination.pageSize });
   };
 
+  const location = useLocation();
+  const base = location.pathname.startsWith('/teacher') ? '/teacher' : '/admin/aptis';
   const ROUTES = {
-    CREATE: '/admin/aptis/listening/create',
-    EDIT: (id) => `/admin/aptis/listening/edit/${id}`,
+    CREATE: `${base}/listening/create`,
+    EDIT: (id) => `${base}/listening/edit/${id}`,
   };
 
   return (
@@ -256,3 +258,4 @@ const ListeningAptisManageList = () => {
 };
 
 export default ListeningAptisManageList;
+

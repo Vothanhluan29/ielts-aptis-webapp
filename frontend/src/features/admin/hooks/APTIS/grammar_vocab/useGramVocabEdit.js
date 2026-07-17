@@ -115,7 +115,7 @@ export const useGramVocabEdit = () => {
     } catch (err) {
       console.error(err);
       message.error('Unable to load test details!');
-      navigate('/admin/aptis/grammar-vocab');
+      navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/grammar-vocab' : '/admin/aptis/grammar-vocab');
     } finally {
       setLoading(false);
     }
@@ -217,7 +217,7 @@ export const useGramVocabEdit = () => {
       }
 
       clearDraft();
-      navigate('/admin/aptis/grammar-vocab');
+      navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/grammar-vocab' : '/admin/aptis/grammar-vocab');
     } catch (err) {
       console.error(err);
       message.error('Failed to submit! Please check your input.');

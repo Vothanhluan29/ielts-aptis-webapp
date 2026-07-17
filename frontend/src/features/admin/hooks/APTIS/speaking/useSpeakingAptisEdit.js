@@ -115,7 +115,7 @@ export const useSpeakingAptisEdit = () => {
 
     } catch (error) {
       message.error('Failed to load Speaking test data. Please try again!');
-      navigate('/admin/aptis/speaking');
+      navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/speaking' : '/admin/aptis/speaking');
     } finally {
       setLoading(false);
     }
@@ -156,7 +156,7 @@ export const useSpeakingAptisEdit = () => {
         message.success('New test created successfully!');
       }
       clearDraft();
-      navigate('/admin/aptis/speaking');
+      navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/speaking' : '/admin/aptis/speaking');
     } catch (error) {
       message.error(error.response?.data?.detail || 'Failed to save the test. Please try again!');
     } finally {

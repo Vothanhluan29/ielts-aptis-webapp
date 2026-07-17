@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAdminDashboard } from '../../hooks/dashboard/useAdminDashboard';
 import SkillPieChart from '../../components/dashboard/SkillPieChart';
 import { 
@@ -16,14 +17,15 @@ import {
 } from 'lucide-react';
 
 /* ================= STAT CARDS DATA ================= */
-const STAT_CARDS = [
+const ALL_STAT_CARDS = [
   {
     title: 'Total Users',
     key: 'total_users',
     icon: Users,
     color: 'text-blue-600',
     bg: 'bg-blue-500/10',
-    ring: 'ring-blue-500/20'
+    ring: 'ring-blue-500/20',
+    aptisOnly: false,
   },
   {
     title: 'New Users Today',
@@ -31,7 +33,8 @@ const STAT_CARDS = [
     icon: UserPlus,
     color: 'text-emerald-600',
     bg: 'bg-emerald-500/10',
-    ring: 'ring-emerald-500/20'
+    ring: 'ring-emerald-500/20',
+    aptisOnly: false,
   },
   {
     title: 'IELTS Mock Exams',
@@ -39,7 +42,9 @@ const STAT_CARDS = [
     icon: BookOpen,
     color: 'text-indigo-600',
     bg: 'bg-indigo-500/10',
-    ring: 'ring-indigo-500/20'
+    ring: 'ring-indigo-500/20',
+    aptisOnly: false, // hidden for teacher
+    ieltsOnly: true,
   },
   {
     title: 'IELTS Attempts',
@@ -47,7 +52,9 @@ const STAT_CARDS = [
     icon: FileText,
     color: 'text-violet-600',
     bg: 'bg-violet-500/10',
-    ring: 'ring-violet-500/20'
+    ring: 'ring-violet-500/20',
+    aptisOnly: false,
+    ieltsOnly: true,
   },
   {
     title: 'APTIS Mock Exams',
@@ -55,7 +62,8 @@ const STAT_CARDS = [
     icon: Trophy,
     color: 'text-orange-600',
     bg: 'bg-orange-500/10',
-    ring: 'ring-orange-500/20'
+    ring: 'ring-orange-500/20',
+    aptisOnly: false,
   },
   {
     title: 'APTIS Attempts',
@@ -63,7 +71,8 @@ const STAT_CARDS = [
     icon: BarChart,
     color: 'text-rose-600',
     bg: 'bg-rose-500/10',
-    ring: 'ring-rose-500/20'
+    ring: 'ring-rose-500/20',
+    aptisOnly: false,
   }
 ];
 
@@ -135,18 +144,69 @@ const SkillBankGrid = ({ title, skills, data }) => (
 
 const AdminDashboardPage = () => {
   const { stats, loading } = useAdminDashboard();
+  const location = useLocation();
+  const isTeacher = location.pathname.startsWith('/teacher');
+
+  // Teacher sees only APTIS-relevant stats (no IELTS cards)
+  const statCards = isTeacher
+    ? ALL_STAT_CARDS.filter((c) => !c.ieltsOnly)
+    : ALL_STAT_CARDS;
 
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin" />
-          <span className="text-zinc-500 font-bold tracking-wide text-sm">Loading Workspace...</span>
+          <div className="w-10 h-10 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
+          <span className="text-zinc-500 font-bold tracking-wide text-sm">Loading Dashboard...</span>
         </div>
       </div>
     );
   }
 
+  /* ── TEACHER VIEW: APTIS only ── */
+  if (isTeacher) {
+    return (
+      <div className="animate-in fade-in zoom-in-95 duration-500 slide-in-from-bottom-4">
+
+        {/* Page Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="w-2 h-8 rounded-full bg-gradient-to-b from-orange-500 to-rose-500" />
+            <h1 className="text-2xl font-black text-zinc-900 tracking-tight">APTIS Dashboard</h1>
+          </div>
+          <p className="text-zinc-500 text-sm ml-5 font-medium">Overview of your APTIS teaching workspace</p>
+        </div>
+
+        {/* APTIS Stat Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {statCards.map((item) => (
+            <StatCard key={item.key} item={item} value={stats?.[item.key]} />
+          ))}
+        </div>
+
+        {/* APTIS Charts & Skill Bank */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* APTIS Distribution Pie */}
+          <div className="bg-white rounded-[28px] p-8 shadow-sm ring-1 ring-zinc-200/60">
+            <h3 className="text-lg font-black text-zinc-800 tracking-tight mb-2">APTIS Distribution</h3>
+            <p className="text-zinc-500 text-sm mb-6 font-medium">Breakdown of APTIS questions by skill</p>
+            <div className="h-[280px]">
+              <SkillPieChart skills={stats?.aptis_skills} />
+            </div>
+          </div>
+
+          {/* APTIS Skill Bank */}
+          <SkillBankGrid 
+            title="APTIS Question Bank" 
+            skills={APTIS_SKILLS} 
+            data={stats?.aptis_skills} 
+          />
+        </div>
+      </div>
+    );
+  }
+
+  /* ── ADMIN VIEW: Full combined (IELTS + APTIS) ── */
   return (
     <div className="animate-in fade-in zoom-in-95 duration-500 slide-in-from-bottom-4">
 
@@ -154,7 +214,7 @@ const AdminDashboardPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Top Stats Grid (Spans full width via columns) */}
         <div className="col-span-1 md:col-span-2 lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
-          {STAT_CARDS.map((item) => (
+          {ALL_STAT_CARDS.map((item) => (
             <div key={item.key} className="col-span-1 sm:col-span-1 lg:col-span-1">
               <StatCard item={item} value={stats?.[item.key]} />
             </div>

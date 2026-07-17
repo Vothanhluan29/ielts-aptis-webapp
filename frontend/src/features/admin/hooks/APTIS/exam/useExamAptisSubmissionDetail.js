@@ -33,9 +33,9 @@ export const useExamAptisSubmissionDetail = () => {
   const handleGrade = useCallback((label, subId) => {
     if (!data) return;
     if (label === 'Writing') {
-      navigate(`/admin/aptis/submissions/writing/${subId}`, { state: { fromExamId: data.id } });
+      navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/submissions/writing/${subId}` : `/admin/aptis/submissions/writing/${subId}`), { state: { fromExamId: data.id } });
     } else if (label === 'Speaking') {
-      navigate(`/admin/aptis/submissions/speaking/${subId}`, { state: { fromExamId: data.id } });
+      navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/submissions/speaking/${subId}` : `/admin/aptis/submissions/speaking/${subId}`), { state: { fromExamId: data.id } });
     }
   }, [navigate, data]);
 

@@ -135,7 +135,7 @@ const ExamAptisSubmissionsManager = () => {
             <Button
               type="primary"
               icon={<EditOutlined />}
-              onClick={() => navigate(`/admin/aptis/submissions/${record.id}`)}
+              onClick={() => navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/submissions/${record.id}` : `/admin/aptis/submissions/${record.id}`))}
               className="bg-amber-500 hover:bg-amber-400 border-0 shadow-sm font-bold rounded-xl"
             >
               Grade Now
@@ -147,7 +147,7 @@ const ExamAptisSubmissionsManager = () => {
             <Button
               type="primary"
               icon={<EyeOutlined />}
-              onClick={() => navigate(`/admin/aptis/submissions/${record.id}`)}
+              onClick={() => navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/submissions/${record.id}` : `/admin/aptis/submissions/${record.id}`))}
               className="bg-green-600 hover:bg-green-500 border-0 shadow-sm font-bold rounded-xl"
             >
               View Result
@@ -158,7 +158,7 @@ const ExamAptisSubmissionsManager = () => {
           <Button
             type="default"
             icon={<EyeOutlined />}
-            onClick={() => navigate(`/admin/aptis/submissions/${record.id}`)}
+            onClick={() => navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/submissions/${record.id}` : `/admin/aptis/submissions/${record.id}`))}
             className="rounded-xl font-medium text-slate-500"
           >
             Monitor

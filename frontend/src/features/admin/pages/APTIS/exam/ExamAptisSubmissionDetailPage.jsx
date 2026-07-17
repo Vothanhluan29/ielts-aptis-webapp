@@ -233,7 +233,7 @@ const ExamAptisSubmissionDetailPage = () => {
         <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/admin/aptis/submissions')}
+              onClick={() => navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/submissions' : '/admin/aptis/submissions')}
               className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-300 transition-colors bg-white"
             >
               <ArrowLeftOutlined style={{ fontSize:13 }} />

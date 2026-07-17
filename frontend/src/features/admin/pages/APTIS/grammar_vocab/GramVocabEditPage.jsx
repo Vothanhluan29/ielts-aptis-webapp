@@ -234,7 +234,7 @@ const GramVocabEditPage = () => {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/aptis/grammar-vocab')}>Back</Button>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/grammar-vocab' : '/admin/aptis/grammar-vocab')}>Back</Button>
           <Title level={4} style={{ margin: 0 }}>
             {isEditMode ? `Edit Test #${id}` : 'Create Grammar & Vocab Test'}
           </Title>

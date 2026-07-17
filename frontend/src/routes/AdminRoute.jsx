@@ -24,7 +24,9 @@ const AdminRoute = () => {
     return <div className="h-screen flex items-center justify-center">Checking permission....</div>;
   }
 
-  return role === 'admin' ? <Outlet /> : <Navigate to="/dashboard" replace />;
+  const isAuthorized = role === 'admin' || role === 'teacher';
+
+  return isAuthorized ? <Outlet /> : <Navigate to="/aptis/dashboard" replace />;
 };
 
 export default AdminRoute;

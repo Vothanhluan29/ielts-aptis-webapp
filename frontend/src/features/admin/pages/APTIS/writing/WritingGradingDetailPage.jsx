@@ -8,7 +8,6 @@ import {
   FileTextOutlined, EditOutlined, BulbOutlined
 } from "@ant-design/icons";
 
-import AISuggestionModal from "../../../components/APTIS/writing/AISuggestionModal";
 
 // Import Custom Hook và các hằng số
 import { 
@@ -23,7 +22,7 @@ const { TextArea } = Input;
 const { Option } = Select;
 
 const WritingGradingDetailPage = () => {
-  const [isAIModalVisible, setIsAIModalVisible] = useState(false);
+
   // Lấy data và hàm từ Custom Hook
   const {
     loading,
@@ -176,18 +175,7 @@ const WritingGradingDetailPage = () => {
               size="small"
               className="shadow-sm border-gray-200 rounded-lg"
               title={<Space><EditOutlined className="text-indigo-500" /><Text strong>Grading Panel</Text></Space>}
-              extra={
-                <Button 
-                  size="small" 
-                  type="primary" 
-                  ghost 
-                  icon={<BulbOutlined />} 
-                  onClick={() => setIsAIModalVisible(true)}
-                  className="border-indigo-400 text-indigo-600 font-semibold"
-                >
-                  AI Suggestion
-                </Button>
-              }
+
             >
               <div className="space-y-3">
                 {gradingSections.map((sec) => {
@@ -253,14 +241,6 @@ const WritingGradingDetailPage = () => {
         </Col>
       </Row>
 
-      <AISuggestionModal 
-        visible={isAIModalVisible} 
-        onClose={() => setIsAIModalVisible(false)} 
-        onCopy={() => {
-          // It's already copied to clipboard inside AISuggestionModal.
-        }} 
-        partsData={processedParts}
-      />
     </div>
   );
 };

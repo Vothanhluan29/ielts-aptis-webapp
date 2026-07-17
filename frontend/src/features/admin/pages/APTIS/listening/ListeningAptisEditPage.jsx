@@ -57,7 +57,7 @@ const ListeningAptisEditPage = () => {
       {/* ================= HEADER ================= */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
         <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/admin/aptis/listening')}>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/listening' : '/admin/aptis/listening')}>
             Back
           </Button>
           <Title level={4} style={{ margin: 0, color: '#312e81' }}>

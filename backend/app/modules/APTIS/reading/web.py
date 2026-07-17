@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, get_admin_user
+from app.core.dependencies import get_current_user, get_aptis_manager_user
 
 from app.modules.APTIS.reading import schemas
 from app.modules.APTIS.reading.services.test_service import AptisReadingTestService
@@ -23,7 +23,7 @@ def get_all_tests_for_admin(
     limit: int = 100,
     is_mock_selector: bool = Query(False),
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     return AptisReadingTestService.get_all_tests(
         db,
@@ -42,7 +42,7 @@ def get_all_tests_for_admin(
 def create_test(
     test_input: schemas.TestCreateOrUpdate,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     return AptisReadingTestService.create_test(db, test_input)
 
@@ -51,7 +51,7 @@ def create_test(
 def get_test_for_admin(
     test_id: int,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     test = AptisReadingTestService.get_full_test_data(db, test_id)
     if not test:
@@ -64,7 +64,7 @@ def update_test(
     test_id: int,
     test_input: schemas.TestCreateOrUpdate,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     updated_test = AptisReadingTestService.update_test(db, test_id, test_input)
     if not updated_test:
@@ -76,7 +76,7 @@ def update_test(
 def delete_test(
     test_id: int,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     try:
         success = AptisReadingTestService.delete_test(db, test_id)
@@ -101,7 +101,7 @@ def admin_get_all_submissions(
     limit: int = Query(50, ge=1, le=100),
     status: Optional[str] = Query(None),
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     return AptisReadingSubmissionService.get_all_submissions_for_admin(db, skip, limit, status)
 
@@ -113,7 +113,7 @@ def admin_get_all_submissions(
 def admin_get_user_history(
     target_user_id: int,
     db: Session = Depends(get_db),
-    admin=Depends(get_admin_user),
+    admin=Depends(get_aptis_manager_user),
 ):
     return AptisReadingSubmissionService.get_user_history_for_admin(db, target_user_id)
 
@@ -149,7 +149,7 @@ def get_test_for_student(
         raise HTTPException(status_code=404, detail="Test not found")
 
     user_role = str(getattr(current_user, "role", "")).upper()
-    is_admin = user_role == "ADMIN"
+    is_admin = user_role in ["ADMIN", "TEACHER"]
 
     if not test.is_published and not is_admin and not test.is_full_test_only:
         raise HTTPException(status_code=403, detail="This test has not been published yet.")
@@ -192,7 +192,7 @@ def get_submission_review(
         raise HTTPException(status_code=404, detail="Submission not found")
 
     user_role = str(getattr(current_user, "role", "")).upper()
-    is_admin = user_role == "ADMIN"
+    is_admin = user_role in ["ADMIN", "TEACHER"]
 
     if not is_admin and result.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")

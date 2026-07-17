@@ -99,9 +99,9 @@ export const useWritingGradingDetail = () => {
 
   const handleBack = useCallback(() => {
     if (location.state && location.state.fromExamId) {
-      navigate(`/admin/aptis/submissions/${location.state.fromExamId}`);
+      navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/submissions/${location.state.fromExamId}` : `/admin/aptis/submissions/${location.state.fromExamId}`));
     } else {
-      navigate("/admin/aptis/submissions/writing");
+      navigate(window.location.pathname.startsWith("/teacher") ? "/teacher/submissions/writing" : "/admin/aptis/submissions/writing");
     }
   }, [location.state, navigate]);
 
@@ -147,3 +147,4 @@ export const useWritingGradingDetail = () => {
     location
   };
 };
+
