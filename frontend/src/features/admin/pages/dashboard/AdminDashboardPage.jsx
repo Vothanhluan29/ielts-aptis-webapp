@@ -147,9 +147,9 @@ const AdminDashboardPage = () => {
   const location = useLocation();
   const isTeacher = location.pathname.startsWith('/teacher');
 
-  // Teacher sees only APTIS-relevant stats (no IELTS cards)
+  // Teacher sees only APTIS-relevant stats (no IELTS cards, no general user stats)
   const statCards = isTeacher
-    ? ALL_STAT_CARDS.filter((c) => !c.ieltsOnly)
+    ? ALL_STAT_CARDS.filter((c) => !c.ieltsOnly && c.key !== 'total_users' && c.key !== 'new_users_today')
     : ALL_STAT_CARDS;
 
   if (loading) {
@@ -178,7 +178,7 @@ const AdminDashboardPage = () => {
         </div>
 
         {/* APTIS Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
           {statCards.map((item) => (
             <StatCard key={item.key} item={item} value={stats?.[item.key]} />
           ))}

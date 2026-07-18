@@ -11,7 +11,8 @@ import {
   MenuUnfoldOutlined,
   LogoutOutlined,
   AppstoreOutlined,
-  ReadOutlined
+  ReadOutlined,
+  MessageOutlined
 } from "@ant-design/icons";
 
 // Nhúng Custom Hook
@@ -43,6 +44,12 @@ const SIDEBAR_GROUPS = [
       { to: "/aptis/speaking", label: "Speaking", icon: AudioOutlined }
     ]
   },
+  {
+    title: "Support",
+    items: [
+      { to: "/feedback", label: "Feedback & Help", icon: MessageOutlined }
+    ]
+  }
 ];
 
 /* =========================

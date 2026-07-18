@@ -17,6 +17,11 @@ import { useExamAptisSubmissionsManager } from '../../../hooks/APTIS/exam/useExa
 const { Title, Text } = Typography;
 
 const ExamAptisSubmissionsManager = () => {
+  const isTeacher = window.location.pathname.startsWith('/teacher');
+  const themeColorDark = isTeacher ? 'text-teal-900' : 'text-orange-900';
+  const themeColor = isTeacher ? 'text-teal-500' : 'text-orange-500';
+  const themeBgLight = isTeacher ? 'bg-teal-50 text-teal-500' : 'bg-orange-50 text-orange-500';
+
   const navigate = useNavigate();
 
   // Bóc tách data từ Hook
@@ -65,7 +70,7 @@ const ExamAptisSubmissionsManager = () => {
       key: 'test',
       render: (test) => (
         <Space>
-          <div className="w-7 h-7 rounded bg-indigo-50 flex items-center justify-center text-indigo-500">
+          <div className={`w-7 h-7 rounded flex items-center justify-center ${themeBgLight}`}>
             <TrophyOutlined />
           </div>
           <Tooltip title={test?.title}>
@@ -216,8 +221,8 @@ const ExamAptisSubmissionsManager = () => {
       {/* HEADER */}
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <Title level={3} className="mb-1 text-indigo-900 font-bold">
-            <FileTextOutlined className="mr-2 text-indigo-500" /> Aptis Submission Management
+          <Title level={3} className={`mb-1 ${themeColorDark} font-bold`}>
+            <FileTextOutlined className={`mr-2 ${themeColor}`} /> Aptis Submission Management
           </Title>
           <Text className="text-gray-500">View progress, overall results and grade open-ended responses (Writing/Speaking)</Text>
         </div>

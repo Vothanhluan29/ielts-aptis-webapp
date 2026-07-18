@@ -9,7 +9,8 @@ import {
   FileText,
   BookOpen,
   ClipboardCheck,
-  Zap
+  Zap,
+  MessageSquare
 } from "lucide-react";
 
 const SideBar = ({ layoutProps }) => {
@@ -82,6 +83,7 @@ const SideBar = ({ layoutProps }) => {
           isActive={isActive("/admin/submissions")}
           isCollapsed={isCollapsed}
         />
+
 
         {/* EXAMS & CONTENT */}
         {!isCollapsed && <p className={sectionTitle}>Content</p>}

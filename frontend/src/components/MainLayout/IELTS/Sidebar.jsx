@@ -11,7 +11,8 @@ import {
   MenuUnfoldOutlined,
   LogoutOutlined,
   AppstoreOutlined,
-  ReadOutlined
+  ReadOutlined,
+  MessageOutlined
 } from "@ant-design/icons";
 
 // Nhúng Custom Hook
@@ -41,7 +42,7 @@ const SIDEBAR_GROUPS = [
       { to: "/writing", label: "Writing", icon: EditOutlined },
       { to: "/speaking", label: "Speaking", icon: AudioOutlined }
     ]
-  },
+  }
 ];
 
 /* =========================

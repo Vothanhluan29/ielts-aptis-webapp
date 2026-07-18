@@ -17,6 +17,11 @@ import { useSpeakingSubmissionList } from '../../../hooks/APTIS/speaking/useSpea
 const { Title, Text } = Typography;
 
 const SpeakingSubmissionListPage = () => {
+  const isTeacher = window.location.pathname.startsWith('/teacher');
+  const themeColorDark = isTeacher ? 'text-teal-900' : 'text-orange-900';
+  const themeColor = isTeacher ? 'text-teal-500' : 'text-orange-500';
+  const themeBgLight = isTeacher ? 'bg-teal-50 text-teal-500' : 'bg-orange-50 text-orange-500';
+
   const navigate = useNavigate();
 
   // Rút trích data và logic từ Hook
@@ -65,7 +70,7 @@ const SpeakingSubmissionListPage = () => {
       key: 'test',
       render: (_, record) => (
         <Space>
-          <div className="w-7 h-7 rounded bg-indigo-50 flex items-center justify-center text-indigo-500">
+          <div className={`w-7 h-7 rounded flex items-center justify-center ${themeBgLight}`}>
             <AudioOutlined />
           </div>
           <Text className="text-gray-700 font-medium">{record.test?.title || 'Speaking Test'}</Text>
@@ -179,8 +184,8 @@ const SpeakingSubmissionListPage = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="mb-6">
-        <Title level={3} className="mb-1 text-indigo-900 font-bold">
-          Speaking Practice Submissions
+        <Title level={3} className={`mb-1 ${themeColorDark} font-bold`}>
+            Speaking Practice Submissions
         </Title>
         <Text className="text-gray-500">Listen to audio recordings and evaluate standalone speaking practice submissions</Text>
       </div>

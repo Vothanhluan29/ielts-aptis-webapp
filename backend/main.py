@@ -19,6 +19,7 @@ from app.modules.IELTS.writing.models import WritingTest
 from app.modules.IELTS.speaking.models import SpeakingTest
 from app.modules.IELTS.exam.models import FullTest
 from app.modules.subscriptions.models import UserUsage
+from app.modules.feedbacks.models import Feedback
 
 
 # Import Routers
@@ -28,6 +29,7 @@ from app.modules.admin import web as admin_web
 from app.modules.IELTS.user_stats import web as user_stats_web
 from app.modules.subscriptions import web as subscriptions_web
 from app.modules.notifications import web as notifications_web
+from app.modules.feedbacks import web as feedbacks_web
 
 # IELTS Routers
 from app.modules.IELTS.reading import web as reading_web
@@ -121,6 +123,7 @@ api_router.include_router(user_stats_web.router)
 api_router.include_router(admin_web.router)
 api_router.include_router(subscriptions_web.router)
 api_router.include_router(notifications_web.router)
+api_router.include_router(feedbacks_web.router)
 
 # --- IELTS ---
 api_router.include_router(reading_web.router)

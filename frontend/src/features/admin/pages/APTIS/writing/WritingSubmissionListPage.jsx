@@ -18,6 +18,11 @@ import { useWritingSubmissionList } from '../../../hooks/APTIS/writing/useWritin
 const { Title, Text } = Typography;
 
 const WritingSubmissionListPage = () => {
+  const isTeacher = window.location.pathname.startsWith('/teacher');
+  const themeColorDark = isTeacher ? 'text-teal-900' : 'text-orange-900';
+  const themeColor = isTeacher ? 'text-teal-500' : 'text-orange-500';
+  const themeBgLight = isTeacher ? 'bg-teal-50 text-teal-500' : 'bg-orange-50 text-orange-500';
+
   const navigate = useNavigate();
 
   // Lấy dữ liệu và logic từ Hook
@@ -64,7 +69,7 @@ const WritingSubmissionListPage = () => {
       key: 'test',
       render: (_, record) => (
         <Space>
-          <div className="w-7 h-7 rounded bg-indigo-50 flex items-center justify-center text-indigo-500">
+          <div className={`w-7 h-7 rounded flex items-center justify-center ${themeBgLight}`}>
             <FileTextOutlined />
           </div>
           <Text className="text-gray-700 font-medium">{record.test?.title || 'Writing Test'}</Text>
@@ -183,7 +188,7 @@ const WritingSubmissionListPage = () => {
       {/* HEADER */}
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <Title level={3} className="mb-1 text-indigo-900 font-bold">
+          <Title level={3} className={`mb-1 ${themeColorDark} font-bold`}>
             Writing Practice Submissions
           </Title>
           <Text className="text-gray-500">Read and evaluate students' standalone writing practice submissions</Text>

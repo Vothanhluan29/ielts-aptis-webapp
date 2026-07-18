@@ -15,6 +15,10 @@ import StudentProfile from './features/auth/pages/StudentProfile';
 /* --- CHOOSE MODE PAGE (TRANG CỔNG CHÀO) --- */
 import ModeSelectionPage from './features/auth/pages/ModeSelectionPage'; 
 
+/* --- FEEDBACK --- */
+import FeedbackPage from './features/public/pages/feedback/FeedbackPage';
+import AdminFeedbackPage from './features/admin/pages/feedback/AdminFeedbackPage';
+
 /* --- STUDENT PAGES --- */
 import DashboardPage from './features/public/pages/IELTS/dashboard/DashBoardPage';
 import DashboardAptisStudentPage from './features/public/pages/APTIS/dashboard/DashboardAptisStudentPage';
@@ -199,6 +203,7 @@ function App() {
           {/*  --- APTIS STUDENT ROUTES ---*/}
           <Route path="aptis/dashboard" element={<DashboardAptisStudentPage />} />
           <Route path="aptis/profile" element={<StudentProfile />} /> 
+          <Route path="feedback" element={<FeedbackPage />} />
 
           <Route path="aptis/grammar-vocab" element={<GrammarVocabAptisListPage/>} />
           <Route path="aptis/grammar-vocab/lobby/:id" element={<GrammarVocabLobbyPage />} />
@@ -259,6 +264,8 @@ function App() {
             <Route path="submissions" element={<AdminSubmissions/>}/>
             <Route path="profile" element={<AdminProfilePage/>}/>
             <Route path="aptis/profile" element={<AdminProfilePage/>}/>
+            <Route path="feedback" element={<AdminFeedbackPage/>}/>
+            <Route path="aptis/feedback" element={<AdminFeedbackPage/>}/>
 
             {/* APTIS GRADING (CHAM BAI) */}
             <Route path="aptis/submissions/listening" element={<ListeningSubmissionListPage />} />
@@ -336,6 +343,7 @@ function App() {
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="users" element={<UserManagement/>}/>
             <Route path="profile" element={<AdminProfilePage/>}/>
+            <Route path="feedback" element={<FeedbackPage />} />
 
             {/* APTIS GRADING (CHAM BAI) */}
             <Route path="submissions/listening" element={<ListeningSubmissionListPage />} />
