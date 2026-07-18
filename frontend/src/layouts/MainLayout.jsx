@@ -34,10 +34,20 @@ const MainLayout = () => {
   /* ===================== WORKSPACE LOGIC ===================== */
 
   const [examMode, setExamMode] = useState(() => {
-    if (window.location.pathname.includes('/aptis')) {
+    const path = window.location.pathname;
+    if (path.includes('/aptis')) {
       return 'APTIS';
+    } else if (
+      path === '/dashboard' || 
+      path.startsWith('/exam') || 
+      path.startsWith('/reading') || 
+      path.startsWith('/listening') || 
+      path.startsWith('/writing') || 
+      path.startsWith('/speaking')
+    ) {
+      return 'IELTS';
     }
-    return localStorage.getItem('student_exam_mode') || 'APTIS';
+    return 'APTIS';
   });
 
   useEffect(() => {
