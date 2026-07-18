@@ -15,9 +15,19 @@ class FeedbackUpdate(BaseModel):
     status: Optional[FeedbackStatus] = None
     admin_response: Optional[str] = None
 
+class UserBrief(BaseModel):
+    id: int
+    full_name: Optional[str] = None
+    email: str
+    role: str
+
+    class Config:
+        from_attributes = True
+
 class FeedbackOut(FeedbackBase):
     id: int
     user_id: int
+    user: Optional[UserBrief] = None
     status: FeedbackStatus
     admin_response: Optional[str]
     created_at: datetime

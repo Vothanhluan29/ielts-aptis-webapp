@@ -70,9 +70,21 @@ const AdminFeedbackPage = () => {
       width: 80,
     },
     {
-      title: 'User ID',
-      dataIndex: 'user_id',
-      key: 'user_id',
+      title: 'User Name',
+      dataIndex: 'user',
+      key: 'user_name',
+      render: (user) => user ? (user.full_name || user.email) : 'Unknown User',
+      width: 150,
+    },
+    {
+      title: 'Role',
+      dataIndex: 'user',
+      key: 'role',
+      render: (user) => {
+        const role = user?.role || 'student';
+        const color = role === 'admin' ? 'red' : role === 'teacher' ? 'cyan' : 'default';
+        return <Tag color={color}>{role.toUpperCase()}</Tag>;
+      },
       width: 100,
     },
     {

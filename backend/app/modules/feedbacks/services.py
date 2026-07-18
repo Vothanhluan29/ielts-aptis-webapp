@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.modules.feedbacks import models, schemas
 
 def get_feedback(db: Session, feedback_id: int):
@@ -8,7 +8,7 @@ def get_feedbacks_by_user(db: Session, user_id: int, skip: int = 0, limit: int =
     return db.query(models.Feedback).filter(models.Feedback.user_id == user_id).order_by(models.Feedback.created_at.desc()).offset(skip).limit(limit).all()
 
 def get_all_feedbacks(db: Session, skip: int = 0, limit: int = 100, status: str = None):
-    query = db.query(models.Feedback)
+    query = db.query(models.Feedback).options(joinedload(models.Feedback.user))
     if status:
         query = query.filter(models.Feedback.status == status)
     return query.order_by(models.Feedback.created_at.desc()).offset(skip).limit(limit).all()
