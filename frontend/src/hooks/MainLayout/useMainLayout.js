@@ -15,15 +15,6 @@ export const useMainLayout = () => {
   const [profileOpen, setProfileOpen] = useState(false);
 
   const fetchMe = useCallback(async () => {
-    const token = localStorage.getItem('access_token');
-
-    if (!token) {
-      // Do not disable loading here so MainLayout keeps the loading/blank screen
-      // until the Login page is mounted
-      navigate('/login', { replace: true });
-      return;
-    }
-
     try {
       const data = await authApi.getMe();
       setUser(data);
