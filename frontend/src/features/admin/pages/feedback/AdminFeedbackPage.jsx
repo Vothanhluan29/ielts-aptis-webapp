@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, Select, Tag, message } from 'antd';
 import { MessageSquare, CheckCircle } from 'lucide-react';
 import axiosClient from '../../../../services/axiosClient';
+import { useFeedbackCount } from '../../../../contexts/FeedbackCountContext';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -14,6 +15,9 @@ const AdminFeedbackPage = () => {
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
   const [filterStatus, setFilterStatus] = useState(null);
+
+  // Badge count context
+  const { refreshCount } = useFeedbackCount();
 
   const fetchFeedbacks = async () => {
     setLoading(true);
@@ -54,6 +58,8 @@ const AdminFeedbackPage = () => {
       setCurrentFeedback(null);
       form.resetFields();
       fetchFeedbacks();
+      // Cap nhat badge ngay lap tuc khi resolve/unresolve
+      refreshCount();
     } catch (error) {
       console.error('Failed to update feedback', error);
       message.error('Failed to update feedback.');

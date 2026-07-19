@@ -1,6 +1,8 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Clock, PenLine, ChevronLeft, ChevronRight, Send, MessageSquare, Mail, AlignLeft } from 'lucide-react';
 import { useWritingAptisExam } from '../../../hooks/APTIS/writing/useWritingAptisExam';
+import { usePreventNavigation } from '../../../hooks/usePreventNavigation';
 
 /* ─────────────────────────────────────────────────────────
    WORD COUNT HELPER
@@ -104,6 +106,8 @@ const WritingAptisExamPage = ({ isFullTest = false, testIdFromProps = null, onSk
     getPart, getQuestionText, isTimeRunningOut
   } = useWritingAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
+  usePreventNavigation(!isFullTest && !submitting, '/aptis/writing');
+
   if (loading) return (
     <div style={{ minHeight: '100vh', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
@@ -124,32 +128,48 @@ const WritingAptisExamPage = ({ isFullTest = false, testIdFromProps = null, onSk
     }}>
 
       {/* ═══════════════ TOP BAR ═══════════════ */}
-      <div style={{
-        height: 56, background: '#fff', borderBottom: '1px solid #e2e8f0',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 24px', flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: '#faf5ff', color: '#7c3aed',
-            padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
-          }}>
-            <PenLine size={13} />
-            {isFullTest ? 'Writing' : 'Writing Test'}
-          </div>
-          {testDetail?.title && <span style={{ fontSize: 13, color: '#64748b' }}>{testDetail.title}</span>}
-        </div>
+      {!isFullTest ? (
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 7,
-          padding: '5px 14px', borderRadius: 8, fontWeight: 700, fontSize: 16,
-          background: isTimeRunningOut ? '#fef2f2' : '#faf5ff',
-          color: isTimeRunningOut ? '#dc2626' : '#7c3aed',
-          border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#e9d5ff'}`,
+          height: 56, background: '#fff', borderBottom: '1px solid #e2e8f0',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 24px', flexShrink: 0, boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
         }}>
-          <Clock size={16} /> {formatTime(timeLeft)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: '#faf5ff', color: '#7c3aed',
+              padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
+            }}>
+              <PenLine size={13} />
+              Writing Test
+            </div>
+            {testDetail?.title && <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>{testDetail.title}</span>}
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '5px 14px', borderRadius: 8, fontWeight: 700, fontSize: 16,
+            background: isTimeRunningOut ? '#fef2f2' : '#faf5ff',
+            color: isTimeRunningOut ? '#dc2626' : '#7c3aed',
+            border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#e9d5ff'}`,
+          }}>
+            <Clock size={16} /> {formatTime(timeLeft)}
+          </div>
         </div>
-      </div>
+      ) : document.getElementById('aptis-timer-portal') ? (
+        createPortal(
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '4px 12px', borderRadius: 8, fontWeight: 700, fontSize: 15,
+            background: isTimeRunningOut ? '#fef2f2' : '#faf5ff',
+            color: isTimeRunningOut ? '#dc2626' : '#7c3aed',
+            border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#e9d5ff'}`,
+            fontFamily: "'Inter', sans-serif"
+          }}>
+            <Clock size={15} /> {formatTime(timeLeft)}
+          </div>,
+          document.getElementById('aptis-timer-portal')
+        )
+      ) : null}
 
       {/* ═══════════════ STEP INDICATOR ═══════════════ */}
       <div style={{ background: '#fff', borderBottom: '1px solid #f1f5f9', padding: '14px 24px', flexShrink: 0 }}>

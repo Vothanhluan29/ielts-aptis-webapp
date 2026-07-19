@@ -1,10 +1,12 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Image } from 'antd';
 import {
   Mic, Square, CheckCircle2, Loader2, Send,
   PlayCircle, ChevronRight, FileText, Clock
 } from 'lucide-react';
 import { useSpeakingAptisExam } from '../../../hooks/APTIS/speaking/useSpeakingAptisExam';
+import { usePreventNavigation } from '../../../hooks/usePreventNavigation';
 
 /* ─────────────────────────────────────────────────────────
    PROGRESS DOTS  (questions in current part)
@@ -79,6 +81,8 @@ const SpeakingAptisExamPage = ({
     examinerAudioRef, startPrep, startRecording, stopRecording, handleFinishTest,
     PREP_TIME, RECORD_TIME, EXAM_STEPS, formatTime
   } = useSpeakingAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
+
+  usePreventNavigation(!isFullTest && !submitting, '/aptis/speaking');
 
   const isTimeRunningOut = globalTimeLeft !== null && globalTimeLeft < 120;
 
@@ -296,91 +300,151 @@ const SpeakingAptisExamPage = ({
     }}>
 
       {/* ═══════════════ TOP BAR ═══════════════ */}
-      <div style={{
-        height: 56, background: '#fff',
-        borderBottom: '1px solid #e9d5ff',
-        display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 24px', flexShrink: 0,
-        boxShadow: '0 1px 4px rgba(124,58,237,0.08)',
-      }}>
-        {/* Left: Part badge */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: '#faf5ff', color: '#7c3aed',
-            padding: '4px 12px', borderRadius: 20, fontWeight: 700, fontSize: 12,
-            border: '1px solid #e9d5ff',
-          }}>
-            <Mic size={12} />
-            Part {currentPart?.part_number}
-          </div>
-          {!isFullTest && (
-            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
-              {testDetail.title}
-            </span>
-          )}
-          {isFullTest && (
-            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
-              Speaking — Part {currentPart?.part_number}
-            </span>
-          )}
-        </div>
-
-        {/* Right: progress indicator and timer */}
-        {!isPart4 ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {globalTimeLeft !== null && (
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                color: isTimeRunningOut ? '#ef4444' : '#64748b',
-                padding: '4px 12px', borderRadius: 20,
-                background: isTimeRunningOut ? '#fef2f2' : '#f8fafc',
-                border: `1px solid ${isTimeRunningOut ? '#fecaca' : '#e2e8f0'}`,
-              }}>
-                <Clock size={14} />
-                <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
-                  {formatTime(globalTimeLeft)}
-                </span>
-              </div>
-            )}
-            <ProgressDots total={totalQ} current={currentQuestionIdx} />
-            <div style={{
-              background: '#f3f4f6', borderRadius: 8, padding: '4px 12px',
-              fontSize: 13, fontWeight: 700, color: '#475569',
-              border: '1px solid #e2e8f0',
-            }}>
-              {currentQuestionIdx + 1} / {totalQ}
-            </div>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {globalTimeLeft !== null && (
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                color: isTimeRunningOut ? '#ef4444' : '#64748b',
-                padding: '4px 12px', borderRadius: 20,
-                background: isTimeRunningOut ? '#fef2f2' : '#f8fafc',
-                border: `1px solid ${isTimeRunningOut ? '#fecaca' : '#e2e8f0'}`,
-              }}>
-                <Clock size={14} />
-                <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
-                  {formatTime(globalTimeLeft)}
-                </span>
-              </div>
-            )}
+      {!isFullTest ? (
+        <div style={{
+          height: 56, background: '#fff',
+          borderBottom: '1px solid #e9d5ff',
+          display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px', flexShrink: 0,
+          boxShadow: '0 1px 4px rgba(124,58,237,0.08)',
+        }}>
+          {/* Left: Part badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 6,
               background: '#faf5ff', color: '#7c3aed',
               padding: '4px 12px', borderRadius: 20, fontWeight: 700, fontSize: 12,
               border: '1px solid #e9d5ff',
             }}>
-              <FileText size={12} />
-              {totalQ} questions — 1 recording
+              <Mic size={12} />
+              Part {currentPart?.part_number}
             </div>
+            {!isFullTest && (
+              <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
+                {testDetail.title}
+              </span>
+            )}
+            {isFullTest && (
+              <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
+                Speaking — Part {currentPart?.part_number}
+              </span>
+            )}
           </div>
-        )}
-      </div>
+
+          {/* Right: progress indicator and timer */}
+          {!isPart4 ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              {globalTimeLeft !== null && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  color: isTimeRunningOut ? '#ef4444' : '#64748b',
+                  padding: '4px 12px', borderRadius: 20,
+                  background: isTimeRunningOut ? '#fef2f2' : '#f8fafc',
+                  border: `1px solid ${isTimeRunningOut ? '#fecaca' : '#e2e8f0'}`,
+                }}>
+                  <Clock size={14} />
+                  <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                    {formatTime(globalTimeLeft)}
+                  </span>
+                </div>
+              )}
+              <ProgressDots total={totalQ} current={currentQuestionIdx} />
+              <div style={{
+                background: '#f3f4f6', borderRadius: 8, padding: '4px 12px',
+                fontSize: 13, fontWeight: 700, color: '#475569',
+                border: '1px solid #e2e8f0',
+              }}>
+                {currentQuestionIdx + 1} / {totalQ}
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              {globalTimeLeft !== null && (
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  color: isTimeRunningOut ? '#ef4444' : '#64748b',
+                  padding: '4px 12px', borderRadius: 20,
+                  background: isTimeRunningOut ? '#fef2f2' : '#f8fafc',
+                  border: `1px solid ${isTimeRunningOut ? '#fecaca' : '#e2e8f0'}`,
+                }}>
+                  <Clock size={14} />
+                  <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                    {formatTime(globalTimeLeft)}
+                  </span>
+                </div>
+              )}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                background: '#faf5ff', color: '#7c3aed',
+                padding: '4px 12px', borderRadius: 20, fontWeight: 700, fontSize: 12,
+                border: '1px solid #e9d5ff',
+              }}>
+                <FileText size={12} />
+                {totalQ} questions — 1 recording
+              </div>
+            </div>
+          )}
+        </div>
+      ) : document.getElementById('aptis-timer-portal') ? (
+        createPortal(
+          <>
+            {!isPart4 ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                {globalTimeLeft !== null && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    color: isTimeRunningOut ? '#ef4444' : '#64748b',
+                    padding: '4px 12px', borderRadius: 20,
+                    background: isTimeRunningOut ? '#fef2f2' : '#f8fafc',
+                    border: `1px solid ${isTimeRunningOut ? '#fecaca' : '#e2e8f0'}`,
+                  }}>
+                    <Clock size={14} />
+                    <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                      {formatTime(globalTimeLeft)}
+                    </span>
+                  </div>
+                )}
+                <ProgressDots total={totalQ} current={currentQuestionIdx} />
+                <div style={{
+                  background: '#f3f4f6', borderRadius: 8, padding: '4px 12px',
+                  fontSize: 13, fontWeight: 700, color: '#475569',
+                  border: '1px solid #e2e8f0',
+                }}>
+                  {currentQuestionIdx + 1} / {totalQ}
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                {globalTimeLeft !== null && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    color: isTimeRunningOut ? '#ef4444' : '#64748b',
+                    padding: '4px 12px', borderRadius: 20,
+                    background: isTimeRunningOut ? '#fef2f2' : '#f8fafc',
+                    border: `1px solid ${isTimeRunningOut ? '#fecaca' : '#e2e8f0'}`,
+                  }}>
+                    <Clock size={14} />
+                    <span style={{ fontSize: 14, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                      {formatTime(globalTimeLeft)}
+                    </span>
+                  </div>
+                )}
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  background: '#faf5ff', color: '#7c3aed',
+                  padding: '4px 12px', borderRadius: 20, fontWeight: 700, fontSize: 12,
+                  border: '1px solid #e9d5ff',
+                }}>
+                  <FileText size={12} />
+                  {totalQ} questions — 1 recording
+                </div>
+              </div>
+            )}
+          </>,
+          document.getElementById('aptis-timer-portal')
+        )
+      ) : null}
 
       {/* ═══════════════ MAIN CONTENT ═══════════════ */}
       <div style={{

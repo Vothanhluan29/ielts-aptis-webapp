@@ -171,7 +171,7 @@ const ListeningAptisManageList = () => {
                     : 'bg-teal-100 text-teal-700'
                 }`}>
                   {test.is_full_test_only ? <LayoutGrid size={12} /> : <Headphones size={12} />}
-                  {test.is_full_test_only ? 'FULL MOCK TEST' : 'PRACTICE'}
+                  {test.is_full_test_only ? 'FULL TEST' : 'PRACTICE'}
                 </span>
               </div>
 

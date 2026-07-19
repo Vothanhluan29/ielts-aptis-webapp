@@ -188,8 +188,17 @@ const WritingSubmissionListPage = () => {
       {/* HEADER */}
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <Title level={3} className={`mb-1 ${themeColorDark} font-bold`}>
-            Writing Practice Submissions
+          <Title level={3} className="mb-1 font-bold">
+            <span style={{
+              background: isTeacher
+                ? 'linear-gradient(135deg, #0d9488, #0891b2)'
+                : 'linear-gradient(135deg, #f97316, #ea580c)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
+              Writing Practice Submissions
+            </span>
           </Title>
           <Text className="text-gray-500">Read and evaluate students' standalone writing practice submissions</Text>
         </div>

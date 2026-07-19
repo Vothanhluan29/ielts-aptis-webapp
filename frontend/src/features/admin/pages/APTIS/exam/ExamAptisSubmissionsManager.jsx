@@ -221,8 +221,17 @@ const ExamAptisSubmissionsManager = () => {
       {/* HEADER */}
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <Title level={3} className={`mb-1 ${themeColorDark} font-bold`}>
-            <FileTextOutlined className={`mr-2 ${themeColor}`} /> Aptis Submission Management
+          <Title level={3} className="mb-1 font-bold">
+            <span style={{
+              background: isTeacher
+                ? 'linear-gradient(135deg, #0d9488, #0891b2)'
+                : 'linear-gradient(135deg, #f97316, #ea580c)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
+              Aptis Submission Management
+            </span>
           </Title>
           <Text className="text-gray-500">View progress, overall results and grade open-ended responses (Writing/Speaking)</Text>
         </div>

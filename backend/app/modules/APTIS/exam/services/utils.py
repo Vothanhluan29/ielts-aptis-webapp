@@ -53,7 +53,9 @@ class AptisExamUtils:
         if sub.speaking_submission and sub.speaking_submission.status != 'GRADED':
             is_fully_graded = False
 
-        if sub.status == AptisExamStatus.PENDING.value and is_fully_graded:
+        # Phat hien chuyen trang thai PENDING -> COMPLETED de gui notification
+        was_pending = sub.status == AptisExamStatus.PENDING.value
+        if was_pending and is_fully_graded:
             sub.status = AptisExamStatus.COMPLETED.value
 
         if sub.status == AptisExamStatus.COMPLETED.value:
@@ -70,6 +72,11 @@ class AptisExamUtils:
                 if auto_commit:
                     db.commit()
 
+            # Gui notification cho student khi vua chuyen tu PENDING -> COMPLETED
+            # (chi gui 1 lan, khong gui lai khi admin override CEFR)
+            if was_pending and is_fully_graded:
+                AptisExamUtils._send_full_test_completed_notification(db, sub, auto_commit)
+
         elif sub.status == AptisExamStatus.PENDING.value:
             if sub.overall_score != current_overall or sub.overall_cefr_level is not None:
                 sub.overall_score = current_overall
@@ -78,3 +85,58 @@ class AptisExamUtils:
                     db.commit()
 
         return current_overall
+
+    @staticmethod
+    def _send_full_test_completed_notification(db: Session, sub: AptisExamSubmission, auto_commit: bool = True):
+        """
+        Gui thong bao cho student khi tat ca ky nang da duoc cham diem
+        va bai thi Full Test chuyen sang trang thai COMPLETED.
+        Ham nay chi duoc goi 1 lan duy nhat khi PENDING -> COMPLETED.
+        """
+        try:
+            from app.modules.notifications.models import Notification
+            from app.core.websockets import manager
+            from datetime import datetime, timezone
+
+            cefr = sub.overall_cefr_level or AptisExamUtils.calculate_aptis_cefr(sub.overall_score or 0)
+            score = sub.overall_score or 0
+            test_title = sub.full_test.title if sub.full_test else "APTIS Full Test"
+
+            notification = Notification(
+                student_id=sub.user_id,
+                title="🎉 APTIS Full Test Graded!",
+                message=(
+                    f'Your "{test_title}" has been fully graded. '
+                    f"Overall Score: {score}/200 — CEFR Level: {cefr}. "
+                    f"Check your results now!"
+                ),
+                type="SUCCESS"
+            )
+            db.add(notification)
+            if auto_commit:
+                db.commit()
+            else:
+                db.flush()
+
+            # Emit WebSocket notification
+            payload = {
+                "id": str(notification.id),
+                "title": notification.title,
+                "message": notification.message,
+                "type": notification.type,
+                "created_at": (
+                    notification.created_at.isoformat()
+                    if notification.created_at
+                    else datetime.now(timezone.utc).isoformat()
+                ),
+                "is_read": False,
+            }
+            manager.send_personal_message_sync(payload, str(sub.user_id))
+
+        except Exception as e:
+            # Khong nen lam hong luong chinh neu notification that bai
+            import logging
+            logging.getLogger(__name__).warning(
+                f"[AptisExamUtils] Failed to send full-test-completed notification "
+                f"for submission {sub.id}: {e}"
+            )

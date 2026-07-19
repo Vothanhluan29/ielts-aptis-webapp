@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { Skeleton } from 'antd';
 import {
   Clock, BookMarked, ChevronLeft, ChevronRight, Send,
@@ -8,6 +9,7 @@ import {
 import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion';
 import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion';
 import { useGrammarVocabExam, TABS } from '../../../hooks/APTIS/grammar_vocab/useGrammarVocabExam';
+import { usePreventNavigation } from '../../../hooks/usePreventNavigation';
 
 /* ─────────────────────────────────────────────────────────
    DESIGN TOKENS
@@ -83,6 +85,8 @@ const GrammarVocabExamPage = ({
     confirmSubmit, formatTime
   } = useGrammarVocabExam({ isFullTest, testIdFromProps, onSkillFinish });
 
+  usePreventNavigation(!isFullTest && !submitting, '/aptis/grammar-vocab');
+
   /* ── Loading ── */
   if (loading) {
     return (
@@ -108,33 +112,40 @@ const GrammarVocabExamPage = ({
     }}>
 
       {/* ═══════════════ TOP BAR ═══════════════ */}
-      <div style={{
-        height: 56, background: '#fff',
-        borderBottom: '1px solid #e2e8f0',
-        display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 24px', position: 'sticky', top: 0, zIndex: 20,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-      }}>
-        {/* Left */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: ACCENT_LIGHT, color: ACCENT,
-            padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
-          }}>
-            <BookMarked size={13} />
-            {isFullTest ? 'Grammar & Vocabulary' : 'Grammar & Vocab Test'}
+      {!isFullTest ? (
+        <div style={{
+          height: 56, background: '#fff',
+          borderBottom: '1px solid #e2e8f0',
+          display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px', position: 'sticky', top: 0, zIndex: 20,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}>
+          {/* Left */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: ACCENT_LIGHT, color: ACCENT,
+              padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
+            }}>
+              <BookMarked size={13} />
+              Grammar & Vocab Test
+            </div>
+            {testDetail?.title && (
+              <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
+                {testDetail.title}
+              </span>
+            )}
           </div>
-          {testDetail?.title && (
-            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
-              {testDetail.title}
-            </span>
-          )}
+          {/* Right */}
+          <TimerBadge timeLeft={timeLeft} formatTime={formatTime} isRunningOut={isTimeRunningOut} />
         </div>
-        {/* Right */}
-        <TimerBadge timeLeft={timeLeft} formatTime={formatTime} isRunningOut={isTimeRunningOut} />
-      </div>
+      ) : document.getElementById('aptis-timer-portal') ? (
+        createPortal(
+          <TimerBadge timeLeft={timeLeft} formatTime={formatTime} isRunningOut={isTimeRunningOut} />,
+          document.getElementById('aptis-timer-portal')
+        )
+      ) : null}
 
       {/* ═══════════════ CONTENT ═══════════════ */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '24px 16px' }}>

@@ -92,7 +92,7 @@ const GramVocabManagePage = () => {
         {/* Table Header (Desktop only) */}
         <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 text-xs font-bold text-zinc-500 uppercase tracking-wider">
           <div className="col-span-4">Test Title</div>
-          <div className="col-span-2">Duration</div>
+          <div className="col-span-2">Time Limit</div>
           <div className="col-span-3">Type</div>
           <div className="col-span-2">Status</div>
           <div className="col-span-1 text-right">Actions</div>
@@ -172,7 +172,7 @@ const GramVocabManagePage = () => {
                     : 'bg-blue-100 text-blue-700'
                 }`}>
                   {test.is_full_test_only ? <LayoutGrid size={12} /> : <GraduationCap size={12} />}
-                  {test.is_full_test_only ? 'FULL MOCK TEST' : 'PRACTICE'}
+                  {test.is_full_test_only ? 'FULL TEST' : 'PRACTICE'}
                 </span>
               </div>
 

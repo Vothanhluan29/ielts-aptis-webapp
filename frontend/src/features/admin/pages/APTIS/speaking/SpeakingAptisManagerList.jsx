@@ -172,7 +172,7 @@ const SpeakingAptisManagerList = () => {
                     : 'bg-blue-100 text-blue-700'
                 }`}>
                   {test.is_full_test_only ? <LayoutGrid size={12} /> : <Mic size={12} />}
-                  {test.is_full_test_only ? 'FULL MOCK TEST' : 'PRACTICE'}
+                  {test.is_full_test_only ? 'FULL TEST' : 'PRACTICE'}
                 </span>
               </div>
 

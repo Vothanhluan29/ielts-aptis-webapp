@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Form, Button, Card, Switch, InputNumber,
+  Form, Button, Card, Switch, InputNumber, Space,
   Select, Spin, Row, Col, Typography, Collapse, Popconfirm, Tabs, Input
 } from 'antd';
 import {
@@ -169,6 +169,8 @@ const GramVocabEditPage = () => {
     draftExists, lastSavedTime, handleFormChange, restoreDraft, clearDraft
   } = useGramVocabEdit();
 
+  const currentTitle = Form.useWatch('title', form);
+
   if (loading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>;
 
   const isMaxed = totalCount >= MAX_QUESTIONS;
@@ -236,7 +238,7 @@ const GramVocabEditPage = () => {
         <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/grammar-vocab' : '/admin/aptis/grammar-vocab')}>Back</Button>
           <Title level={4} style={{ margin: 0 }}>
-            {isEditMode ? `Edit Test #${id}` : 'Create Grammar & Vocab Test'}
+            {isEditMode ? `Edit Test: ${currentTitle || id}` : 'Create Grammar & Vocab Test'}
           </Title>
         </span>
         <span style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -265,36 +267,41 @@ const GramVocabEditPage = () => {
       />
 
       <Form form={form} layout="vertical" onFinish={onFinish} onFinishFailed={onFinishFailed} onValuesChange={handleFormChange} preserve autoComplete="off">
-        <Card size="small" title="General Settings" style={{ marginBottom: 16, borderRadius: 12 }}>
+        {/* ================= GENERAL SETTINGS ================= */}
+        <Card size="small" title="1. General Settings" style={{ marginBottom: 16, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
           <Row gutter={16}>
-            <Col span={10}>
-              <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Title is required' }]}>
-                <Input placeholder="Aptis Core Practice 01" />
+            <Col span={18}>
+              <Form.Item name="title" label="Test Title" rules={[{ required: true, message: 'Title is required' }]}>
+                <Input placeholder="e.g. Aptis Grammar & Vocab Practice 01" size="large" />
               </Form.Item>
             </Col>
-            <Col span={4}>
-              <Form.Item name="time_limit" label="Duration (mins)" rules={[{ required: true, message: 'Duration is required' }]}>
-                <InputNumber min={5} max={120} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={5}>
-              <Form.Item name="is_full_test_only" valuePropName="checked" label="Test Mode">
-                <Switch checkedChildren="Mock" unCheckedChildren="Practice" />
-              </Form.Item>
-            </Col>
-            <Col span={5}>
-              <Form.Item name="is_published" valuePropName="checked" label="Status">
-                <Switch checkedChildren="Published" unCheckedChildren="Draft" />
-              </Form.Item>
-            </Col>
-            <Col span={24}>
-              <Form.Item name="description" label="Description (Optional)" style={{ marginBottom: 0 }}>
-                <Input.TextArea rows={2} placeholder="Short description..." />
+            <Col span={6}>
+              <Form.Item name="time_limit" label="Time Limit (minutes)" rules={[{ required: true, message: 'Time limit is required' }]}>
+                <InputNumber min={5} max={120} style={{ width: '100%' }} size="large" />
               </Form.Item>
             </Col>
           </Row>
+
+          <Form.Item name="description" label="Test Description (Optional)">
+            <Input.TextArea 
+              rows={3} 
+              placeholder="Enter instructions, notes or a short description for this test..." 
+              maxLength={500} 
+              showCount 
+            />
+          </Form.Item>
+
+          <Space size="large">
+            <Form.Item name="is_published" valuePropName="checked" label="Status" style={{ marginBottom: 0 }}>
+              <Switch checkedChildren="Published" unCheckedChildren="Draft" />
+            </Form.Item>
+            <Form.Item name="is_full_test_only" valuePropName="checked" label="Test Mode" style={{ marginBottom: 0 }}>
+              <Switch checkedChildren="Full Test" unCheckedChildren="Practice" />
+            </Form.Item>
+          </Space>
         </Card>
 
+        {/* ================= TEST CONTENT ================= */}
         <Tabs type="card" items={tabItems} style={{ backgroundColor: '#fafafa', paddingTop: 8, borderRadius: 12 }} />
       </Form>
     </div>

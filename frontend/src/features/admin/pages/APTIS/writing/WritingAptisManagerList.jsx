@@ -172,7 +172,7 @@ const WritingAptisManagerList = () => {
                     : 'bg-amber-100 text-amber-700'
                 }`}>
                   {test.is_full_test_only ? <LayoutGrid size={12} /> : <Edit3 size={12} />}
-                  {test.is_full_test_only ? 'FULL MOCK TEST' : 'PRACTICE'}
+                  {test.is_full_test_only ? 'FULL TEST' : 'PRACTICE'}
                 </span>
               </div>
 

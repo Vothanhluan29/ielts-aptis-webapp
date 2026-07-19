@@ -12,6 +12,7 @@ import {
   Sparkles,
   MessageSquare
 } from "lucide-react";
+import { useFeedbackCount } from "../../contexts/FeedbackCountContext";
 
 const AptisSideBar = ({ layoutProps }) => {
   const { isCollapsed, toggleSidebar, logout, basePath = "/admin/aptis" } = layoutProps;
@@ -31,6 +32,9 @@ const AptisSideBar = ({ layoutProps }) => {
 
   const toggleSkills = () => setOpenSkills(!openSkills);
   const toggleGrading = () => setOpenGrading(!openGrading);
+
+  // ── Feedback pending badge — dung tu Context chia se ──
+  const { count: pendingFeedbackCount } = useFeedbackCount();
 
   // Professional color palette: dark slate for sidebar
   const bgSidebar = "bg-[#09090b]"; // Zinc 950
@@ -95,6 +99,7 @@ const AptisSideBar = ({ layoutProps }) => {
           isActive={location.pathname === `${basePath}/feedback`}
           isCollapsed={isCollapsed}
           accentColor={isTeacher ? "teal" : "orange"}
+          badge={pendingFeedbackCount > 0 ? pendingFeedbackCount : null}
         />
 
         {/* GRADING DROPDOWN */}
@@ -245,14 +250,15 @@ const AptisSideBar = ({ layoutProps }) => {
 /* =========================
    SIDEBAR LINK COMPONENT
 ========================= */
-const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed, accentColor = "orange" }) => {
+const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed, accentColor = "orange", badge = null }) => {
   const activeBg = accentColor === "orange" ? "bg-orange-500" : "bg-teal-500";
   const activeText = accentColor === "orange" ? "text-orange-400" : "text-teal-400";
+  const badgeBg = accentColor === "orange" ? "bg-orange-500" : "bg-teal-500";
   
   return (
     <Link
       to={to}
-      title={isCollapsed ? label : ""}
+      title={isCollapsed ? (badge ? `${label} (${badge} pending)` : label) : ""}
       className={`group flex items-center gap-3 rounded-xl font-medium transition-all duration-200 relative ${
         isActive 
           ? "bg-zinc-800/80 text-white shadow-sm ring-1 ring-zinc-700/50" 
@@ -263,14 +269,33 @@ const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed, accentColor
         <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 ${activeBg} rounded-r-full shadow-[0_0_8px_rgba(0,0,0,0.5)]`} />
       )}
       
-      {Icon && (
-        <Icon 
-          size={18} 
-          className={`shrink-0 transition-colors duration-200 ${isActive ? activeText : 'text-zinc-400 group-hover:text-zinc-300'}`} 
-        />
-      )}
+      {/* Icon + collapsed badge */}
+      <div className="relative shrink-0">
+        {Icon && (
+          <Icon 
+            size={18} 
+            className={`transition-colors duration-200 ${isActive ? activeText : 'text-zinc-400 group-hover:text-zinc-300'}`} 
+          />
+        )}
+        {/* Badge dot khi sidebar collapsed */}
+        {isCollapsed && badge !== null && (
+          <span className={`absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 rounded-full ${badgeBg} text-white text-[9px] font-bold flex items-center justify-center shadow-lg animate-pulse`}>
+            {badge > 99 ? "99+" : badge}
+          </span>
+        )}
+      </div>
       
-      {!isCollapsed && <span className="text-[14px]">{label}</span>}
+      {/* Label + badge khi sidebar mo rong */}
+      {!isCollapsed && (
+        <span className="flex-1 flex items-center justify-between gap-2 text-[14px]">
+          {label}
+          {badge !== null && (
+            <span className={`inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full ${badgeBg} text-white text-[10px] font-bold shadow-md transition-all duration-300`}>
+              {badge > 99 ? "99+" : badge}
+            </span>
+          )}
+        </span>
+      )}
     </Link>
   );
 };

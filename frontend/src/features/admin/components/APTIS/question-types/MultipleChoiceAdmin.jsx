@@ -66,18 +66,19 @@ const MultipleChoiceAdmin = ({ relativePath, absolutePath, form }) => {
             <Form.List name={[...relativePath, 'options']}>
               {(fields, { add, remove }) => (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  {fields.map((field, index) => {
+                  {fields.map(({ key, name, ...restField }, index) => {
                     const letter = String.fromCharCode(65 + index);
 
                     return (
                       <div
-                        key={field.key}
+                        key={key}
                         style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}
                       >
                         <Radio value={index.toString()} style={{ marginTop: 5 }} />
 
                         <Form.Item
-                          {...field}
+                          {...restField}
+                          name={name}
                           validateTrigger={['onChange', 'onBlur']}
                           rules={[{ required: true, message: `Enter Option ${letter}` }]}
                           style={{ flex: 1, marginBottom: 0 }}

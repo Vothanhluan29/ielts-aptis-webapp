@@ -172,7 +172,7 @@ const ReadingAptisManagerList = () => {
                     : 'bg-indigo-100 text-indigo-700'
                 }`}>
                   {test.is_full_test_only ? <LayoutGrid size={12} /> : <BookOpen size={12} />}
-                  {test.is_full_test_only ? 'FULL MOCK TEST' : 'PRACTICE'}
+                  {test.is_full_test_only ? 'FULL TEST' : 'PRACTICE'}
                 </span>
               </div>
 

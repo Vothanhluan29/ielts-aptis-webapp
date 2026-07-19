@@ -184,8 +184,17 @@ const SpeakingSubmissionListPage = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="mb-6">
-        <Title level={3} className={`mb-1 ${themeColorDark} font-bold`}>
-            Speaking Practice Submissions
+        <Title level={3} className="mb-1 font-bold">
+            <span style={{
+              background: isTeacher
+                ? 'linear-gradient(135deg, #0d9488, #0891b2)'
+                : 'linear-gradient(135deg, #f97316, #ea580c)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
+              Speaking Practice Submissions
+            </span>
         </Title>
         <Text className="text-gray-500">Listen to audio recordings and evaluate standalone speaking practice submissions</Text>
       </div>

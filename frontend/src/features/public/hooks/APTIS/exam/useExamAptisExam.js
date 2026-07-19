@@ -40,18 +40,7 @@ export const useAptisExam = (id) => {
 
   useEffect(() => {
     fetchCurrentProgress();
-
-    const handleBeforeUnload = (e) => {
-      e.preventDefault();
-      e.returnValue = '';
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [fetchCurrentProgress]); 
+  }, [fetchCurrentProgress]);
 
   const handleSkillFinish = async (skillSubmissionId) => {
     if (!submission) return;

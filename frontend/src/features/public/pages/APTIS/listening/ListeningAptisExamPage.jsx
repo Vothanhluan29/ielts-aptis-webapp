@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Progress, message } from 'antd';
 import {
   Clock, Headphones, ChevronLeft, ChevronRight, Send,
@@ -8,6 +9,7 @@ import {
 import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion';
 import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuestion';
 import { useListeningAptisExam } from '../../../hooks/APTIS/listening/useListeningAptisExam';
+import { usePreventNavigation } from '../../../hooks/usePreventNavigation';
 
 /* ─────────────────────────────────────────────────────────
    AUDIO PLAYER — APTIS style
@@ -154,6 +156,8 @@ const ListeningAptisExamPage = ({
     confirmSubmit, formatTime, handleGoBackEmpty
   } = useListeningAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
 
+  usePreventNavigation(!isFullTest && !submitting, '/aptis/listening');
+
   useEffect(() => {
     if (!loading && activePart) {
       console.log('[Listening] activePart audio:', testDetail?.audio_url, activePart);
@@ -191,38 +195,55 @@ const ListeningAptisExamPage = ({
     }}>
 
       {/* ═══════════════ TOP BAR ═══════════════ */}
-      <div style={{
-        height: 56, background: '#fff',
-        borderBottom: '1px solid #e2e8f0',
-        display: 'flex', alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 24px', position: 'sticky', top: 0, zIndex: 20,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: '#eff6ff', color: '#1d4ed8',
-            padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
-          }}>
-            <Headphones size={13} />
-            {isFullTest ? 'Listening' : 'Listening Test'}
-          </div>
-          {testDetail?.title && (
-            <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>{testDetail.title}</span>
-          )}
-        </div>
-        {/* Timer */}
+      {!isFullTest ? (
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 7,
-          padding: '5px 14px', borderRadius: 8, fontWeight: 700, fontSize: 16,
-          background: isTimeRunningOut ? '#fef2f2' : '#eff6ff',
-          color: isTimeRunningOut ? '#dc2626' : '#1d4ed8',
-          border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#bfdbfe'}`,
+          height: 56, background: '#fff',
+          borderBottom: '1px solid #e2e8f0',
+          display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '0 24px', position: 'sticky', top: 0, zIndex: 20,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
         }}>
-          <Clock size={16} /> {formatTime(timeLeft)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: '#eff6ff', color: '#1d4ed8',
+              padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
+            }}>
+              <Headphones size={13} />
+              Listening Test
+            </div>
+            {testDetail?.title && (
+              <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
+                {testDetail.title}
+              </span>
+            )}
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '5px 14px', borderRadius: 8, fontWeight: 700, fontSize: 16,
+            background: isTimeRunningOut ? '#fef2f2' : '#eff6ff',
+            color: isTimeRunningOut ? '#dc2626' : '#1d4ed8',
+            border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#bfdbfe'}`,
+          }}>
+            <Clock size={16} /> {formatTime(timeLeft)}
+          </div>
         </div>
-      </div>
+      ) : document.getElementById('aptis-timer-portal') ? (
+        createPortal(
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '4px 12px', borderRadius: 8, fontWeight: 700, fontSize: 15,
+            background: isTimeRunningOut ? '#fef2f2' : '#eff6ff',
+            color: isTimeRunningOut ? '#dc2626' : '#1d4ed8',
+            border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#bfdbfe'}`,
+            fontFamily: "'Inter', sans-serif"
+          }}>
+            <Clock size={15} /> {formatTime(timeLeft)}
+          </div>,
+          document.getElementById('aptis-timer-portal')
+        )
+      ) : null}
 
       {/* ═══════════════ PART TABS ═══════════════ */}
       <div style={{

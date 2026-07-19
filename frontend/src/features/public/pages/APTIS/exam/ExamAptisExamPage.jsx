@@ -4,7 +4,8 @@ import { Spin, Steps, Modal, Typography, Button } from 'antd';
 import { ClipboardList, BookOpen, Headphones, PenTool, Mic, ShieldAlert } from 'lucide-react';
 
 // Nhúng Custom Hook vào
-import { useAptisExam } from '../../../hooks/APTIS/exam/useExamAptisExam'; 
+import { useAptisExam } from '../../../hooks/APTIS/exam/useExamAptisExam';
+import { usePreventNavigation } from '../../../hooks/usePreventNavigation';
 
 import GrammarVocabExamPage from '../grammar_vocab/GrammarVocabExamPage';
 import ListeningAptisExamPage from '../listening/ListeningAptisExamPage';
@@ -35,6 +36,8 @@ const ExamAptisExamPage = () => {
     transitionMsg, 
     handleSkillFinish 
   } = useAptisExam(id);
+
+  usePreventNavigation(!!submission && submission.status === 'IN_PROGRESS', '/aptis/exam');
 
   const renderCurrentSkill = () => {
     if (!submission) return null;
@@ -114,24 +117,27 @@ const ExamAptisExamPage = () => {
           />
         </div>
 
-        {/* EXIT BUTTON */}
-        <Button
-          danger
-          type="text"
-          className="font-bold"
-          onClick={() => {
-            Modal.confirm({
-              title: 'Are you sure you want to exit?',
-              content: 'Your progress for the current part might not be fully saved. You can still return to continue later.',
-              okText: 'Exit Exam',
-              cancelText: 'Continue',
-              okButtonProps: { danger: true },
-              onOk: () => navigate('/aptis/exam'),
-            });
-          }}
-        >
-          Exit
-        </Button>
+        <div className="flex items-center gap-4">
+          <div id="aptis-timer-portal"></div>
+          {/* EXIT BUTTON */}
+          <Button
+            danger
+            type="text"
+            className="font-bold"
+            onClick={() => {
+              Modal.confirm({
+                title: 'Are you sure you want to exit?',
+                content: 'Your progress for the current part might not be fully saved. You can still return to continue later.',
+                okText: 'Exit Exam',
+                cancelText: 'Continue',
+                okButtonProps: { danger: true },
+                onOk: () => navigate('/aptis/exam'),
+              });
+            }}
+          >
+            Exit
+          </Button>
+        </div>
       </div>
 
       {/* MAIN CONTENT */}

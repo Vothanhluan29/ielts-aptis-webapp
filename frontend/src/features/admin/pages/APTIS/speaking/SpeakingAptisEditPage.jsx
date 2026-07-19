@@ -117,7 +117,7 @@ const SpeakingAptisEditPage = () => {
               <Switch checkedChildren="Published" unCheckedChildren="Draft" />
             </Form.Item>
             <Form.Item name="is_full_test_only" valuePropName="checked" label={<Text strong>Exam Mode</Text>} style={{ marginBottom: 0 }}>
-              <Switch checkedChildren="Mock Test" unCheckedChildren="Practice" />
+              <Switch checkedChildren="Full Test" unCheckedChildren="Practice" />
             </Form.Item>
           </Space>
         </Card>

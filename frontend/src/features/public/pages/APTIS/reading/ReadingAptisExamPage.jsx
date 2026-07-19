@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import {
   Clock, BookOpen, ChevronLeft, ChevronRight, Send,
   FileText, CheckCircle2, AlertCircle, BookOpenCheck
@@ -9,6 +10,7 @@ import DropdownQuestion from '../../../components/APTIS/ExamForms/DropdownQuesti
 import ReorderQuestion from '../../../components/APTIS/ExamForms/ReorderQuestion';
 import FillInBlankQuestion from '../../../components/APTIS/ExamForms/FillInBlankQuestion';
 import { useReadingAptisExam } from '../../../hooks/APTIS/reading/useReadingAptisExam';
+import { usePreventNavigation } from '../../../hooks/usePreventNavigation';
 
 /* ─────────────────────────────────────────────────────────
    HELPERS
@@ -40,6 +42,8 @@ const ReadingAptisExamPage = ({
     hasReadingPassage, isTimeRunningOut,
     handleAnswerChange, confirmSubmit, formatTime, handleGoBackEmpty
   } = useReadingAptisExam({ isFullTest, testIdFromProps, onSkillFinish });
+
+  usePreventNavigation(!isFullTest && !submitting, '/aptis/reading');
 
   /* ── Dynamic question numbering ── */
   const renderQuestionsList = (groups) => {
@@ -132,33 +136,50 @@ const ReadingAptisExamPage = ({
     }}>
 
       {/* ═══════════════ TOP BAR ═══════════════ */}
-      <div style={{
-        height: 56, background: '#fff', borderBottom: '1px solid #e2e8f0',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 24px', position: 'sticky', top: 0, zIndex: 40,
-        boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            background: '#f0fdfa', color: '#0f766e',
-            padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
-          }}>
-            <BookOpen size={13} />
-            {isFullTest ? 'Reading' : 'Reading Test'}
-          </div>
-          {testDetail?.title && <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>{testDetail.title}</span>}
-        </div>
+      {!isFullTest ? (
         <div style={{
-          display: 'flex', alignItems: 'center', gap: 7,
-          padding: '5px 14px', borderRadius: 8, fontWeight: 700, fontSize: 16,
-          background: isTimeRunningOut ? '#fef2f2' : '#f0fdfa',
-          color: isTimeRunningOut ? '#dc2626' : '#0f766e',
-          border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#99f6e4'}`,
+          height: 56, background: '#fff',
+          borderBottom: '1px solid #e2e8f0',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 24px', position: 'sticky', top: 0, zIndex: 40,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
         }}>
-          <Clock size={16} /> {formatTime(timeLeft)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              background: '#f0fdfa', color: '#0f766e',
+              padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
+            }}>
+              <BookOpen size={13} />
+              Reading Test
+            </div>
+            {testDetail?.title && <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>{testDetail.title}</span>}
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '5px 14px', borderRadius: 8, fontWeight: 700, fontSize: 16,
+            background: isTimeRunningOut ? '#fef2f2' : '#f0fdfa',
+            color: isTimeRunningOut ? '#dc2626' : '#0f766e',
+            border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#99f6e4'}`,
+          }}>
+            <Clock size={16} /> {formatTime(timeLeft)}
+          </div>
         </div>
-      </div>
+      ) : document.getElementById('aptis-timer-portal') ? (
+        createPortal(
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 7,
+            padding: '4px 12px', borderRadius: 8, fontWeight: 700, fontSize: 15,
+            background: isTimeRunningOut ? '#fef2f2' : '#f0fdfa',
+            color: isTimeRunningOut ? '#dc2626' : '#0f766e',
+            border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#99f6e4'}`,
+            fontFamily: "'Inter', sans-serif"
+          }}>
+            <Clock size={15} /> {formatTime(timeLeft)}
+          </div>,
+          document.getElementById('aptis-timer-portal')
+        )
+      ) : null}
 
       {/* ═══════════════ PART TABS ═══════════════ */}
       <div style={{ background: '#fff', borderBottom: '1px solid #f1f5f9', padding: '10px 24px' }}>
