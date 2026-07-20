@@ -104,7 +104,7 @@ class AptisExamUtils:
 
             notification = Notification(
                 student_id=sub.user_id,
-                title="🎉 APTIS Full Test Graded!",
+                title="APTIS Full Test Graded!",
                 message=(
                     f'Your "{test_title}" has been fully graded. '
                     f"Overall Score: {score}/200 — CEFR Level: {cefr}. "

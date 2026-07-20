@@ -196,7 +196,7 @@ const SpeakingAptisExamPage = ({
           <p style={{ margin: '0 0 24px', fontSize: 14, color: '#94a3b8' }}>
             {PREP_TIME > 0
               ? <>You will have <strong style={{ color: '#7c3aed' }}>{PREP_TIME}s</strong> to prepare, then{' '}
-                  <strong style={{ color: '#ef4444' }}>{RECORD_TIME}s</strong> to record your answer.</>
+                <strong style={{ color: '#ef4444' }}>{RECORD_TIME}s</strong> to record your answer.</>
               : <>You will have <strong style={{ color: '#ef4444' }}>{RECORD_TIME}s</strong> to record your answer. Recording starts immediately.</>
             }
           </p>
@@ -471,6 +471,28 @@ const SpeakingAptisExamPage = ({
                   </div>
                 )}
 
+                {/* Examiner audio */}
+                {currentQuestion?.audio_url && (
+                  <>
+                    <audio ref={examinerAudioRef} src={currentQuestion.audio_url} className="hidden" />
+                    {audioBlocked && (
+                      <div style={{ marginBottom: 16 }}>
+                        <button
+                          onClick={() => { examinerAudioRef.current?.play(); setAudioBlocked(false); }}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: 8,
+                            padding: '8px 16px', borderRadius: 8, border: 'none',
+                            background: '#7c3aed', color: '#fff', fontWeight: 600,
+                            fontSize: 13, cursor: 'pointer',
+                          }}
+                        >
+                          <PlayCircle size={16} /> Play question audio
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+
                 {/* Section label */}
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: 8,
@@ -520,7 +542,7 @@ const SpeakingAptisExamPage = ({
               </div>
 
               {/* RIGHT: Recording controls */}
-              <RecordingPanel />
+              {RecordingPanel()}
             </div>
 
           ) : (
@@ -587,7 +609,7 @@ const SpeakingAptisExamPage = ({
               </div>
 
               {/* RIGHT: Recording controls */}
-              <RecordingPanel />
+              {RecordingPanel()}
             </div>
           )}
 
