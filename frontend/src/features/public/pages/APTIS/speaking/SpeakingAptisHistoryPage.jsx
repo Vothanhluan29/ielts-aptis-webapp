@@ -93,7 +93,7 @@ const SpeakingAptisHistoryPage = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {history.map((record) => {
-              const score = record.score || 0;
+              const score = record.total_score ?? record.score ?? 0;
               const cefr = record.cefr_level || 'N/A';
               const cefrStyle = getCefrColorStyle(cefr);
               const title = record.test?.title || testTitles[record.test_id] || `Test #${record.test_id}`;

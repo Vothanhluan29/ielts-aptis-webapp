@@ -28,8 +28,12 @@ export const NotificationProvider = ({ children }) => {
     const token = localStorage.getItem('access_token');
     if (!token) return;
 
-    // Use environment variable or default to localhost
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/api';
+    // Use environment variable or deduce from API base URL
+    let wsUrl = import.meta.env.VITE_WS_URL;
+    if (!wsUrl) {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      wsUrl = apiUrl.replace(/^http/, 'ws');
+    }
     const ws = new WebSocket(`${wsUrl}/notifications/ws?token=${token}`);
 
     ws.onmessage = (event) => {
