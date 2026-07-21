@@ -25,6 +25,10 @@ const authApi = {
     return axiosClient.get(API_URLS.ME);
   },
 
+  logout: () => {
+    return axiosClient.post('/auth/logout');
+  },
+
   updateProfile: (data) => axiosClient.patch('/users/me', data),
 
   changePassword: (data) => axiosClient.post('/users/me/password', data),

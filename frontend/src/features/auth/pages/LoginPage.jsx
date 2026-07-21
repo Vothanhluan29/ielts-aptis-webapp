@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { GoogleLogin } from '@react-oauth/google';
@@ -18,6 +18,29 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await authApi.getMe();
+        if (user) {
+          const isAdmin = user.role && (user.role.toLowerCase() === 'admin' || user.role.includes('ADMIN'));
+          const isTeacher = user.role && (user.role.toLowerCase() === 'teacher' || user.role.includes('TEACHER'));
+          
+          if (isAdmin) {
+            navigate('/admin/dashboard', { replace: true });
+          } else if (isTeacher) {
+            navigate('/teacher/dashboard', { replace: true });
+          } else {
+            navigate('/aptis/dashboard', { replace: true });
+          }
+        }
+      } catch (err) {
+        // Not authenticated, stay on login page
+      }
+    };
+    checkAuth();
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -72,8 +95,7 @@ export default function LoginPage() {
     setLoading(true);
     const tid = toast.loading('Authenticating...');
     try {
-      const res = await authApi.login(formData.email, formData.password);
-      localStorage.setItem('access_token', res.access_token);
+      await authApi.login(formData.email, formData.password);
       toast.success('Access granted.', { id: tid });
       await redirect();
     } catch (err) {
@@ -89,8 +111,7 @@ export default function LoginPage() {
     if (!credential) { toast.error('Cannot get Google Token'); return; }
     const tid = toast.loading('Verifying token...');
     try {
-      const res = await authApi.loginWithGoogle(credential);
-      localStorage.setItem('access_token', res.access_token);
+      await authApi.loginWithGoogle(credential);
       toast.success('Access granted.', { id: tid });
       await redirect();
     } catch {

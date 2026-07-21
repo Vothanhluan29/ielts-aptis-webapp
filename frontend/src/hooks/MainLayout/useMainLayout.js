@@ -20,7 +20,6 @@ export const useMainLayout = () => {
       setUser(data);
     } catch (err) {
       console.error('Auth error:', err);
-      localStorage.removeItem('access_token');
 
       // Show message only if not on login page to avoid repetition
       if (location.pathname !== '/login') {
@@ -64,8 +63,12 @@ export const useMainLayout = () => {
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
-  const handleLogout = () => {
-      localStorage.removeItem('access_token');
+  const handleLogout = async () => {
+      try {
+        await authApi.logout();
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
       message.success('Logged out successfully');
       navigate('/login', { replace: true });
   };

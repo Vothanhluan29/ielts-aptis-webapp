@@ -64,6 +64,15 @@ def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), 
     
     set_refresh_token_cookie_and_db(db, response, user.id)
     
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+    
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/google", response_model=auth_schemas.Token)
@@ -86,6 +95,15 @@ def login_google(
     )
     
     set_refresh_token_cookie_and_db(db, response, user.id)
+    
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
     
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -124,6 +142,15 @@ def refresh_token(
         data={"sub": user.email, "role": user.role, "id": user.id}
     )
     
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    )
+    
     # Optionally, we could rotate the refresh token here
     # set_refresh_token_cookie_and_db(db, response, user.id)
     # db.delete(db_token)
@@ -139,4 +166,5 @@ def logout(response: Response, refresh_token: str = Cookie(None), db: Session = 
             db_token.is_revoked = True
             db.commit()
     response.delete_cookie("refresh_token")
+    response.delete_cookie("access_token")
     return {"message": "Logged out successfully"}

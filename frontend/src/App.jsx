@@ -12,8 +12,10 @@ import LoginPage from './features/auth/pages/LoginPage';
 import RegisterPage from './features/auth/pages/RegisterPage';
 import StudentProfile from './features/auth/pages/StudentProfile';
 
-/* --- CHOOSE MODE PAGE (TRANG CỔNG CHÀO) --- */
 import ModeSelectionPage from './features/auth/pages/ModeSelectionPage'; 
+
+/* --- REDIRECT --- */
+import RootRedirect from './routes/RootRedirect';
 
 /* --- FEEDBACK --- */
 import FeedbackPage from './features/public/pages/feedback/FeedbackPage';
@@ -171,10 +173,10 @@ function App() {
 
         <Route path="/choose-mode" element={<ModeSelectionPage />} />
 
+        <Route path="/" element={<RootRedirect />} />
+
         {/* ================= STUDENT LAYOUT (IELTS AND APTIS) ================= */}
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<Navigate to="/aptis/dashboard" replace />} />
-          
+        <Route element={<MainLayout />}>
           {/* --- IELTS ROUTES --- */}
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="profile" element={<StudentProfile />} />

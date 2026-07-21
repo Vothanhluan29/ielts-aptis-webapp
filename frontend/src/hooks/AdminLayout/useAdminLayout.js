@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { message } from 'antd';
+import authApi from '../../features/auth/api/authApi';
 
 export const useAdminLayout = () => {
   const navigate = useNavigate();
@@ -21,8 +22,12 @@ export const useAdminLayout = () => {
     setIsSkillsManuallyOpen(prev => !prev);
   }, []);
 
-  const logout = () => {
-    localStorage.removeItem('access_token');
+  const logout = async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
     message.success('Admin logged out successfully');
     navigate('/login');
   };

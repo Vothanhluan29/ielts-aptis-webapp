@@ -16,16 +16,12 @@ const subscribeTokenRefresh = (cb) => {
   refreshSubscribers.push(cb);
 };
 
-const onRefreshed = (token) => {
-  refreshSubscribers.map((cb) => cb(token));
+const onRefreshed = () => {
+  refreshSubscribers.map((cb) => cb());
 };
 
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -39,7 +35,6 @@ axiosClient.interceptors.response.use(
 
     if (response && response.status === 401) {
       if (originalRequest.url.includes('/auth/login') || originalRequest.url.includes('/auth/refresh') || originalRequest.url.includes('/auth/google')) {
-        localStorage.removeItem('access_token');
         return Promise.reject(error);
       }
 
@@ -52,19 +47,14 @@ axiosClient.interceptors.response.use(
             { withCredentials: true }
           );
           
-          const newAccessToken = res.data.access_token;
-          localStorage.setItem('access_token', newAccessToken);
-          
           isRefreshing = false;
-          onRefreshed(newAccessToken);
+          onRefreshed();
           refreshSubscribers = [];
 
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return axios(originalRequest).then(res => res.data);
+          return axiosClient(originalRequest);
         } catch (refreshError) {
           isRefreshing = false;
           refreshSubscribers = [];
-          localStorage.removeItem('access_token');
 
           if (window.location.pathname !== '/login') {
             message.error('Session expired. Please log in again!');
@@ -76,9 +66,8 @@ axiosClient.interceptors.response.use(
         }
       } else {
         return new Promise((resolve) => {
-          subscribeTokenRefresh((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            resolve(axios(originalRequest).then(res => res.data));
+          subscribeTokenRefresh(() => {
+            resolve(axiosClient(originalRequest));
           });
         });
       }
