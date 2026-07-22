@@ -49,7 +49,6 @@ export default function RegisterPage() {
     const tid = toast.loading('Verifying token...');
     try {
       const res = await authApi.loginWithGoogle(credential);
-      localStorage.setItem('access_token', res.access_token);
       toast.success('Access granted.', { id: tid });
       await redirect();
     } catch {

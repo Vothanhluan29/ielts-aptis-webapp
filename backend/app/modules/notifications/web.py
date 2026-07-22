@@ -26,8 +26,14 @@ async def get_user_from_token(token: str, db: Session) -> User:
         return None
 
 @router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket, token: str = Query(...), db: Session = Depends(get_db)):
-    user = await get_user_from_token(token, db)
+async def websocket_endpoint(
+    websocket: WebSocket, 
+    access_token: str = Cookie(None),
+    token: str = Query(None), 
+    db: Session = Depends(get_db)
+):
+    actual_token = access_token or token
+    user = await get_user_from_token(actual_token, db)
     if not user:
         await websocket.close(code=1008)
         return

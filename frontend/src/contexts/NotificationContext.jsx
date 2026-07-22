@@ -12,8 +12,6 @@ export const NotificationProvider = ({ children }) => {
   // Fetch initial notifications
   const fetchNotifications = async () => {
     try {
-      const token = localStorage.getItem('access_token');
-      if (!token) return;
       const res = await api.get('/notifications');
       setNotifications(res || []);
       setUnreadCount((res || []).filter(n => !n.is_read).length);
@@ -24,17 +22,12 @@ export const NotificationProvider = ({ children }) => {
 
   useEffect(() => {
     fetchNotifications();
-
-    const token = localStorage.getItem('access_token');
-    if (!token) return;
-
-    // Use environment variable or deduce from API base URL
     let wsUrl = import.meta.env.VITE_WS_URL;
     if (!wsUrl) {
       const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
       wsUrl = apiUrl.replace(/^http/, 'ws');
     }
-    const ws = new WebSocket(`${wsUrl}/notifications/ws?token=${token}`);
+    const ws = new WebSocket(`${wsUrl}/notifications/ws`);
 
     ws.onmessage = (event) => {
       try {
