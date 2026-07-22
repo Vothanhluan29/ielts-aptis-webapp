@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, HTTPException, Query
+from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect, HTTPException, Query, Cookie
 from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID

@@ -78,7 +78,8 @@ const AptisAudioPlayer = ({ src, startTime, endTime }) => {
     </div>
   );
 
-  const resolvedSrc = src.startsWith('http') ? src : `http://localhost:8000${src}`;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:8000';
+  const resolvedSrc = src.startsWith('http') ? src : `${baseUrl}${src}`;
 
   return (
     <div style={{

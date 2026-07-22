@@ -105,7 +105,7 @@ const ListeningAptisResultPage = () => {
                     {groupSrc ? (
                       <div className="mb-4 p-4 rounded-xl bg-blue-50/70 border border-blue-100 shadow-sm flex flex-col gap-2">
                         <Text className="font-bold text-blue-800 text-[13px] flex items-center gap-2"><CustomerServiceOutlined /> Audio Recording:</Text>
-                        <audio controls src={groupSrc.startsWith('http') ? groupSrc : `http://localhost:8000${groupSrc}`} className="w-full h-10 outline-none review-audio" controlsList="nodownload" />
+                        <audio controls src={groupSrc.startsWith('http') ? groupSrc : `${import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:8000'}${groupSrc}`} className="w-full h-10 outline-none review-audio" controlsList="nodownload" />
                       </div>
                     ) : (
                       !hasQuestionAudio && (
@@ -122,7 +122,7 @@ const ListeningAptisResultPage = () => {
                             {qSrc && (
                               <div className="mb-3 p-3 rounded-xl bg-blue-50/50 border border-blue-100/50 flex flex-col gap-2">
                                 <Text className="font-semibold text-blue-700 text-[12px] flex items-center gap-2"><CustomerServiceOutlined /> Question Audio:</Text>
-                                <audio controls src={qSrc.startsWith('http') ? qSrc : `http://localhost:8000${qSrc}`} className="w-full h-8 outline-none review-audio" controlsList="nodownload" />
+                                <audio controls src={qSrc.startsWith('http') ? qSrc : `${import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:8000'}${qSrc}`} className="w-full h-8 outline-none review-audio" controlsList="nodownload" />
                               </div>
                             )}
                             <QuestionReviewCard 
