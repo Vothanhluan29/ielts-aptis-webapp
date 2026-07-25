@@ -20,6 +20,8 @@ from app.modules.IELTS.speaking.models import SpeakingTest
 from app.modules.IELTS.exam.models import FullTest
 from app.modules.subscriptions.models import UserUsage
 from app.modules.feedbacks.models import Feedback
+from app.modules.APTIS.listening.bank_models import AptisListeningBankGroup, AptisListeningBankQuestion
+from app.modules.APTIS.reading.bank_models import AptisReadingBankGroup, AptisReadingBankQuestion
 
 
 # Import Routers

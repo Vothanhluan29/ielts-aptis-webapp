@@ -139,9 +139,15 @@ import GramVocabEditPage from './features/admin/pages/APTIS/grammar_vocab/GramVo
 
 import ListeningAptisManageList from './features/admin/pages/APTIS/listening/ListeningAptisManageList';
 import ListeningAptisEditPage from './features/admin/pages/APTIS/listening/ListeningAptisEditPage'; 
+import QuestionBankManagePage from './features/admin/pages/APTIS/listening/bank/QuestionBankManagePage';
+import RandomTestGeneratorPage from './features/admin/pages/APTIS/listening/bank/RandomTestGeneratorPage';
+import BankGroupEditPage from './features/admin/pages/APTIS/listening/bank/BankGroupEditPage';
 
 import ReadingAptisManagerList from './features/admin/pages/APTIS/reading/ReadingAptisManagerList';
 import ReadingAptisEditPage from './features/admin/pages/APTIS/reading/ReadingAptisEditPage'; 
+import ReadingQuestionBankManagePage from './features/admin/pages/APTIS/reading/bank/QuestionBankManagePage';
+import ReadingBankGroupEditPage from './features/admin/pages/APTIS/reading/bank/BankGroupEditPage';
+import ReadingRandomTestGeneratorPage from './features/admin/pages/APTIS/reading/bank/RandomTestGeneratorPage';
 
 import WritingAptisManagerList from './features/admin/pages/APTIS/writing/WritingAptisManagerList';
 import WritingAptisEditPage from './features/admin/pages/APTIS/writing/WritingAptisEditPage'; 
@@ -318,10 +324,18 @@ function App() {
             <Route path="aptis/listening" element={<ListeningAptisManageList />} />
             <Route path="aptis/listening/create" element={<ListeningAptisEditPage />} />
             <Route path="aptis/listening/edit/:id" element={<ListeningAptisEditPage />} />
+            <Route path="aptis/listening/bank" element={<QuestionBankManagePage />} />
+            <Route path="aptis/listening/bank/create" element={<BankGroupEditPage />} />
+            <Route path="aptis/listening/bank/edit/:id" element={<BankGroupEditPage />} />
+            <Route path="aptis/listening/bank/generate" element={<RandomTestGeneratorPage />} />
 
             <Route path="aptis/reading" element={<ReadingAptisManagerList />} />
             <Route path="aptis/reading/create" element={<ReadingAptisEditPage />} />
             <Route path="aptis/reading/edit/:id" element={<ReadingAptisEditPage />} />
+            <Route path="aptis/reading/bank" element={<ReadingQuestionBankManagePage />} />
+            <Route path="aptis/reading/bank/create" element={<ReadingBankGroupEditPage />} />
+            <Route path="aptis/reading/bank/edit/:id" element={<ReadingBankGroupEditPage />} />
+            <Route path="aptis/reading/bank/generate" element={<ReadingRandomTestGeneratorPage />} />
 
             <Route path="aptis/writing" element={<WritingAptisManagerList />} />
             <Route path="aptis/writing/create" element={<WritingAptisEditPage />} />
@@ -370,10 +384,18 @@ function App() {
             <Route path="listening" element={<ListeningAptisManageList />} />
             <Route path="listening/create" element={<ListeningAptisEditPage />} />
             <Route path="listening/edit/:id" element={<ListeningAptisEditPage />} />
+            <Route path="listening/bank" element={<QuestionBankManagePage />} />
+            <Route path="listening/bank/create" element={<BankGroupEditPage />} />
+            <Route path="listening/bank/edit/:id" element={<BankGroupEditPage />} />
+            <Route path="listening/bank/generate" element={<RandomTestGeneratorPage />} />
 
             <Route path="reading" element={<ReadingAptisManagerList />} />
             <Route path="reading/create" element={<ReadingAptisEditPage />} />
             <Route path="reading/edit/:id" element={<ReadingAptisEditPage />} />
+            <Route path="reading/bank" element={<ReadingQuestionBankManagePage />} />
+            <Route path="reading/bank/create" element={<ReadingBankGroupEditPage />} />
+            <Route path="reading/bank/edit/:id" element={<ReadingBankGroupEditPage />} />
+            <Route path="reading/bank/generate" element={<ReadingRandomTestGeneratorPage />} />
 
             <Route path="writing" element={<WritingAptisManagerList />} />
             <Route path="writing/create" element={<WritingAptisEditPage />} />

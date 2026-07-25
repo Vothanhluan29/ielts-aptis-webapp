@@ -26,12 +26,18 @@ const AptisSideBar = ({ layoutProps }) => {
     location.pathname.includes(`${basePath}/grammar-vocab`)
   );
 
+  const [openBank, setOpenBank] = useState(
+    location.pathname.includes(`${basePath}/listening/bank`) ||
+    location.pathname.includes(`${basePath}/reading/bank`)
+  );
+
   const [openGrading, setOpenGrading] = useState(
     location.pathname.includes(`${basePath}/submissions`)
   );
 
   const toggleSkills = () => setOpenSkills(!openSkills);
   const toggleGrading = () => setOpenGrading(!openGrading);
+  const toggleBank = () => setOpenBank(!openBank);
 
   // ── Feedback pending badge — dung tu Context chia se ──
   const { count: pendingFeedbackCount } = useFeedbackCount();
@@ -167,6 +173,66 @@ const AptisSideBar = ({ layoutProps }) => {
           isCollapsed={isCollapsed}
           accentColor={isTeacher ? "teal" : "orange"}
         />
+
+        {/* QUESTION BANKS DROPDOWN */}
+        <div className="pt-1">
+          <button
+            onClick={toggleBank}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
+              openBank 
+                ? "bg-zinc-800/80 text-white shadow-sm ring-1 ring-zinc-700/50" 
+                : "text-zinc-400 hover:bg-zinc-800/40 hover:text-white"
+            } ${isCollapsed ? "justify-center" : ""}`}
+            title={isCollapsed ? "Question Banks" : ""}
+          >
+            <div className="flex items-center gap-3">
+              <BookOpen 
+                size={18} 
+                className={`transition-colors duration-200 ${
+                  openBank 
+                    ? (isTeacher ? "text-teal-400" : "text-orange-400") 
+                    : "text-zinc-400 group-hover:text-zinc-300"
+                }`} 
+              />
+              {!isCollapsed && <span className="text-[14px]">Question Banks</span>}
+            </div>
+            {!isCollapsed && (
+              <ChevronRight 
+                size={14} 
+                className={`transition-transform duration-300 ${
+                  openBank 
+                    ? `rotate-90 ${isTeacher ? "text-teal-400" : "text-orange-400"}` 
+                    : "text-zinc-500 group-hover:text-zinc-300"
+                }`} 
+              />
+            )}
+          </button>
+
+          {!isCollapsed && (
+            <div 
+              className={`grid transition-all duration-300 ease-in-out ${
+                openBank ? "grid-rows-[1fr] opacity-100 mt-1.5" : "grid-rows-[0fr] opacity-0"
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div className="ml-5 border-l border-zinc-800/80 pl-3 py-1 space-y-1">
+                  <SubSidebarLink 
+                    to={`${basePath}/listening/bank`} 
+                    label="Listening Bank" 
+                    isActive={location.pathname.includes(`${basePath}/listening/bank`)} 
+                    accentColor={isTeacher ? "teal" : "orange"} 
+                  />
+                  <SubSidebarLink 
+                    to={`${basePath}/reading/bank`} 
+                    label="Reading Bank" 
+                    isActive={location.pathname.includes(`${basePath}/reading/bank`)} 
+                    accentColor={isTeacher ? "teal" : "orange"} 
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* SKILLS LIBRARY DROPDOWN */}
         <div className="pt-1">
