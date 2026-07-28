@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import AptisSideBar from '../components/AdminLayout/AptisSideBar';
+import TeacherSideBar from '../components/AdminLayout/TeacherSideBar';
 import Header from '../components/AdminLayout/Header';
 import { useAdminLayout } from '../hooks/AdminLayout/useAdminLayout';
 import authApi from '../features/auth/api/authApi';
@@ -29,7 +29,7 @@ const TeacherLayout = () => {
     <div className="flex h-screen bg-zinc-50 font-sans text-zinc-900 overflow-hidden">
 
       {/* Teacher uses ONLY Aptis SideBar */}
-      <AptisSideBar layoutProps={layoutProps} />
+      <TeacherSideBar layoutProps={layoutProps} />
 
       {/* MAIN VIEWPORT */}
       <div className="flex-1 flex flex-col overflow-hidden relative w-full">
