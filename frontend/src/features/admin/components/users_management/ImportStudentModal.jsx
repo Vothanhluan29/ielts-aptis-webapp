@@ -36,8 +36,16 @@ const ImportStudentModal = ({ visible, onClose, onImport }) => {
           class_code: row[0] ? String(row[0]).trim() : null,
           student_id: row[1] ? String(row[1]).trim() : null,
           full_name: row[2] ? String(row[2]).trim() : null,
-        })).filter(item => item.student_id); // Only keep rows with student_id
+        }));
         
+        // Strict Validation for missing fields
+        const invalidRows = parsed.filter(item => !item.class_code || !item.student_id || !item.full_name);
+        if (invalidRows.length > 0) {
+          message.error(`Found ${invalidRows.length} row(s) with missing data. Please provide Class Code, Student ID, and Full Name for all rows!`);
+          setFileList([]);
+          return;
+        }
+
         setPreviewData(parsed);
         setFileList([file]);
       } catch (error) {
@@ -96,7 +104,7 @@ const ImportStudentModal = ({ visible, onClose, onImport }) => {
       <div className="mb-4">
         <Text type="secondary">
           Upload an Excel or CSV file. The file should have columns in this exact order: <br/>
-          <b>Class Code</b> (Mã lớp) | <b>Student ID</b> (Mã số SV) | <b>Full Name</b> (Họ tên)
+          <b>Class Code</b> | <b>Student ID</b> | <b>Full Name</b>
         </Text>
       </div>
 
