@@ -11,7 +11,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { message, Select, Pagination } from 'antd';
-import aptisSpeakingBankApi from '../../../../../../api/APTIS/speaking/aptisSpeakingBankApi';
+import aptisSpeakingBankApi from '../../../../api/APTIS/speaking/aptisSpeakingBankApi';
 import ConfirmModal from '../../../../../../components/common/ConfirmModal';
 
 const QuestionBankManagePage = () => {

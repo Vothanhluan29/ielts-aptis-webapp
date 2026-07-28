@@ -7,7 +7,7 @@ import { SaveOutlined, ArrowLeftOutlined, UploadOutlined, PictureOutlined, Sound
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 import { BlurTextArea } from '../../../../../../components/common/BlurInput';
-import aptisSpeakingBankApi from '../../../../../../api/APTIS/speaking/aptisSpeakingBankApi';
+import aptisSpeakingBankApi from '../../../../api/APTIS/speaking/aptisSpeakingBankApi';
 import speakingAptisApi from '../../../../api/APTIS/speaking/speakingAptisAdminApi';
 import { PART_CONFIGS } from '../../../../hooks/APTIS/speaking/useSpeakingAptisEdit';
 

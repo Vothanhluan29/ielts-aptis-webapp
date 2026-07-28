@@ -4,7 +4,7 @@ import { ArrowLeftOutlined, ThunderboltOutlined, CheckCircleOutlined } from '@an
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Settings, CheckCircle2, Clock } from 'lucide-react';
 
-import aptisSpeakingBankApi from '../../../../../../api/APTIS/speaking/aptisSpeakingBankApi';
+import aptisSpeakingBankApi from '../../../../api/APTIS/speaking/aptisSpeakingBankApi';
 
 const { Option } = Select;
 

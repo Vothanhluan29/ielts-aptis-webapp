@@ -1,4 +1,4 @@
-import axiosClient from "../../../services/axiosClient";
+import axiosClient from "../../../../../services/axiosClient";
 
 const aptisSpeakingBankApi = {
   // Fetch all speaking bank groups
