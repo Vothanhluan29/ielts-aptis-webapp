@@ -50,7 +50,7 @@ class AptisGrammarVocabTest(Base):
 class AptisGrammarVocabGroup(Base):
     __tablename__ = "aptis_grammar_vocab_groups"
     id = Column(Integer, primary_key=True, index=True)
-    test_id = Column(Integer,ForeignKey("aptis_grammar_vocab_tests.id", ondelete="CASCADE"))
+    test_id = Column(Integer,ForeignKey("aptis_grammar_vocab_tests.id"), index=True)
     part_type = Column(Enum(AptisQuestionPart), nullable=False)
     instruction = Column(Text, nullable=False)  
     

@@ -33,11 +33,11 @@ class AptisFullTest(Base):
     is_published = Column(Boolean, default=False, nullable=False)
 
 
-    grammar_vocab_test_id = Column(Integer, ForeignKey("aptis_grammar_vocab_tests.id", ondelete="SET NULL"), nullable=True)
-    listening_test_id = Column(Integer, ForeignKey("aptis_listening_tests.id", ondelete="SET NULL"), nullable=True)
-    reading_test_id = Column(Integer, ForeignKey("aptis_reading_tests.id", ondelete="SET NULL"), nullable=True)
-    writing_test_id = Column(Integer, ForeignKey("aptis_writing_tests.id", ondelete="SET NULL"), nullable=True)
-    speaking_test_id = Column(Integer, ForeignKey("aptis_speaking_tests.id", ondelete="SET NULL"), nullable=True)
+    grammar_vocab_test_id = Column(Integer, ForeignKey("aptis_grammar_vocab_tests.id"), index=True, nullable=True)
+    listening_test_id = Column(Integer, ForeignKey("aptis_listening_tests.id"), index=True, nullable=True)
+    reading_test_id = Column(Integer, ForeignKey("aptis_reading_tests.id"), index=True, nullable=True)
+    writing_test_id = Column(Integer, ForeignKey("aptis_writing_tests.id"), index=True, nullable=True)
+    speaking_test_id = Column(Integer, ForeignKey("aptis_speaking_tests.id"), index=True, nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now(), server_default=func.now())
@@ -57,19 +57,19 @@ class AptisExamSubmission(Base):
     __tablename__ = "aptis_exam_submissions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    full_test_id = Column(Integer, ForeignKey("aptis_full_tests.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    full_test_id = Column(Integer, ForeignKey("aptis_full_tests.id"), index=True, nullable=False)
     
 
     status = Column(String(50), default=AptisExamStatus.IN_PROGRESS.value)
     current_step = Column(String(50), default=AptisExamStep.GRAMMAR_VOCAB.value)
 
 
-    grammar_vocab_submission_id = Column(Integer, ForeignKey("aptis_grammar_vocab_submissions.id", ondelete="SET NULL"), nullable=True)
-    listening_submission_id = Column(Integer, ForeignKey("aptis_listening_submissions.id", ondelete="SET NULL"), nullable=True)
-    reading_submission_id = Column(Integer, ForeignKey("aptis_reading_submissions.id", ondelete="SET NULL"), nullable=True)
-    writing_submission_id = Column(Integer, ForeignKey("aptis_writing_submissions.id", ondelete="SET NULL"), nullable=True)
-    speaking_submission_id = Column(Integer, ForeignKey("aptis_speaking_submissions.id", ondelete="SET NULL"), nullable=True)
+    grammar_vocab_submission_id = Column(Integer, ForeignKey("aptis_grammar_vocab_submissions.id"), index=True, nullable=True)
+    listening_submission_id = Column(Integer, ForeignKey("aptis_listening_submissions.id"), index=True, nullable=True)
+    reading_submission_id = Column(Integer, ForeignKey("aptis_reading_submissions.id"), index=True, nullable=True)
+    writing_submission_id = Column(Integer, ForeignKey("aptis_writing_submissions.id"), index=True, nullable=True)
+    speaking_submission_id = Column(Integer, ForeignKey("aptis_speaking_submissions.id"), index=True, nullable=True)
 
     overall_score = Column(Integer, default=0) 
     overall_cefr_level = Column(String(10), nullable=True) # A1, A2, B1, B2, C

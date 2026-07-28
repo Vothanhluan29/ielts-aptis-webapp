@@ -49,7 +49,7 @@ class AptisReadingPart(Base):
     __tablename__ = "aptis_reading_parts"
 
     id = Column(Integer, primary_key=True, index=True)
-    test_id = Column(Integer, ForeignKey("aptis_reading_tests.id", ondelete="CASCADE"), nullable=False)
+    test_id = Column(Integer, ForeignKey("aptis_reading_tests.id"), index=True, nullable=False)
     
     part_number = Column(Integer, default=1) 
     title = Column(String(255), nullable=True)
@@ -71,7 +71,7 @@ class AptisReadingQuestionGroup(Base):
     __tablename__ = "aptis_reading_question_groups"
 
     id = Column(Integer, primary_key=True, index=True)
-    part_id = Column(Integer, ForeignKey("aptis_reading_parts.id", ondelete="CASCADE"), nullable=False)
+    part_id = Column(Integer, ForeignKey("aptis_reading_parts.id"), index=True, nullable=False)
 
     instruction = Column(Text, nullable=True)
     image_url = Column(String(255), nullable=True)
@@ -93,7 +93,7 @@ class AptisReadingQuestion(Base):
     __tablename__ = "aptis_reading_questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    group_id = Column(Integer, ForeignKey("aptis_reading_question_groups.id", ondelete="CASCADE"), nullable=False)
+    group_id = Column(Integer, ForeignKey("aptis_reading_question_groups.id"), index=True, nullable=False)
 
     question_number = Column(Integer, nullable=False)
     question_text = Column(Text, nullable=True)
@@ -112,8 +112,8 @@ class AptisReadingSubmission(Base):
     __tablename__ = "aptis_reading_submissions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    test_id = Column(Integer, ForeignKey("aptis_reading_tests.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    test_id = Column(Integer, ForeignKey("aptis_reading_tests.id"), index=True, nullable=False)
 
     user_answers = Column(JSON, nullable=False)
 

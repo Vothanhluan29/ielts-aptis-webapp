@@ -34,7 +34,7 @@ class AptisSpeakingPart(Base):
     __tablename__ = "aptis_speaking_parts"
 
     id = Column(Integer, primary_key=True, index=True)
-    test_id = Column(Integer, ForeignKey("aptis_speaking_tests.id", ondelete="CASCADE"), nullable=False)
+    test_id = Column(Integer, ForeignKey("aptis_speaking_tests.id"), index=True, nullable=False)
 
     part_number = Column(Integer, nullable=False)
     part_type = Column(String(50), nullable=False)
@@ -51,7 +51,7 @@ class AptisSpeakingQuestion(Base):
     __tablename__ = "aptis_speaking_questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    part_id = Column(Integer, ForeignKey("aptis_speaking_parts.id", ondelete="CASCADE"), nullable=False)
+    part_id = Column(Integer, ForeignKey("aptis_speaking_parts.id"), index=True, nullable=False)
 
     order_number = Column(Integer, nullable=False)
     question_text = Column(Text, nullable=True)
@@ -67,8 +67,8 @@ class AptisSpeakingSubmission(Base):
     __tablename__ = "aptis_speaking_submissions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    test_id = Column(Integer, ForeignKey("aptis_speaking_tests.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    test_id = Column(Integer, ForeignKey("aptis_speaking_tests.id"), index=True, nullable=False)
 
     total_score = Column(Integer, nullable=True)
     cefr_level = Column(String(10), nullable=True)
@@ -76,7 +76,7 @@ class AptisSpeakingSubmission(Base):
     overall_feedback = Column(Text, nullable=True)
     status = Column(String, default=AptisSpeakingStatus.IN_PROGRESS.value)
 
-    graded_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    graded_by = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)
 
     submitted_at = Column(DateTime(timezone=True), server_default=func.now())
     graded_at = Column(DateTime(timezone=True), nullable=True)
@@ -93,7 +93,7 @@ class AptisSpeakingPartAnswer(Base):
     __tablename__ = "aptis_speaking_part_answers"
 
     id = Column(Integer, primary_key=True, index=True)
-    submission_id = Column(Integer, ForeignKey("aptis_speaking_submissions.id", ondelete="CASCADE"), nullable=False)
+    submission_id = Column(Integer, ForeignKey("aptis_speaking_submissions.id"), index=True, nullable=False)
 
     part_number = Column(Integer, nullable=False)
     audio_url = Column(String, nullable=False)

@@ -22,7 +22,7 @@ class AptisSpeakingBankQuestion(Base):
     __tablename__ = "aptis_speaking_bank_questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    bank_group_id = Column(Integer, ForeignKey("aptis_speaking_bank_groups.id", ondelete="CASCADE"), nullable=False)
+    bank_group_id = Column(Integer, ForeignKey("aptis_speaking_bank_groups.id"), index=True, nullable=False)
     
     order_number = Column(Integer, nullable=False) 
     question_text = Column(Text, nullable=True) 

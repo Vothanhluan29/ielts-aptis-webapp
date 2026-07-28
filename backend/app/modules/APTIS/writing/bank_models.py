@@ -29,7 +29,7 @@ class AptisWritingBankQuestion(Base):
     __tablename__ = "aptis_writing_bank_questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    bank_group_id = Column(Integer, ForeignKey("aptis_writing_bank_groups.id", ondelete="CASCADE"), nullable=False)
+    bank_group_id = Column(Integer, ForeignKey("aptis_writing_bank_groups.id"), index=True, nullable=False)
 
     order_number = Column(Integer, default=1)
     question_text = Column(Text, nullable=False)

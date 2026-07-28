@@ -18,7 +18,7 @@ class SpeakingBankQuestionResponse(BaseModel):
     response_time: Optional[int] = 0
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class SpeakingBankGroupCreate(BaseModel):
     part_type: str
@@ -43,7 +43,7 @@ class SpeakingBankGroupResponse(BaseModel):
     questions: List[SpeakingBankQuestionResponse] = []
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 class GenerateTestConfig(BaseModel):
     title: str

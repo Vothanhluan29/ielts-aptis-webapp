@@ -37,7 +37,7 @@ class AptisListeningPart(Base):
     __tablename__ = "aptis_listening_parts"
 
     id = Column(Integer, primary_key=True, index=True)
-    test_id = Column(Integer, ForeignKey("aptis_listening_tests.id", ondelete="CASCADE"), nullable=False)
+    test_id = Column(Integer, ForeignKey("aptis_listening_tests.id"), index=True, nullable=False)
     title = Column(String(255), nullable=True)  
     part_number = Column(Integer)  
     
@@ -54,7 +54,7 @@ class AptisListeningQuestionGroup(Base):
     __tablename__ = "aptis_listening_question_groups"
 
     id = Column(Integer, primary_key=True, index=True)
-    part_id = Column(Integer, ForeignKey("aptis_listening_parts.id", ondelete="CASCADE"), nullable=False)
+    part_id = Column(Integer, ForeignKey("aptis_listening_parts.id"), index=True, nullable=False)
     
     instruction = Column(Text, nullable=True)        
     image_url = Column(String(255), nullable=True) 
@@ -76,7 +76,7 @@ class AptisListeningQuestion(Base):
     __tablename__ = "aptis_listening_questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    group_id = Column(Integer, ForeignKey("aptis_listening_question_groups.id", ondelete="CASCADE"), nullable=False)
+    group_id = Column(Integer, ForeignKey("aptis_listening_question_groups.id"), index=True, nullable=False)
     
     question_number = Column(Integer) 
     question_text = Column(Text, nullable=True) 
@@ -97,8 +97,8 @@ class AptisListeningSubmission(Base):
     __tablename__ = "aptis_listening_submissions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    test_id = Column(Integer, ForeignKey("aptis_listening_tests.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    test_id = Column(Integer, ForeignKey("aptis_listening_tests.id"), index=True, nullable=False)
 
     user_answers = Column(JSON, nullable=False) 
 

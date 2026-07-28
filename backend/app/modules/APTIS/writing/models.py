@@ -39,7 +39,7 @@ class AptisWritingPart(Base):
     __tablename__ = "aptis_writing_parts"
 
     id = Column(Integer, primary_key=True, index=True)
-    test_id = Column(Integer, ForeignKey("aptis_writing_tests.id", ondelete="CASCADE"), nullable=False)
+    test_id = Column(Integer, ForeignKey("aptis_writing_tests.id"), index=True, nullable=False)
 
     part_number = Column(Integer, nullable=False)
     part_type = Column(String(50), nullable=False)
@@ -55,7 +55,7 @@ class AptisWritingQuestion(Base):
     __tablename__ = "aptis_writing_questions"
 
     id = Column(Integer, primary_key=True, index=True)
-    part_id = Column(Integer, ForeignKey("aptis_writing_parts.id", ondelete="CASCADE"), nullable=False)
+    part_id = Column(Integer, ForeignKey("aptis_writing_parts.id"), index=True, nullable=False)
 
     question_text = Column(Text, nullable=False)
     order_number = Column(Integer, default=1)
@@ -70,8 +70,8 @@ class AptisWritingSubmission(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    test_id = Column(Integer, ForeignKey("aptis_writing_tests.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=False)
+    test_id = Column(Integer, ForeignKey("aptis_writing_tests.id"), index=True, nullable=False)
 
     user_answers = Column(JSON, nullable=False)
 
@@ -83,7 +83,7 @@ class AptisWritingSubmission(Base):
     cefr_level = Column(String(10), nullable=True)
     status = Column(String(50), default=AptisWritingStatus.PENDING.value)
 
-    graded_by = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    graded_by = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)
 
     submitted_at = Column(DateTime(timezone=True), server_default=func.now())
     graded_at = Column(DateTime(timezone=True), nullable=True)
