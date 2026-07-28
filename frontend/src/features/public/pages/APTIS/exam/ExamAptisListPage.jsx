@@ -1,5 +1,5 @@
 import React from 'react';
-import { Skeleton } from 'antd';
+import { Skeleton , Pagination} from 'antd';
 import {
   Clock, CheckCircle, AlertCircle, ArrowRight,
   History, RotateCcw, ClipboardList, RefreshCw, Play
@@ -19,6 +19,11 @@ const ExamAptisListPage = () => {
     filterStatus,
     setFilterStatus,
     filteredTests,
+    paginatedTests,
+    currentPage,
+    setCurrentPage,
+    total,
+    pageSize,
     handleNavigateLobby,
     handleNavigateResult,
     handleNavigateHistory
@@ -197,8 +202,9 @@ const ExamAptisListPage = () => {
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-          {filteredTests.map(test => {
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          {paginatedTests.map(test => {
             const config = getStatusConfig(test);
 
             return (
@@ -287,6 +293,18 @@ const ExamAptisListPage = () => {
             );
           })}
         </div>
+        {total > pageSize && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+            <Pagination
+              current={currentPage}
+              total={total}
+              pageSize={pageSize}
+              onChange={(page) => setCurrentPage(page)}
+              showSizeChanger={false}
+            />
+          </div>
+        )}
+        </>
       )}
     </div>
   );

@@ -8,7 +8,9 @@ export const useWritingAptisList = () => {
 
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, GRADED, PENDING, NOT_STARTED
+  const [filterStatus, setFilterStatus] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12; // ALL, GRADED, PENDING, NOT_STARTED
 
   // 1. Fetch Dữ liệu bọc trong useCallback
   const fetchTests = useCallback(async () => {
@@ -43,6 +45,19 @@ export const useWritingAptisList = () => {
     return tests.filter(test => test.status === filterStatus);
   }, [tests, filterStatus]);
 
+  // Reset page on filter change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
+
+  const paginatedTests = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredTests.slice(startIndex, startIndex + pageSize);
+  }, [filteredTests, currentPage]);
+  
+  const total = filteredTests.length;
+
+
   // 4. Các hàm điều hướng
   const handleNavigateHistory = () => navigate('/aptis/writing/history');
   const handleNavigateExam = (testId) => navigate(`/aptis/writing/lobby/${testId}`);
@@ -54,6 +69,11 @@ export const useWritingAptisList = () => {
     filterStatus,
     setFilterStatus,
     filteredTests,
+    paginatedTests,
+    currentPage,
+    setCurrentPage,
+    total,
+    pageSize,
     handleNavigateHistory,
     handleNavigateExam,
     handleNavigateRetry,

@@ -9,6 +9,8 @@ export const useExamAptisList = () => {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
 
   // 2. Fetch Data 
   const fetchTests = useCallback(async () => {
@@ -37,6 +39,19 @@ export const useExamAptisList = () => {
     return tests.filter(test => test.user_status === filterStatus);
   }, [tests, filterStatus]);
 
+  // Reset page on filter change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
+
+  const paginatedTests = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredTests.slice(startIndex, startIndex + pageSize);
+  }, [filteredTests, currentPage]);
+  
+  const total = filteredTests.length;
+
+
   // 5. Navigation Handlers
   const handleNavigateLobby = (testId) => navigate(`/aptis/exam/lobby/${testId}`);
   const handleNavigateResult = (subId) => navigate(`/aptis/exam/result/${subId}`);
@@ -47,6 +62,11 @@ export const useExamAptisList = () => {
     filterStatus,
     setFilterStatus,
     filteredTests,
+    paginatedTests,
+    currentPage,
+    setCurrentPage,
+    total,
+    pageSize,
     handleNavigateLobby,
     handleNavigateResult,
     handleNavigateHistory

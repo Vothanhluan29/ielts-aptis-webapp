@@ -1,5 +1,5 @@
 import React from 'react';
-import { Skeleton } from 'antd';
+import { Skeleton , Pagination} from 'antd';
 import { Mic, Clock, CheckCircle, AlertCircle, ArrowRight, History, RotateCcw, Play } from 'lucide-react';
 import { useSpeakingAptisList } from '../../../hooks/APTIS/speaking/useSpeakingAptisList';
 
@@ -16,6 +16,11 @@ const SpeakingAptisListPage = () => {
     filterStatus,
     setFilterStatus,
     filteredTests,
+    paginatedTests,
+    currentPage,
+    setCurrentPage,
+    total,
+    pageSize,
     handleNavigateHistory,
     handleNavigateLobby,
     handleNavigateResult
@@ -195,8 +200,9 @@ const SpeakingAptisListPage = () => {
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-          {filteredTests.map(test => {
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          {paginatedTests.map(test => {
             const config = getStatusConfig(test.status, test.id);
             const s = test.status?.toUpperCase();
             const isDone = s === 'GRADED' || s === 'COMPLETED';
@@ -287,6 +293,19 @@ const SpeakingAptisListPage = () => {
             );
           })}
         </div>
+
+        {total > pageSize && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+            <Pagination
+              current={currentPage}
+              total={total}
+              pageSize={pageSize}
+              onChange={(page) => setCurrentPage(page)}
+              showSizeChanger={false}
+            />
+          </div>
+        )}
+        </>
       )}
     </div>
   );

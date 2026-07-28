@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Typography, Skeleton, Empty } from 'antd';
+import { Button, Typography, Skeleton, Empty , Pagination} from 'antd';
 import { Headphones, Clock, CheckCircle, AlertCircle, ArrowRight, History, RotateCcw, Play } from 'lucide-react';
 import { useListeningAptisList } from '../../../hooks/APTIS/listening/useListeningAptisList';
 
@@ -17,6 +17,11 @@ const ListeningAptisListPage = () => {
     filterStatus,
     setFilterStatus,
     filteredTests,
+    paginatedTests,
+    currentPage,
+    setCurrentPage,
+    total,
+    pageSize,
     handleNavigateHistory,
     handleNavigateLobby,
     handleNavigateRetry
@@ -178,8 +183,9 @@ const ListeningAptisListPage = () => {
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-          {filteredTests.map(test => {
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          {paginatedTests.map(test => {
             const config = getStatusConfig(test.status, test.id);
             const isDone = test.status === 'GRADED' || test.status === 'COMPLETED';
 
@@ -277,6 +283,19 @@ const ListeningAptisListPage = () => {
             );
           })}
         </div>
+
+        {total > pageSize && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+            <Pagination
+              current={currentPage}
+              total={total}
+              pageSize={pageSize}
+              onChange={(page) => setCurrentPage(page)}
+              showSizeChanger={false}
+            />
+          </div>
+        )}
+        </>
       )}
     </div>
   );

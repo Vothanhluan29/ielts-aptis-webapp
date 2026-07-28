@@ -10,6 +10,8 @@ export const useReadingAptisList = () => {
   const [tests, setTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 12;
 
 
   const fetchTests = useCallback(async () => {
@@ -43,6 +45,19 @@ export const useReadingAptisList = () => {
     return tests.filter(test => test.status === filterStatus);
   }, [tests, filterStatus]);
 
+  // Reset page on filter change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filterStatus]);
+
+  const paginatedTests = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredTests.slice(startIndex, startIndex + pageSize);
+  }, [filteredTests, currentPage]);
+  
+  const total = filteredTests.length;
+
+
   // 5. Navigation Handlers
   const handleNavigateHistory = () => navigate('/aptis/reading/history');
   const handleNavigateLobby = (testId) => navigate(`/aptis/reading/lobby/${testId}`);
@@ -53,6 +68,11 @@ export const useReadingAptisList = () => {
     filterStatus,
     setFilterStatus,
     filteredTests,
+    paginatedTests,
+    currentPage,
+    setCurrentPage,
+    total,
+    pageSize,
     handleNavigateHistory,
     handleNavigateLobby,
     handleNavigateRetry

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Skeleton } from 'antd';
+import { Skeleton , Pagination} from 'antd';
 import { BookOpen, Clock, CheckCircle, AlertCircle, ArrowRight, History, RotateCcw, Play } from 'lucide-react';
 import { useReadingAptisList } from '../../../hooks/APTIS/reading/useReadingAptisList';
 
@@ -15,6 +15,11 @@ const ReadingAptisListPage = () => {
     filterStatus,
     setFilterStatus,
     filteredTests,
+    paginatedTests,
+    currentPage,
+    setCurrentPage,
+    total,
+    pageSize,
     handleNavigateHistory,
     handleNavigateLobby,
     handleNavigateRetry
@@ -165,8 +170,9 @@ const ReadingAptisListPage = () => {
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-          {filteredTests.map(test => {
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+          {paginatedTests.map(test => {
             const config = getStatusConfig(test.status, test.id);
             const isDone = test.status === 'GRADED' || test.status === 'COMPLETED';
 
@@ -253,6 +259,19 @@ const ReadingAptisListPage = () => {
             );
           })}
         </div>
+
+        {total > pageSize && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
+            <Pagination
+              current={currentPage}
+              total={total}
+              pageSize={pageSize}
+              onChange={(page) => setCurrentPage(page)}
+              showSizeChanger={false}
+            />
+          </div>
+        )}
+        </>
       )}
     </div>
   );
