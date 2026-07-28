@@ -46,7 +46,7 @@ class AptisUserStatsService:
 
     @staticmethod
     def _generate_chart_data(exam_subs, gv_subs, read_subs, list_subs, writ_subs, speak_subs) -> List[schemas.ChartDataPoint]:
-        data_map: Dict[str, Dict[str, Any]] = {}
+        data_map = {}
 
         def process_submissions(subs, key, is_full_test=False, is_speaking=False):
             for s in subs:
@@ -58,13 +58,15 @@ class AptisUserStatsService:
                 if not date_val:
                     continue
 
-                date_str = date_val.strftime("%d/%m")
+                d = date_val.date()
 
-                if date_str not in data_map:
-                    data_map[date_str] = {"date": date_str}
+                if d not in data_map:
+                    data_map[d] = {"date_obj": d}
 
-                if key not in data_map[date_str]:
-                    data_map[date_str][key] = score
+                if key not in data_map[d]:
+                    data_map[d][key] = score
+                else:
+                    data_map[d][key] = max(data_map[d][key], score)
 
         process_submissions(exam_subs, "full_test", is_full_test=True)
         process_submissions(gv_subs, "grammar_vocab")
@@ -73,9 +75,17 @@ class AptisUserStatsService:
         process_submissions(writ_subs, "writing")
         process_submissions(speak_subs, "speaking", is_speaking=True)
 
-        chart_list = [schemas.ChartDataPoint(**v) for v in data_map.values()]
-        chart_list.reverse()
-        return chart_list[-10:]
+        sorted_dates = sorted(data_map.keys())
+        recent_dates = sorted_dates[-10:]
+        
+        chart_list = []
+        for d in recent_dates:
+            entry = data_map[d]
+            entry["date"] = d.strftime("%d/%m")
+            del entry["date_obj"]
+            chart_list.append(schemas.ChartDataPoint(**entry))
+
+        return chart_list
 
     @staticmethod
     def _generate_streak_info(all_dates: Set[datetime.date]) -> schemas.StreakInfo:

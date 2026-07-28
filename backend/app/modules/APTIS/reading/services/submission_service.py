@@ -69,9 +69,39 @@ class AptisReadingSubmissionService:
                     else:
                         total_items += 1
                         accepted_answers = [ans.strip() for ans in cleaned_correct.replace('|', '/').split('/')]
+                        
                         if cleaned_student in accepted_answers:
                             is_correct = True
-                            points_to_add = weight # Trả lời đúng nhận trọn điểm trọng số
+                        else:
+                            resolved_student = None
+                            
+                            # Parse options safely
+                            opts = getattr(q, 'options', None)
+                            if isinstance(opts, str):
+                                import json
+                                try:
+                                    opts = json.loads(opts)
+                                except json.JSONDecodeError:
+                                    opts = None
+
+                            if opts:
+                                if isinstance(opts, dict):
+                                    resolved_val = opts.get(str(user_ans))
+                                    if resolved_val:
+                                        resolved_student = AptisReadingUtils.clean_text(resolved_val)
+                                elif isinstance(opts, list):
+                                    try:
+                                        idx = int(str(user_ans))
+                                        if 0 <= idx < len(opts):
+                                            resolved_student = AptisReadingUtils.clean_text(opts[idx])
+                                    except ValueError:
+                                        pass
+                            
+                            if resolved_student and resolved_student in accepted_answers:
+                                is_correct = True
+
+                        if is_correct:
+                            points_to_add = weight
                             correct_items += 1
 
                     # Cộng dồn điểm vào tổng bài thi
@@ -85,7 +115,13 @@ class AptisReadingSubmissionService:
                         "user_answer": user_ans,
                         "correct_answer": q.correct_answer,
                         "is_correct": is_correct,
-                        "explanation": q.explanation
+                        "explanation": q.explanation,
+                        "debug_info": {
+                            "cleaned_student": cleaned_student,
+                            "cleaned_correct": cleaned_correct,
+                            "resolved_student": resolved_student if 'resolved_student' in locals() else None,
+                            "options": q.options
+                        }
                     })
 
         # 4. QUY ĐỔI ĐIỂM VÀ LƯU DATABASE
@@ -180,7 +216,31 @@ class AptisReadingSubmissionService:
             cleaned_student = AptisReadingUtils.clean_text(student_ans)
             cleaned_correct = AptisReadingUtils.clean_text(q.correct_answer)
             accepted_answers = [a.strip() for a in cleaned_correct.replace('|', '/').split('/')]
+            
             is_correct = cleaned_student in accepted_answers
+            if not is_correct:
+                resolved_student = None
+                opts = getattr(q, 'options', None)
+                if isinstance(opts, str):
+                    import json
+                    try:
+                        opts = json.loads(opts)
+                    except json.JSONDecodeError:
+                        opts = None
+                if opts:
+                    if isinstance(opts, dict):
+                        resolved_val = opts.get(str(student_ans))
+                        if resolved_val:
+                            resolved_student = AptisReadingUtils.clean_text(resolved_val)
+                    elif isinstance(opts, list):
+                        try:
+                            idx = int(str(student_ans))
+                            if 0 <= idx < len(opts):
+                                resolved_student = AptisReadingUtils.clean_text(opts[idx])
+                        except ValueError:
+                            pass
+                if resolved_student and resolved_student in accepted_answers:
+                    is_correct = True
 
             detailed_results.append({
                 "id": q.id,

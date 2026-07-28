@@ -24,27 +24,19 @@ const ImportStudentModal = ({ visible, onClose, onImport }) => {
         const workbook = XLSX.read(data, { type: 'array' });
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
-        
+
         // Parse raw data
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-        
+
         // Assuming first row is header
         const rows = jsonData.slice(1).filter(row => row.length > 0);
-        
+
         const parsed = rows.map((row, index) => ({
           key: index,
           class_code: row[0] ? String(row[0]).trim() : null,
           student_id: row[1] ? String(row[1]).trim() : null,
           full_name: row[2] ? String(row[2]).trim() : null,
-        }));
-        
-        // Strict Validation for missing fields
-        const invalidRows = parsed.filter(item => !item.class_code || !item.student_id || !item.full_name);
-        if (invalidRows.length > 0) {
-          message.error(`Found ${invalidRows.length} row(s) with missing data. Please provide Class Code, Student ID, and Full Name for all rows!`);
-          setFileList([]);
-          return;
-        }
+        })).filter(item => item.student_id); // Only keep rows with student_id
 
         setPreviewData(parsed);
         setFileList([file]);
@@ -90,10 +82,10 @@ const ImportStudentModal = ({ visible, onClose, onImport }) => {
         <Button key="cancel" onClick={onClose}>
           Cancel
         </Button>,
-        <Button 
-          key="import" 
-          type="primary" 
-          onClick={handleSubmit} 
+        <Button
+          key="import"
+          type="primary"
+          onClick={handleSubmit}
           loading={loading}
           disabled={previewData.length === 0}
         >
@@ -103,8 +95,8 @@ const ImportStudentModal = ({ visible, onClose, onImport }) => {
     >
       <div className="mb-4">
         <Text type="secondary">
-          Upload an Excel or CSV file. The file should have columns in this exact order: <br/>
-          <b>Class Code</b> | <b>Student ID</b> | <b>Full Name</b>
+          Upload an Excel or CSV file. The file should have columns in this exact order: <br />
+          <b>Class Code</b> (Mã lớp) | <b>Student ID</b> (Mã số SV) | <b>Full Name</b> (Họ tên)
         </Text>
       </div>
 
@@ -121,10 +113,10 @@ const ImportStudentModal = ({ visible, onClose, onImport }) => {
       {previewData.length > 0 && (
         <div className="mt-4">
           <Text strong>Preview ({previewData.length} records):</Text>
-          <Table 
-            dataSource={previewData} 
-            columns={columns} 
-            size="small" 
+          <Table
+            dataSource={previewData}
+            columns={columns}
+            size="small"
             pagination={{ pageSize: 5 }}
             className="mt-2"
           />
