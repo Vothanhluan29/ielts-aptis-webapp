@@ -28,7 +28,9 @@ const AptisSideBar = ({ layoutProps }) => {
 
   const [openBank, setOpenBank] = useState(
     location.pathname.includes(`${basePath}/listening/bank`) ||
-    location.pathname.includes(`${basePath}/reading/bank`)
+    location.pathname.includes(`${basePath}/reading/bank`) ||
+    location.pathname.includes(`${basePath}/grammar_vocab/bank`) ||
+    location.pathname.includes(`${basePath}/writing/bank`)
   );
 
   const [openGrading, setOpenGrading] = useState(
@@ -226,6 +228,24 @@ const AptisSideBar = ({ layoutProps }) => {
                     to={`${basePath}/reading/bank`} 
                     label="Reading Bank" 
                     isActive={location.pathname.includes(`${basePath}/reading/bank`)} 
+                    accentColor={isTeacher ? "teal" : "orange"} 
+                  />
+                  <SubSidebarLink 
+                    to={`${basePath}/grammar_vocab/bank`} 
+                    label="Grammar & Vocab Bank" 
+                    isActive={location.pathname.includes(`${basePath}/grammar_vocab/bank`)} 
+                    accentColor={isTeacher ? "teal" : "orange"} 
+                  />
+                  <SubSidebarLink 
+                    to={`${basePath}/writing/bank`} 
+                    label="Writing Bank" 
+                    isActive={location.pathname.includes(`${basePath}/writing/bank`)} 
+                    accentColor={isTeacher ? "teal" : "orange"} 
+                  />
+                  <SubSidebarLink 
+                    to={`${basePath}/speaking/bank`} 
+                    label="Speaking Bank" 
+                    isActive={location.pathname.includes(`${basePath}/speaking/bank`)} 
                     accentColor={isTeacher ? "teal" : "orange"} 
                   />
                 </div>

@@ -89,6 +89,10 @@ const SpeakingAptisEditPage = () => {
         form={form} 
         layout="vertical" 
         onFinish={onFinish} 
+        onFinishFailed={(errorInfo) => {
+          message.error('Vui lòng điền đầy đủ các trường thông tin bắt buộc (kể cả trong các phần bị ẩn)!');
+          setActivePartKeys(['0', '1', '2', '3']);
+        }}
         onValuesChange={handleFormChange}
         autoComplete="off"
         preserve={true}
@@ -187,7 +191,7 @@ const SpeakingAptisEditPage = () => {
                                       {({ getFieldValue }) => {
                                         const audioUrl = getFieldValue(['parts', name, 'questions', qIdx, 'audio_url']);
                                         return (
-                                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 30 }}>
+                                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                                             <Upload 
                                               customRequest={(opt) => handleUploadFile(opt, ['parts', name, 'questions', qIdx, 'audio_url'], speakingAptisApi.uploadAudio)} 
                                               showUploadList={false}

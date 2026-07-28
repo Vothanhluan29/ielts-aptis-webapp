@@ -6,12 +6,11 @@ import {
   Settings, 
   Trash2, 
   Edit2, 
-  Headphones,
-  Search,
-  BookOpen
+  Search
 } from 'lucide-react';
+import { FormOutlined } from '@ant-design/icons';
 import { message, Select, Pagination } from 'antd';
-import aptisListeningBankApi from '../../../../api/APTIS/listening/aptisListeningBankApi';
+import aptisWritingBankApi from '../../../../api/APTIS/writing/aptisWritingBankApi';
 import ConfirmModal from '../../../../../../components/common/ConfirmModal';
 
 const QuestionBankManagePage = () => {
@@ -20,7 +19,7 @@ const QuestionBankManagePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isTeacher = location.pathname.includes('/teacher');
-  const basePath = isTeacher ? '/teacher/listening/bank' : '/admin/aptis/listening/bank';
+  const basePath = isTeacher ? '/teacher/writing/bank' : '/admin/aptis/writing/bank';
 
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null });
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,7 +39,7 @@ const QuestionBankManagePage = () => {
   const fetchBankGroups = async () => {
     setLoading(true);
     try {
-      const response = await aptisListeningBankApi.getBankGroups();
+      const response = await aptisWritingBankApi.getBankGroups();
       setData(response);
     } catch (error) {
       message.error('Failed to fetch bank groups');
@@ -51,7 +50,7 @@ const QuestionBankManagePage = () => {
 
   const handleDelete = async (id) => {
     try {
-      await aptisListeningBankApi.deleteBankGroup(id);
+      await aptisWritingBankApi.deleteBankGroup(id);
       message.success('Deleted successfully');
       fetchBankGroups();
     } catch (error) {
@@ -68,7 +67,7 @@ const QuestionBankManagePage = () => {
 
   const filteredData = data.filter(item => {
     const matchesSearch = item.instruction?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesPart = partFilter ? item.part_number === partFilter : true;
+    const matchesPart = partFilter ? item.part_type === partFilter : true;
     const matchesDifficulty = difficultyFilter ? item.difficulty_level === difficultyFilter : true;
     return matchesSearch && matchesPart && matchesDifficulty;
   });
@@ -85,10 +84,10 @@ const QuestionBankManagePage = () => {
             <div className="p-2.5 bg-indigo-500/10 text-indigo-600 rounded-xl ring-1 ring-indigo-500/20">
               <Database size={24} />
             </div>
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Aptis Listening Question Bank</h1>
+            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Aptis Writing Question Bank</h1>
           </div>
           <p className="text-zinc-500 font-medium text-[15px] ml-[52px]">
-            Manage individual listening parts and questions
+            Manage individual writing parts
           </p>
         </div>
 
@@ -133,11 +132,10 @@ const QuestionBankManagePage = () => {
             className="w-full"
             size="large"
           >
-            <Select.Option value={1}>Part 1</Select.Option>
-            <Select.Option value={2}>Part 2</Select.Option>
-            <Select.Option value={3}>Part 3</Select.Option>
-            <Select.Option value={4}>Part 4</Select.Option>
-            <Select.Option value={5}>Part 5</Select.Option>
+            <Select.Option value="PART_1">Part 1</Select.Option>
+            <Select.Option value="PART_2">Part 2</Select.Option>
+            <Select.Option value="PART_3">Part 3</Select.Option>
+            <Select.Option value="PART_4">Part 4</Select.Option>
           </Select>
         </div>
         <div className="w-full md:w-40">
@@ -220,8 +218,8 @@ const QuestionBankManagePage = () => {
               {/* Part */}
               <div className="col-span-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-500/20">
-                  <Headphones size={12} />
-                  Part {item.part_number}
+                  <FormOutlined size={12} />
+                  {item.part_type.replace('_', ' ')}
                 </span>
               </div>
 

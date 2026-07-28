@@ -6,12 +6,12 @@ import {
   Settings, 
   Trash2, 
   Edit2, 
-  Headphones,
+  Mic,
   Search,
   BookOpen
 } from 'lucide-react';
 import { message, Select, Pagination } from 'antd';
-import aptisListeningBankApi from '../../../../api/APTIS/listening/aptisListeningBankApi';
+import aptisSpeakingBankApi from '../../../../../../api/APTIS/speaking/aptisSpeakingBankApi';
 import ConfirmModal from '../../../../../../components/common/ConfirmModal';
 
 const QuestionBankManagePage = () => {
@@ -20,7 +20,7 @@ const QuestionBankManagePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isTeacher = location.pathname.includes('/teacher');
-  const basePath = isTeacher ? '/teacher/listening/bank' : '/admin/aptis/listening/bank';
+  const basePath = isTeacher ? '/teacher/speaking/bank' : '/admin/aptis/speaking/bank';
 
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null });
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,7 +40,7 @@ const QuestionBankManagePage = () => {
   const fetchBankGroups = async () => {
     setLoading(true);
     try {
-      const response = await aptisListeningBankApi.getBankGroups();
+      const response = await aptisSpeakingBankApi.getAllBankGroups();
       setData(response);
     } catch (error) {
       message.error('Failed to fetch bank groups');
@@ -51,7 +51,7 @@ const QuestionBankManagePage = () => {
 
   const handleDelete = async (id) => {
     try {
-      await aptisListeningBankApi.deleteBankGroup(id);
+      await aptisSpeakingBankApi.deleteBankGroup(id);
       message.success('Deleted successfully');
       fetchBankGroups();
     } catch (error) {
@@ -68,7 +68,7 @@ const QuestionBankManagePage = () => {
 
   const filteredData = data.filter(item => {
     const matchesSearch = item.instruction?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesPart = partFilter ? item.part_number === partFilter : true;
+    const matchesPart = partFilter ? item.part_type === partFilter : true;
     const matchesDifficulty = difficultyFilter ? item.difficulty_level === difficultyFilter : true;
     return matchesSearch && matchesPart && matchesDifficulty;
   });
@@ -78,17 +78,17 @@ const QuestionBankManagePage = () => {
 
   return (
     <div className="max-w-[1200px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-12">
-      {/* ── HEADER SECTION ── */}
+      {/* â”€â”€ HEADER SECTION â”€â”€ */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 mt-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2.5 bg-indigo-500/10 text-indigo-600 rounded-xl ring-1 ring-indigo-500/20">
               <Database size={24} />
             </div>
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Aptis Listening Question Bank</h1>
+            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Aptis Speaking Question Bank</h1>
           </div>
           <p className="text-zinc-500 font-medium text-[15px] ml-[52px]">
-            Manage individual listening parts and questions
+            Manage individual speaking parts and questions
           </p>
         </div>
 
@@ -111,7 +111,7 @@ const QuestionBankManagePage = () => {
         </div>
       </div>
 
-      {/* ── SEARCH & FILTER ── */}
+      {/* â”€â”€ SEARCH & FILTER â”€â”€ */}
       <div className="mb-6 flex flex-col md:flex-row gap-4">
         <div className="relative w-full md:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
@@ -133,11 +133,10 @@ const QuestionBankManagePage = () => {
             className="w-full"
             size="large"
           >
-            <Select.Option value={1}>Part 1</Select.Option>
-            <Select.Option value={2}>Part 2</Select.Option>
-            <Select.Option value={3}>Part 3</Select.Option>
-            <Select.Option value={4}>Part 4</Select.Option>
-            <Select.Option value={5}>Part 5</Select.Option>
+            <Select.Option value="PART_1">Part 1</Select.Option>
+            <Select.Option value="PART_2">Part 2</Select.Option>
+            <Select.Option value="PART_3">Part 3</Select.Option>
+            <Select.Option value="PART_4">Part 4</Select.Option>
           </Select>
         </div>
         <div className="w-full md:w-40">
@@ -158,7 +157,7 @@ const QuestionBankManagePage = () => {
         </div>
       </div>
 
-      {/* ── LIST VIEW ── */}
+      {/* â”€â”€ LIST VIEW â”€â”€ */}
       <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-sm overflow-hidden">
         {/* Table Header (Desktop only) */}
         <div className="hidden md:grid grid-cols-11 gap-4 px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 text-xs font-bold text-zinc-500 uppercase tracking-wider">
@@ -220,8 +219,8 @@ const QuestionBankManagePage = () => {
               {/* Part */}
               <div className="col-span-2">
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-500/20">
-                  <Headphones size={12} />
-                  Part {item.part_number}
+                  <Mic size={12} />
+                  {item.part_type?.replace('_', ' ')}
                 </span>
               </div>
 

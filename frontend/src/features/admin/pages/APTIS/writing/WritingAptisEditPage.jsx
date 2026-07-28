@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { 
   Form, Input, Button, Card, Space, Switch, InputNumber, 
-  Spin, Row, Col, Typography, Tag, Divider, Collapse
+  Spin, Row, Col, Typography, Tag, Divider, Collapse, message
 } from 'antd';
 import { 
   ArrowLeftOutlined, SaveOutlined, EditOutlined,
   MessageOutlined, FormOutlined, FileTextOutlined, MailOutlined, FormOutlined as PenOutlined
 } from '@ant-design/icons';
 
-// Import Custom Hook và cấu hình
+// Import Custom Hook v├á cß║Ñu h├¼nh
 import { useWritingAptisEdit, PART_CONFIGS } from '../../../hooks/APTIS/writing/useWritingAptisEdit';
 import { BlurInput, BlurTextArea } from '../../../../../components/common/BlurInput';
 import DraftRestoreBanner from '../../../../../components/common/DraftRestoreBanner';
@@ -134,7 +134,19 @@ const WritingAptisEditPage = () => {
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', paddingBottom: 40 }}>
       {/* ================= HEADER ================= */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        marginBottom: 20,
+        position: 'sticky',
+        top: 0,
+        zIndex: 100,
+        backgroundColor: '#ffffff',
+        padding: '16px 20px',
+        borderBottom: '1px solid #e5e7eb',
+        borderRadius: '0 0 12px 12px',
+        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
+      }}>
         <Space>
           <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/writing' : '/admin/aptis/writing')}>
             Back
@@ -161,6 +173,10 @@ const WritingAptisEditPage = () => {
         form={form} 
         layout="vertical" 
         onFinish={onFinish} 
+        onFinishFailed={(errorInfo) => {
+          message.error('Vui lòng điền đầy đủ các trường thông tin bắt buộc (kể cả trong các phần bị ẩn)!');
+          setActivePartKeys(['0', '1', '2', '3']);
+        }}
         onValuesChange={handleFormChange}
         autoComplete="off"
         preserve={true}

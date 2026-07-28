@@ -6,12 +6,11 @@ import {
   Settings, 
   Trash2, 
   Edit2, 
-  Headphones,
-  Search,
-  BookOpen
+  BookOpen,
+  Search
 } from 'lucide-react';
 import { message, Select, Pagination } from 'antd';
-import aptisListeningBankApi from '../../../../api/APTIS/listening/aptisListeningBankApi';
+import aptisGrammarVocabBankApi from '../../../../api/APTIS/grammar_vocab/aptisGrammarVocabBankApi';
 import ConfirmModal from '../../../../../../components/common/ConfirmModal';
 
 const QuestionBankManagePage = () => {
@@ -20,7 +19,7 @@ const QuestionBankManagePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isTeacher = location.pathname.includes('/teacher');
-  const basePath = isTeacher ? '/teacher/listening/bank' : '/admin/aptis/listening/bank';
+  const basePath = isTeacher ? '/teacher/grammar_vocab/bank' : '/admin/aptis/grammar_vocab/bank';
 
   const [deleteModal, setDeleteModal] = useState({ isOpen: false, id: null });
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,7 +39,7 @@ const QuestionBankManagePage = () => {
   const fetchBankGroups = async () => {
     setLoading(true);
     try {
-      const response = await aptisListeningBankApi.getBankGroups();
+      const response = await aptisGrammarVocabBankApi.getBankGroups();
       setData(response);
     } catch (error) {
       message.error('Failed to fetch bank groups');
@@ -51,7 +50,7 @@ const QuestionBankManagePage = () => {
 
   const handleDelete = async (id) => {
     try {
-      await aptisListeningBankApi.deleteBankGroup(id);
+      await aptisGrammarVocabBankApi.deleteBankGroup(id);
       message.success('Deleted successfully');
       fetchBankGroups();
     } catch (error) {
@@ -66,9 +65,18 @@ const QuestionBankManagePage = () => {
     return 'bg-zinc-100 text-zinc-700 ring-zinc-500/20';
   };
 
+  const getPartLabel = (partType) => {
+    if (partType === 'GRAMMAR') return 'Grammar';
+    if (partType === 'VOCAB_WORD_DEFINITION') return 'Vocab: Word Definition';
+    if (partType === 'VOCAB_WORD_PAIRS') return 'Vocab: Word Pairs';
+    if (partType === 'VOCAB_WORD_USAGE') return 'Vocab: Word Usage';
+    if (partType === 'VOCAB_WORD_COMBINATIONS') return 'Vocab: Word Combinations';
+    return partType;
+  };
+
   const filteredData = data.filter(item => {
     const matchesSearch = item.instruction?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesPart = partFilter ? item.part_number === partFilter : true;
+    const matchesPart = partFilter ? item.part_type === partFilter : true;
     const matchesDifficulty = difficultyFilter ? item.difficulty_level === difficultyFilter : true;
     return matchesSearch && matchesPart && matchesDifficulty;
   });
@@ -85,10 +93,10 @@ const QuestionBankManagePage = () => {
             <div className="p-2.5 bg-indigo-500/10 text-indigo-600 rounded-xl ring-1 ring-indigo-500/20">
               <Database size={24} />
             </div>
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Aptis Listening Question Bank</h1>
+            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Aptis Grammar & Vocab Question Bank</h1>
           </div>
           <p className="text-zinc-500 font-medium text-[15px] ml-[52px]">
-            Manage individual listening parts and questions
+            Manage individual grammar and vocab groups and questions
           </p>
         </div>
 
@@ -127,17 +135,17 @@ const QuestionBankManagePage = () => {
         <div className="w-full md:w-40">
           <Select
             allowClear
-            placeholder="Filter by Part"
+            placeholder="Filter by Type"
             value={partFilter || undefined}
             onChange={(val) => setPartFilter(val)}
             className="w-full"
             size="large"
           >
-            <Select.Option value={1}>Part 1</Select.Option>
-            <Select.Option value={2}>Part 2</Select.Option>
-            <Select.Option value={3}>Part 3</Select.Option>
-            <Select.Option value={4}>Part 4</Select.Option>
-            <Select.Option value={5}>Part 5</Select.Option>
+            <Select.Option value="GRAMMAR">Grammar</Select.Option>
+            <Select.Option value="VOCAB_WORD_DEFINITION">Vocab: Word Definition</Select.Option>
+            <Select.Option value="VOCAB_WORD_PAIRS">Vocab: Word Pairs</Select.Option>
+            <Select.Option value="VOCAB_WORD_USAGE">Vocab: Word Usage</Select.Option>
+            <Select.Option value="VOCAB_WORD_COMBINATIONS">Vocab: Word Combinations</Select.Option>
           </Select>
         </div>
         <div className="w-full md:w-40">
@@ -162,8 +170,8 @@ const QuestionBankManagePage = () => {
       <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-sm overflow-hidden">
         {/* Table Header (Desktop only) */}
         <div className="hidden md:grid grid-cols-11 gap-4 px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-          <div className="col-span-2">Part</div>
-          <div className="col-span-6">Instruction</div>
+          <div className="col-span-3">Part Type</div>
+          <div className="col-span-5">Instruction</div>
           <div className="col-span-1 text-center">Questions</div>
           <div className="col-span-1 text-center">Difficulty</div>
           <div className="col-span-1 text-right">Actions</div>
@@ -174,10 +182,10 @@ const QuestionBankManagePage = () => {
           <div className="divide-y divide-zinc-100">
             {[1, 2, 3, 4, 5].map(i => (
               <div key={i} className="px-6 py-5 animate-pulse grid grid-cols-11 gap-4 items-center">
-                <div className="col-span-2">
-                  <div className="h-6 bg-zinc-200 rounded-full w-16"></div>
+                <div className="col-span-3">
+                  <div className="h-6 bg-zinc-200 rounded-full w-24"></div>
                 </div>
-                <div className="col-span-6">
+                <div className="col-span-5">
                   <div className="h-4 bg-zinc-200 rounded-md w-3/4 mb-2"></div>
                   <div className="h-3 bg-zinc-100 rounded-md w-1/2"></div>
                 </div>
@@ -218,15 +226,19 @@ const QuestionBankManagePage = () => {
               className="px-6 py-4 flex flex-col md:grid md:grid-cols-11 gap-4 md:items-center hover:bg-indigo-50/30 transition-colors group relative"
             >
               {/* Part */}
-              <div className="col-span-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-500/20">
-                  <Headphones size={12} />
-                  Part {item.part_number}
+              <div className="col-span-3">
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
+                  item.part_type === 'GRAMMAR' 
+                    ? 'bg-blue-50 text-blue-700 ring-1 ring-blue-500/20'
+                    : 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-500/20'
+                }`}>
+                  <BookOpen size={12} />
+                  {getPartLabel(item.part_type)}
                 </span>
               </div>
 
               {/* Instruction */}
-              <div className="col-span-6 pr-4">
+              <div className="col-span-5 pr-4">
                 <h3 className="text-[14px] font-semibold text-zinc-800 line-clamp-2">
                   {item.instruction || <span className="text-zinc-400 italic">No instruction provided</span>}
                 </h3>

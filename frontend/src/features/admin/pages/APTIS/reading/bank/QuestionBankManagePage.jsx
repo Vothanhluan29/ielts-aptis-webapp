@@ -9,7 +9,7 @@ import {
   BookOpen,
   Search
 } from 'lucide-react';
-import { message, Select } from 'antd';
+import { message, Select, Pagination } from 'antd';
 import aptisReadingBankApi from '../../../../api/APTIS/reading/aptisReadingBankApi';
 import ConfirmModal from '../../../../../../components/common/ConfirmModal';
 
@@ -25,6 +25,12 @@ const QuestionBankManagePage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [partFilter, setPartFilter] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, partFilter, difficultyFilter]);
 
   useEffect(() => {
     fetchBankGroups();
@@ -65,6 +71,9 @@ const QuestionBankManagePage = () => {
     const matchesDifficulty = difficultyFilter ? item.difficulty_level === difficultyFilter : true;
     return matchesSearch && matchesPart && matchesDifficulty;
   });
+
+  const startIndex = (currentPage - 1) * pageSize;
+  const paginatedData = filteredData.slice(startIndex, startIndex + pageSize);
 
   return (
     <div className="max-w-[1200px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-12">
@@ -201,7 +210,7 @@ const QuestionBankManagePage = () => {
 
         {/* List Items */}
         <div className="divide-y divide-zinc-100">
-          {!loading && filteredData.map((item) => (
+          {!loading && paginatedData.map((item) => (
             <div 
               key={item.id} 
               onDoubleClick={() => navigate(`${basePath}/edit/${item.id}`)}
@@ -256,6 +265,19 @@ const QuestionBankManagePage = () => {
             </div>
           ))}
         </div>
+
+        {/* Pagination */}
+        {!loading && filteredData.length > 0 && (
+          <div className="px-6 py-4 border-t border-zinc-100 flex justify-center bg-zinc-50/50">
+            <Pagination 
+              current={currentPage} 
+              total={filteredData.length} 
+              pageSize={pageSize} 
+              onChange={(page) => setCurrentPage(page)} 
+              showSizeChanger={false}
+            />
+          </div>
+        )}
       </div>
 
       <ConfirmModal 

@@ -154,10 +154,18 @@ import WritingAptisEditPage from './features/admin/pages/APTIS/writing/WritingAp
 import WritingSubmissionListPage from './features/admin/pages/APTIS/writing/WritingSubmissionListPage';
 import WritingGradingDetailPage  from './features/admin/pages/APTIS/writing/WritingGradingDetailPage'; 
 
+import WritingQuestionBankManagePage from './features/admin/pages/APTIS/writing/bank/QuestionBankManagePage';
+import WritingBankGroupEditPage from './features/admin/pages/APTIS/writing/bank/BankGroupEditPage';
+import WritingRandomTestGeneratorPage from './features/admin/pages/APTIS/writing/bank/RandomTestGeneratorPage';
+
 import SpeakingAptisManagerList from './features/admin/pages/APTIS/speaking/SpeakingAptisManagerList';
 import SpeakingAptisEditPage from './features/admin/pages/APTIS/speaking/SpeakingAptisEditPage'; 
 import SpeakingSubmissionListPage from './features/admin/pages/APTIS/speaking/SpeakingSubmissionListPage';
 import SpeakingGradingDetailPage from './features/admin/pages/APTIS/speaking/SpeakingGradingDetailPage'; 
+
+import SpeakingQuestionBankManagePage from './features/admin/pages/APTIS/speaking/bank/QuestionBankManagePage';
+import SpeakingBankGroupEditPage from './features/admin/pages/APTIS/speaking/bank/BankGroupEditPage';
+import SpeakingRandomTestGeneratorPage from './features/admin/pages/APTIS/speaking/bank/RandomTestGeneratorPage';
 
 // Admin: Auto-graded submission list + view pages
 import ListeningSubmissionListPage from './features/admin/pages/APTIS/listening/ListeningSubmissionListPage';
@@ -166,6 +174,10 @@ import ReadingSubmissionListPage from './features/admin/pages/APTIS/reading/Read
 import ReadingSubmissionViewPage from './features/admin/pages/APTIS/reading/ReadingSubmissionViewPage';
 import GrammarVocabSubmissionListPage from './features/admin/pages/APTIS/grammar_vocab/GrammarVocabSubmissionListPage';
 import GrammarVocabSubmissionViewPage from './features/admin/pages/APTIS/grammar_vocab/GrammarVocabSubmissionViewPage';
+
+import GrammarVocabQuestionBankManagePage from './features/admin/pages/APTIS/grammar_vocab/bank/QuestionBankManagePage';
+import GrammarVocabBankGroupEditPage from './features/admin/pages/APTIS/grammar_vocab/bank/BankGroupEditPage';
+import GrammarVocabRandomTestGeneratorPage from './features/admin/pages/APTIS/grammar_vocab/bank/RandomTestGeneratorPage';
 
 function App() {
   return (
@@ -320,6 +332,10 @@ function App() {
             <Route path="aptis/grammar-vocab" element={<GramVocabManagePage />} />
             <Route path="aptis/grammar-vocab/create" element={<GramVocabEditPage />} />
             <Route path="aptis/grammar-vocab/edit/:id" element={<GramVocabEditPage />} />
+            <Route path="aptis/grammar_vocab/bank" element={<GrammarVocabQuestionBankManagePage />} />
+            <Route path="aptis/grammar_vocab/bank/create" element={<GrammarVocabBankGroupEditPage />} />
+            <Route path="aptis/grammar_vocab/bank/edit/:id" element={<GrammarVocabBankGroupEditPage />} />
+            <Route path="aptis/grammar_vocab/bank/generate" element={<GrammarVocabRandomTestGeneratorPage />} />
 
             <Route path="aptis/listening" element={<ListeningAptisManageList />} />
             <Route path="aptis/listening/create" element={<ListeningAptisEditPage />} />
@@ -340,10 +356,18 @@ function App() {
             <Route path="aptis/writing" element={<WritingAptisManagerList />} />
             <Route path="aptis/writing/create" element={<WritingAptisEditPage />} />
             <Route path="aptis/writing/edit/:id" element={<WritingAptisEditPage />} />
+            <Route path="aptis/writing/bank" element={<WritingQuestionBankManagePage />} />
+            <Route path="aptis/writing/bank/create" element={<WritingBankGroupEditPage />} />
+            <Route path="aptis/writing/bank/edit/:id" element={<WritingBankGroupEditPage />} />
+            <Route path="aptis/writing/bank/generate" element={<WritingRandomTestGeneratorPage />} />
 
             <Route path="aptis/speaking" element={<SpeakingAptisManagerList />} />
             <Route path="aptis/speaking/create" element={<SpeakingAptisEditPage />} />
             <Route path="aptis/speaking/edit/:id" element={<SpeakingAptisEditPage />} />
+            <Route path="aptis/speaking/bank" element={<SpeakingQuestionBankManagePage />} />
+            <Route path="aptis/speaking/bank/create" element={<SpeakingBankGroupEditPage />} />
+            <Route path="aptis/speaking/bank/edit/:id" element={<SpeakingBankGroupEditPage />} />
+            <Route path="aptis/speaking/bank/generate" element={<SpeakingRandomTestGeneratorPage />} />
 
             <Route path="aptis/full-tests" element={<ExamAptisManagerPage />} />
             <Route path="aptis/full-tests/create" element={<ExamAptisEditPage />} />
@@ -380,6 +404,10 @@ function App() {
             <Route path="grammar-vocab" element={<GramVocabManagePage />} />
             <Route path="grammar-vocab/create" element={<GramVocabEditPage />} />
             <Route path="grammar-vocab/edit/:id" element={<GramVocabEditPage />} />
+            <Route path="grammar_vocab/bank" element={<GrammarVocabQuestionBankManagePage />} />
+            <Route path="grammar_vocab/bank/create" element={<GrammarVocabBankGroupEditPage />} />
+            <Route path="grammar_vocab/bank/edit/:id" element={<GrammarVocabBankGroupEditPage />} />
+            <Route path="grammar_vocab/bank/generate" element={<GrammarVocabRandomTestGeneratorPage />} />
 
             <Route path="listening" element={<ListeningAptisManageList />} />
             <Route path="listening/create" element={<ListeningAptisEditPage />} />
@@ -400,10 +428,18 @@ function App() {
             <Route path="writing" element={<WritingAptisManagerList />} />
             <Route path="writing/create" element={<WritingAptisEditPage />} />
             <Route path="writing/edit/:id" element={<WritingAptisEditPage />} />
+            <Route path="writing/bank" element={<WritingQuestionBankManagePage />} />
+            <Route path="writing/bank/create" element={<WritingBankGroupEditPage />} />
+            <Route path="writing/bank/edit/:id" element={<WritingBankGroupEditPage />} />
+            <Route path="writing/bank/generate" element={<WritingRandomTestGeneratorPage />} />
 
             <Route path="speaking" element={<SpeakingAptisManagerList />} />
             <Route path="speaking/create" element={<SpeakingAptisEditPage />} />
             <Route path="speaking/edit/:id" element={<SpeakingAptisEditPage />} />
+            <Route path="speaking/bank" element={<SpeakingQuestionBankManagePage />} />
+            <Route path="speaking/bank/create" element={<SpeakingBankGroupEditPage />} />
+            <Route path="speaking/bank/edit/:id" element={<SpeakingBankGroupEditPage />} />
+            <Route path="speaking/bank/generate" element={<SpeakingRandomTestGeneratorPage />} />
 
             <Route path="full-tests" element={<ExamAptisManagerPage />} />
             <Route path="full-tests/create" element={<ExamAptisEditPage />} />
