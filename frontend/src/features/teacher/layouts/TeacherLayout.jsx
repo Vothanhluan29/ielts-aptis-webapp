@@ -1,12 +1,12 @@
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import TeacherSideBar from '../components/AdminLayout/TeacherSideBar';
-import Header from '../components/AdminLayout/Header';
-import { useAdminLayout } from '../hooks/AdminLayout/useAdminLayout';
-import authApi from '../features/auth/api/authApi';
+import TeacherSideBar from '../components/TeacherSideBar';
+import TeacherHeader from '../components/TeacherHeader';
+import { useTeacherLayout } from '../hooks/useTeacherLayout';
+import authApi from '../../auth/api/authApi';
 
 const TeacherLayout = () => {
-  const layoutProps = useAdminLayout();
+  const layoutProps = useTeacherLayout();
   const navigate = useNavigate();
   layoutProps.basePath = '/teacher';
 
@@ -34,7 +34,7 @@ const TeacherLayout = () => {
       {/* MAIN VIEWPORT */}
       <div className="flex-1 flex flex-col overflow-hidden relative w-full">
         {/* HEADER Component */}
-        <Header />
+        <TeacherHeader />
 
         {/* CONTENT AREA */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10 relative z-0 custom-scrollbar">

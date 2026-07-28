@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 /* --- LAYOUTS --- */
 import MainLayout from './layouts/MainLayout';
 import AdminLayout from './layouts/AdminLayout';
-import TeacherLayout from './layouts/TeacherLayout';
+import TeacherLayout from './features/teacher/layouts/TeacherLayout';
 
 /* --- AUTH --- */
 import LoginPage from './features/auth/pages/LoginPage';

@@ -67,6 +67,24 @@ const TimerRing = ({ seconds, maxSeconds, isRecording, isPrep }) => {
 };
 
 /* ─────────────────────────────────────────────────────────
+   AUDIO WAVEFORM (SIMULATED)
+───────────────────────────────────────────────────────── */
+const AudioWaveform = () => (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 6, height: 36, justifyContent: 'center', marginBottom: 24 }}>
+    {[1.1, 0.8, 1.3, 0.9, 1.2, 0.7, 1.4].map((dur, i) => (
+      <div key={i} style={{
+        width: 6,
+        height: '100%',
+        backgroundColor: '#ef4444',
+        borderRadius: 4,
+        animation: `aptis-soundwave ${dur}s ease-in-out infinite alternate`,
+        transformOrigin: 'center',
+      }} />
+    ))}
+  </div>
+);
+
+/* ─────────────────────────────────────────────────────────
    MAIN COMPONENT
 ───────────────────────────────────────────────────────── */
 const SpeakingAptisExamPage = ({
@@ -244,6 +262,9 @@ const SpeakingAptisExamPage = ({
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
             <TimerRing seconds={timer} maxSeconds={maxTime} isRecording={isRecording} isPrep={isPrep} />
           </div>
+
+          {/* Simulated Waveform */}
+          {isRecording && <AudioWaveform />}
 
           {/* Buttons */}
           {isRecording && (
@@ -620,6 +641,10 @@ const SpeakingAptisExamPage = ({
         @keyframes aptis-spin { to { transform: rotate(360deg); } }
         @keyframes ping {
           75%, 100% { transform: scale(2); opacity: 0; }
+        }
+        @keyframes aptis-soundwave {
+          0% { transform: scaleY(0.2); }
+          100% { transform: scaleY(1); }
         }
       `}</style>
     </div>
