@@ -19,9 +19,22 @@ class User(Base):
     avatar_url = Column(String, nullable=True)
     role = Column(String, default=UserRole.STUDENT)
     is_active = Column(Boolean, default=True)
+    student_id = Column(String, unique=True, index=True, nullable=True)
+    class_code = Column(String, index=True, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     usage = relationship("UserUsage", back_populates="user", uselist=False, cascade="all, delete-orphan")
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
+    teacher_classes = relationship("TeacherClass", back_populates="teacher", cascade="all, delete-orphan")
+
+class TeacherClass(Base):
+    __tablename__ = "teacher_classes"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    class_code = Column(String, index=True, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    teacher = relationship("User", back_populates="teacher_classes")
 
 class RefreshToken(Base):
     __tablename__ = "refresh_tokens"

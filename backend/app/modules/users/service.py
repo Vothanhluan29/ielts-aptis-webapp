@@ -77,9 +77,19 @@ class UserService:
     # --- ADMIN CONTROL(GET, DELETE) ---
 
     @staticmethod
-    def get_all(db: Session, skip: int = 0, limit: int = 10):
-        total_count = db.query(User).count()
-        users = db.query(User).order_by(User.id.desc()).offset(skip).limit(limit).all()
+    def get_all(db: Session, skip: int = 0, limit: int = 10, role: str = None, class_code: str = None):
+        query = db.query(User)
+        if role:
+            query = query.filter(User.role == role)
+        if class_code:
+            query = query.filter(User.class_code == class_code)
+            
+        total_count = query.count()
+        users = query.order_by(User.id.desc()).offset(skip).limit(limit).all()
+        
+        for user in users:
+            if user.role == UserRole.TEACHER:
+                user.managed_classes = [tc.class_code for tc in user.teacher_classes]
     
         return {
         "items": users,
@@ -97,3 +107,45 @@ class UserService:
         db.delete(user)
         db.commit()
         return {"message": "User deleted successfully"}
+        
+    @staticmethod
+    def bulk_create_students(db: Session, students_in: list[schemas.StudentImport]):
+        created_users = []
+        for student in students_in:
+            # Check if exists
+            existing = db.query(User).filter(User.student_id == student.student_id).first()
+            if not existing:
+                # Use student_id as password, and dummy email if not provided (but email is required by User schema, we will generate one)
+                email = f"{student.student_id}@student.edu"
+                db_user = User(
+                    email=email,
+                    hashed_password=get_password_hash(student.student_id),
+                    full_name=student.full_name,
+                    student_id=student.student_id,
+                    class_code=student.class_code,
+                    role=UserRole.STUDENT,
+                    is_active=True
+                )
+                db.add(db_user)
+                created_users.append(db_user)
+        db.commit()
+        return {"message": f"{len(created_users)} students imported successfully."}
+
+    @staticmethod
+    def assign_teacher_classes(db: Session, teacher_id: int, class_codes: list[str]):
+        from app.modules.users.models import TeacherClass
+        
+        teacher = db.query(User).filter(User.id == teacher_id, User.role == UserRole.TEACHER).first()
+        if not teacher:
+            raise HTTPException(status_code=404, detail="Teacher not found")
+            
+        # Delete existing mappings
+        db.query(TeacherClass).filter(TeacherClass.user_id == teacher_id).delete()
+        
+        # Add new mappings
+        for code in class_codes:
+            tc = TeacherClass(user_id=teacher_id, class_code=code)
+            db.add(tc)
+            
+        db.commit()
+        return {"message": "Classes assigned successfully"}

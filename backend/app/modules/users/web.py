@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List
 from app.modules.users import schemas
+from app.modules.users.models import User
 from app.modules.users.service import UserService
 from app.core.dependencies import get_current_user, get_admin_user, get_aptis_manager_user
 from app.core.database import get_db
@@ -49,11 +50,64 @@ def change_password(
 @router.get("/", response_model=schemas.UserPaginationResponse)
 def get_all_users_by_admin(
     skip: int = 0, 
-    limit: int = 10, 
+    limit: int = 10,
+    role: str = None,
+    class_code: str = None,
     db: Session = Depends(get_db),
     manager = Depends(get_aptis_manager_user) 
 ):
-    return UserService.get_all(db, skip=skip, limit=limit)
+    return UserService.get_all(db, skip=skip, limit=limit, role=role, class_code=class_code)
+
+@router.post("/import", status_code=201)
+def bulk_import_students(
+    students: List[schemas.StudentImport],
+    db: Session = Depends(get_db),
+    admin_user = Depends(get_admin_user)
+):
+    return UserService.bulk_create_students(db, students)
+
+@router.post("/{user_id}/classes")
+def assign_classes_to_teacher(
+    user_id: int,
+    payload: schemas.TeacherClassAssign,
+    db: Session = Depends(get_db),
+    admin_user = Depends(get_admin_user)
+):
+    return UserService.assign_teacher_classes(db, user_id, payload.class_codes)
+
+@router.get("/teacher/students", response_model=schemas.UserPaginationResponse)
+def get_teacher_students(
+    skip: int = 0,
+    limit: int = 10,
+    class_code: str = None,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    if current_user.role != "teacher":
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get classes assigned to this teacher
+    managed_classes = [tc.class_code for tc in current_user.teacher_classes]
+    if not managed_classes:
+        return {"items": [], "total": 0, "page": 1, "size": limit}
+        
+    query = db.query(User).filter(User.role == "student")
+    if class_code:
+        if class_code not in managed_classes:
+            return {"items": [], "total": 0, "page": 1, "size": limit}
+        query = query.filter(User.class_code == class_code)
+    else:
+        query = query.filter(User.class_code.in_(managed_classes))
+        
+    total_count = query.count()
+    users = query.order_by(User.id.desc()).offset(skip).limit(limit).all()
+    
+    return {
+        "items": users,
+        "total": total_count,
+        "page": (skip // limit) + 1,
+        "size": limit
+    }
 
 @router.get("/{user_id}", response_model=schemas.UserResponse)
 def get_user_by_admin(

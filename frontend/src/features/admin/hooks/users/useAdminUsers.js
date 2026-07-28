@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { message } from 'antd';
 import adminUserApi from '../../api/users/adminUserApi';
 
-export const useAdminUsers = () => {
+export const useAdminUsers = (isTeacher = false) => {
   const [users, setUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -12,7 +12,9 @@ export const useAdminUsers = () => {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await adminUserApi.getAllUsers(0,1000);
+      const response = isTeacher 
+        ? await adminUserApi.getTeacherStudents(0, 1000)
+        : await adminUserApi.getAllUsers(0, 1000);
 
       setUsers(response.items || []);
       setTotalUsers(response.total || 0);
@@ -66,14 +68,47 @@ export const useAdminUsers = () => {
     }
   };
 
+  const handleImportStudents = async (data) => {
+    const hide = message.loading('Importing students...', 0);
+    try {
+      await adminUserApi.importStudents(data);
+      hide();
+      message.success('Students imported successfully!');
+      fetchUsers();
+    } catch (error) {
+      hide();
+      console.error('Import students error:', error);
+      message.error(error.response?.data?.detail || 'Failed to import students. Please try again!');
+      throw error;
+    }
+  };
+
+  const handleAssignClassesToTeacher = async (userId, classCodes) => {
+    const hide = message.loading('Assigning classes...', 0);
+    try {
+      await adminUserApi.assignClassesToTeacher(userId, classCodes);
+      hide();
+      message.success('Classes assigned successfully!');
+      fetchUsers();
+    } catch (error) {
+      hide();
+      console.error('Assign classes error:', error);
+      message.error(error.response?.data?.detail || 'Failed to assign classes. Please try again!');
+      throw error;
+    }
+  };
+
 
   return {
     users,
     loading,
     handleUpdateUser,
     handleDeleteUser,
+    handleImportStudents,
+    handleAssignClassesToTeacher,
     currentPage,
     setCurrentPage,
-    totalUsers
+    totalUsers,
+    fetchUsers
   };
 };

@@ -19,6 +19,16 @@ class UserUpdateAdmin(BaseModel):
     avatar_url: Optional[str] = None
     role: Optional[str] = None       # Admin only
     is_active: Optional[bool] = None # Admin only
+    student_id: Optional[str] = None
+    class_code: Optional[str] = None
+
+class StudentImport(BaseModel):
+    student_id: str
+    class_code: Optional[str] = None
+    full_name: Optional[str] = None
+
+class TeacherClassAssign(BaseModel):
+    class_codes: List[str]
 
 class ChangePassword(BaseModel):
     current_password: str
@@ -32,6 +42,9 @@ class UserResponse(BaseModel):
     avatar_url: Optional[str]
     is_active: bool
     role: str
+    student_id: Optional[str] = None
+    class_code: Optional[str] = None
+    managed_classes: Optional[List[str]] = None
     
     class Config:
         from_attributes = True

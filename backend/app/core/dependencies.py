@@ -38,6 +38,13 @@ def get_current_user(request: Request, token: str = Depends(oauth2_scheme), db: 
     
     if user is None:
         raise credentials_exception
+    
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Account is suspended. Please contact your administrator.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
         
     return user
 
