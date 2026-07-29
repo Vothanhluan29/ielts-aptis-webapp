@@ -4,8 +4,8 @@ from typing import List, Optional
 
 from app.core.database import get_db
 from app.core.dependencies import get_aptis_manager_user
-from app.modules.APTIS.speaking import bank_schemas
-from app.modules.APTIS.speaking.services.bank_service import AptisSpeakingBankService
+from app.modules.APTIS.speaking.question_bank import schemas as bank_schemas
+from app.modules.APTIS.speaking.question_bank.service import AptisSpeakingBankService
 
 router = APIRouter(prefix="/admin/aptis/speaking/bank", tags=["Aptis Speaking Bank"])
 

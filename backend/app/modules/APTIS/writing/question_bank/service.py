@@ -3,8 +3,9 @@ from sqlalchemy import func
 from typing import List
 import random
 from fastapi import HTTPException
-from app.modules.APTIS.writing.bank_models import AptisWritingBankGroup, AptisWritingBankQuestion
-from app.modules.APTIS.writing import bank_schemas, schemas
+from app.modules.APTIS.writing.question_bank.models import AptisWritingBankGroup, AptisWritingBankQuestion
+from app.modules.APTIS.writing.question_bank import schemas as bank_schemas
+from app.modules.APTIS.writing import schemas
 from app.modules.APTIS.writing.models import AptisWritingTest, AptisWritingPart, AptisWritingQuestion, AptisWritingPartType
 
 class AptisWritingBankService:

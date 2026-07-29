@@ -20,11 +20,11 @@ from app.modules.IELTS.speaking.models import SpeakingTest
 from app.modules.IELTS.exam.models import FullTest
 from app.modules.subscriptions.models import UserUsage
 from app.modules.feedbacks.models import Feedback
-from app.modules.APTIS.listening.bank_models import AptisListeningBankGroup, AptisListeningBankQuestion
-from app.modules.APTIS.reading.bank_models import AptisReadingBankGroup, AptisReadingBankQuestion
-from app.modules.APTIS.grammar_vocab.bank_models import AptisGrammarVocabBankGroup, AptisGrammarVocabBankQuestion
-from app.modules.APTIS.writing.bank_models import AptisWritingBankGroup, AptisWritingBankQuestion
-from app.modules.APTIS.speaking.bank_models import AptisSpeakingBankGroup, AptisSpeakingBankQuestion
+from app.modules.APTIS.listening.question_bank.models import AptisListeningBankGroup, AptisListeningBankQuestion
+from app.modules.APTIS.reading.question_bank.models import AptisReadingBankGroup, AptisReadingBankQuestion
+from app.modules.APTIS.grammar_vocab.question_bank.models import AptisGrammarVocabBankGroup, AptisGrammarVocabBankQuestion
+from app.modules.APTIS.writing.question_bank.models import AptisWritingBankGroup, AptisWritingBankQuestion
+from app.modules.APTIS.speaking.question_bank.models import AptisSpeakingBankGroup, AptisSpeakingBankQuestion
 
 # Import Routers
 from app.modules.auth import web as auth_web
@@ -48,7 +48,11 @@ from app.modules.APTIS.listening import web as aptis_listening_web
 from app.modules.APTIS.reading import web as aptis_reading_web
 from app.modules.APTIS.writing import web as aptis_writing_web
 from app.modules.APTIS.speaking import web as aptis_speaking_web
-from app.modules.APTIS.speaking import bank_web as aptis_speaking_bank_web
+from app.modules.APTIS.grammar_vocab.question_bank import web as aptis_grammar_vocab_bank_web
+from app.modules.APTIS.listening.question_bank import web as aptis_listening_bank_web
+from app.modules.APTIS.reading.question_bank import web as aptis_reading_bank_web
+from app.modules.APTIS.writing.question_bank import web as aptis_writing_bank_web
+from app.modules.APTIS.speaking.question_bank import web as aptis_speaking_bank_web
 from app.modules.APTIS.exam import web as aptis_exam_web
 from app.modules.APTIS.user_stats_Aptis import web as aptis_user_stats_web
 
@@ -143,6 +147,10 @@ api_router.include_router(aptis_listening_web.router)
 api_router.include_router(aptis_reading_web.router)
 api_router.include_router(aptis_writing_web.router)
 api_router.include_router(aptis_speaking_web.router)
+api_router.include_router(aptis_grammar_vocab_bank_web.router)
+api_router.include_router(aptis_listening_bank_web.router)
+api_router.include_router(aptis_reading_bank_web.router)
+api_router.include_router(aptis_writing_bank_web.router)
 api_router.include_router(aptis_speaking_bank_web.router)
 api_router.include_router(aptis_exam_web.router) 
 api_router.include_router(aptis_user_stats_web.router)

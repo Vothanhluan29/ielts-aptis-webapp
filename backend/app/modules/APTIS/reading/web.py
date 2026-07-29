@@ -10,8 +10,7 @@ from app.modules.APTIS.reading import schemas
 from app.modules.APTIS.reading.services.test_service import AptisReadingTestService
 from app.modules.APTIS.reading.services.submission_service import AptisReadingSubmissionService
 
-from app.modules.APTIS.reading import bank_schemas
-from app.modules.APTIS.reading.services.bank_service import BankService
+
 
 router = APIRouter(prefix="/aptis/reading", tags=["Aptis Reading"])
 
@@ -183,33 +182,6 @@ def get_my_history(
 ):
     return AptisReadingSubmissionService.get_student_history(db, current_user.id)
 
-
-# =====================================================
-# BANK ROUTES (Reading)
-# =====================================================
-@router.post("/bank/groups", response_model=bank_schemas.BankGroupResponse)
-def create_bank_group(group_in: bank_schemas.BankGroupCreate, db: Session = Depends(get_db)):
-    return BankService.create_bank_group(db, group_in)
-
-@router.get("/bank/groups", response_model=List[bank_schemas.BankGroupResponse])
-def get_bank_groups(part_number: Optional[int] = None, db: Session = Depends(get_db)):
-    return BankService.get_bank_groups(db, part_number)
-
-@router.get("/bank/groups/{group_id}", response_model=bank_schemas.BankGroupResponse)
-def get_bank_group(group_id: int, db: Session = Depends(get_db)):
-    return BankService.get_bank_group_by_id(db, group_id)
-
-@router.put("/bank/groups/{group_id}", response_model=bank_schemas.BankGroupResponse)
-def update_bank_group(group_id: int, group_in: bank_schemas.BankGroupUpdate, db: Session = Depends(get_db)):
-    return BankService.update_bank_group(db, group_id, group_in)
-
-@router.delete("/bank/groups/{group_id}")
-def delete_bank_group(group_id: int, db: Session = Depends(get_db)):
-    return BankService.delete_bank_group(db, group_id)
-
-@router.post("/bank/generate", response_model=schemas.TestAdmin)
-def generate_random_test(config: bank_schemas.GenerateTestConfig, db: Session = Depends(get_db)):
-    return BankService.generate_test(db, config)
 
 
 @router.get("/submissions/{submission_id}", response_model=schemas.SubmissionDetail)

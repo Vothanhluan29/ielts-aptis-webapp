@@ -3,8 +3,9 @@ from sqlalchemy import func
 from typing import List
 import random
 from fastapi import HTTPException
-from app.modules.APTIS.grammar_vocab.bank_models import AptisGrammarVocabBankGroup, AptisGrammarVocabBankQuestion
-from app.modules.APTIS.grammar_vocab import bank_schemas, schemas
+from app.modules.APTIS.grammar_vocab.question_bank.models import AptisGrammarVocabBankGroup, AptisGrammarVocabBankQuestion
+from app.modules.APTIS.grammar_vocab.question_bank import schemas as bank_schemas
+from app.modules.APTIS.grammar_vocab import schemas
 from app.modules.APTIS.grammar_vocab.models import AptisGrammarVocabTest, AptisGrammarVocabGroup, AptisGrammarVocabQuestion, AptisQuestionPart
 
 class AptisGrammarVocabBankService:

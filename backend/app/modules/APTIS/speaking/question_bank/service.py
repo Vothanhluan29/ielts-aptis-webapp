@@ -2,8 +2,8 @@ from sqlalchemy.orm import Session
 from typing import List
 import random
 from fastapi import HTTPException
-from app.modules.APTIS.speaking.bank_models import AptisSpeakingBankGroup, AptisSpeakingBankQuestion
-from app.modules.APTIS.speaking import bank_schemas
+from app.modules.APTIS.speaking.question_bank.models import AptisSpeakingBankGroup, AptisSpeakingBankQuestion
+from app.modules.APTIS.speaking.question_bank import schemas as bank_schemas
 from app.modules.APTIS.speaking.models import AptisSpeakingTest, AptisSpeakingPart, AptisSpeakingQuestion
 
 class AptisSpeakingBankService:
