@@ -319,11 +319,13 @@ const ReadingAptisEditPage = () => {
                                       <Form.Item shouldUpdate noStyle>
                                         {({ getFieldValue }) => {
                                           const qType = getFieldValue(['parts', partName, 'questions', qName, 'question_type']);
+                                          const partNumber = getFieldValue(['parts', partName, 'part_number']);
                                           const pathProps = {
                                             relativePath: [qName],
                                             absolutePath: ['parts', partName, 'questions', qName],
                                             restField: restQField,
-                                            form: form
+                                            form: form,
+                                            partNumber: partNumber
                                           };
 
                                           return (

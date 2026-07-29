@@ -86,23 +86,37 @@ const MatchingAdmin = ({ relativePath, absolutePath, form }) => {
             const currentOptions = form.getFieldValue([...absolutePath, 'options']) || [];
             
             return (
-              <Form.Item 
-                name={[...relativePath, 'correct_answer']} 
-                label={<Text strong style={{ color: '#16a34a' }}>Select the correct answer:</Text>}
-                rules={[{ required: true, message: 'Please select the correct answer!' }]}
-                style={{ marginBottom: 0 }}
-              >
-                <Select placeholder="-- Select an answer --" style={{ width: '400px' }}>
-                  {currentOptions.map((optText, idx) => (
-                    <Option key={idx} value={idx.toString()}>
-                      {optText
-                        ? `Option ${idx + 1}: ${optText.substring(0, 40)}${optText.length > 40 ? '...' : ''}`
-                        : `Option ${idx + 1} (Empty)`
-                      }
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
+              <>
+                <Form.Item 
+                  name={[...relativePath, 'correct_answer']} 
+                  label={<Text strong style={{ color: '#16a34a' }}>Select the correct answer:</Text>}
+                  rules={[{ required: true, message: 'Please select the correct answer!' }]}
+                  style={{ marginBottom: 0 }}
+                >
+                  <Select placeholder="-- Select an answer --" style={{ width: '400px' }}>
+                    {currentOptions.map((optText, idx) => (
+                      <Option key={idx} value={idx.toString()}>
+                        {optText
+                          ? `Option ${idx + 1}: ${optText.substring(0, 40)}${optText.length > 40 ? '...' : ''}`
+                          : `Option ${idx + 1} (Empty)`
+                        }
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+                {(() => {
+                  const currentAns = form.getFieldValue([...absolutePath, 'correct_answer']);
+                  const ansText = currentAns !== undefined && currentAns !== null && currentOptions[Number(currentAns)] 
+                                  ? currentOptions[Number(currentAns)] 
+                                  : 'None';
+                  return (
+                    <div style={{ marginTop: 8, padding: '8px 12px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4, width: '400px' }}>
+                      <Text strong style={{ color: '#166534' }}>Correct Answer Selected: </Text>
+                      <Text>{ansText}</Text>
+                    </div>
+                  );
+                })()}
+              </>
             );
           }}
         </Form.Item>

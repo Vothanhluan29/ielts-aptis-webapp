@@ -39,11 +39,11 @@ class AptisListeningUtils:
             scale_score = 0
 
         cefr = "A0"
-        if correct_count >= 21:    cefr = "C"
-        elif correct_count >= 17:  cefr = "B2"
-        elif correct_count >= 12:  cefr = "B1"
-        elif correct_count >= 6:   cefr = "A2"
-        elif correct_count >= 1:   cefr = "A1"
+        if scale_score >= 42:      cefr = "C"
+        elif scale_score >= 34:    cefr = "B2"
+        elif scale_score >= 24:    cefr = "B1"
+        elif scale_score >= 12:    cefr = "A2"
+        elif scale_score >= 2:     cefr = "A1"
             
         return {
             "score": scale_score,

@@ -38,3 +38,8 @@ frontend/Dockerfile
 frontend/.dockerignore
 frontend/nginx.conf
 DOCKER_CHEATSHEET.md
+
+# Seed Scripts
+backend/seed_aptis_data.py
+backend/seed_reading_only.py
+backend/fix_reading_db.py

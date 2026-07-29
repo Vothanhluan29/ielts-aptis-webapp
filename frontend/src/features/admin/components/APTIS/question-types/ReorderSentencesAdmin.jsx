@@ -12,9 +12,12 @@ const { Text } = Typography;
  * Reorder Sentences component for Admin
  * Suitable for Reading Part 2 (Reorder Sentences)
  */
-const ReorderSentencesAdmin = ({ relativePath, absolutePath, form }) => {
+const ReorderSentencesAdmin = ({ relativePath, absolutePath, form, partNumber }) => {
   const [isPasteModalOpen, setIsPasteModalOpen] = useState(false);
   const [pasteText, setPasteText] = useState('');
+
+  const num = Number(partNumber);
+  const maxOptions = (num === 2 || num === 5) ? 5 : undefined;
 
   // 🔥 FIX HOOK: use Form.useWatch at top level
   const currentOptions = Form.useWatch([...absolutePath, 'options'], form);
@@ -45,10 +48,15 @@ const ReorderSentencesAdmin = ({ relativePath, absolutePath, form }) => {
     if (!pasteText.trim()) return;
     
     const lines = pasteText.split('\n').filter(line => line.trim() !== '');
-    const cleanSentences = lines.map(line =>
+    let cleanSentences = lines.map(line =>
       line.trim().replace(/^([a-zA-Z0-9]+)[.)-]\s+/, '')
     );
     
+    if (maxOptions && cleanSentences.length > maxOptions) {
+      cleanSentences = cleanSentences.slice(0, maxOptions);
+      message.warning(`Maximum ${maxOptions} sentences allowed. Extra sentences were removed.`);
+    }
+
     form.setFieldValue([...absolutePath, 'options'], cleanSentences);
 
     setIsPasteModalOpen(false);
@@ -141,14 +149,16 @@ const ReorderSentencesAdmin = ({ relativePath, absolutePath, form }) => {
               </div>
             ))}
 
-            <Button 
-              type="dashed" 
-              onClick={() => add('')} 
-              icon={<PlusOutlined />} 
-              style={{ width: '100%', marginTop: 8, borderColor: '#facc15', color: '#a16207' }}
-            >
-              Add a new sentence
-            </Button>
+            {(!maxOptions || fields.length < maxOptions) && (
+              <Button 
+                type="dashed" 
+                onClick={() => add('')} 
+                icon={<PlusOutlined />} 
+                style={{ width: '100%', marginTop: 8, borderColor: '#facc15', color: '#a16207' }}
+              >
+                Add a new sentence
+              </Button>
+            )}
           </>
         )}
       </Form.List>

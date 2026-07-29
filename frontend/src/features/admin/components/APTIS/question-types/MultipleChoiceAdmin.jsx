@@ -132,6 +132,23 @@ const MultipleChoiceAdmin = ({ relativePath, absolutePath, form }) => {
         </Form.Item>
       </Form.Item>
 
+      <Form.Item shouldUpdate noStyle>
+        {() => {
+          const currentAns = form.getFieldValue([...absolutePath, 'correct_answer']);
+          const currentOptions = form.getFieldValue([...absolutePath, 'options']) || [];
+          const ansText = currentAns !== undefined && currentAns !== null && currentOptions[Number(currentAns)] 
+                          ? currentOptions[Number(currentAns)] 
+                          : 'None';
+          
+          return (
+            <div style={{ marginTop: 8, padding: '8px 12px', backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 4 }}>
+              <Text strong style={{ color: '#166534' }}>Correct Answer Selected: </Text>
+              <Text>{ansText}</Text>
+            </div>
+          );
+        }}
+      </Form.Item>
+
       <Modal
         title="Quick paste options"
         open={isPasteModalOpen}

@@ -51,4 +51,5 @@ class GenerateTestConfig(BaseModel):
     time_limit: Optional[int] = 12
     is_published: Optional[bool] = False
     is_full_test_only: Optional[bool] = False
+    difficulty_level: Optional[str] = None
     part_difficulties: Optional[Dict[str, Optional[str]]] = None

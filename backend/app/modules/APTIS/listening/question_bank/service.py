@@ -148,7 +148,12 @@ class BankService:
 
             # Shuffle and pick num_questions questions
             available_qs = random_bank_group.questions
-            selected_qs = random.sample(available_qs, min(len(available_qs), part_config.num_questions))
+            if len(available_qs) < part_config.num_questions:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Not enough questions in bank group for Part {part_config.part_number}. Required: {part_config.num_questions}, Available: {len(available_qs)}. Please add more questions to this bank group."
+                )
+            selected_qs = random.sample(available_qs, part_config.num_questions)
 
             for bank_q in selected_qs:
                 new_q = AptisListeningQuestion(

@@ -342,7 +342,7 @@ const BankGroupEditPage = () => {
                               }
 
                               if (qType === 'REORDER_SENTENCES') {
-                                return <ReorderSentencesAdmin relativePath={[qName]} absolutePath={['questions', qName]} restField={restQField} form={form} />;
+                                return <ReorderSentencesAdmin relativePath={[qName]} absolutePath={['questions', qName]} restField={restQField} form={form} partNumber={form.getFieldValue('part_number')} />;
                               }
 
                               if (qType === 'SHORT_ANSWER') {

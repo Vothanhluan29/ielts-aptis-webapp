@@ -109,6 +109,7 @@ class BankService:
         db.flush()
 
         import random
+        total_items = 0
 
         # 2. Iterate over parts_config
         for part_config in config.parts_config:
@@ -153,10 +154,36 @@ class BankService:
 
             available_qs = random_bank_group.questions
             
-            # Shuffle and limit to num_questions for all parts
-            selected_qs = random.sample(available_qs, min(len(available_qs), num_q))
+            if len(available_qs) < num_q:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Not enough questions in bank group for Part {p_num}. Required: {num_q}, Available: {len(available_qs)}. Please add more questions to this bank group."
+                )
+            
+            selected_qs = random.sample(available_qs, num_q)
 
             for idx, bank_q in enumerate(selected_qs):
+                if total_items >= 29:
+                    break
+
+                # Calculate how many items this question adds
+                if bank_q.question_type == 'REORDER_SENTENCES':
+                    # Assuming correct_answer is comma-separated or hyphen-separated
+                    ans_str = bank_q.correct_answer or ""
+                    # Check for hyphen first as submission_service uses hyphen, but seed uses comma
+                    if '-' in ans_str:
+                        items_added = len(ans_str.split('-'))
+                    elif ',' in ans_str:
+                        items_added = len(ans_str.split(','))
+                    else:
+                        items_added = len(ans_str) if ans_str else 1
+                else:
+                    items_added = 1
+
+                if total_items + items_added > 29:
+                    # If this question pushes us over 29, skip it
+                    continue
+
                 new_q = AptisReadingQuestion(
                     group_id=new_group.id,
                     question_number=idx + 1,
@@ -167,6 +194,10 @@ class BankService:
                     explanation=bank_q.explanation
                 )
                 db.add(new_q)
+                total_items += items_added
+
+            if total_items >= 29:
+                break
 
         db.commit()
         db.refresh(new_test)

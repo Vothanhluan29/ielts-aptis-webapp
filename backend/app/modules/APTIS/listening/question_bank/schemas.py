@@ -66,4 +66,5 @@ class GenerateTestConfig(BaseModel):
     description: Optional[str] = None
     time_limit: int = 40
     is_full_test_only: bool = False
+    difficulty_level: Optional[str] = None
     parts_config: List[PartConfig]
