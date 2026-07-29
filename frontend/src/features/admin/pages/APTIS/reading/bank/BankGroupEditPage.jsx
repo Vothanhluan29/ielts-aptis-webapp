@@ -111,7 +111,7 @@ const BankGroupEditPage = () => {
     <div className="max-w-[1000px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20 pt-6">
       
       {/* ================= STICKY HEADER ================= */}
-      <div className="sticky top-0 z-50 bg-zinc-50/90 backdrop-blur-md pb-4 mb-6 pt-2 -mx-4 px-4 border-b border-zinc-200/50 flex justify-between items-center">
+      <div className="bg-zinc-50/90 backdrop-blur-md pb-4 mb-6 pt-2 -mx-4 px-4 border-b border-zinc-200/50 flex justify-between items-center">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => navigate(basePath)}
@@ -121,7 +121,7 @@ const BankGroupEditPage = () => {
           </button>
           <div>
             <h1 className="text-xl font-black text-zinc-900 tracking-tight m-0">
-              {isCreateMode ? 'Create New Bank Group' : `Edit Bank Group #${id}`}
+              {isCreateMode ? 'Create New Bank Group' : 'Edit Bank Group'}
             </h1>
             <p className="text-sm font-medium text-zinc-500 m-0">
               Configure group details and associated questions
