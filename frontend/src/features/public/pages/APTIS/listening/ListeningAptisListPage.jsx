@@ -214,13 +214,24 @@ const ListeningAptisListPage = () => {
                   {/* Top row: badge + time */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                     {config.badge}
-                    <span style={{
-                      display: 'flex', alignItems: 'center', gap: 4,
-                      fontSize: 12, fontWeight: 600, color: '#9ca3af',
-                      background: '#f8fafc', padding: '3px 9px', borderRadius: 8
-                    }}>
-                      <Clock size={11} /> {test.time_limit || 35} min
-                    </span>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {test.difficulty_level && (
+                        <span style={{
+                          display: 'flex', alignItems: 'center', gap: 4,
+                          fontSize: 12, fontWeight: 600, color: '#d97706',
+                          background: '#fef3c7', padding: '3px 9px', borderRadius: 8
+                        }}>
+                          {test.difficulty_level}
+                        </span>
+                      )}
+                      <span style={{
+                        display: 'flex', alignItems: 'center', gap: 4,
+                        fontSize: 12, fontWeight: 600, color: '#9ca3af',
+                        background: '#f8fafc', padding: '3px 9px', borderRadius: 8
+                      }}>
+                        <Clock size={11} /> {test.time_limit || 35} min
+                      </span>
+                    </div>
                   </div>
 
                   {/* Title & Description */}

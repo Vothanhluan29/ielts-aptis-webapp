@@ -93,6 +93,7 @@ export const useReadingAptisEdit = () => {
         time_limit: data.time_limit,
         is_published: data.is_published,
         is_full_test_only: data.is_full_test_only,
+        difficulty_level: data.difficulty_level,
         parts: formattedParts,
       });
 
@@ -117,6 +118,7 @@ export const useReadingAptisEdit = () => {
         time_limit: 35,
         is_published: false,
         is_full_test_only: false,
+        difficulty_level: null,
         description: '',
         parts: [
           {
@@ -176,6 +178,7 @@ export const useReadingAptisEdit = () => {
         time_limit: Number(values.time_limit),
         is_published: Boolean(values.is_published),
         is_full_test_only: Boolean(values.is_full_test_only),
+        difficulty_level: values.difficulty_level || null,
 
         parts: values.parts?.map((part, pIndex) => {
           const mappedQuestions = part.questions?.map((q) => {

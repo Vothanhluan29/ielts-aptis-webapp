@@ -64,6 +64,7 @@ class AptisSpeakingTestBase(BaseModel):
     description: Optional[str] = None
     time_limit: int = 12  
     is_published: bool = False
+    difficulty_level: Optional[str] = None
     is_full_test_only: bool = False
 
 class AptisSpeakingTestCreate(AptisSpeakingTestBase):
@@ -74,6 +75,7 @@ class AptisSpeakingTestUpdate(BaseModel):
     description: Optional[str] = None
     time_limit: Optional[int] = None
     is_published: Optional[bool] = None
+    difficulty_level: Optional[str] = None
     is_full_test_only: Optional[bool] = None
     parts: Optional[List[AptisSpeakingPartCreate]] = None 
 
@@ -91,6 +93,7 @@ class AptisSpeakingTestListItem(BaseModel):
     description: Optional[str] = None
     time_limit: int
     is_published: bool
+    difficulty_level: Optional[str] = None
     is_full_test_only: bool 
     created_at: datetime
     status: Optional[str] = "NOT_STARTED"

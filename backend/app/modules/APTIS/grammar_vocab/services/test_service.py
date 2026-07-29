@@ -17,6 +17,7 @@ class GrammarVocabTestService:
             description=test_data.description,
             time_limit=test_data.time_limit,
             is_published=test_data.is_published,
+            difficulty_level=test_data.difficulty_level,
             is_full_test_only=test_data.is_full_test_only
         )
         db.add(db_test)

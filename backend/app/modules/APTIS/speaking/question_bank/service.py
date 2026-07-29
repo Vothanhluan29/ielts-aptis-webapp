@@ -117,6 +117,7 @@ class AptisSpeakingBankService:
             description=config.description,
             time_limit=config.time_limit,
             is_published=config.is_published,
+            difficulty_level=config.difficulty_level,
             is_full_test_only=config.is_full_test_only
         )
         db.add(new_test)

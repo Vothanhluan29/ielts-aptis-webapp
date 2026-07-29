@@ -64,6 +64,7 @@ export const useSpeakingAptisEdit = () => {
       description: "", 
       is_published: false, 
       is_full_test_only: false, 
+      difficulty_level: null,
       parts: defaultParts 
     });
     enableAutoSave();

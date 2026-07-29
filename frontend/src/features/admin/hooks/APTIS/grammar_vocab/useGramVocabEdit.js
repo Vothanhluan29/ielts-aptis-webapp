@@ -105,6 +105,7 @@ export const useGramVocabEdit = () => {
         time_limit:        data.time_limit,
         is_published:      data.is_published,
         is_full_test_only: data.is_full_test_only,
+        difficulty_level:  data.difficulty_level,
         grammar_questions: grammarQuestions,
         vocab_groups:      vocabGroups,
       });
@@ -131,7 +132,7 @@ export const useGramVocabEdit = () => {
         questions: [{ options: [], correct_answer: undefined }],
       }];
       form.setFieldsValue({
-        time_limit: 25, is_published: false, is_full_test_only: false, description: '',
+        time_limit: 25, is_published: false, is_full_test_only: false, difficulty_level: null, description: '',
         grammar_questions: defaultGrammar,
         vocab_groups:      defaultVocab,
       });
@@ -205,6 +206,7 @@ export const useGramVocabEdit = () => {
         time_limit:        Number(values.time_limit),
         is_published:      Boolean(values.is_published),
         is_full_test_only: Boolean(values.is_full_test_only),
+        difficulty_level:  values.difficulty_level || null,
         groups,
       };
 

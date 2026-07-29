@@ -91,8 +91,9 @@ const ListeningAptisManageList = () => {
         {/* Table Header (Desktop only) */}
         <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 text-xs font-bold text-zinc-500 uppercase tracking-wider">
           <div className="col-span-4">Test Title</div>
-          <div className="col-span-2">Duration</div>
-          <div className="col-span-3">Type</div>
+          <div className="col-span-2">Time Limit</div>
+          <div className="col-span-1">Difficulty</div>
+          <div className="col-span-2">Type</div>
           <div className="col-span-2">Status</div>
           <div className="col-span-1 text-right">Actions</div>
         </div>
@@ -163,8 +164,15 @@ const ListeningAptisManageList = () => {
                 {test.time_limit} min
               </div>
 
-              {/* Col 3: Type */}
-              <div className="col-span-6 md:col-span-3">
+              {/* Col 3: Difficulty */}
+              <div className="col-span-6 md:col-span-1 flex items-center">
+                <span className={`px-2 py-0.5 rounded text-xs font-bold ${test.difficulty_level ? 'bg-amber-100 text-amber-700' : 'text-zinc-400'}`}>
+                  {test.difficulty_level || '-'}
+                </span>
+              </div>
+
+              {/* Col 4: Type */}
+              <div className="col-span-6 md:col-span-2">
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold ${
                   test.is_full_test_only 
                     ? 'bg-purple-100 text-purple-700' 

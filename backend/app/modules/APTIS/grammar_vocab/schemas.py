@@ -68,6 +68,7 @@ class TestBase(BaseModel):
     description: Optional[str] = None # 
     time_limit: int = 25
     is_published: bool = False
+    difficulty_level: Optional[str] = None
     is_full_test_only: bool = False 
 
 class TestCreate(TestBase):
@@ -78,6 +79,7 @@ class TestUpdate(BaseModel):
     description: Optional[str] = None # 
     time_limit: Optional[int] = None
     is_published: Optional[bool] = None
+    difficulty_level: Optional[str] = None
     is_full_test_only: Optional[bool] = None
     groups : Optional[List[GroupUpdate]] = None
 

@@ -43,6 +43,7 @@ const RandomTestGeneratorPage = () => {
         description: values.description,
         time_limit: values.time_limit,
         is_full_test_only: values.is_full_test_only,
+        difficulty_level: values.difficulty_level || null,
         parts_config: [
           { part_number: 1, num_questions: 13, difficulty: values.difficulty_part_1 },
           { part_number: 2, num_questions: 4, difficulty: values.difficulty_part_2 },
@@ -103,7 +104,7 @@ const RandomTestGeneratorPage = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-12 gap-x-6">
-              <div className="md:col-span-8">
+              <div className="md:col-span-5">
                 <Form.Item 
                   name="title" 
                   label={<span className="text-sm font-bold text-zinc-700">Test Title</span>}
@@ -113,6 +114,25 @@ const RandomTestGeneratorPage = () => {
                     placeholder="e.g., Spring Mock Test 1" 
                     className="px-4 py-3 bg-zinc-50/50 border-zinc-200 hover:border-indigo-400 focus:border-indigo-500 rounded-xl text-base"
                   />
+                </Form.Item>
+              </div>
+              <div className="md:col-span-3">
+                <Form.Item 
+                  name="difficulty_level" 
+                  label={<span className="text-sm font-bold text-zinc-700">Test Difficulty</span>}
+                >
+                  <Select 
+                    allowClear 
+                    placeholder="Any" 
+                    size="large"
+                    style={{ borderRadius: '0.75rem' }}
+                  >
+                    <Option value="A1">A1</Option>
+                    <Option value="A2">A2</Option>
+                    <Option value="B1">B1</Option>
+                    <Option value="B2">B2</Option>
+                    <Option value="C">C</Option>
+                  </Select>
                 </Form.Item>
               </div>
               <div className="md:col-span-4">

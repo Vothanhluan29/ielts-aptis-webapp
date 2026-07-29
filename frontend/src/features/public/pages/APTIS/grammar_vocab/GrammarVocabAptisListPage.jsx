@@ -201,13 +201,24 @@ const GrammarVocabAptisListPage = () => {
                 <div style={{ padding: '20px 20px 16px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                     {config.badge}
-                    <span style={{
-                      display: 'flex', alignItems: 'center', gap: 4,
-                      fontSize: 12, fontWeight: 600, color: '#9ca3af',
-                      background: '#f8fafc', padding: '3px 9px', borderRadius: 8
-                    }}>
-                      <Clock size={11} /> {test.time_limit || 25} min
-                    </span>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      {test.difficulty_level && (
+                        <span style={{
+                          display: 'flex', alignItems: 'center', gap: 4,
+                          fontSize: 12, fontWeight: 600, color: '#d97706',
+                          background: '#fef3c7', padding: '3px 9px', borderRadius: 8
+                        }}>
+                          {test.difficulty_level}
+                        </span>
+                      )}
+                      <span style={{
+                        display: 'flex', alignItems: 'center', gap: 4,
+                        fontSize: 12, fontWeight: 600, color: '#9ca3af',
+                        background: '#f8fafc', padding: '3px 9px', borderRadius: 8
+                      }}>
+                        <Clock size={11} /> {test.time_limit || 25} min
+                      </span>
+                    </div>
                   </div>
                   <h3 style={{
                     margin: '0 0 6px', fontSize: 15, fontWeight: 800,

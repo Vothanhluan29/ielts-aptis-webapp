@@ -63,6 +63,7 @@ class TestCreateOrUpdate(BaseModel):
     description: Optional[str] = None 
     time_limit: int = 35 
     is_published: bool = False
+    difficulty_level: Optional[str] = None
     is_full_test_only: bool = False
     parts: List[PartCreateOrUpdate] = []
 
@@ -91,6 +92,7 @@ class TestAdmin(BaseModel):
     description: Optional[str] = None 
     time_limit: int
     is_published: bool
+    difficulty_level: Optional[str] = None
     is_full_test_only: bool
     created_at: datetime
     parts: List[PartAdmin]
@@ -127,6 +129,7 @@ class TestListItem(BaseModel):
     description: Optional[str] = None 
     time_limit: int
     is_published: bool
+    difficulty_level: Optional[str] = None
     is_full_test_only: bool
     created_at: datetime
     status: Optional[str] = "NOT_STARTED"

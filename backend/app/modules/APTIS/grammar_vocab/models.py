@@ -30,6 +30,7 @@ class AptisGrammarVocabTest(Base):
 
     time_limit = Column(Integer, default=25)  # minutes
     is_published = Column(Boolean, default=False)
+    difficulty_level = Column(String(50), nullable=True)
     is_full_test_only = Column(Boolean, default=False) 
 
     created_at = Column(DateTime, default=datetime.utcnow)

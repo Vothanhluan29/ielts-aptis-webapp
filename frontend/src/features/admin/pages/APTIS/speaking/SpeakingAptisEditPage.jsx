@@ -100,12 +100,23 @@ const SpeakingAptisEditPage = () => {
         {/* ================= GENERAL SETTINGS ================= */}
         <Card size="small" title="1. General Settings" style={{ marginBottom: 16, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
           <Row gutter={16}>
-            <Col span={18}>
+            <Col span={13}>
               <Form.Item name="title" label={<Text strong>Exam Title</Text>} rules={[{ required: true }]}>
                 <Input size="large" placeholder="e.g. Aptis Speaking Practice 01" />
               </Form.Item>
             </Col>
             <Col span={6}>
+              <Form.Item name="difficulty_level" label={<Text strong>Difficulty Level</Text>}>
+                <Select placeholder="Select level" size="large" allowClear>
+                  <Option value="A1">A1</Option>
+                  <Option value="A2">A2</Option>
+                  <Option value="B1">B1</Option>
+                  <Option value="B2">B2</Option>
+                  <Option value="C">C</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={5}>
               <Form.Item name="time_limit" label={<Text strong>Time Limit (minutes)</Text>} rules={[{ required: true }]}>
                 <InputNumber min={1} max={120} style={{ width: '100%' }} size="large" />
               </Form.Item>

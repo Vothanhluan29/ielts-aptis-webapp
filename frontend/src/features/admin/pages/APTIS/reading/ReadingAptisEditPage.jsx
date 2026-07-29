@@ -112,12 +112,23 @@ const ReadingAptisEditPage = () => {
         {/* ================= GENERAL SETTINGS ================= */}
         <Card size="small" title="1. General Settings" style={{ marginBottom: 16, borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
           <Row gutter={16}>
-            <Col span={18}>
+            <Col span={13}>
               <Form.Item name="title" label="Test Title" rules={[{ required: true }]}>
                 <Input placeholder="e.g. Aptis Reading Practice Test 01" size="large" />
               </Form.Item>
             </Col>
             <Col span={6}>
+              <Form.Item name="difficulty_level" label="Difficulty Level">
+                <Select placeholder="Select level" size="large" allowClear>
+                  <Option value="A1">A1</Option>
+                  <Option value="A2">A2</Option>
+                  <Option value="B1">B1</Option>
+                  <Option value="B2">B2</Option>
+                  <Option value="C">C</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={5}>
               <Form.Item name="time_limit" label="Time Limit (minutes)" rules={[{ required: true }]}>
                 <InputNumber style={{ width: '100%' }} size="large" min={5} max={120} />
               </Form.Item>

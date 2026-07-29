@@ -64,6 +64,7 @@ export const useWritingAptisEdit = () => {
       description: "",
       is_published: false, 
       is_full_test_only: false, 
+      difficulty_level: null,
       parts: defaultParts 
     });
     enableAutoSave();
@@ -118,6 +119,7 @@ export const useWritingAptisEdit = () => {
 
           form.setFieldsValue({
             ...data,
+            difficulty_level: data.difficulty_level,
             parts: mergedParts
           });
           enableAutoSave();

@@ -11,6 +11,7 @@ class AptisReadingTestService:
             description=test_in.description, 
             time_limit=test_in.time_limit,
             is_published=test_in.is_published,
+            difficulty_level=test_in.difficulty_level,
             is_full_test_only=test_in.is_full_test_only 
         )
         db.add(db_test)

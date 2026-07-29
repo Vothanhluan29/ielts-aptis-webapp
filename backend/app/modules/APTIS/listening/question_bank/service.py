@@ -103,7 +103,8 @@ class BankService:
             description=config.description,
             time_limit=config.time_limit,
             is_full_test_only=config.is_full_test_only,
-            is_published=True
+            is_published=True,
+            difficulty_level=config.difficulty_level,
         )
         db.add(new_test)
         db.flush()

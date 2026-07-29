@@ -56,6 +56,7 @@ class WritingTestBase(BaseModel):
     description: Optional[str] = None
     time_limit: int = 50 
     is_published: bool = False
+    difficulty_level: Optional[str] = None
     is_full_test_only: bool = False 
 
 class WritingTestCreate(WritingTestBase):
@@ -66,6 +67,7 @@ class WritingTestUpdate(BaseModel):
     description: Optional[str] = None
     time_limit: Optional[int] = None
     is_published: Optional[bool] = None
+    difficulty_level: Optional[str] = None
     is_full_test_only: Optional[bool] = None
     parts: Optional[List[PartCreate]] = None 
 
@@ -84,6 +86,7 @@ class WritingTestListItem(BaseModel):
     description: Optional[str] = None
     time_limit: int
     is_published: bool
+    difficulty_level: Optional[str] = None
     is_full_test_only: bool
     created_at: datetime
     status: Optional[str] = "NOT_STARTED"
