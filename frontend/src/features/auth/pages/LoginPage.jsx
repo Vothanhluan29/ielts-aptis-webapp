@@ -181,13 +181,6 @@ export default function LoginPage() {
 
           {/* Form Body */}
           <div className="p-8">
-            <div className="mb-6">
-              <h2 className="text-white text-xl font-bold tracking-tight flex items-center gap-2">
-                <Shield size={18} className="text-blue-300" />
-                Secure Login
-              </h2>
-              <p className="text-blue-200/60 text-xs mt-1 font-medium">Enter your credentials to continue</p>
-            </div>
 
             {errors.submit && (
               <div
