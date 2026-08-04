@@ -6,7 +6,6 @@ import {
   CustomerServiceOutlined,
   EditOutlined,
   AudioOutlined,
-  UserOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
@@ -75,7 +74,7 @@ const AptisSidebar = ({
         {!sidebarCollapsed && (
           <div className="flex items-center gap-3">
             <img src="/logo.jpg" alt="Logo" className="w-8 h-8 object-contain rounded-md shadow-sm" />
-            <span className="text-orange-600 font-black text-2xl tracking-tight">APTIS</span>
+            <span className="text-[#001A70] font-black text-2xl tracking-tight">APTIS</span>
           </div>
         )}
         <button
@@ -86,17 +85,17 @@ const AptisSidebar = ({
         </button>
       </div>
 
-      {/* NAVIGATION (flex-1 sẽ đẩy Footer xuống đáy, space-y-6 dàn đều các nhóm) */}
+      {/* NAVIGATION */}
       <nav className="flex-1 px-3 py-6 space-y-6 overflow-y-auto custom-scrollbar">
         {SIDEBAR_GROUPS.map((group) => (
           <div key={group.title}>
-            
+
             {!sidebarCollapsed && (
               <p className="px-3 mb-2 text-[11px] font-bold uppercase text-slate-500 tracking-widest m-0">
                 {group.title}
               </p>
             )}
-            
+
             <div className="space-y-1">
               {group.items.map((item) => (
                 <SidebarLink
@@ -114,7 +113,7 @@ const AptisSidebar = ({
         ))}
       </nav>
 
-      {/* FOOTER & LOGOUT (Được ghim ở đáy, có màu nền nhẹ và viền để phân tách) */}
+      {/* FOOTER & LOGOUT */}
       <div className="shrink-0 p-4 border-t border-slate-100 bg-white mt-auto">
         <button
           onClick={handleLogout}
@@ -139,9 +138,9 @@ const AptisSidebar = ({
 const SidebarLink = ({ to, label, icon, active, collapsed }) => {
   const baseStyle = "flex items-center gap-3 rounded-xl font-semibold transition-all relative overflow-hidden group";
   const sizeStyle = collapsed ? "justify-center h-11 w-11 mx-auto" : "px-3 py-3";
-  
-  const activeStyle = "bg-orange-600 text-white shadow-md";
-  const inactiveStyle = "text-slate-500 hover:bg-slate-50 hover:text-slate-700";
+
+  const activeStyle = "bg-[#001A70] text-white shadow-md";
+  const inactiveStyle = "text-slate-500 hover:bg-slate-50 hover:text-[#001A70]";
 
   return (
     <Link
@@ -149,7 +148,7 @@ const SidebarLink = ({ to, label, icon, active, collapsed }) => {
       title={collapsed ? label : ""}
       className={`${baseStyle} ${sizeStyle} ${active ? activeStyle : inactiveStyle}`}
     >
-      {icon && React.createElement(icon, { 
+      {icon && React.createElement(icon, {
         className: `text-lg transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`
       })}
 

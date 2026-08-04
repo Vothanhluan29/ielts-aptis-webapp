@@ -17,7 +17,10 @@ export const useExamAptisList = () => {
     try {
       setLoading(true);
       const response = await examAptisStudentApi.getLibraryTests();
-      setTests(response?.data || response || []);
+      const list = Array.isArray(response)
+        ? response
+        : response?.items ?? response?.data ?? response?.tests ?? response?.result ?? [];
+      setTests(list);
     } catch (error) {
       console.error("Error fetching Aptis Full Test list:", error);
     } finally {

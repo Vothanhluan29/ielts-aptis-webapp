@@ -18,12 +18,10 @@ export const useSpeakingAptisList = () => {
     try {
       setLoading(true);
       const response = await speakingAptisStudentApi.getListTests({ skip: 0, limit: 100 });
-      let data = response?.data || response;
-      if (!Array.isArray(data)) {
-        data = [];
-      }
-      
-      setTests(data);
+      const list = Array.isArray(response)
+        ? response
+        : response?.items ?? response?.data ?? response?.tests ?? response?.result ?? [];
+      setTests(list);
     } catch (error) {
       console.error("Error fetching Speaking test list:", error);
       message.error("Failed to load speaking tests. Please try again later.");

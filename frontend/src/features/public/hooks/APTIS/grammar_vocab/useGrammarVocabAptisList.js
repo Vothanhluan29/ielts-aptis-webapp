@@ -18,7 +18,11 @@ export const useGrammarVocabAptisList = () => {
     try {
       setLoading(true);
       const response = await grammarVocabAptisStudentApi.getAllTests({ skip: 0, limit: 100 });
-      setTests(response || []);
+      // Backend có thể trả về array thuần hoặc object { items, data, tests, ... }
+      const list = Array.isArray(response)
+        ? response
+        : response?.items ?? response?.data ?? response?.tests ?? [];
+      setTests(list);
     } catch (error) {
       console.error("Error fetching Grammar & Vocabulary test list:", error);
       message.error("Failed to load tests. Please try again later.");

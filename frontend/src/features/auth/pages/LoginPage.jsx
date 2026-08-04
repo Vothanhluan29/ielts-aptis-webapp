@@ -3,13 +3,8 @@ import { useNavigate, Link, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { GoogleLogin } from '@react-oauth/google';
 import authApi from '../api/authApi';
-import { CheckCircle2, GraduationCap, BookOpen, Sparkles, Eye, EyeOff } from 'lucide-react';
-
-const FEATURES = [
-  'Authentic mock tests for IELTS & APTIS',
-  'Instant AI grading with detailed feedback',
-  'Personalized practice to boost your score',
-];
+import { Eye, EyeOff, LogIn, Shield } from 'lucide-react';
+import AuthBackground from '../components/AuthBackground';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -26,14 +21,9 @@ export default function LoginPage() {
         if (user) {
           const isAdmin = user.role && (user.role.toLowerCase() === 'admin' || user.role.includes('ADMIN'));
           const isTeacher = user.role && (user.role.toLowerCase() === 'teacher' || user.role.includes('TEACHER'));
-          
-          if (isAdmin) {
-            navigate('/admin/dashboard', { replace: true });
-          } else if (isTeacher) {
-            navigate('/teacher/dashboard', { replace: true });
-          } else {
-            navigate('/aptis/dashboard', { replace: true });
-          }
+          if (isAdmin) navigate('/admin/dashboard', { replace: true });
+          else if (isTeacher) navigate('/teacher/dashboard', { replace: true });
+          else navigate('/aptis/dashboard', { replace: true });
         }
       } catch (err) {
         // Not authenticated, stay on login page
@@ -57,14 +47,9 @@ export default function LoginPage() {
       const user = await authApi.getMe();
       const isAdmin = user.role && (user.role.toLowerCase() === 'admin' || user.role.includes('ADMIN'));
       const isTeacher = user.role && (user.role.toLowerCase() === 'teacher' || user.role.includes('TEACHER'));
-      
-      if (isAdmin) {
-        navigate('/admin/dashboard');
-      } else if (isTeacher) {
-        navigate('/teacher/dashboard');
-      } else {
-        navigate('/aptis/dashboard');
-      }
+      if (isAdmin) navigate('/admin/dashboard');
+      else if (isTeacher) navigate('/teacher/dashboard');
+      else navigate('/aptis/dashboard');
     } catch (error) {
       console.error("Failed to fetch user in redirect:", error);
       navigate('/aptis/dashboard');
@@ -73,23 +58,13 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const newErrors = {};
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
+    if (!formData.email) newErrors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Email is invalid';
+    if (!formData.password) newErrors.password = 'Password is required';
+    else if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
 
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
+    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return; }
     setErrors({});
 
     setLoading(true);
@@ -120,187 +95,252 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-blue-50 via-sky-50 to-blue-100 font-sans selection:bg-blue-500/30 selection:text-blue-900 overflow-hidden relative">
+    <div className="relative min-h-screen flex items-center justify-center font-sans overflow-hidden p-4 sm:p-6">
+      
+      {/* 3D Animated Background */}
+      <AuthBackground />
 
-      {/* ── ANIMATED BACKGROUND BLOBS ── */}
-      <div className="absolute top-0 -left-4 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-blob pointer-events-none"></div>
-      <div className="absolute top-0 -right-4 w-72 h-72 bg-sky-300 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-blob animation-delay-2000 pointer-events-none"></div>
-      <div className="absolute -bottom-8 left-20 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-2xl opacity-40 animate-blob animation-delay-4000 pointer-events-none"></div>
-
-      {/* ── LEFT PANEL (MODERN LIGHT THEME) ── */}
-      <div className="hidden lg:flex w-[45%] bg-transparent p-8 xl:p-12 flex-col justify-between relative overflow-hidden border-r border-blue-200/60">
-        
-        <div className="relative z-10 opacity-0 animate-fade-in-up">
-          <div className="flex items-center gap-3 mb-10 xl:mb-12">
-            <div className="bg-white p-1 rounded-xl border border-slate-200 shadow-sm flex items-center justify-center overflow-hidden w-12 h-12">
-              <img src="/logo.jpg" alt="Logo" className="w-full h-full object-contain rounded-lg" />
+      {/* Glassmorphism Card */}
+      <div
+        className="relative z-10 w-full max-w-[420px] flex flex-col items-center"
+        style={{ animation: 'cardEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+      >
+        {/* ── LOGO ── */}
+        <div className="flex flex-col items-center mb-7" style={{ animation: 'slideDown 0.6s ease-out 0.1s both' }}>
+          <div
+            className="relative mb-4"
+            style={{
+              filter: 'drop-shadow(0 0 20px rgba(150,200,255,0.5))',
+            }}
+          >
+            <div
+              className="w-24 h-24 rounded-full flex items-center justify-center overflow-hidden"
+              style={{
+                background: 'rgba(255,255,255,0.95)',
+                border: '2px solid rgba(200,220,255,0.5)',
+                boxShadow: '0 8px 32px rgba(0,30,120,0.4), 0 0 0 6px rgba(150,200,255,0.1)',
+              }}
+            >
+              <img src="/logo.jpg" alt="Greenwich Logo" className="w-full h-full object-contain" />
             </div>
-            <div>
-              <p className="text-blue-600/80 text-[10px] font-['Montserrat'] font-bold uppercase tracking-[0.2em]">Learning Platform</p>
-            </div>
+            {/* Glow ring */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                border: '1px solid rgba(150,200,255,0.3)',
+                transform: 'scale(1.15)',
+                animation: 'logoPulse 3s ease-in-out infinite',
+              }}
+            />
           </div>
-
-          <h2 className="text-4xl xl:text-5xl font-['Poppins'] font-semibold text-slate-900 leading-[1.1] mb-6 tracking-tight">
-            Achieve Your <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-              Dream Score.
-            </span>
-          </h2>
-
-          <p className="text-slate-600 text-sm xl:text-base leading-relaxed max-w-md mb-8 font-medium">
-            Experience the smartest way to prepare for IELTS & APTIS. Get instant AI feedback, track your progress, and boost your confidence.
-          </p>
-
-          <div className="space-y-4">
-            {FEATURES.map((feature, idx) => (
-              <div key={idx} className="flex items-center gap-3 bg-white p-3 rounded-lg border border-slate-200 shadow-sm w-max pr-6">
-                <div className="bg-blue-50 p-1 rounded">
-                  <CheckCircle2 className="text-blue-600" size={14} strokeWidth={3} />
-                </div>
-                <span className="text-slate-700 font-semibold text-xs xl:text-sm">{feature}</span>
-              </div>
-            ))}
-          </div>
+          <p className="text-blue-200/80 text-xs font-semibold tracking-[0.25em] uppercase">University of</p>
+          <h1
+            className="text-white text-2xl font-black tracking-[0.2em] mt-0.5"
+            style={{ textShadow: '0 0 30px rgba(150,200,255,0.4)' }}
+          >
+            GREENWICH
+          </h1>
         </div>
 
-        <div className="relative z-10 opacity-0 animate-fade-in-up animation-delay-200 mt-8">
-          <p className="text-[10px] font-bold text-slate-500 tracking-[0.2em] uppercase mb-4 flex items-center gap-2">
-            Supported Frameworks
-          </p>
-          <div className="flex gap-4">
-            <div className="bg-white border border-slate-200 px-5 py-3 rounded-lg flex items-center gap-3 shadow-sm">
-              <BookOpen size={16} className="text-blue-600" />
-              <div>
-                <p className="text-slate-800 font-bold text-sm tracking-wider">IELTS</p>
-                
-              </div>
-            </div>
-            <div className="bg-white border border-slate-200 px-5 py-3 rounded-lg flex items-center gap-3 shadow-sm">
-              <BookOpen size={16} className="text-indigo-600" />
-              <div>
-                <p className="text-slate-800 font-bold text-sm tracking-wider">APTIS</p>
-              </div>
-            </div>
+        {/* ── GLASS FORM CARD ── */}
+        <div
+          className="w-full rounded-3xl overflow-hidden"
+          style={{
+            background: 'rgba(255, 255, 255, 0.07)',
+            backdropFilter: 'blur(24px)',
+            WebkitBackdropFilter: 'blur(24px)',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            boxShadow: '0 25px 50px rgba(0, 10, 60, 0.5), inset 0 1px 0 rgba(255,255,255,0.15)',
+            animation: 'slideUp 0.7s ease-out 0.2s both',
+          }}
+        >
+          {/* Tab Header */}
+          <div
+            className="flex"
+            style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <Link
+              to="/login"
+              className="flex-1 py-4 text-center text-sm font-bold tracking-wide transition-all"
+              style={{
+                color: 'rgba(255,255,255,0.95)',
+                borderBottom: '2px solid rgba(150,200,255,0.8)',
+                background: 'rgba(255,255,255,0.05)',
+              }}
+            >
+              Sign In
+            </Link>
+            <Link
+              to="/register"
+              className="flex-1 py-4 text-center text-sm font-medium tracking-wide transition-all hover:bg-white/5"
+              style={{ color: 'rgba(255,255,255,0.4)', borderBottom: '2px solid transparent' }}
+            >
+              Create Account
+            </Link>
           </div>
-        </div>
-      </div>
 
-      {/* ── RIGHT PANEL (LOGIN FORM) ── */}
-      <div className="flex-1 overflow-y-auto bg-white/60 backdrop-blur-2xl custom-scrollbar relative shadow-[-10px_0_30px_rgba(37,99,235,0.03)] z-10 transition-all duration-500 hover:bg-white/70">
-        <div className="min-h-full flex flex-col justify-center items-center p-6 sm:p-8 relative z-10">
-          
-          <div className="w-full max-w-[400px] py-8 z-10">
+          {/* Form Body */}
+          <div className="p-8">
+            <div className="mb-6">
+              <h2 className="text-white text-xl font-bold tracking-tight flex items-center gap-2">
+                <Shield size={18} className="text-blue-300" />
+                Secure Login
+              </h2>
+              <p className="text-blue-200/60 text-xs mt-1 font-medium">Enter your credentials to continue</p>
+            </div>
 
-            {/* Form Container */}
-            <div className="opacity-0 animate-fade-in-up animation-delay-200 bg-white/40 p-8 rounded-[32px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white backdrop-blur-sm transition-transform duration-500 hover:scale-[1.01] hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)]">
-              <div className="mb-8 text-center">
-                <h2 className="text-2xl font-['Poppins'] font-semibold text-slate-900 mb-2 tracking-tight">System Login</h2>
-                <p className="text-slate-500 text-sm font-medium">Authenticate to access your dashboard.</p>
+            {errors.submit && (
+              <div
+                className="mb-5 p-3 rounded-xl text-sm text-center font-medium flex items-center justify-center gap-2"
+                style={{
+                  background: 'rgba(220,50,50,0.15)',
+                  border: '1px solid rgba(255,100,100,0.3)',
+                  color: '#ff9999',
+                }}
+              >
+                <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                {errors.submit}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+              {/* Email */}
+              <div>
+                <label className="block text-[10px] font-bold text-blue-200/60 mb-2 uppercase tracking-widest">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  disabled={loading}
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="name@greenwich.edu"
+                  className="w-full px-4 py-3 rounded-xl text-sm font-medium text-white placeholder-blue-300/30 outline-none transition-all disabled:opacity-40"
+                  style={{
+                    background: 'rgba(255,255,255,0.06)',
+                    border: errors.email ? '1px solid rgba(255,100,100,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                    boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
+                  }}
+                  onFocus={(e) => { e.target.style.border = '1px solid rgba(150,200,255,0.5)'; e.target.style.background = 'rgba(255,255,255,0.1)'; }}
+                  onBlur={(e) => { e.target.style.border = errors.email ? '1px solid rgba(255,100,100,0.5)' : '1px solid rgba(255,255,255,0.12)'; e.target.style.background = 'rgba(255,255,255,0.06)'; }}
+                />
+                {errors.email && <p className="text-red-400 text-xs mt-1.5 font-medium">{errors.email}</p>}
               </div>
 
-              {/* Custom Tab Switch */}
-              <div className="flex border-b border-slate-200 mb-8">
-                <Link
-                  to="/login"
-                  className="flex-1 text-center py-3 text-sm font-normal border-b-2 border-blue-600 text-blue-600"
-                >
-                  Sign In
-                </Link>
-                <Link
-                  to="/register"
-                  className="flex-1 text-center py-3 text-sm font-normal border-b-2 border-transparent text-slate-400 hover:text-blue-600 transition-colors"
-                >
-                  Create Account
-                </Link>
-              </div>
-
-              {errors.submit && (
-                <div className="mb-6 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm text-center font-medium animate-fade-in-up">
-                  {errors.submit}
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Email Address</label>
+              {/* Password */}
+              <div>
+                <label className="block text-[10px] font-bold text-blue-200/60 mb-2 uppercase tracking-widest">
+                  Password
+                </label>
+                <div className="relative">
                   <input
-                    type="email"
-                    name="email"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
                     required
                     disabled={loading}
-                    value={formData.email}
+                    value={formData.password}
                     onChange={handleChange}
-                    placeholder="name@example.com"
-                    className={`w-full px-4 py-3 rounded-lg bg-slate-50 border ${errors.email ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/20'} focus:bg-white focus:ring-2 outline-none transition-all disabled:opacity-50 text-sm font-normal text-slate-900 placeholder:text-slate-400`}
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3 rounded-xl text-sm font-medium text-white placeholder-blue-300/30 outline-none transition-all disabled:opacity-40 pr-11 tracking-widest"
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      border: errors.password ? '1px solid rgba(255,100,100,0.5)' : '1px solid rgba(255,255,255,0.12)',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)',
+                    }}
+                    onFocus={(e) => { e.target.style.border = '1px solid rgba(150,200,255,0.5)'; e.target.style.background = 'rgba(255,255,255,0.1)'; }}
+                    onBlur={(e) => { e.target.style.border = errors.password ? '1px solid rgba(255,100,100,0.5)' : '1px solid rgba(255,255,255,0.12)'; e.target.style.background = 'rgba(255,255,255,0.06)'; }}
                   />
-                  {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 transition-colors"
+                    style={{ color: 'rgba(150,200,255,0.5)' }}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">Password</label>
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      name="password"
-                      required
-                      disabled={loading}
-                      value={formData.password}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      className={`w-full px-4 py-3 rounded-lg bg-slate-50 border ${errors.password ? 'border-red-500 focus:ring-red-500/20' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/20'} focus:bg-white focus:ring-2 outline-none transition-all disabled:opacity-50 text-sm font-normal text-slate-900 placeholder:text-slate-400 tracking-widest pr-12`}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                  {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 hover:-translate-y-0.5 active:translate-y-0 text-white font-medium py-3.5 px-4 rounded-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-4 text-sm tracking-wide shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40"
-                >
-                  {loading ? (
-                    <div className="w-4 h-4 border-2 border-blue-200 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <>Authenticate</>
-                  )}
-                </button>
-              </form>
-
-              <div className="mt-8">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-slate-200"></div>
-                  </div>
-                  <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-slate-400 font-medium text-xs uppercase tracking-wider">Or continue with</span>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex justify-center">
-                  <div className="hover:scale-105 transition-transform rounded-lg overflow-hidden border border-slate-200 shadow-sm">
-                    <GoogleLogin
-                      onSuccess={handleGoogleSuccess}
-                      onError={() => toast.error('Google login failed')}
-                      useOneTap
-                      shape="rectangular"
-                      theme="outline"
-                      size="large"
-                    />
-                  </div>
-                </div>
+                {errors.password && <p className="text-red-400 text-xs mt-1.5 font-medium">{errors.password}</p>}
               </div>
 
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex items-center justify-center gap-2.5 font-bold py-3.5 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed mt-2 text-sm tracking-wide"
+                style={{
+                  background: loading
+                    ? 'rgba(150,200,255,0.3)'
+                    : 'linear-gradient(135deg, rgba(100,160,255,0.9) 0%, rgba(60,100,220,0.9) 100%)',
+                  color: 'white',
+                  border: '1px solid rgba(150,200,255,0.4)',
+                  boxShadow: '0 8px 24px rgba(60,100,220,0.4), inset 0 1px 0 rgba(255,255,255,0.2)',
+                }}
+                onMouseEnter={(e) => { if (!loading) e.currentTarget.style.boxShadow = '0 12px 32px rgba(60,100,220,0.6), inset 0 1px 0 rgba(255,255,255,0.2)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 8px 24px rgba(60,100,220,0.4), inset 0 1px 0 rgba(255,255,255,0.2)'; }}
+              >
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <LogIn size={16} />
+                    Authenticate
+                  </>
+                )}
+              </button>
+            </form>
+
+            {/* Divider */}
+            <div className="my-6 flex items-center gap-3">
+              <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'rgba(150,200,255,0.4)' }}>
+                Or continue with
+              </span>
+              <div className="flex-1 h-px" style={{ background: 'rgba(255,255,255,0.08)' }} />
+            </div>
+
+            {/* Google Login */}
+            <div className="flex justify-center">
+              <div
+                className="rounded-xl overflow-hidden transition-all duration-300"
+                style={{ border: '1px solid rgba(255,255,255,0.12)' }}
+                onMouseEnter={(e) => { e.currentTarget.style.border = '1px solid rgba(150,200,255,0.35)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(100,150,255,0.2)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.12)'; e.currentTarget.style.boxShadow = 'none'; }}
+              >
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => toast.error('Google login failed')}
+                  useOneTap
+                  shape="rectangular"
+                  theme="filled_black"
+                  size="large"
+                  text="continue_with"
+                />
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes cardEntrance {
+          from { opacity: 0; transform: scale(0.92) translateY(20px); }
+          to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes logoPulse {
+          0%, 100% { opacity: 0.5; transform: scale(1.15); }
+          50%       { opacity: 1; transform: scale(1.25); }
+        }
+      `}</style>
     </div>
   );
 }

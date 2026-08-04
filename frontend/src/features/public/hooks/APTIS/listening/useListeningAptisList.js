@@ -18,7 +18,10 @@ export const useListeningAptisList = () => {
     try {
       setLoading(true);
       const response = await listeningAptisStudentApi.getListTests();
-      setTests(response?.data || response || []);
+      const list = Array.isArray(response)
+        ? response
+        : response?.items ?? response?.data ?? response?.tests ?? response?.result ?? [];
+      setTests(list);
     } catch (error) {
       console.error("Error fetching Listening test list:", error);
       message.error("Failed to load listening tests. Please try again later.");

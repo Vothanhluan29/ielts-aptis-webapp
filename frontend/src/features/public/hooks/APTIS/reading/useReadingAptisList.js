@@ -18,14 +18,10 @@ export const useReadingAptisList = () => {
     try {
       setLoading(true);
       const response = await readingAptisStudentApi.getListTests();
-      let data = response?.data || response;
-      
-  
-      if (!Array.isArray(data)) {
-        data = [];
-      }
-      
-      setTests(data);
+      const list = Array.isArray(response)
+        ? response
+        : response?.items ?? response?.data ?? response?.tests ?? response?.result ?? [];
+      setTests(list);
     } catch (error) {
       console.error('Error fetching Reading test list:', error);
       message.error("Failed to load reading tests. Please try again later.");

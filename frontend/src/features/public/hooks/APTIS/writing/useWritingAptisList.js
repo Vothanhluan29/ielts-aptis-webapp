@@ -18,14 +18,10 @@ export const useWritingAptisList = () => {
       setLoading(true);
       // Gửi kèm skip, limit theo API bạn đang dùng
       const response = await writingAptisStudentApi.getAllTests({ skip: 0, limit: 100 });
-      let data = response?.data || response;
-
-      // Đảm bảo data luôn là một mảng
-      if (!Array.isArray(data)) {
-        data = [];
-      }
-
-      setTests(data);
+      const list = Array.isArray(response)
+        ? response
+        : response?.items ?? response?.data ?? response?.tests ?? response?.result ?? [];
+      setTests(list);
     } catch (error) {
       console.error("Error fetching Writing test list:", error);
       message.error("Failed to load writing tests. Please try again later.");
