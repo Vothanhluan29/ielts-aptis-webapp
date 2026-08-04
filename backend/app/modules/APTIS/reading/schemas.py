@@ -135,6 +135,10 @@ class TestListItem(BaseModel):
     status: Optional[str] = "NOT_STARTED"
     class Config: from_attributes = True
 
+class TestListPaginatedResponse(BaseModel):
+    items: List[TestListItem]
+    total: int
+
 
 # ==================== SUBMISSION INPUT ====================
 class StudentSubmissionRequest(BaseModel):

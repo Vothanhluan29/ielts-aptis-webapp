@@ -62,7 +62,7 @@ class ListeningUtils:
         return " ".join(str(text).strip().lower().split())
 
     @staticmethod
-    def check_is_correct(user_ans, correct_answers: list) -> bool:
+    def check_is_correct(user_ans, correct_answers: list, options=None) -> bool:
         if user_ans is None or user_ans == "" or user_ans == []:
             return False
         if not correct_answers:
@@ -75,4 +75,43 @@ class ListeningUtils:
             return set(user_cleaned) == set(accepted_cleaned)
 
         cleaned_student = ListeningUtils.clean_text(user_ans)
-        return cleaned_student in accepted_cleaned
+        
+        # 1. Direct match check
+        if cleaned_student in accepted_cleaned:
+            return True
+            
+        # 2. Map options check
+        if options:
+            import json
+            opts = options
+            if isinstance(opts, str):
+                try:
+                    opts = json.loads(opts)
+                except json.JSONDecodeError:
+                    opts = None
+            if opts:
+                if isinstance(opts, dict):
+                    resolved_val = opts.get(str(user_ans))
+                    if resolved_val:
+                        resolved_student = ListeningUtils.clean_text(resolved_val)
+                        if resolved_student in accepted_cleaned:
+                            return True
+                elif isinstance(opts, list):
+                    cleaned_opts = [ListeningUtils.clean_text(opt) for opt in opts]
+                    # TH1: correct_answer is index ("0"), but student sent text ("dog")
+                    if cleaned_student in cleaned_opts:
+                        idx = cleaned_opts.index(cleaned_student)
+                        if str(idx) in accepted_cleaned:
+                            return True
+                    # TH2: correct_answer is text ("dog"), but student sent index ("0")
+                    else:
+                        try:
+                            idx = int(str(user_ans))
+                            if 0 <= idx < len(opts):
+                                resolved_student = ListeningUtils.clean_text(opts[idx])
+                                if resolved_student in accepted_cleaned:
+                                    return True
+                        except ValueError:
+                            pass
+                            
+        return False

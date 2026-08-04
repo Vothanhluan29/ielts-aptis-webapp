@@ -13,7 +13,7 @@ from app.modules.IELTS.reading.services.submission_service import ReadingSubmiss
 router = APIRouter(prefix="/reading", tags=["Reading"])
 
 
-@router.get("/admin/tests", response_model=List[schemas.TestListItem])
+@router.get("/admin/tests", response_model=schemas.TestListPaginatedResponse)
 def get_all_tests_for_admin(
     skip: int = 0,
     limit: int = 100,
@@ -114,7 +114,7 @@ def admin_get_user_history(
     return ReadingSubmissionService.get_user_history_for_admin(db, target_user_id)
 
 
-@router.get("/tests", response_model=List[schemas.TestListItem])
+@router.get("/tests", response_model=schemas.TestListPaginatedResponse)
 def get_all_public_tests(
     skip: int = 0,
     limit: int = 100,

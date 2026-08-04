@@ -19,12 +19,14 @@ router = APIRouter(prefix="/aptis/exam", tags=["Aptis Exam (Full Test)"])
 # ADMIN - FULL TEST
 # =========================
 
-@router.get("/admin/tests", response_model=List[schemas.AptisFullTestListItem]) 
+@router.get("/admin/tests", response_model=schemas.AptisFullTestListPaginatedResponse) 
 def admin_get_all_tests(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
     admin: User = Depends(get_aptis_manager_user),
 ):
-    return AptisExamTestService.get_all_full_tests(db, admin_view=True)
+    return AptisExamTestService.get_all_full_tests(db, admin_view=True, skip=skip, limit=limit)
 
 
 @router.post("/admin/tests", response_model=schemas.AptisFullTestResponse)
@@ -110,8 +112,10 @@ def admin_update_cefr_level(
 # STUDENT - TEST LIBRARY
 # =========================
 
-@router.get("/tests", response_model=List[schemas.AptisFullTestListItem])
+@router.get("/tests", response_model=schemas.AptisFullTestListPaginatedResponse)
 def get_library_tests(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -119,6 +123,8 @@ def get_library_tests(
         db,
         admin_view=False,
         current_user_id=current_user.id,
+        skip=skip,
+        limit=limit,
     )
 
 

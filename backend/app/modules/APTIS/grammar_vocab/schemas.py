@@ -93,6 +93,10 @@ class TestListItem(TestResponse):
     status: Optional[AptisGrammarVocabStatus] = AptisGrammarVocabStatus.NOT_STARTED 
     class Config: from_attributes = True
 
+class TestListPaginatedResponse(BaseModel):
+    items: List[TestListItem]
+    total: int
+
 class TestTakeResponse(TestResponse):
     groups : List[GroupForUser]
 

@@ -18,14 +18,15 @@ router = APIRouter(prefix="/exam", tags=[" IELTS Exam (Full Test)"])
 # =========================
 
 # 🔥 FIX 1: Sửa response_model thành FullTestListItem để khớp với Service
-@router.get("/admin/tests", response_model=List[schemas.FullTestListItem])
-def admin_get_all_tests(
+@router.get("/admin/full-tests", response_model=schemas.FullTestListPaginatedResponse)
+def get_all_full_tests_for_admin(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
+    is_mock_selector: Optional[bool] = Query(None, description="Filter by mock selector"),
     db: Session = Depends(get_db),
-    admin: User = Depends(get_admin_user),
-    is_mock_selector: Optional[bool] = Query(None, description="Filter by mock selector")
-    
+    admin: User = Depends(get_admin_user)
 ):
-    return ExamService.get_all_full_tests(db, admin_view=True)
+    return ExamService.get_all_full_tests(db, admin_view=True, skip=skip, limit=limit)
 
 
 @router.post("/admin/tests", response_model=schemas.FullTestResponse)
@@ -96,16 +97,14 @@ def admin_get_all_submissions(
 # STUDENT - TEST LIBRARY
 # =========================
 
-@router.get("/tests", response_model=List[schemas.FullTestListItem])
-def get_library_tests(
+@router.get("/full-tests", response_model=schemas.FullTestListPaginatedResponse)
+def get_all_public_full_tests(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return ExamService.get_all_full_tests(
-        db,
-        admin_view=False,
-        current_user_id=current_user.id,
-    )
+    return ExamService.get_all_full_tests(db, current_user_id=current_user.id, skip=skip, limit=limit, admin_view=False)
 
 
 @router.get("/tests/{test_id}", response_model=schemas.FullTestResponse)

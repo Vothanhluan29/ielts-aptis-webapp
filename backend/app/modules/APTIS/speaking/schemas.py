@@ -101,6 +101,10 @@ class AptisSpeakingTestListItem(BaseModel):
     class Config:
         from_attributes = True
 
+class AptisSpeakingTestListPaginatedResponse(BaseModel):
+    items: List[AptisSpeakingTestListItem]
+    total: int
+
 
 # ==================== 4. SUBMISSION INPUT ====================
 

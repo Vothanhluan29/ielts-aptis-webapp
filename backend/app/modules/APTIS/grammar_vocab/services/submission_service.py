@@ -53,6 +53,20 @@ class GrammarVocabSubmissionService:
                             elif user_key_str in [str(v).strip().upper() for v in options.values()]:
                                 if user_key_str == correct_raw_str:
                                     is_correct = True
+                        elif isinstance(options, list):
+                            cleaned_opts = [str(opt).strip().upper() for opt in options]
+                            if user_key_str in cleaned_opts:
+                                idx = cleaned_opts.index(user_key_str)
+                                if str(idx) == correct_raw_str:
+                                    is_correct = True
+                            else:
+                                try:
+                                    idx = int(str(user_choice))
+                                    if 0 <= idx < len(options):
+                                        if str(options[idx]).strip().upper() == correct_raw_str:
+                                            is_correct = True
+                                except ValueError:
+                                    pass
 
                 if is_correct:
                     if "GRAMMAR" in part_type_val.upper():

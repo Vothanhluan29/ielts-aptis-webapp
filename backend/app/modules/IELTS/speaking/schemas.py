@@ -102,6 +102,10 @@ class SpeakingTestListItem(BaseModel):
     class Config:
         from_attributes = True
 
+class SpeakingTestListPaginatedResponse(BaseModel):
+    items: List[SpeakingTestListItem]
+    total: int
+
 # ==================== 4. SUBMISSION INPUT  ====================
 
 class SaveSpeakingQuestionRequest(BaseModel):

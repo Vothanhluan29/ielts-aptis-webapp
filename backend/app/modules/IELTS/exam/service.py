@@ -66,51 +66,63 @@ class ExamService:
     # 📋 TEST MANAGEMENT (Admin & Student List)
     # =======================================================
     @staticmethod
-    def get_all_full_tests(db: Session, current_user_id: Optional[int] = None, admin_view: bool = False):
+    def get_all_full_tests(db: Session, current_user_id: Optional[int] = None, skip: int = 0, limit: int = 100, admin_view: bool = False):
         query = db.query(FullTest)
         if not admin_view:
             query = query.filter(FullTest.is_published == True)
 
-        tests = query.order_by(FullTest.created_at.desc()).all()
+        total = query.count()
+        tests = query.order_by(FullTest.created_at.desc()).offset(skip).limit(limit).all()
+
+        sub_status_map = {}
+        if current_user_id and tests:
+            test_ids = [t.id for t in tests]
+            user_subs = db.query(ExamSubmission).filter(
+                ExamSubmission.user_id == current_user_id,
+                ExamSubmission.full_test_id.in_(test_ids)
+            ).all()
+            
+            # Group by test_id, taking the one with max start_time
+            status_map = {}
+            for sub in user_subs:
+                if sub.full_test_id not in status_map:
+                    status_map[sub.full_test_id] = sub
+                else:
+                    if sub.start_time > status_map[sub.full_test_id].start_time:
+                        status_map[sub.full_test_id] = sub
+                        
+            for tid, sub in status_map.items():
+                sub_status_map[tid] = {
+                    "user_status": sub.status,
+                    "current_step": sub.current_step,
+                    "exam_submission_id": sub.id
+                }
 
         result_list = []
         for test in tests:
-            user_status = ExamStatus.NOT_STARTED.value
-            current_step = ExamStep.NOT_STARTED.value
-            exam_submission_id = None
+            sub_info = sub_status_map.get(test.id, {
+                "user_status": ExamStatus.NOT_STARTED.value,
+                "current_step": ExamStep.NOT_STARTED.value,
+                "exam_submission_id": None
+            })
 
-            if current_user_id:
-                latest_sub = db.query(ExamSubmission).filter(
-                    ExamSubmission.full_test_id == test.id,
-                    ExamSubmission.user_id == current_user_id
-                ).order_by(ExamSubmission.start_time.desc()).first()
-
-                if latest_sub:
-                    user_status = latest_sub.status
-                    current_step = latest_sub.current_step
-                    exam_submission_id = latest_sub.id
-
-            # 🔥 ĐÃ CẬP NHẬT: Gắn thêm 4 biến ID từ test (DB) vào Schema
             item = schemas.FullTestListItem(
                 id=test.id,
                 title=test.title,
                 description=test.description,
                 is_published=test.is_published,
                 created_at=test.created_at,
-                
-                # Bổ sung 4 trường ID để Frontend hiện màu sắc Tag
                 listening_test_id=test.listening_test_id,
                 reading_test_id=test.reading_test_id,
                 writing_test_id=test.writing_test_id,
                 speaking_test_id=test.speaking_test_id,
-                
-                user_status=user_status,
-                current_step=current_step,
-                exam_submission_id=exam_submission_id
+                user_status=sub_info["user_status"],
+                current_step=sub_info["current_step"],
+                exam_submission_id=sub_info["exam_submission_id"]
             )
             result_list.append(item)
 
-        return result_list
+        return {"items": result_list, "total": total}
 
     @staticmethod
     def get_full_test_detail(db: Session, test_id: int):

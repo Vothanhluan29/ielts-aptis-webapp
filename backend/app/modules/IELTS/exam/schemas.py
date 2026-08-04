@@ -102,6 +102,10 @@ class FullTestListItem(BaseModel):
     class Config:
         from_attributes = True
 
+class FullTestListPaginatedResponse(BaseModel):
+    items: List[FullTestListItem]
+    total: int
+
 
 # =======================================================
 # 3. EXAM FLOW (USER ATTEMPT)

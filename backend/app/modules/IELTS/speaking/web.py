@@ -34,7 +34,7 @@ async def upload_audio_file(
     return {"url": public_url}
 
 
-@router.get("/admin/tests", response_model=List[schemas.SpeakingTestListItem])
+@router.get("/admin/tests", response_model=schemas.SpeakingTestListPaginatedResponse)
 def get_tests_for_admin(
     is_mock_selector: bool = Query(False, description="Filter mock-only tests"),
     db: Session = Depends(get_db),
@@ -84,7 +84,7 @@ def delete_test(
     return None
 
 
-@router.get("/tests", response_model=List[schemas.SpeakingTestListItem])
+@router.get("/tests", response_model=schemas.SpeakingTestListPaginatedResponse)
 def get_public_tests(
     skip: int = 0,
     limit: int = 100,

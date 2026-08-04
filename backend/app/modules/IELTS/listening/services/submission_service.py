@@ -40,7 +40,7 @@ class ListeningSubmissionService:
             q_num_str = str(q.question_number)
             user_ans = answers_to_store.get(q_num_str)
             
-            is_correct = ListeningUtils.check_is_correct(user_ans, q.correct_answers)
+            is_correct = ListeningUtils.check_is_correct(user_ans, q.correct_answers, options=q.options)
 
             if is_correct: correct_count += 1
 
@@ -138,7 +138,7 @@ class ListeningSubmissionService:
             q_num = str(q.question_number)
             student_ans = student_answers_map.get(q_num)
             
-            is_correct = ListeningUtils.check_is_correct(student_ans, q.correct_answers)
+            is_correct = ListeningUtils.check_is_correct(student_ans, q.correct_answers, options=q.options)
 
             detailed_results.append({
                 "id": q.id,

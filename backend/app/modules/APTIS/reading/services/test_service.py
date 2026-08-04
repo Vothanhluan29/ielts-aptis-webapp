@@ -112,33 +112,45 @@ class AptisReadingTestService:
         if admin_view:
             if fetch_mock_only:
                 query = query.filter(models.AptisReadingTest.is_full_test_only == True)
+            total = query.count()
             tests = query.order_by(models.AptisReadingTest.created_at.desc()).offset(skip).limit(limit).all()
-            return [schemas.TestListItem.model_validate(t) for t in tests]
+            return {"items": [schemas.TestListItem.model_validate(t) for t in tests], "total": total}
         else:
             query = query.filter(
                 models.AptisReadingTest.is_published == True,
                 models.AptisReadingTest.is_full_test_only == False 
             )
+            total = query.count()
             tests = query.order_by(models.AptisReadingTest.created_at.desc()).offset(skip).limit(limit).all()
             
+            sub_status_map = {}
+            if current_user_id and tests:
+                test_ids = [t.id for t in tests]
+                user_subs = db.query(models.AptisReadingSubmission).filter(
+                    models.AptisReadingSubmission.user_id == current_user_id,
+                    models.AptisReadingSubmission.test_id.in_(test_ids),
+                    models.AptisReadingSubmission.is_full_test_only == False
+                ).all()
+                
+                status_map = {}
+                for sub in user_subs:
+                    if sub.test_id not in status_map:
+                        status_map[sub.test_id] = sub
+                    else:
+                        if sub.submitted_at > status_map[sub.test_id].submitted_at:
+                            status_map[sub.test_id] = sub
+                
+                for tid, sub in status_map.items():
+                    sub_status_map[tid] = sub.status
+
             result_list = []
             for test in tests:
-                status = "NOT_STARTED"
-                if current_user_id:
-                    latest_sub = db.query(models.AptisReadingSubmission).filter(
-                        models.AptisReadingSubmission.test_id == test.id,
-                        models.AptisReadingSubmission.user_id == current_user_id,
-                        models.AptisReadingSubmission.is_full_test_only == False
-                    ).order_by(models.AptisReadingSubmission.submitted_at.desc()).first()
-                    
-                    if latest_sub:
-                        status = latest_sub.status
-                
+                status = sub_status_map.get(test.id, "NOT_STARTED")
                 test_dict = schemas.TestListItem.model_validate(test).model_dump()
                 test_dict['status'] = status
                 result_list.append(test_dict)
                 
-            return result_list
+            return {"items": result_list, "total": total}
 
     @staticmethod
     def get_full_test_data(db: Session, test_id: int):

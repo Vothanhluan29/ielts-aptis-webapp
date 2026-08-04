@@ -36,7 +36,7 @@ async def upload_audio(
 # 2.  TEST (ADMIN) - CRUD
 # ====================================================
 
-@router.get("/admin/tests", response_model=List[schemas.ListeningTestListItem])
+@router.get("/admin/tests", response_model=schemas.ListeningTestListPaginatedResponse)
 def get_tests_for_admin(
     skip: int = 0,
     limit: int = 100,
@@ -106,7 +106,7 @@ def delete_test(
 # 3. PUBLIC / STUDENT API (Practice Mode)
 # ====================================================
 
-@router.get("/tests", response_model=List[schemas.ListeningTestListItem]) 
+@router.get("/tests", response_model=schemas.ListeningTestListPaginatedResponse) 
 def get_public_tests(
     skip: int = 0,
     limit: int = 100,

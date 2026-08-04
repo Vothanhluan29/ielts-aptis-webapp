@@ -51,14 +51,27 @@ class AptisReadingSubmissionService:
                     # 2. XỬ LÝ RIÊNG CÂU SẮP XẾP (PART 2) - CHẤM ĐIỂM TỪNG VỊ TRÍ
                     if q_type == 'REORDER_SENTENCES':
                         user_arr = cleaned_student.split('-')
-                        correct_arr = cleaned_correct.split('-')
+                        
+                        # Chuyển đổi các chữ cái do học viên gửi thành chỉ số tương ứng (A->0, B->1)
+                        user_indices = []
+                        for ch in user_arr:
+                            ch = ch.strip()
+                            if ch.isalpha() and len(ch) == 1:
+                                user_indices.append(str(ord(ch) - ord('a')))
+                            elif ch.isdigit():
+                                user_indices.append(ch)
+                        
+                        if ',' in cleaned_correct:
+                            correct_arr = [x.strip() for x in cleaned_correct.split(',')]
+                        else:
+                            correct_arr = [x.strip() for x in cleaned_correct.split('-')]
                         
                         max_points = len(correct_arr) if len(correct_arr) > 0 else 1
                         total_items += max_points
                         
-                        if len(user_arr) == len(correct_arr) and len(correct_arr) > 0:
+                        if len(user_indices) == len(correct_arr) and len(correct_arr) > 0:
                             # Đếm số vị trí trùng khớp
-                            matches = sum(1 for u, c in zip(user_arr, correct_arr) if u == c)
+                            matches = sum(1 for u, c in zip(user_indices, correct_arr) if u == c)
                             points_to_add = matches # Đúng vị trí nào ăn 1 điểm vị trí đó
                             correct_items += matches
                             
@@ -90,12 +103,19 @@ class AptisReadingSubmissionService:
                                     if resolved_val:
                                         resolved_student = AptisReadingUtils.clean_text(resolved_val)
                                 elif isinstance(opts, list):
-                                    try:
-                                        idx = int(str(user_ans))
-                                        if 0 <= idx < len(opts):
-                                            resolved_student = AptisReadingUtils.clean_text(opts[idx])
-                                    except ValueError:
-                                        pass
+                                    cleaned_opts = [AptisReadingUtils.clean_text(opt) for opt in opts]
+                                    # Trường hợp 1: correct_answer là index (VD: "0"), nhưng học viên gửi text
+                                    if cleaned_student in cleaned_opts:
+                                        idx = cleaned_opts.index(cleaned_student)
+                                        resolved_student = str(idx) # Để so sánh với accepted_answers (index)
+                                    # Trường hợp 2: correct_answer là text, nhưng học viên gửi index
+                                    else:
+                                        try:
+                                            idx = int(str(user_ans))
+                                            if 0 <= idx < len(opts):
+                                                resolved_student = AptisReadingUtils.clean_text(opts[idx])
+                                        except ValueError:
+                                            pass
                             
                             if resolved_student and resolved_student in accepted_answers:
                                 is_correct = True
@@ -215,32 +235,63 @@ class AptisReadingSubmissionService:
             
             cleaned_student = AptisReadingUtils.clean_text(student_ans)
             cleaned_correct = AptisReadingUtils.clean_text(q.correct_answer)
-            accepted_answers = [a.strip() for a in cleaned_correct.replace('|', '/').split('/')]
+            q_type = getattr(q, 'question_type', '').upper()
             
-            is_correct = cleaned_student in accepted_answers
-            if not is_correct:
-                resolved_student = None
-                opts = getattr(q, 'options', None)
-                if isinstance(opts, str):
-                    import json
-                    try:
-                        opts = json.loads(opts)
-                    except json.JSONDecodeError:
-                        opts = None
-                if opts:
-                    if isinstance(opts, dict):
-                        resolved_val = opts.get(str(student_ans))
-                        if resolved_val:
-                            resolved_student = AptisReadingUtils.clean_text(resolved_val)
-                    elif isinstance(opts, list):
-                        try:
-                            idx = int(str(student_ans))
-                            if 0 <= idx < len(opts):
-                                resolved_student = AptisReadingUtils.clean_text(opts[idx])
-                        except ValueError:
-                            pass
-                if resolved_student and resolved_student in accepted_answers:
+            is_correct = False
+            
+            if q_type == 'REORDER_SENTENCES':
+                user_arr = cleaned_student.split('-')
+                user_indices = []
+                for ch in user_arr:
+                    ch = ch.strip()
+                    if ch.isalpha() and len(ch) == 1:
+                        user_indices.append(str(ord(ch) - ord('a')))
+                    elif ch.isdigit():
+                        user_indices.append(ch)
+                
+                if ',' in cleaned_correct:
+                    correct_arr = [x.strip() for x in cleaned_correct.split(',')]
+                else:
+                    correct_arr = [x.strip() for x in cleaned_correct.split('-')]
+                
+                if len(user_indices) == len(correct_arr) and len(correct_arr) > 0:
+                    matches = sum(1 for u, c in zip(user_indices, correct_arr) if u == c)
+                    if matches == len(correct_arr):
+                        is_correct = True
+            else:
+                accepted_answers = [a.strip() for a in cleaned_correct.replace('|', '/').split('/')]
+                
+                if cleaned_student in accepted_answers:
                     is_correct = True
+                else:
+                    resolved_student = None
+                    opts = getattr(q, 'options', None)
+                    if isinstance(opts, str):
+                        import json
+                        try:
+                            opts = json.loads(opts)
+                        except json.JSONDecodeError:
+                            opts = None
+                            
+                    if opts:
+                        if isinstance(opts, dict):
+                            resolved_val = opts.get(str(student_ans))
+                            if resolved_val:
+                                resolved_student = AptisReadingUtils.clean_text(resolved_val)
+                        elif isinstance(opts, list):
+                            cleaned_opts = [AptisReadingUtils.clean_text(opt) for opt in opts]
+                            if cleaned_student in cleaned_opts:
+                                idx = cleaned_opts.index(cleaned_student)
+                                resolved_student = str(idx)
+                            else:
+                                try:
+                                    idx = int(str(student_ans))
+                                    if 0 <= idx < len(opts):
+                                        resolved_student = AptisReadingUtils.clean_text(opts[idx])
+                                except ValueError:
+                                    pass
+                    if resolved_student and resolved_student in accepted_answers:
+                        is_correct = True
 
             detailed_results.append({
                 "id": q.id,

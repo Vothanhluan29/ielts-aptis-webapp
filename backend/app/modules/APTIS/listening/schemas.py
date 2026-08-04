@@ -157,6 +157,10 @@ class ListeningTestListItem(BaseModel):
     status: Optional[str] = "NOT_STARTED"
     class Config: from_attributes = True
 
+class ListeningTestListPaginatedResponse(BaseModel):
+    items: List[ListeningTestListItem]
+    total: int
+
 
 # =======================================================
 # 4. SUBMISSION & SCORING 

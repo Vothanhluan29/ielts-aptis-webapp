@@ -52,7 +52,7 @@ async def upload_aptis_image(
 # 2. ADMIN: CRUD TEST (Prefix: /admin)
 # =================================================================
 
-@router.get("/admin/tests", response_model=List[schemas.AptisSpeakingTestListItem])
+@router.get("/admin/tests", response_model=schemas.AptisSpeakingTestListPaginatedResponse)
 def get_aptis_tests_for_admin(
     is_mock_selector: bool = Query(False, description="Filter mock-only tests"),
     db: Session = Depends(get_db),
@@ -105,7 +105,7 @@ def delete_aptis_test(
 # =================================================================
 # 3. PUBLIC: LIST TESTS (Student View)
 # =================================================================
-@router.get("/tests", response_model=List[schemas.AptisSpeakingTestListItem])
+@router.get("/tests", response_model=schemas.AptisSpeakingTestListPaginatedResponse)
 def get_aptis_public_tests(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1),

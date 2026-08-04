@@ -21,7 +21,7 @@ router = APIRouter(prefix="/aptis/writing", tags=["Aptis Writing"])
 # ADMIN ROUTES
 # =====================================================
 
-@router.get("/admin/tests", response_model=List[schemas.WritingTestListItem])
+@router.get("/admin/tests", response_model=schemas.WritingTestListPaginatedResponse)
 def get_tests_for_admin(
     skip: int = 0,
     limit: int = 100,
@@ -97,7 +97,7 @@ def delete_test(
 # STUDENT ROUTES
 # =====================================================
 
-@router.get("/tests", response_model=List[schemas.WritingTestListItem])
+@router.get("/tests", response_model=schemas.WritingTestListPaginatedResponse)
 def get_public_tests(
     skip: int = 0,
     limit: int = 100,

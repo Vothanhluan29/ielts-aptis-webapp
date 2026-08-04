@@ -6,7 +6,7 @@ from app.modules.APTIS.exam import schemas
 
 class AptisExamTestService:
     @staticmethod
-    def get_all_full_tests(db: Session, current_user_id: Optional[int] = None, admin_view: bool = False):
+    def get_all_full_tests(db: Session, current_user_id: Optional[int] = None, skip: int = 0, limit: int = 100, admin_view: bool = False):
         query = db.query(AptisFullTest).options(
             joinedload(AptisFullTest.grammar_vocab_test),
             joinedload(AptisFullTest.listening_test),
@@ -18,24 +18,40 @@ class AptisExamTestService:
         if not admin_view:
             query = query.filter(AptisFullTest.is_published == True)
 
-        tests = query.order_by(AptisFullTest.created_at.desc()).all()
-        result_list = []
+        total = query.count()
+        tests = query.order_by(AptisFullTest.created_at.desc()).offset(skip).limit(limit).all()
         
+        sub_status_map = {}
+        if current_user_id and tests:
+            test_ids = [t.id for t in tests]
+            user_subs = db.query(AptisExamSubmission).filter(
+                AptisExamSubmission.user_id == current_user_id,
+                AptisExamSubmission.full_test_id.in_(test_ids)
+            ).all()
+            
+            # Group by test_id, taking the one with max start_time
+            status_map = {}
+            for sub in user_subs:
+                if sub.full_test_id not in status_map:
+                    status_map[sub.full_test_id] = sub
+                else:
+                    if sub.start_time > status_map[sub.full_test_id].start_time:
+                        status_map[sub.full_test_id] = sub
+                        
+            for tid, sub in status_map.items():
+                sub_status_map[tid] = {
+                    "user_status": sub.status,
+                    "current_step": sub.current_step,
+                    "exam_submission_id": sub.id
+                }
+
+        result_list = []
         for test in tests:
-            user_status = AptisExamStatus.NOT_STARTED.value
-            current_step = AptisExamStep.NOT_STARTED.value
-            exam_submission_id = None
-
-            if current_user_id:
-                latest_sub = db.query(AptisExamSubmission).filter(
-                    AptisExamSubmission.full_test_id == test.id,
-                    AptisExamSubmission.user_id == current_user_id
-                ).order_by(AptisExamSubmission.start_time.desc()).first()
-
-                if latest_sub:
-                    user_status = latest_sub.status
-                    current_step = latest_sub.current_step
-                    exam_submission_id = latest_sub.id
+            sub_info = sub_status_map.get(test.id, {
+                "user_status": AptisExamStatus.NOT_STARTED.value,
+                "current_step": AptisExamStep.NOT_STARTED.value,
+                "exam_submission_id": None
+            })
 
             result_list.append(schemas.AptisFullTestListItem(
                 id=test.id,
@@ -43,9 +59,9 @@ class AptisExamTestService:
                 description=test.description,
                 is_published=test.is_published,
                 created_at=test.created_at,
-                user_status=user_status,
-                current_step=current_step,
-                exam_submission_id=exam_submission_id,
+                user_status=sub_info["user_status"],
+                current_step=sub_info["current_step"],
+                exam_submission_id=sub_info["exam_submission_id"],
                 grammar_vocab_test=test.grammar_vocab_test,
                 listening_test=test.listening_test,
                 reading_test=test.reading_test,
@@ -53,7 +69,7 @@ class AptisExamTestService:
                 speaking_test=test.speaking_test
             ))
 
-        return result_list
+        return {"items": result_list, "total": total}
 
     @staticmethod
     def get_full_test_detail(db: Session, test_id: int):

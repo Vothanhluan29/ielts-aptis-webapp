@@ -61,8 +61,12 @@ class AptisFullTestListItem(BaseModel):
     class Config:
         from_attributes = True
 
+class AptisFullTestListPaginatedResponse(BaseModel):
+    items: List[AptisFullTestListItem]
+    total: int
+
 # =======================================================
-# 2. FULL TEST MANAGEMENT (ADMIN CRUD)
+# 2. FULL TEST MANAGEMENT (ADMIN CRUD)  
 # =======================================================
 class AptisFullTestBase(BaseModel):
     title: str

@@ -19,7 +19,7 @@ router = APIRouter(prefix="/aptis/reading", tags=["Aptis Reading"])
 # ADMIN ROUTES
 # =====================================================
 
-@router.get("/admin/tests", response_model=List[schemas.TestListItem])
+@router.get("/admin/tests", response_model=schemas.TestListPaginatedResponse)
 def get_all_tests_for_admin(
     skip: int = 0,
     limit: int = 100,
@@ -124,7 +124,7 @@ def admin_get_user_history(
 # STUDENT ROUTES (Practice Mode)
 # =====================================================
 
-@router.get("/tests", response_model=List[schemas.TestListItem])
+@router.get("/tests", response_model=schemas.TestListPaginatedResponse)
 def get_all_public_tests(
     skip: int = 0,
     limit: int = 100,

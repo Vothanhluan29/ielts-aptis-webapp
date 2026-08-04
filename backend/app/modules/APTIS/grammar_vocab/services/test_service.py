@@ -118,31 +118,40 @@ class GrammarVocabTestService:
                 models.AptisGrammarVocabTest.is_full_test_only == False
             )
 
+        total = query.count()
         tests = query.order_by(
             models.AptisGrammarVocabTest.created_at.desc()
         ).offset(skip).limit(limit).all()
 
+        sub_status_map = {}
+        if current_user_id and tests and not admin_view:
+            test_ids = [t.id for t in tests]
+            user_subs = db.query(models.AptisGrammarVocabSubmission).filter(
+                models.AptisGrammarVocabSubmission.user_id == current_user_id,
+                models.AptisGrammarVocabSubmission.test_id.in_(test_ids),
+                models.AptisGrammarVocabSubmission.is_full_test_only == False
+            ).all()
+
+            status_map = {}
+            for sub in user_subs:
+                if sub.test_id not in status_map:
+                    status_map[sub.test_id] = sub
+                else:
+                    if sub.submitted_at > status_map[sub.test_id].submitted_at:
+                        status_map[sub.test_id] = sub
+
+            for tid, sub in status_map.items():
+                sub_status_map[tid] = sub.status
+
         result_list = []
         for test in tests:
-            status_val = models.AptisGrammarVocabStatus.NOT_STARTED
-
-            if current_user_id:
-                latest_sub = db.query(models.AptisGrammarVocabSubmission).filter(
-                    models.AptisGrammarVocabSubmission.test_id == test.id,
-                    models.AptisGrammarVocabSubmission.user_id == current_user_id,
-                    models.AptisGrammarVocabSubmission.is_full_test_only == False
-                ).order_by(
-                    models.AptisGrammarVocabSubmission.submitted_at.desc()
-                ).first()
-
-                if latest_sub:
-                    status_val = latest_sub.status
+            status_val = sub_status_map.get(test.id, models.AptisGrammarVocabStatus.NOT_STARTED)
 
             test_dict = schemas.TestListItem.model_validate(test).model_dump()
             test_dict['status'] = status_val
             result_list.append(test_dict)
 
-        return result_list
+        return {"items": result_list, "total": total}
 
     # =====================================================
     # GET TEST DETAIL (ADMIN)

@@ -26,7 +26,7 @@ def create_test(
     return GrammarVocabTestService.create_test(db, test_in)
 
 
-@router.get("/admin/tests", response_model=List[schemas.TestListItem])
+@router.get("/admin/tests", response_model=schemas.TestListPaginatedResponse)
 def get_tests_for_admin(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1),
@@ -83,7 +83,7 @@ def delete_test(
 # STUDENT: TAKE TEST & SUBMIT
 # =====================================================
 
-@router.get("/tests", response_model=List[schemas.TestListItem])
+@router.get("/tests", response_model=schemas.TestListPaginatedResponse)
 def get_public_tests(
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1),

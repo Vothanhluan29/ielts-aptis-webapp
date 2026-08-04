@@ -70,6 +70,10 @@ class WritingTestListItem(BaseModel):
     class Config: 
         from_attributes = True
 
+class WritingTestListPaginatedResponse(BaseModel):
+    items: List[WritingTestListItem]
+    total: int
+
 
 
 class SubmitWriting(BaseModel):

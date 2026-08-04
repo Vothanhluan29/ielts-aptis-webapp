@@ -134,33 +134,45 @@ class AptisListeningTestService:
         if admin_view:
             if fetch_mock_only:
                 query = query.filter(AptisListeningTest.is_full_test_only == True)
+            total = query.count()
             tests = query.order_by(AptisListeningTest.created_at.desc()).offset(skip).limit(limit).all()
-            return [schemas.ListeningTestListItem.model_validate(t) for t in tests]
+            return {"items": [schemas.ListeningTestListItem.model_validate(t) for t in tests], "total": total}
         else:
             query = query.filter(
                 AptisListeningTest.is_published == True,
                 AptisListeningTest.is_full_test_only == False
             )
+            total = query.count()
             tests = query.order_by(AptisListeningTest.created_at.desc()).offset(skip).limit(limit).all()
             
+            sub_status_map = {}
+            if current_user_id and tests:
+                test_ids = [t.id for t in tests]
+                user_subs = db.query(AptisListeningSubmission).filter(
+                    AptisListeningSubmission.user_id == current_user_id,
+                    AptisListeningSubmission.test_id.in_(test_ids),
+                    AptisListeningSubmission.is_full_test_only == False
+                ).all()
+                
+                status_map = {}
+                for sub in user_subs:
+                    if sub.test_id not in status_map:
+                        status_map[sub.test_id] = sub
+                    else:
+                        if sub.submitted_at > status_map[sub.test_id].submitted_at:
+                            status_map[sub.test_id] = sub
+                
+                for tid, sub in status_map.items():
+                    sub_status_map[tid] = sub.status
+
             result_list = []
             for test in tests:
-                status_val = "NOT_STARTED"
-                if current_user_id:
-                    latest_sub = db.query(AptisListeningSubmission).filter(
-                        AptisListeningSubmission.test_id == test.id,
-                        AptisListeningSubmission.user_id == current_user_id,
-                        AptisListeningSubmission.is_full_test_only == False
-                    ).order_by(AptisListeningSubmission.submitted_at.desc()).first()
-                    
-                    if latest_sub:
-                        status_val = latest_sub.status
-                
+                status_val = sub_status_map.get(test.id, "NOT_STARTED")
                 test_dict = schemas.ListeningTestListItem.model_validate(test).model_dump()
                 test_dict['status'] = status_val
                 result_list.append(test_dict)
                 
-            return result_list
+            return {"items": result_list, "total": total}
 
     @staticmethod
     def get_test_detail(db: Session, test_id: int):

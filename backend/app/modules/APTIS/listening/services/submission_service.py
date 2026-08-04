@@ -44,23 +44,36 @@ class AptisListeningSubmissionService:
                 user_ans = user_answers_map.get(q_num, "")
                 
             actual_ans = str(user_ans).strip()
-            try:
-                opts = json.loads(q.options) if isinstance(q.options, str) else (q.options or {})
-                if isinstance(opts, dict): 
-                    actual_ans = str(opts.get(user_ans, user_ans))
-                elif isinstance(opts, list) and actual_ans.isdigit(): 
-                    idx = int(actual_ans)
-                    if 0 <= idx < len(opts): actual_ans = str(opts[idx])
-            except Exception:
-                pass
-            
             norm_user = AptisListeningUtils.normalize_answer(actual_ans)
             norm_correct = AptisListeningUtils.normalize_answer(q.correct_answer)
+            possible_answers = [ans.strip() for ans in norm_correct.split('|')] if norm_correct else []
             
             is_correct = False
             if norm_user and norm_correct:
-                possible_answers = [ans.strip() for ans in norm_correct.split('|')]
-                is_correct = norm_user in possible_answers
+                if norm_user in possible_answers:
+                    is_correct = True
+                else:
+                    try:
+                        opts = json.loads(q.options) if isinstance(q.options, str) else (q.options or {})
+                        if isinstance(opts, dict): 
+                            resolved_user = str(opts.get(actual_ans, actual_ans))
+                            norm_resolved = AptisListeningUtils.normalize_answer(resolved_user)
+                            if norm_resolved in possible_answers:
+                                is_correct = True
+                        elif isinstance(opts, list):
+                            norm_opts = [AptisListeningUtils.normalize_answer(str(opt)) for opt in opts]
+                            if norm_user in norm_opts:
+                                idx = norm_opts.index(norm_user)
+                                if str(idx) in possible_answers:
+                                    is_correct = True
+                            elif actual_ans.isdigit():
+                                idx = int(actual_ans)
+                                if 0 <= idx < len(opts):
+                                    resolved_text = AptisListeningUtils.normalize_answer(str(opts[idx]))
+                                    if resolved_text in possible_answers:
+                                        is_correct = True
+                    except Exception:
+                        pass
             
             if is_correct: correct_count += 1
             
@@ -155,23 +168,36 @@ class AptisListeningSubmissionService:
                 user_ans = user_answers_map.get(q_num, "")
             
             actual_ans = str(user_ans).strip()
-            try:
-                opts = json.loads(q.options) if isinstance(q.options, str) else (q.options or {})
-                if isinstance(opts, dict): 
-                    actual_ans = str(opts.get(user_ans, user_ans))
-                elif isinstance(opts, list) and actual_ans.isdigit(): 
-                    idx = int(actual_ans)
-                    if 0 <= idx < len(opts): actual_ans = str(opts[idx])
-            except Exception:
-                pass
-            
             norm_user = AptisListeningUtils.normalize_answer(actual_ans)
             norm_correct = AptisListeningUtils.normalize_answer(q.correct_answer)
+            possible = [ans.strip() for ans in norm_correct.split('|')] if norm_correct else []
             
             is_correct = False
             if norm_user and norm_correct:
-                possible = [ans.strip() for ans in norm_correct.split('|')]
-                is_correct = norm_user in possible
+                if norm_user in possible:
+                    is_correct = True
+                else:
+                    try:
+                        opts = json.loads(q.options) if isinstance(q.options, str) else (q.options or {})
+                        if isinstance(opts, dict): 
+                            resolved_user = str(opts.get(actual_ans, actual_ans))
+                            norm_resolved = AptisListeningUtils.normalize_answer(resolved_user)
+                            if norm_resolved in possible:
+                                is_correct = True
+                        elif isinstance(opts, list):
+                            norm_opts = [AptisListeningUtils.normalize_answer(str(opt)) for opt in opts]
+                            if norm_user in norm_opts:
+                                idx = norm_opts.index(norm_user)
+                                if str(idx) in possible:
+                                    is_correct = True
+                            elif actual_ans.isdigit():
+                                idx = int(actual_ans)
+                                if 0 <= idx < len(opts):
+                                    resolved_text = AptisListeningUtils.normalize_answer(str(opts[idx]))
+                                    if resolved_text in possible:
+                                        is_correct = True
+                    except Exception:
+                        pass
 
             detailed_results.append({
                 "id": q.id,
