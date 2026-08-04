@@ -80,14 +80,7 @@ const SideBar = ({ layoutProps }) => {
           isCollapsed={isCollapsed}
           accentColor={accentColor}
         />
-        <SidebarLink
-          to="/admin/submissions"
-          label="Submissions"
-          icon={ClipboardCheck}
-          isActive={isActive("/admin/submissions")}
-          isCollapsed={isCollapsed}
-          accentColor={accentColor}
-        />
+
 
         {/* EXAMS & CONTENT */}
         {!isCollapsed && <p className={sectionTitle}>Content</p>}

@@ -19,12 +19,15 @@ export const useListeningAptisManage = () => {
         limit: pageSize,
         is_mock_selector: isMockFilter,
       });
-      const data = response.data || response;
-      setTests(data);
+      const rawData = response.data || response;
+      const data = rawData.items || rawData;
+      const total = rawData.total || (Array.isArray(data) ? (data.length === pageSize ? page * pageSize + 10 : data.length) : 0);
+
+      setTests(Array.isArray(data) ? data : []);
       
       setPagination(prev => ({
         ...prev,
-        total: data.length === pageSize ? page * pageSize + 10 : page * pageSize,
+        total,
       }));
     } catch (error) {
       console.error('Error loading test list:', error);

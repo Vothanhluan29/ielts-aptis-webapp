@@ -18,11 +18,16 @@ export const useGramVocabManage = () => {
         limit: pageSize,
         is_mock_selector: isMockFilter,
       });
-      const data = response.data || response;
+      const rawData = response.data || response;
+      const data = rawData.items || rawData;
+      const total = rawData.total || (Array.isArray(data) ? (data.length === pageSize ? page * pageSize + 10 : data.length) : 0);
       
-      setTests(data);
-
+      setTests(Array.isArray(data) ? data : []);
       
+      setPagination(prev => ({
+        ...prev,
+        total,
+      }));
     } catch (error) {
       console.error('Error loading tests:', error);
       message.error('Failed to load Grammar & Vocabulary test list. Please try again!');

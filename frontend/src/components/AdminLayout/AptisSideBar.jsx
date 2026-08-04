@@ -110,60 +110,7 @@ const AptisSideBar = ({ layoutProps }) => {
           badge={pendingFeedbackCount > 0 ? pendingFeedbackCount : null}
         />
 
-        {/* GRADING DROPDOWN */}
-        <div className="pt-1">
-          <button
-            onClick={toggleGrading}
-            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
-              openGrading 
-                ? "bg-zinc-800/80 text-white shadow-sm ring-1 ring-zinc-700/50" 
-                : "text-zinc-400 hover:bg-zinc-800/40 hover:text-white"
-            } ${isCollapsed ? "justify-center" : ""}`}
-            title={isCollapsed ? "Grading" : ""}
-          >
-            <div className="flex items-center gap-3">
-              <ClipboardCheck 
-                size={18} 
-                className={`transition-colors duration-200 ${
-                  openGrading 
-                    ? (isTeacher ? "text-teal-400" : "text-orange-400") 
-                    : "text-zinc-400 group-hover:text-zinc-300"
-                }`} 
-              />
-              {!isCollapsed && <span className="text-[14px]">Grading</span>}
-            </div>
-            {!isCollapsed && (
-              <ChevronRight 
-                size={14} 
-                className={`transition-transform duration-300 ${
-                  openGrading 
-                    ? `rotate-90 ${isTeacher ? "text-teal-400" : "text-orange-400"}` 
-                    : "text-zinc-500 group-hover:text-zinc-300"
-                }`} 
-              />
-            )}
-          </button>
 
-          {/* Animated Dropdown Content */}
-          {!isCollapsed && (
-            <div 
-              className={`grid transition-all duration-300 ease-in-out ${
-                openGrading ? "grid-rows-[1fr] opacity-100 mt-1.5" : "grid-rows-[0fr] opacity-0"
-              }`}
-            >
-              <div className="overflow-hidden">
-                <div className="ml-5 border-l border-zinc-800/80 pl-3 py-1 space-y-1">
-                  <SubSidebarLink to={`${basePath}/submissions`} label="Full Test" isActive={location.pathname === `${basePath}/submissions`} accentColor={isTeacher ? "teal" : "orange"} />
-                  <SubSidebarLink to={`${basePath}/submissions/listening`} label="Listening" isActive={location.pathname === `${basePath}/submissions/listening`} accentColor={isTeacher ? "teal" : "orange"} />
-                  <SubSidebarLink to={`${basePath}/submissions/reading`} label="Reading" isActive={location.pathname === `${basePath}/submissions/reading`} accentColor={isTeacher ? "teal" : "orange"} />
-                  <SubSidebarLink to={`${basePath}/submissions/grammar-vocab`} label="Grammar" isActive={location.pathname === `${basePath}/submissions/grammar-vocab`} accentColor={isTeacher ? "teal" : "orange"} />
-                  <SubSidebarLink to={`${basePath}/submissions/writing`} label="Writing" isActive={location.pathname === `${basePath}/submissions/writing`} accentColor={isTeacher ? "teal" : "orange"} />
-                  <SubSidebarLink to={`${basePath}/submissions/speaking`} label="Speaking" isActive={location.pathname === `${basePath}/submissions/speaking`} accentColor={isTeacher ? "teal" : "orange"} />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* EXAMS & CONTENT */}
         {!isCollapsed && <p className={sectionTitle}>Content</p>}

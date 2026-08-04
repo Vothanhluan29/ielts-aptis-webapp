@@ -18,11 +18,14 @@ export const useReadingAptisManager = () => {
         limit: pageSize,
         is_mock_selector: isMockFilter,
       });
-      const dataList = response.data || response;
-      setTests(dataList);
+      const rawData = response.data || response;
+      const dataList = rawData.items || rawData;
+      const total = rawData.total || (Array.isArray(dataList) ? (dataList.length === pageSize ? page * pageSize + 10 : dataList.length) : 0);
+
+      setTests(Array.isArray(dataList) ? dataList : []);
       setPagination(prev => ({ 
         ...prev, 
-        total: dataList.length > 0 ? page * pageSize + 10 : page * pageSize 
+        total 
       }));
     } catch (error) {
       message.error('Failed to load Reading test list. Please try again!');
