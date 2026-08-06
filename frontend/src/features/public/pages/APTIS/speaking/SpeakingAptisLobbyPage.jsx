@@ -53,11 +53,12 @@ const SpeakingAptisLobbyPage = () => {
   }
 
   return (
-    <Layout className="min-h-screen bg-slate-50">
-      <Content className="flex justify-center px-6 py-16">
-        <div className="w-full max-w-4xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <Layout className="min-h-screen bg-gradient-to-br from-rose-50/50 via-white to-rose-100/30">
+      
+      <Content className="flex justify-center py-16 px-6">
+        <div className="max-w-3xl w-full animate-in slide-in-from-bottom-4 duration-700">
           
-          <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200" styles={{ body: { padding: '40px' } }}>
+          <div className="rounded-[2.5rem] bg-white/60 backdrop-blur-xl shadow-xl shadow-rose-500/5 border border-white/80 p-8 md:p-12">  
             
             {/* ICON & TITLE */}
             <div className="text-center mb-10">
@@ -185,7 +186,7 @@ const SpeakingAptisLobbyPage = () => {
               </Button>
             </div>
 
-          </Card>
+          </div>
         </div>
       </Content>
     </Layout>

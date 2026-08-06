@@ -120,7 +120,7 @@ const ReadingAptisResultPage = () => {
   };
 
   return (
-    <Layout className="min-h-screen bg-slate-50">
+    <Layout className="min-h-screen bg-gradient-to-br from-orange-50/50 via-white to-orange-100/30 font-sans">
 
       <ResultHeader
         onGoBack={handleGoBack}
@@ -148,7 +148,7 @@ const ReadingAptisResultPage = () => {
         />
 
         {/* ── SINGLE COLUMN LAYOUT ── */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-8 animate-in fade-in">
+        <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-orange-500/5 p-5 md:p-8 animate-in fade-in transition-all">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3 mb-6">
               <ReadOutlined className="text-orange-500 text-xl" />

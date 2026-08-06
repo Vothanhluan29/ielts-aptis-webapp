@@ -75,7 +75,7 @@ const SpeakingAptisResultPage = () => {
       key: `part-${part.id}`,
       label: <span className="font-bold text-[15px]">Part {part.part_number}</span>,
       children: (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-10 mt-2 animate-in fade-in">
+        <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-rose-500/5 p-6 md:p-10 mt-2 animate-in fade-in transition-all">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-8">
             <Mic className="text-purple-500 w-6 h-6" />
             <Title level={4} className="m-0! text-slate-800">
@@ -133,7 +133,7 @@ const SpeakingAptisResultPage = () => {
   });
 
   return (
-    <Layout className="min-h-screen bg-slate-50">
+    <Layout className="min-h-screen bg-gradient-to-br from-rose-50/50 via-white to-rose-100/30 font-sans">
       <style>{`
         audio::-webkit-media-controls-panel { background-color: #f8fafc; }
         .ant-tabs-nav::before { border-bottom: 1px solid #e2e8f0 !important; }
@@ -178,7 +178,7 @@ const SpeakingAptisResultPage = () => {
 
         {/* OVERALL FEEDBACK */}
         {isGraded && overallFeedback && (
-          <div className="bg-purple-50 border border-purple-100 rounded-3xl p-6 md:p-8 shadow-sm mb-6 animate-in fade-in">
+          <div className="bg-rose-50/80 backdrop-blur-md border border-rose-100 rounded-3xl p-6 md:p-8 shadow-sm mb-6 animate-in fade-in">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-purple-100 rounded-xl text-purple-600"><UserCheck size={24} /></div>
               <Title level={4} className="m-0! text-purple-800">Overall Teacher Feedback</Title>

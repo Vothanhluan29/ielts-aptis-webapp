@@ -63,7 +63,7 @@ const GrammarVocabResultPage = () => {
   });
 
   return (
-    <Layout className="min-h-screen bg-slate-50">
+    <Layout className="min-h-screen bg-gradient-to-br from-emerald-50/50 via-white to-emerald-100/30 font-sans">
       
       <ResultHeader
         onGoBack={handleGoBack}
@@ -91,11 +91,11 @@ const GrammarVocabResultPage = () => {
           skillColor="emerald"
         />
 
-        <div className="p-3.5 rounded-xl bg-white border border-slate-200 border-l-4 border-l-emerald-500 text-sm text-slate-600 mb-5 animate-in fade-in">
+        <div className="p-4 rounded-[1rem] bg-white/60 backdrop-blur-md border border-white/80 border-l-4 border-l-emerald-500 text-sm text-slate-600 mb-5 shadow-sm animate-in fade-in">
           Reviewing <strong>{activeTab === 'GRAMMAR' ? 'Grammar' : 'Vocabulary'}</strong> section. Check your mistakes and read the explanations below.
         </div>
 
-        <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200" styles={{ body: { padding: '24px 32px' } }}>
+        <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-emerald-500/5 p-5 md:p-8 animate-in fade-in transition-all">
           <div className="animate-in fade-in slide-in-from-bottom-2">
             
             <ProgressSummaryBar
@@ -132,7 +132,7 @@ const GrammarVocabResultPage = () => {
               ))
             )}
           </div>
-        </Card>
+        </div>
 
       </Content>
     </Layout>

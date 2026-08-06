@@ -6,12 +6,12 @@ const { Title, Text } = Typography;
 
 const DashboardAptisHeader = ({ streakInfo }) => {
   return (
-    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/60 backdrop-blur-xl p-8 rounded-[2rem] shadow-xl shadow-indigo-500/5 border border-white/80 transition-all hover:shadow-indigo-500/10">
       <div>
-        <Title level={3} className="m-0! text-slate-800 font-black">
+        <Title level={3} className="m-0! text-slate-800 font-black tracking-tight">
           Aptis Learning Overview
         </Title>
-        <Text className="text-slate-500">
+        <Text className="text-slate-500 font-medium">
           Track your progress and statistics
         </Text>
       </div>

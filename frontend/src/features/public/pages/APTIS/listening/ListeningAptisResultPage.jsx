@@ -55,7 +55,7 @@ const ListeningAptisResultPage = () => {
   }
 
   return (
-    <Layout className="min-h-screen bg-slate-50">
+    <Layout className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-blue-100/30 font-sans">
       <style>{`.review-audio::-webkit-media-controls-panel { background-color: #eff6ff; }`}</style>
 
       <ResultHeader
@@ -83,7 +83,7 @@ const ListeningAptisResultPage = () => {
           skillColor="blue"
         />
 
-        <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200" styles={{ body: { padding: '24px 32px' } }}>
+        <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-blue-500/5 p-5 md:p-8 animate-in fade-in transition-all">
           <div className="animate-in fade-in slide-in-from-bottom-2">
             
             <ProgressSummaryBar
@@ -101,7 +101,6 @@ const ListeningAptisResultPage = () => {
                 const hasQuestionAudio = group.questions?.some(q => q.audio_url || q.media_url || q.audio_file || q.attached_audio);
                 return (
                   <div key={group.id} className="mb-8 last:mb-0 pb-6 border-b border-dashed border-slate-300 last:border-0 last:pb-0">
-
                     {groupSrc ? (
                       <div className="mb-4 p-4 rounded-xl bg-blue-50/70 border border-blue-100 shadow-sm flex flex-col gap-2">
                         <Text className="font-bold text-blue-800 text-[13px] flex items-center gap-2"><CustomerServiceOutlined /> Audio Recording:</Text>
@@ -140,7 +139,7 @@ const ListeningAptisResultPage = () => {
               })
             )}
           </div>
-        </Card>
+        </div>
 
       </Content>
     </Layout>

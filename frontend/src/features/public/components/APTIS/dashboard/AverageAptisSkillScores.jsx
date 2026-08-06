@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Progress, Tag } from 'antd';
+import { Typography, Progress, Tag } from 'antd';
 import { SKILL_CONFIG, getCEFRColor } from './dashboardAptisConfig';
 
 const { Text } = Typography;
@@ -15,11 +15,8 @@ const getEstimatedCEFR = (score) => {
 
 const AverageAptisSkillScores = ({ skillStats }) => {
   return (
-    <Card 
-      variant="borderless" 
-      className="rounded-3xl shadow-sm border-slate-200 h-full" 
-      title={<span className="font-bold text-slate-700">Average Skill Levels (Certification)</span>}
-    >
+    <div className="rounded-[2rem] bg-white/60 backdrop-blur-xl shadow-xl shadow-indigo-500/5 border border-white/80 p-6 md:p-8 h-full transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10">
+      <h3 className="font-black text-slate-800 text-lg mb-6 tracking-tight">Average Skill Levels (Certification)</h3>
       <div className="space-y-6"> 
         {skillStats?.map((stat) => {
           const config = SKILL_CONFIG[stat.skill];
@@ -42,7 +39,7 @@ const AverageAptisSkillScores = ({ skillStats }) => {
                 {/* Khu vực bên phải: CHỈ HIỂN THỊ THẺ CEFR */}
                 <Tag 
                   color={cefrColor} 
-                  className="m-0 px-3 py-1 rounded-lg font-black text-sm border-0 shadow-sm min-w-10 text-center tracking-wider"
+                  className="m-0 px-3 py-1 rounded-xl font-black text-sm border-0 shadow-md min-w-10 text-center tracking-wider"
                 >
                   {cefrLevel}
                 </Tag>
@@ -59,7 +56,7 @@ const AverageAptisSkillScores = ({ skillStats }) => {
           );
         })}
       </div>
-    </Card>
+    </div>
   );
 };
 

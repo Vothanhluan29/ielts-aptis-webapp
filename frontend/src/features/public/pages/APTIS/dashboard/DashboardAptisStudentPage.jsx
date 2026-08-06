@@ -15,7 +15,7 @@ const DashboardAptisStudentPage = () => {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-slate-50">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-indigo-50/50 via-white to-teal-50/30">
         <Space direction="vertical" align="center">
           <Spin size="large" />
           <Text className="text-slate-500 font-medium">Loading your learning data...</Text>
@@ -28,8 +28,8 @@ const DashboardAptisStudentPage = () => {
   const { chart_data, streak_info } = progress || {};
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans">
-      <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50/50 via-white to-teal-50/30 p-4 md:p-8 font-sans">
+      <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-700">
         
         <DashboardAptisHeader streakInfo={streak_info} />
         

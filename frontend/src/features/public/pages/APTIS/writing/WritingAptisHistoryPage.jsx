@@ -25,11 +25,11 @@ const WritingAptisHistoryPage = () => {
   } = useWritingAptisHistory();
 
   return (
-    <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc', fontFamily: "'Inter', sans-serif" }}>
-      <Content style={{ padding: '40px 24px', maxWidth: 1040, margin: '0 auto', width: '100%' }}>
+    <Layout className="min-h-screen bg-gradient-to-br from-purple-50/50 via-white to-purple-100/30 font-sans">
+      <Content className="py-10 px-6 max-w-5xl mx-auto w-full">
         
         {/* BANNER */}
-        <div className="mb-10 bg-white p-8 rounded-3xl border border-blue-50 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+        <div className="mb-10 bg-white/60 backdrop-blur-xl p-8 rounded-[2rem] border border-white/80 shadow-xl shadow-purple-500/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-60 pointer-events-none" />
           
           <div className="flex items-center gap-5 relative z-10">
@@ -76,7 +76,7 @@ const WritingAptisHistoryPage = () => {
             ))}
           </div>
         ) : history.length === 0 ? (
-          <div className="bg-white rounded-3xl border border-slate-100 shadow-sm text-center py-24 flex flex-col items-center">
+          <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-purple-500/5 text-center py-24 flex flex-col items-center">
             <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
               <Edit3 size={40} className="text-slate-300" />
             </div>
@@ -102,7 +102,7 @@ const WritingAptisHistoryPage = () => {
               });
 
               return (
-                <div key={record.id} className="group bg-white rounded-3xl border border-slate-100 p-6 flex flex-col justify-between hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:border-violet-100 transition-all duration-300 relative overflow-hidden">
+                <div key={record.id} className="group bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 p-6 flex flex-col justify-between shadow-lg shadow-purple-500/5 hover:shadow-2xl hover:shadow-purple-500/10 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
                   
                   {/* Card Header */}
                   <div className="flex justify-between items-start mb-6">

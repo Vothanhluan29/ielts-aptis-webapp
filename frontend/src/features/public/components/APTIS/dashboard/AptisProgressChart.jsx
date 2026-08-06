@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Tabs } from 'antd';
+import { Typography, Tabs } from 'antd';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { SKILL_CONFIG } from './dashboardAptisConfig';
 
@@ -7,7 +7,8 @@ const { Text } = Typography;
 
 const AptisProgressChart = ({ chartData }) => {
   return (
-    <Card variant="borderless" className="rounded-3xl shadow-sm border-slate-200" title={<span className="font-bold text-slate-700">Progress Chart (Last 10 Days)</span>}>
+    <div className="rounded-[2rem] bg-white/60 backdrop-blur-xl shadow-xl shadow-indigo-500/5 border border-white/80 p-6 md:p-8 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10">
+      <h3 className="font-black text-slate-800 text-lg mb-6 tracking-tight">Progress Chart (Last 10 Days)</h3>
       {chartData && chartData.length > 0 ? (
         <Tabs 
           defaultActiveKey="practice" 
@@ -66,7 +67,7 @@ const AptisProgressChart = ({ chartData }) => {
           <Text className="text-slate-500 font-medium">Not enough data to display the chart.</Text>
         </div>
       )}
-    </Card>
+    </div>
   );
 };
 

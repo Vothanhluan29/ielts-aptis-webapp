@@ -77,7 +77,7 @@ const WritingAptisResultPage = () => {
       key: '1',
       label: <span><MessageOutlined /> Part 1</span>,
       children: (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-10 mt-2 animate-in fade-in">
+        <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-indigo-500/5 p-6 md:p-10 mt-2 animate-in fade-in transition-all">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
             <MessageOutlined className="text-indigo-500 text-lg" />
             <Title level={4} className="m-0! text-slate-800">Part 1</Title>
@@ -105,7 +105,7 @@ const WritingAptisResultPage = () => {
       key: '2',
       label: <span><FormOutlined /> Part 2</span>,
       children: (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-10 mt-2 animate-in fade-in">
+        <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-indigo-500/5 p-6 md:p-10 mt-2 animate-in fade-in transition-all">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
             <FormOutlined className="text-indigo-500 text-lg" />
             <Title level={4} className="m-0! text-slate-800">Part 2</Title>
@@ -131,7 +131,7 @@ const WritingAptisResultPage = () => {
       key: '3',
       label: <span><FileTextOutlined /> Part 3</span>,
       children: (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-10 mt-2 animate-in fade-in">
+        <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-indigo-500/5 p-6 md:p-10 mt-2 animate-in fade-in transition-all">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
             <FileTextOutlined className="text-indigo-500 text-lg" />
             <Title level={4} className="m-0! text-slate-800">Part 3</Title>
@@ -159,7 +159,7 @@ const WritingAptisResultPage = () => {
       key: '4',
       label: <span><MailOutlined /> Part 4</span>,
       children: (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 md:p-10 mt-2 animate-in fade-in">
+        <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-indigo-500/5 p-6 md:p-10 mt-2 animate-in fade-in transition-all">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-4 mb-6">
             <MailOutlined className="text-indigo-500 text-lg" />
             <Title level={4} className="m-0! text-slate-800">Part 4</Title>
@@ -196,7 +196,7 @@ const WritingAptisResultPage = () => {
   ];
 
   return (
-    <Layout className="min-h-screen bg-slate-50">
+    <Layout className="min-h-screen bg-gradient-to-br from-indigo-50/50 via-white to-purple-100/30 font-sans">
       <style>{`
         /* Tùy chỉnh Tabs của Ant Design sang tông màu Indigo/Purple */
         .ant-tabs-nav::before { border-bottom: 1px solid #e2e8f0 !important; }
@@ -241,7 +241,7 @@ const WritingAptisResultPage = () => {
 
         {/* OVERALL FEEDBACK */}
         {isGraded && overallFeedback && (
-          <div className="bg-indigo-50 border border-indigo-100 rounded-3xl p-6 md:p-8 shadow-sm mb-6 animate-in fade-in">
+          <div className="bg-indigo-50/80 backdrop-blur-md border border-indigo-100 rounded-3xl p-6 md:p-8 shadow-sm mb-6 animate-in fade-in">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-indigo-100 rounded-xl text-indigo-600"><UserCheck size={24} /></div>
               <Title level={4} className="m-0! text-indigo-800">Overall Teacher Feedback</Title>

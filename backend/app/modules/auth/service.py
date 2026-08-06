@@ -55,7 +55,8 @@ class AuthService:
             
             return user
 
-        except ValueError as e:
-
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"Google Token Error: {e}")
             return None

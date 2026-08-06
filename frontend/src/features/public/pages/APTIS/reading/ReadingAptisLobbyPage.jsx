@@ -54,16 +54,12 @@ const ReadingAptisLobbyPage = () => {
 
   // MAIN RENDER
   return (
-    <Layout style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+    <Layout className="min-h-screen bg-gradient-to-br from-orange-50/50 via-white to-orange-100/30">
       
-      <Content style={{ padding: '60px 24px', display: 'flex', justifyContent: 'center' }}>
-        <div style={{ maxWidth: 800, width: '100%' }} className="animate-in slide-in-from-bottom-4 duration-500">
+      <Content className="flex justify-center py-16 px-6">
+        <div className="max-w-3xl w-full animate-in slide-in-from-bottom-4 duration-700">
           
-          <Card 
-            variant="borderless" 
-            style={{ borderRadius: 24, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01)' }}
-            styles={{ body: { padding: '40px' } }}
-          >
+          <div className="rounded-[2.5rem] bg-white/60 backdrop-blur-xl shadow-xl shadow-orange-500/5 border border-white/80 p-8 md:p-12">
             {/* ICON & TITLE */}
             <div style={{ textAlign: 'center', marginBottom: 32 }}>
               <div style={{ 
@@ -190,7 +186,7 @@ const ReadingAptisLobbyPage = () => {
 
             </div>
 
-          </Card>
+          </div>
         </div>
       </Content>
     </Layout>

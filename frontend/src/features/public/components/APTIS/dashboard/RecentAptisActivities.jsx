@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, List, Space, Tag } from 'antd';
+import { Typography, List, Space, Tag } from 'antd';
 import { CalendarOutlined } from '@ant-design/icons';
 import { Clock } from 'lucide-react';
 import dayjs from 'dayjs';
@@ -9,12 +9,8 @@ const { Text } = Typography;
 
 const RecentAptisActivities = ({ activities }) => {
   return (
-    <Card 
-      variant="borderless" 
-      className="rounded-3xl shadow-sm border-slate-200 h-full flex flex-col" 
-      title={<span className="font-bold text-slate-700">Recent Activities</span>}
-      styles={{ body: { padding: '0 16px 16px 16px', flex: 1, display: 'flex', flexDirection: 'column' } }}
-    >
+    <div className="rounded-[2rem] bg-white/60 backdrop-blur-xl shadow-xl shadow-indigo-500/5 border border-white/80 p-6 md:p-8 h-full flex flex-col transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10">
+      <h3 className="font-black text-slate-800 text-lg mb-4 tracking-tight">Recent Activities</h3>
       {activities.length > 0 ? (
         <List
           className="flex-1"
@@ -59,7 +55,7 @@ const RecentAptisActivities = ({ activities }) => {
           <Text className="text-slate-500 font-medium">No recent tests found</Text>
         </div>
       )}
-    </Card>
+    </div>
   );
 };
 
