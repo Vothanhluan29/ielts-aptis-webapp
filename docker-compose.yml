@@ -25,6 +25,8 @@ services:
       - ./backend/.env
     environment:
       - DATABASE_URL=postgresql://postgres:123456@db:5432/ielts_platform
+    volumes:
+      - uploads_data:/app/static
     depends_on:
       - db
     restart: unless-stopped
@@ -43,3 +45,4 @@ services:
 
 volumes:
   postgres_data:
+  uploads_data:

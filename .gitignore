@@ -31,7 +31,7 @@ yarn-error.log*
 # docker-compose.yml
 build_and_push.ps1
 # project/
-# postgres_init/
+postgres_init/
 backend/Dockerfile
 backend/.dockerignore
 frontend/Dockerfile
@@ -43,3 +43,6 @@ DOCKER_CHEATSHEET.md
 backend/seed_aptis_data.py
 backend/seed_reading_only.py
 backend/fix_reading_db.py
+
+# Uploads
+backend/static/
