@@ -1,36 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { message } from 'antd';
-import authApi from '../../features/auth/api/authApi';
+import useAuthStore from '../../store/authStore';
 
 export const useMainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const profileRef = useRef(null);
 
-  const [user, setUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(true);
+  const { user, loadingUser, fetchMe, logout } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-
-  const fetchMe = useCallback(async () => {
-    try {
-      const data = await authApi.getMe();
-      setUser(data);
-    } catch (err) {
-      console.error('Auth error:', err);
-
-      // Show message only if not on login page to avoid repetition
-      if (location.pathname !== '/login') {
-        message.error('Session has expired');
-      }
-
-      navigate('/login', { replace: true });
-    } finally {
-      setLoadingUser(false);
-    }
-  }, [navigate, location.pathname]);
 
   // Auth check when the app initializes
   useEffect(() => {
@@ -64,13 +45,8 @@ export const useMainLayout = () => {
   }, []);
 
   const handleLogout = async () => {
-      try {
-        await authApi.logout();
-      } catch (error) {
-        console.error('Logout error:', error);
-      }
-      message.success('Logged out successfully');
-      navigate('/login', { replace: true });
+    await logout();
+    message.success('Logged out successfully');
   };
 
   // Improve page title: full-tests -> Full Tests

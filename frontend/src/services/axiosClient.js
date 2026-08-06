@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { message } from 'antd';
+import useAuthStore from '../store/authStore';
 
 const axiosClient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL, 
@@ -56,12 +57,8 @@ axiosClient.interceptors.response.use(
           isRefreshing = false;
           refreshSubscribers = [];
 
-          if (window.location.pathname !== '/login') {
-            message.error('Session expired. Please log in again!');
-            setTimeout(() => {
-              window.location.href = '/login';
-            }, 1000);
-          }
+          // Trigger session expiration handling from the Zustand store
+          useAuthStore.getState().handleSessionExpired();
           return Promise.reject(refreshError);
         }
       } else {
