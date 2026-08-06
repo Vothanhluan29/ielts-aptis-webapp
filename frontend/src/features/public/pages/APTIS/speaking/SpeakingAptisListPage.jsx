@@ -1,5 +1,5 @@
 import React from 'react';
-import { Skeleton , Pagination} from 'antd';
+import { Skeleton, Pagination } from 'antd';
 import { Mic, Clock, CheckCircle, AlertCircle, ArrowRight, History, RotateCcw, Play } from 'lucide-react';
 import { useSpeakingAptisList } from '../../../hooks/APTIS/speaking/useSpeakingAptisList';
 
@@ -34,22 +34,16 @@ const SpeakingAptisListPage = () => {
       case 'COMPLETED':
         return {
           badge: (
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-              background: '#dcfce7', color: '#16a34a',
-              padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
-            }}>
+            <span className="inline-flex items-center gap-1.5 bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold">
               <CheckCircle size={12} /> Graded
             </span>
           ),
           mainBtnText: 'View History',
           mainBtnAction: handleNavigateHistory,
-          mainBtnStyle: {
-            background: 'transparent', color: '#6366f1',
-            border: '1.5px solid #a5b4fc', fontWeight: 700
-          },
+          mainBtnClass: "bg-transparent text-rose-600 border-2 border-rose-200 hover:bg-rose-50 hover:border-rose-300",
           isDone: true,
-          showRetry: true
+          showRetry: true,
+          accentBorder: "border-l-green-500"
         };
 
       case 'PENDING':
@@ -57,93 +51,66 @@ const SpeakingAptisListPage = () => {
       case 'SUBMITTED':
         return {
           badge: (
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-              background: '#fef3c7', color: '#d97706',
-              padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
-            }}>
+            <span className="inline-flex items-center gap-1.5 bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-xs font-bold">
               <Clock size={12} /> Pending Review
             </span>
           ),
           mainBtnText: 'View Submission',
           mainBtnAction: () => handleNavigateResult(testId),
-          mainBtnStyle: {
-            background: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
-            color: '#fff', border: 'none', fontWeight: 700,
-            boxShadow: '0 4px 14px rgba(245,158,11,0.35)'
-          },
+          mainBtnClass: "bg-gradient-to-r from-amber-500 to-amber-400 text-white border-none shadow-md shadow-amber-500/30 hover:opacity-90 hover:scale-[1.02]",
           isDone: false,
-          showRetry: true
+          showRetry: true,
+          accentBorder: "border-l-amber-500"
         };
 
       default:
         return {
           badge: (
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 4,
-              background: '#ede9fe', color: '#7c3aed',
-              padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700
-            }}>
+            <span className="inline-flex items-center gap-1.5 bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-bold">
               <AlertCircle size={12} /> Not Started
             </span>
           ),
           mainBtnText: 'Start Now',
           mainBtnAction: () => handleNavigateLobby(testId),
-          mainBtnStyle: {
-            background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
-            color: '#fff', border: 'none', fontWeight: 700,
-            boxShadow: '0 4px 14px rgba(99,102,241,0.35)'
-          },
+          mainBtnClass: "bg-gradient-to-r from-rose-500 to-rose-400 text-white border-none shadow-md shadow-rose-500/30 hover:opacity-90 hover:scale-[1.02]",
           isDone: false,
-          showRetry: false
+          showRetry: false,
+          accentBorder: "border-l-rose-500"
         };
     }
   };
 
   return (
-    <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', padding: '24px 16px' }}>
+    <div className="min-h-screen bg-gradient-to-br from-rose-50/50 via-white to-rose-100/30 font-sans p-4 md:p-8">
+      <div className="max-w-6xl mx-auto w-full">
+        
+        {/* ===== HEADER BANNER ===== */}
+        <div className="mb-10 bg-white/60 backdrop-blur-xl p-8 rounded-[2rem] border border-white/80 shadow-xl shadow-rose-500/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+          {/* Decorative blur */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-100 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-60 pointer-events-none" />
 
-      {/* ===== HEADER ===== */}
-      <div style={{ marginBottom: 32 }}>
-        <div style={{
-          display: 'flex', flexWrap: 'wrap',
-          alignItems: 'center', justifyContent: 'space-between', gap: 16
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <div style={{
-              width: 56, height: 56, borderRadius: 16,
-              background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 8px 20px rgba(99,102,241,0.3)', flexShrink: 0
-            }}>
-              <Mic size={28} color="#fff" strokeWidth={2.5} />
+          <div className="flex items-center gap-5 relative z-10">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-400 flex items-center justify-center shadow-lg shadow-rose-500/30 shrink-0">
+              <Mic size={32} className="text-white" strokeWidth={2.5} />
             </div>
             <div>
-              <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: '#1e1b4b', lineHeight: 1.3 }}>
+              <h1 className="m-0 text-2xl font-extrabold text-slate-800 tracking-tight leading-tight">
                 Speaking Practice
               </h1>
-              <p style={{ margin: 0, fontSize: 13, color: '#6b7280', marginTop: 2 }}>
-                Speaking skills following the British Council APTIS structure
-              </p>
             </div>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <div style={{
-              display: 'flex', background: '#f1f0fe', borderRadius: 12,
-              padding: 4, gap: 4
-            }}>
+          <div className="flex items-center gap-3 flex-wrap relative z-10">
+            <div className="flex bg-white/50 backdrop-blur-md rounded-xl p-1 border border-white/80 shadow-sm">
               {FILTER_OPTIONS.map(opt => (
                 <button
                   key={opt.value}
                   onClick={() => setFilterStatus(opt.value)}
-                  style={{
-                    padding: '6px 14px', borderRadius: 9, border: 'none', cursor: 'pointer',
-                    fontSize: 13, fontWeight: 600, transition: 'all 0.2s',
-                    background: filterStatus === opt.value ? '#6366f1' : 'transparent',
-                    color: filterStatus === opt.value ? '#fff' : '#6b7280',
-                    boxShadow: filterStatus === opt.value ? '0 2px 8px rgba(99,102,241,0.3)' : 'none'
-                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                    filterStatus === opt.value
+                      ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
+                      : 'bg-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50/50'
+                  }`}
                 >
                   {opt.label}
                 </button>
@@ -151,173 +118,105 @@ const SpeakingAptisListPage = () => {
             </div>
             <button
               onClick={handleNavigateHistory}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                padding: '8px 16px', borderRadius: 10, border: '1.5px solid #e2e8f0',
-                background: '#fff', cursor: 'pointer', fontSize: 13,
-                fontWeight: 600, color: '#374151', transition: 'all 0.2s',
-                boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#a5b4fc'; e.currentTarget.style.color = '#6366f1'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#374151'; }}
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-slate-200 bg-white/80 backdrop-blur-sm text-sm font-bold text-slate-600 hover:border-rose-300 hover:text-rose-600 transition-all shadow-sm hover:shadow"
             >
-              <History size={15} /> History
+              <History size={16} /> History
             </button>
           </div>
         </div>
-        <div style={{ marginTop: 20, height: 1, background: 'linear-gradient(90deg, #e0e7ff 0%, transparent 100%)' }} />
-      </div>
 
-      {/* ===== CONTENT ===== */}
-      {loading ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-          {[1, 2, 3].map(i => (
-            <div key={i} style={{
-              background: '#fff', borderRadius: 16, padding: 24,
-              border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-            }}>
-              <Skeleton active paragraph={{ rows: 3 }} />
-            </div>
-          ))}
-        </div>
-      ) : filteredTests.length === 0 ? (
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', padding: '80px 24px', textAlign: 'center'
-        }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: 20,
-            background: '#ede9fe', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', marginBottom: 16
-          }}>
-            <Mic size={32} color="#6366f1" />
+        {/* ===== CONTENT ===== */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="bg-white/60 backdrop-blur-xl rounded-3xl p-6 border border-white/80 shadow-sm">
+                <Skeleton active paragraph={{ rows: 3 }} />
+              </div>
+            ))}
           </div>
-          <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: '#374151' }}>
-            No tests found.
-          </p>
-          <p style={{ margin: '6px 0 0', fontSize: 13, color: '#9ca3af' }}>
-            Try a different filter or check back later.
-          </p>
-        </div>
-      ) : (
-        <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
-          {paginatedTests.map(test => {
-            const config = getStatusConfig(test.status, test.id);
-            const s = test.status?.toUpperCase();
-            const isDone = s === 'GRADED' || s === 'COMPLETED';
-            const isPending = s === 'PENDING' || s === 'GRADING' || s === 'SUBMITTED';
+        ) : filteredTests.length === 0 ? (
+          <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-rose-500/5 flex flex-col items-center justify-center p-20 text-center">
+            <div className="w-20 h-20 rounded-[1.5rem] bg-rose-100 flex items-center justify-center mb-5 shadow-inner">
+              <Mic size={40} className="text-rose-500" />
+            </div>
+            <p className="m-0 text-lg font-bold text-slate-700">No tests found.</p>
+            <p className="mt-2 text-sm text-slate-500 font-medium">Try a different filter or check back later.</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedTests.map(test => {
+                const config = getStatusConfig(test.status, test.id);
+                const isDone = test.status === 'GRADED' || test.status === 'COMPLETED';
 
-            const accentColor = isDone ? '#22c55e' : isPending ? '#f59e0b' : '#6366f1';
+                return (
+                  <div
+                    key={test.id}
+                    className={`group bg-white/60 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/80 flex flex-col transition-all duration-300 shadow-lg shadow-rose-500/5 hover:shadow-2xl hover:shadow-rose-500/10 hover:-translate-y-1 border-l-4 ${config.accentBorder}`}
+                  >
+                    <div className="p-6 pb-4">
+                      <div className="flex justify-between items-center mb-4">
+                        {config.badge}
+                        <div className="flex gap-2">
+                          {test.difficulty_level && (
+                            <span className="flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-100 px-2.5 py-1 rounded-lg">
+                              {test.difficulty_level}
+                            </span>
+                          )}
+                          <span className="flex items-center gap-1 text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg">
+                            <Clock size={12} /> {test.time_limit || 12} min
+                          </span>
+                        </div>
+                      </div>
+                      <h3 className="m-0 mb-2 text-lg font-extrabold text-slate-800 leading-snug line-clamp-1 group-hover:text-rose-600 transition-colors">
+                        {test.title}
+                      </h3>
+                      <p className="m-0 text-sm text-slate-500 leading-relaxed line-clamp-2 font-medium">
+                        {test.description || 'Practice all 4 Speaking parts following the official APTIS format.'}
+                      </p>
+                    </div>
 
-            return (
-              <div
-                key={test.id}
-                style={{
-                  background: '#fff', borderRadius: 16, overflow: 'hidden',
-                  border: '1px solid #e8e7ff',
-                  borderLeft: `4px solid ${accentColor}`,
-                  boxShadow: '0 2px 12px rgba(99,102,241,0.06)',
-                  display: 'flex', flexDirection: 'column',
-                  transition: 'transform 0.2s, box-shadow 0.2s'
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.boxShadow = '0 8px 28px rgba(99,102,241,0.14)';
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 2px 12px rgba(99,102,241,0.06)';
-                }}
-              >
-                <div style={{ padding: '20px 20px 16px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                    {config.badge}
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      {test.difficulty_level && (
-                        <span style={{
-                          display: 'flex', alignItems: 'center', gap: 4,
-                          fontSize: 12, fontWeight: 600, color: '#d97706',
-                          background: '#fef3c7', padding: '3px 9px', borderRadius: 8
-                        }}>
-                          {test.difficulty_level}
-                        </span>
+                    <div className="p-6 pt-3 mt-auto flex flex-col gap-3 bg-gradient-to-b from-transparent to-white/40">
+                      <button
+                        onClick={config.mainBtnAction}
+                        className={`w-full py-3 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all duration-300 ${config.mainBtnClass}`}
+                      >
+                        {isDone ? (
+                          <><History size={16} /> {config.mainBtnText}</>
+                        ) : (
+                          <><Play size={16} /> {config.mainBtnText}</>
+                        )}
+                      </button>
+
+                      {config.showRetry && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleNavigateLobby(test.id); }}
+                          className="w-full py-2.5 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-transparent text-slate-500 border-2 border-slate-200 hover:border-rose-400 hover:text-rose-500 transition-all duration-300"
+                        >
+                          <RotateCcw size={14} /> Retry Test
+                        </button>
                       )}
-                      <span style={{
-                        display: 'flex', alignItems: 'center', gap: 4,
-                        fontSize: 12, fontWeight: 600, color: '#9ca3af',
-                        background: '#f8fafc', padding: '3px 9px', borderRadius: 8
-                      }}>
-                        <Clock size={11} /> {test.time_limit || 12} min
-                      </span>
                     </div>
                   </div>
-                  <h3 style={{
-                    margin: '0 0 6px', fontSize: 15, fontWeight: 800,
-                    color: '#1e1b4b', lineHeight: 1.4,
-                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                  }}>
-                    {test.title}
-                  </h3>
-                  <p style={{
-                    margin: 0, fontSize: 13, color: '#6b7280', lineHeight: 1.5,
-                    display: '-webkit-box', WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical', overflow: 'hidden'
-                  }}>
-                    {test.description || 'Practice all 4 Speaking parts following the official APTIS format.'}
-                  </p>
-                </div>
+                );
+              })}
+            </div>
 
-                <div style={{ padding: '12px 20px 20px', display: 'flex', flexDirection: 'column', gap: 8, marginTop: 'auto' }}>
-                  <button
-                    onClick={config.mainBtnAction}
-                    style={{
-                      width: '100%', padding: '11px 16px', borderRadius: 10,
-                      cursor: 'pointer', fontSize: 14, fontWeight: 700,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                      transition: 'all 0.2s', ...config.mainBtnStyle
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.opacity = '0.88'; e.currentTarget.style.transform = 'scale(1.01)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.opacity = '1'; e.currentTarget.style.transform = 'scale(1)'; }}
-                  >
-                    {isDone ? <><History size={15} /> {config.mainBtnText}</> : <><Play size={15} /> {config.mainBtnText} <ArrowRight size={15} /></>}
-                  </button>
-
-                  {config.showRetry && (
-                    <button
-                      onClick={e => { e.stopPropagation(); handleNavigateLobby(test.id); }}
-                      style={{
-                        width: '100%', padding: '9px 16px', borderRadius: 10,
-                        cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                        background: 'transparent', color: '#6b7280',
-                        border: '1.5px solid #e5e7eb', transition: 'all 0.2s'
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#f97316'; e.currentTarget.style.color = '#f97316'; }}
-                      onMouseLeave={e => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.color = '#6b7280'; }}
-                    >
-                      <RotateCcw size={13} /> Retry Test
-                    </button>
-                  )}
-                </div>
+            {total > pageSize && (
+              <div className="flex justify-center mt-10">
+                <Pagination
+                  current={currentPage}
+                  total={total}
+                  pageSize={pageSize}
+                  onChange={(page) => setCurrentPage(page)}
+                  showSizeChanger={false}
+                  className="bg-white/60 backdrop-blur-md px-4 py-2 rounded-2xl shadow-sm border border-white/80"
+                />
               </div>
-            );
-          })}
-        </div>
-
-        {total > pageSize && (
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 32 }}>
-            <Pagination
-              current={currentPage}
-              total={total}
-              pageSize={pageSize}
-              onChange={(page) => setCurrentPage(page)}
-              showSizeChanger={false}
-            />
-          </div>
+            )}
+          </>
         )}
-        </>
-      )}
+      </div>
     </div>
   );
 };
