@@ -11,4 +11,4 @@ def get_admin_stats(
     db: Session = Depends(get_db),
     admin_user = Depends(get_aptis_manager_user)
 ):
-    return service.AdminService.get_system_stats(db)
+    return service.AdminService.get_system_stats(db, admin_user)

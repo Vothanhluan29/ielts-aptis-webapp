@@ -16,6 +16,8 @@ import {
   GraduationCap
 } from 'lucide-react';
 
+import useAuthStore from '../../../../store/authStore';
+
 /* ================= STAT CARDS DATA ================= */
 const ALL_STAT_CARDS = [
   {
@@ -73,6 +75,33 @@ const ALL_STAT_CARDS = [
     bg: 'bg-rose-500/10',
     ring: 'ring-rose-500/20',
     aptisOnly: false,
+  }
+];
+
+const TEACHER_STAT_CARDS = [
+  {
+    title: 'My Students',
+    key: 'teacher_students',
+    icon: Users,
+    color: 'text-violet-600',
+    bg: 'bg-violet-500/10',
+    ring: 'ring-violet-500/20',
+  },
+  {
+    title: 'Student Attempts',
+    key: 'teacher_aptis_submissions',
+    icon: BarChart,
+    color: 'text-emerald-600',
+    bg: 'bg-emerald-500/10',
+    ring: 'ring-emerald-500/20',
+  },
+  {
+    title: 'Available Mock Tests',
+    key: 'total_aptis_full_tests',
+    icon: Trophy,
+    color: 'text-orange-600',
+    bg: 'bg-orange-500/10',
+    ring: 'ring-orange-500/20',
   }
 ];
 
@@ -146,11 +175,7 @@ const AdminDashboardPage = () => {
   const { stats, loading } = useAdminDashboard();
   const location = useLocation();
   const isTeacher = location.pathname.startsWith('/teacher');
-
-  // Teacher sees only APTIS-relevant stats (no IELTS cards, no general user stats)
-  const statCards = isTeacher
-    ? ALL_STAT_CARDS.filter((c) => !c.ieltsOnly && c.key !== 'total_users' && c.key !== 'new_users_today')
-    : ALL_STAT_CARDS;
+  const user = useAuthStore(state => state.user);
 
   if (loading) {
     return (
@@ -172,14 +197,16 @@ const AdminDashboardPage = () => {
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-1">
             <div className="w-2 h-8 rounded-full bg-gradient-to-b from-orange-500 to-rose-500" />
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight">APTIS Dashboard</h1>
+            <h1 className="text-2xl font-black text-zinc-900 tracking-tight">
+              Welcome back, {user?.full_name || 'Teacher'}!
+            </h1>
           </div>
           <p className="text-zinc-500 text-sm ml-5 font-medium">Overview of your APTIS teaching workspace</p>
         </div>
 
         {/* APTIS Stat Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-          {statCards.map((item) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {TEACHER_STAT_CARDS.map((item) => (
             <StatCard key={item.key} item={item} value={stats?.[item.key]} />
           ))}
         </div>
@@ -197,7 +224,7 @@ const AdminDashboardPage = () => {
 
           {/* APTIS Skill Bank */}
           <SkillBankGrid 
-            title="APTIS Question Bank" 
+            title="APTIS Exam Bank" 
             skills={APTIS_SKILLS} 
             data={stats?.aptis_skills} 
           />
@@ -245,7 +272,7 @@ const AdminDashboardPage = () => {
         {/* ── BOTTOM ROW: SKILL BANKS ── */}
         <div className="col-span-1 lg:col-span-2">
           <SkillBankGrid 
-            title="IELTS Question Bank" 
+            title="IELTS Exam Bank" 
             skills={IELTS_SKILLS} 
             data={stats?.ielts_skills} 
           />
@@ -253,7 +280,7 @@ const AdminDashboardPage = () => {
 
         <div className="col-span-1 lg:col-span-2">
           <SkillBankGrid 
-            title="APTIS Question Bank" 
+            title="APTIS Exam Bank" 
             skills={APTIS_SKILLS} 
             data={stats?.aptis_skills} 
           />

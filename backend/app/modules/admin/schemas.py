@@ -34,3 +34,7 @@ class SystemStats(BaseModel):
     # Detailed skill distribution
     ielts_skills: IELTSSkillDistribution
     aptis_skills: AptisSkillDistribution
+
+    # Optional teacher-specific stats
+    teacher_students: int | None = None
+    teacher_aptis_submissions: int | None = None

@@ -20,10 +20,10 @@ from app.modules.APTIS.speaking.models import AptisSpeakingTest
 
 class AdminService:
     @staticmethod
-    def get_system_stats(db: Session):
+    def get_system_stats(db: Session, user: User = None):
         today = date.today()
 
-        return {
+        stats = {
             "total_users": db.query(func.count(User.id)).scalar() or 0,
             "new_users_today": db.query(func.count(User.id)).filter(func.date(User.created_at) == today).scalar() or 0,
             
@@ -49,3 +49,20 @@ class AdminService:
                 "Speaking": db.query(func.count(AptisSpeakingTest.id)).scalar() or 0,
             }
         }
+        
+        if user and user.role == "teacher":
+            managed_classes = [tc.class_code for tc in user.teacher_classes]
+            if managed_classes:
+                student_ids = db.query(User.id).filter(User.class_code.in_(managed_classes), User.role == "student").all()
+                student_ids = [s[0] for s in student_ids]
+                
+                stats["teacher_students"] = len(student_ids)
+                if student_ids:
+                    stats["teacher_aptis_submissions"] = db.query(func.count(AptisExamSubmission.id)).filter(AptisExamSubmission.user_id.in_(student_ids)).scalar() or 0
+                else:
+                    stats["teacher_aptis_submissions"] = 0
+            else:
+                stats["teacher_students"] = 0
+                stats["teacher_aptis_submissions"] = 0
+
+        return stats
