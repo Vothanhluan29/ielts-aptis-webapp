@@ -32,7 +32,7 @@ const { Option } = Select;
 /* ================= TEACHER STUDENT ROW ================= */
 
 const StudentRow = ({ user }) => (
-  <div className="flex items-center justify-between px-5 py-4 hover:bg-orange-50/40 transition-colors duration-200 border-b border-zinc-100 last:border-0">
+  <div className="flex items-center px-5 py-4 hover:bg-orange-50/40 transition-colors duration-200 border-b border-zinc-100 last:border-0">
     <div className="flex items-center gap-4 min-w-0 flex-1">
       <div className="relative shrink-0">
         <Avatar
@@ -54,16 +54,23 @@ const StudentRow = ({ user }) => (
         <p className="text-zinc-500 text-[12px] flex items-center gap-1 mt-0.5 truncate">
           <MailOutlined className="text-zinc-400 shrink-0" />
           {user.email}
-          {user.class_code && (
-            <span className="ml-2 bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded text-[10px] font-bold">
-              {user.class_code}
-            </span>
-          )}
         </p>
       </div>
     </div>
 
-    <div className="shrink-0 ml-4">
+    {/* Class Column */}
+    <div className="w-32 shrink-0 px-4">
+      {user.class_code ? (
+        <span className="bg-orange-100 text-orange-600 px-2 py-1 rounded text-[11px] font-bold border border-orange-200/50">
+          {user.class_code}
+        </span>
+      ) : (
+        <span className="text-zinc-300 text-xs">—</span>
+      )}
+    </div>
+
+    {/* Status Column */}
+    <div className="w-28 shrink-0 flex justify-end">
       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide ${
         user.is_active
           ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
@@ -225,9 +232,10 @@ const UserManagement = () => {
 
         {/* Student List */}
         <div className="bg-white rounded-2xl ring-1 ring-zinc-200/60 shadow-sm overflow-hidden">
-          <div className="px-5 py-3 bg-zinc-50 border-b border-zinc-100 flex justify-between">
-            <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Student</span>
-            <span className="text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Status</span>
+          <div className="px-5 py-3 bg-zinc-50 border-b border-zinc-100 flex items-center">
+            <span className="flex-1 text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Student</span>
+            <span className="w-32 px-4 shrink-0 text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Class</span>
+            <span className="w-28 shrink-0 text-[11px] font-bold text-zinc-500 uppercase tracking-widest text-right">Status</span>
           </div>
           {teacherStudents.length === 0 ? (
             <div className="py-20 flex flex-col items-center justify-center text-center">
