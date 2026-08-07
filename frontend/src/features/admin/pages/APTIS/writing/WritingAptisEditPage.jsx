@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Form, Input, Button, Card, Space, Switch, InputNumber, 
-  Spin, Row, Col, Typography, Tag, Divider, Collapse, message
+  Spin, Row, Col, Typography, Tag, Divider, Collapse, message, Select
 } from 'antd';
 import { 
   ArrowLeftOutlined, SaveOutlined, EditOutlined,
@@ -15,6 +15,7 @@ import DraftRestoreBanner from '../../../../../components/common/DraftRestoreBan
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
+const { Option } = Select;
 
 const WritingAptisEditPage = () => {
   const {

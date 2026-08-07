@@ -107,7 +107,7 @@ class AptisSpeakingBankService:
                 query_fallback = db.query(AptisSpeakingBankGroup).filter(AptisSpeakingBankGroup.part_type == part_type)
                 groups = query_fallback.all()
                 if not groups:
-                    raise HTTPException(status_code=400, detail=f"No Bank Groups found for {part_type}")
+                    raise HTTPException(status_code=400, detail=f"No Bank Groups found for {part_type.replace('_', ' ').title()}")
             
             selected_group = random.choice(groups)
             selected_groups.append(selected_group)

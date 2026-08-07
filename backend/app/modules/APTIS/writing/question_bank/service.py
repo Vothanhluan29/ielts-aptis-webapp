@@ -100,7 +100,7 @@ class AptisWritingBankService:
             
             groups = query.all()
             if not groups:
-                raise HTTPException(status_code=400, detail=f"Not enough groups for {part_type.value} in the bank.")
+                raise HTTPException(status_code=400, detail=f"Not enough groups for {part_type.value.replace('_', ' ').title()} in the bank.")
             
             selected_groups.append(random.choice(groups))
 
