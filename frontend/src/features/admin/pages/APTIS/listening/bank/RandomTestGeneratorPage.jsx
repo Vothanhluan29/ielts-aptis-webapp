@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, InputNumber, Switch, Select, message } from 'antd';
-import { ArrowLeft, Sparkles, Settings2, Clock, CheckCircle2, Wand2 } from 'lucide-react';
+﻿import React, { useState, useEffect } from 'react';
+import { Form, Input, InputNumber, Switch, Select, message, Spin } from 'antd';
+import { ArrowLeft, Settings2, Clock, CheckCircle2, Headphones, Wand2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { ThunderboltOutlined } from '@ant-design/icons';
 import aptisListeningBankApi from '../../../../api/APTIS/listening/aptisListeningBankApi';
 
 const { Option } = Select;
+const LEVELS = ['A1', 'A2', 'B1', 'B2', 'C'];
+const PARTS = [1, 2, 3, 4, 5];
 
 const RandomTestGeneratorPage = () => {
   const [form] = Form.useForm();
@@ -16,23 +19,13 @@ const RandomTestGeneratorPage = () => {
   const basePath = isTeacher ? '/teacher/listening' : '/admin/aptis/listening';
 
   useEffect(() => {
-    const fetchGroups = async () => {
-      try {
-        const data = await aptisListeningBankApi.getBankGroups();
-        setBankGroups(data);
-      } catch (err) {
-        console.error('Failed to fetch bank groups for validation:', err);
-      }
-    };
-    fetchGroups();
+    aptisListeningBankApi.getBankGroups().then(setBankGroups).catch(console.error);
   }, []);
 
   const handleDifficultyChange = (part, value) => {
     if (!value) return;
     const hasGroup = bankGroups.some(g => g.part_number === part && g.difficulty_level === value);
-    if (!hasGroup) {
-      message.warning(`No questions found in the bank for Part ${part} with difficulty ${value}.`);
-    }
+    if (!hasGroup) message.warning(`No questions found for Part ${part} with difficulty ${value}.`);
   };
 
   const handleGenerateTest = async (values) => {
@@ -44,20 +37,12 @@ const RandomTestGeneratorPage = () => {
         time_limit: values.time_limit,
         is_full_test_only: values.is_full_test_only,
         difficulty_level: values.difficulty_level || null,
-        parts_config: [
-          { part_number: 1, num_questions: 13, difficulty: values.difficulty_part_1 },
-          { part_number: 2, num_questions: 4, difficulty: values.difficulty_part_2 },
-          { part_number: 3, num_questions: 4, difficulty: values.difficulty_part_3 },
-          { part_number: 4, num_questions: 2, difficulty: values.difficulty_part_4 },
-          { part_number: 5, num_questions: 2, difficulty: values.difficulty_part_5 }
-        ]
+        parts_config: PARTS.map(p => ({ part_number: p, num_questions: [13,4,4,2,2][p-1], difficulty: values[`difficulty_part_${p}`] }))
       };
-      
       const response = await aptisListeningBankApi.generateTest(payload);
       message.success('Random Test Generated Successfully!');
       navigate(`${basePath}/edit/${response.id}`);
     } catch (error) {
-      console.error(error);
       message.error(error?.response?.data?.detail || 'Failed to generate test');
     } finally {
       setLoading(false);
@@ -65,176 +50,100 @@ const RandomTestGeneratorPage = () => {
   };
 
   return (
-    <div className="max-w-[800px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-12 pt-6">
-      
-      {/* ── HEADER ── */}
-      <div className="flex items-center gap-4 mb-8">
-        <button 
-          onClick={() => navigate(`${basePath}/bank`)}
-          className="p-2.5 bg-white border border-zinc-200 text-zinc-600 rounded-xl hover:bg-zinc-50 transition-colors shadow-sm focus:outline-none"
-        >
-          <ArrowLeft size={20} />
+    <div style={{ maxWidth: 1080, margin: '0 auto', padding: '20px 16px 40px' }}>
+      <div className="flex items-center gap-3 mb-5">
+        <button onClick={() => navigate(`${basePath}/bank`)} style={{ padding: '7px 10px', background: '#f4f4f5', border: 'none', borderRadius: 10, cursor: 'pointer', color: '#71717a' }}>
+          <ArrowLeft size={18} />
         </button>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Generate Random Test</h1>
+            <Headphones size={17} className="text-indigo-500" />
+            <h1 className="m-0 text-2xl font-black text-zinc-800 tracking-tight">Generate Random Test</h1>
           </div>
-          <p className="text-zinc-500 font-medium text-[15px] mt-1">
-            Let our algorithm compose a full test from your question bank.
-          </p>
+          <p className="m-0 text-xs text-zinc-400 mt-0.5">Listening · Auto-pick from question bank</p>
         </div>
       </div>
 
-      <Form 
-        form={form} 
-        layout="vertical" 
-        onFinish={handleGenerateTest}
-        initialValues={{
-          time_limit: 40,
-          is_full_test_only: false
-        }}
-        requiredMark={false}
-      >
-        <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-sm overflow-hidden mb-8">
-          {/* General Config */}
-          <div className="p-6 md:p-8 border-b border-zinc-100">
-            <div className="flex items-center gap-2 mb-6 text-zinc-800 font-bold">
-              <Settings2 size={18} className="text-indigo-500" />
-              General Configuration
-            </div>
+      <Spin spinning={loading} tip="Generating...">
+        <Form form={form} layout="vertical" onFinish={handleGenerateTest} initialValues={{ time_limit: 40, is_full_test_only: false }} requiredMark={false}>
+          <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e4e4e7', boxShadow: '0 2px 12px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
 
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-x-6">
-              <div className="md:col-span-5">
-                <Form.Item 
-                  name="title" 
-                  label={<span className="text-sm font-bold text-zinc-700">Test Title</span>}
-                  rules={[{ required: true, message: 'Please enter a test title' }]}
-                >
-                  <Input 
-                    placeholder="e.g., Spring Mock Test 1" 
-                    className="px-4 py-3 bg-zinc-50/50 border-zinc-200 hover:border-indigo-400 focus:border-indigo-500 rounded-xl text-base"
-                  />
-                </Form.Item>
+            <div style={{ padding: '24px 28px', borderBottom: '1px solid #f4f4f5' }}>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center"><Settings2 size={14} className="text-indigo-600" /></div>
+                <span className="text-base font-bold text-zinc-700">Basic Information</span>
               </div>
-              <div className="md:col-span-3">
-                <Form.Item 
-                  name="difficulty_level" 
-                  label={<span className="text-sm font-bold text-zinc-700">Test Difficulty</span>}
-                >
-                  <Select 
-                    allowClear 
-                    placeholder="Any" 
-                    size="large"
-                    style={{ borderRadius: '0.75rem' }}
-                  >
-                    <Option value="A1">A1</Option>
-                    <Option value="A2">A2</Option>
-                    <Option value="B1">B1</Option>
-                    <Option value="B2">B2</Option>
-                    <Option value="C">C</Option>
-                  </Select>
-                </Form.Item>
-              </div>
-              <div className="md:col-span-4">
-                <Form.Item 
-                  name="time_limit" 
-                  label={<span className="text-sm font-bold text-zinc-700">Duration (mins)</span>}
-                >
-                  <InputNumber 
-                    min={1} 
-                    className="w-full"
-                    controls={false}
-                    addonBefore={<Clock size={16} className="text-zinc-400" />}
-                    size="large"
-                    style={{ borderRadius: '0.75rem' }}
-                  />
-                </Form.Item>
-              </div>
-            </div>
-
-            <Form.Item 
-              name="description" 
-              label={<span className="text-sm font-bold text-zinc-700">Description (Optional)</span>}
-              className="mb-6"
-            >
-              <Input.TextArea 
-                rows={3} 
-                placeholder="Add some notes about this test..." 
-                className="px-4 py-3 bg-zinc-50/50 border-zinc-200 hover:border-indigo-400 focus:border-indigo-500 rounded-xl"
-              />
-            </Form.Item>
-
-            <div className="flex items-center justify-between p-4 bg-zinc-50 rounded-xl border border-zinc-100">
-              <div>
-                <div className="text-sm font-bold text-zinc-800 flex items-center gap-1.5">
-                  Full Test Mode
+              <div className="grid grid-cols-12 gap-x-4">
+                <div className="col-span-12 md:col-span-6">
+                  <Form.Item name="title" label={<span className="text-sm font-semibold text-zinc-600">Test Title</span>} rules={[{ required: true, message: 'Please enter a title' }]} className="mb-3">
+                    <Input placeholder="e.g. Spring Listening Test 01" size="large" style={{ borderRadius: 8 }} />
+                  </Form.Item>
                 </div>
-                <div className="text-xs text-zinc-500 mt-1">
-                  If enabled, this test is meant to be part of a 4-skill Full Mock Test and won't appear as a standalone practice test.
+                <div className="col-span-6 md:col-span-3">
+                  <Form.Item name="time_limit" label={<span className="text-sm font-semibold text-zinc-600">Duration (mins)</span>} className="mb-3">
+                    <InputNumber min={1} max={120} className="!w-full" size="large" style={{ borderRadius: 8 }} prefix={<Clock size={13} className="text-zinc-400 mr-1" />} />
+                  </Form.Item>
+                </div>
+                <div className="col-span-6 md:col-span-3">
+                  <Form.Item name="difficulty_level" label={<span className="text-sm font-semibold text-zinc-600">Overall Level</span>} className="mb-3">
+                    <Select allowClear placeholder="Any" size="large" style={{ width: '100%' }}>
+                      {LEVELS.map(l => <Option key={l} value={l}>{l}</Option>)}
+                    </Select>
+                  </Form.Item>
+                </div>
+                <div className="col-span-12">
+                  <Form.Item name="description" label={<span className="text-sm font-semibold text-zinc-600">Description <span className="text-zinc-400 font-normal">(optional)</span></span>} className="mb-0">
+                    <Input.TextArea rows={2} placeholder="Short notes about this test..." style={{ borderRadius: 8, resize: 'none' }} />
+                  </Form.Item>
                 </div>
               </div>
-              <Form.Item name="is_full_test_only" valuePropName="checked" className="m-0">
-                <Switch />
-              </Form.Item>
             </div>
-          </div>
 
-          {/* Part Specific Config */}
-          <div className="p-6 md:p-8 bg-indigo-50/30">
-            <div className="flex items-center gap-2 mb-2 text-zinc-800 font-bold">
-              <CheckCircle2 size={18} className="text-indigo-500" />
-              Part Difficulty Settings (Optional)
+            <div style={{ padding: '24px 28px', borderBottom: '1px solid #f4f4f5', background: '#fafafa' }}>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center"><CheckCircle2 size={14} className="text-violet-600" /></div>
+                <span className="text-base font-bold text-zinc-700">Difficulty per Part <span className="font-normal text-zinc-400 text-xs">(optional — leave blank to pick randomly)</span></span>
+              </div>
+              <div className="grid grid-cols-5 gap-3">
+                {PARTS.map(part => (
+                  <div key={part}>
+                    <div className="text-sm font-semibold text-zinc-500 mb-2 uppercase tracking-wide">Part {part}</div>
+                    <Form.Item name={`difficulty_part_${part}`} className="mb-0">
+                      <Select allowClear placeholder="Any" size="large" style={{ width: '100%' }} onChange={(v) => handleDifficultyChange(part, v)}>
+                        {LEVELS.map(l => <Option key={l} value={l}>{l}</Option>)}
+                      </Select>
+                    </Form.Item>
+                  </div>
+                ))}
+              </div>
             </div>
-            <p className="text-sm text-zinc-500 mb-6">
-              Select a specific difficulty for each part. Leave blank to choose completely at random.
-            </p>
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              {[1, 2, 3, 4, 5].map((part) => (
-                <Form.Item 
-                  key={part}
-                  name={`difficulty_part_${part}`} 
-                  label={<span className="text-xs font-bold text-zinc-600">Part {part}</span>}
-                  className="mb-0"
-                >
-                  <Select 
-                    allowClear 
-                    placeholder="Any" 
-                    onChange={(val) => handleDifficultyChange(part, val)}
-                    className="w-full"
-                    size="large"
-                  >
-                    <Option value="A1">A1</Option>
-                    <Option value="A2">A2</Option>
-                    <Option value="B1">B1</Option>
-                    <Option value="B2">B2</Option>
-                    <Option value="C1">C1</Option>
-                    <Option value="C2">C2</Option>
-                  </Select>
+            <div style={{ padding: '16px 28px' }}>
+              <div className="flex items-center gap-6 flex-wrap">
+                <Form.Item name="is_full_test_only" valuePropName="checked" className="m-0" style={{ display: 'flex' }}>
+                  <div className="flex items-center gap-2.5">
+                    <Switch size="small" />
+                    <div>
+                      <div className="text-sm font-semibold text-zinc-700 leading-none">Full Test Only</div>
+                      <div className="text-sm text-zinc-400 mt-0.5">Part of 4-skill mock test</div>
+                    </div>
+                  </div>
                 </Form.Item>
-              ))}
+                <div className="flex-1 hidden md:block" />
+                <button type="submit" disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 15, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
+                  {loading ? <span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} /> : <Wand2 size={15} />}
+                  Generate Test
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Submit Action */}
-        <div className="flex justify-end pt-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex items-center justify-center gap-2 w-full md:w-auto px-8 py-3.5 bg-indigo-600 text-white font-bold text-lg rounded-xl hover:bg-indigo-700 hover:-translate-y-0.5 transition-all shadow-md shadow-indigo-600/30 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-            ) : (
-              <Wand2 size={20} />
-            )}
-            Generate Random Test
-          </button>
-        </div>
-      </Form>
+        </Form>
+      </Spin>
     </div>
   );
 };
 
 export default RandomTestGeneratorPage;
+
+
+

@@ -28,6 +28,9 @@ const BankGroupEditPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [activeQuestionKeys, setActiveQuestionKeys] = useState([]);
 
+  const partNumber = Form.useWatch('part_number', form);
+  const showPassage = partNumber === 4 || partNumber === 5;
+
   const isCreateMode = !id || id === 'create';
   const currentPartNumber = Form.useWatch('part_number', form);
 
@@ -189,26 +192,28 @@ const BankGroupEditPage = () => {
                 </Form.Item>
               </Col>
               
-              <Col span={24}>
-                <div className="mt-2 mb-6 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100/50">
-                  <Form.Item 
-                    name="content"
-                    label={
-                      <div className="flex items-center gap-2 text-indigo-700 font-bold mb-1">
-                        <BookOpen size={16} />
-                        Reading Passage (Content)
-                      </div>
-                    }
-                    style={{ marginBottom: 0 }}
-                  >
-                    <BlurTextArea 
-                      rows={8} 
-                      placeholder="Paste the reading text here..." 
-                      className="bg-white border-zinc-200 hover:border-indigo-400 focus:border-indigo-500 rounded-lg p-4"
-                    />
-                  </Form.Item>
-                </div>
-              </Col>
+              {showPassage && (
+                <Col span={24}>
+                  <div className="mt-2 mb-6 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100/50">
+                    <Form.Item 
+                      name="content"
+                      label={
+                        <div className="flex items-center gap-2 text-indigo-700 font-bold mb-1">
+                          <BookOpen size={16} />
+                          Reading Passage (Content)
+                        </div>
+                      }
+                      style={{ marginBottom: 0 }}
+                    >
+                      <BlurTextArea 
+                        rows={8} 
+                        placeholder="Paste the reading text here..." 
+                        className="bg-white border-zinc-200 hover:border-indigo-400 focus:border-indigo-500 rounded-lg p-4"
+                      />
+                    </Form.Item>
+                  </div>
+                </Col>
+              )}
             </Row>
 
             <Form.Item 
