@@ -159,7 +159,7 @@ def get_submission_detail(
 
     is_admin = str(getattr(user, "role", "")).upper() in ["ADMIN", "TEACHER"]
     if not is_admin and sub.user_id != user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=404, detail="Submission not found")
 
     return sub
 

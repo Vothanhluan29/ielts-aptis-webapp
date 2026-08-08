@@ -198,6 +198,6 @@ def get_submission_review(
     is_admin = user_role in ["ADMIN", "TEACHER"]
 
     if not is_admin and result.user_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=404, detail="Submission not found")
 
     return result

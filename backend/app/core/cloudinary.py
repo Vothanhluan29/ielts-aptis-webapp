@@ -6,6 +6,16 @@ from cloudinary import uploader
 from fastapi import UploadFile
 from app.core.config import settings
 
+from fastapi import UploadFile, HTTPException
+
+# Whitelist allowed media extensions
+ALLOWED_EXTENSIONS = {
+    # Audio
+    ".mp3", ".wav", ".webm", ".m4a", ".ogg", ".aac", ".flac",
+    # Images
+    ".jpg", ".jpeg", ".png", ".gif", ".webp"
+}
+
 # Configure Cloudinary settings
 cloudinary.config(
     cloud_name=settings.CLOUDINARY_CLOUD_NAME,
@@ -20,11 +30,22 @@ async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
     - USE_CLOUDINARY=False (Local): Save file to static/ folder
     - USE_CLOUDINARY=True (Production): Upload file to Cloudinary
     """
+    if not file.filename:
+        raise HTTPException(status_code=400, detail="Filename is empty")
+
+    file_ext = os.path.splitext(file.filename)[1].lower()
+    if file_ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"File extension '{file_ext}' is not allowed. Permitted: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
+        )
+
+    # Sanitize folder name to prevent directory traversal
+    safe_folder = os.path.basename(folder_name)
 
     # CASE 1: SAVE LOCALLY (for local testing)
     if not settings.USE_CLOUDINARY:
-        file_ext = os.path.splitext(file.filename)[1].lower()
-        upload_dir = f"static/{folder_name}"
+        upload_dir = os.path.join("static", safe_folder)
         os.makedirs(upload_dir, exist_ok=True)
 
         filename = f"{uuid.uuid4()}{file_ext}"
@@ -38,11 +59,12 @@ async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
 
             # Return localhost URL
             base_url = settings.BASE_URL.rstrip('/')
-            return f"{base_url}/{upload_dir}/{filename}"
+            url_path = f"static/{safe_folder}/{filename}"
+            return f"{base_url}/{url_path}"
 
         except Exception as e:
             print(f"Local save error: {e}")
-            return ""
+            raise HTTPException(status_code=500, detail="Failed to save file locally")
 
     # CASE 2: UPLOAD TO CLOUDINARY (when deployed)
     try:
@@ -51,7 +73,7 @@ async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
 
         result = uploader.upload(
             file_content,
-            folder=folder_name,
+            folder=safe_folder,
             resource_type="auto"
         )
 
@@ -59,4 +81,4 @@ async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
 
     except Exception as e:
         print(f"Cloudinary upload error: {e}")
-        return ""
+        raise HTTPException(status_code=500, detail="Failed to upload file to Cloudinary")

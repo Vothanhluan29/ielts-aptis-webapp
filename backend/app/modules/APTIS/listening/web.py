@@ -17,11 +17,21 @@ router = APIRouter(prefix="/aptis/listening", tags=["Aptis Listening"])
 # ====================================================
 # 1. UPLOAD AUDIO FILE (ADMIN ONLY)
 # ====================================================
+ALLOWED_AUDIO_TYPES = {
+    "audio/webm", "audio/mp3", "audio/mpeg", "audio/wav", "audio/x-wav",
+    "audio/ogg", "audio/m4a", "audio/mp4", "audio/aac", "audio/flac", "application/octet-stream"
+}
+
 @router.post("/upload", status_code=status.HTTP_201_CREATED)
 async def upload_audio(
     file: UploadFile = File(...), 
     admin = Depends(get_aptis_manager_user)
 ):
+    if file.content_type not in ALLOWED_AUDIO_TYPES and not file.content_type.startswith("audio/"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid content type '{file.content_type}'. Must be an audio file."
+        )
 
     try:
         url = await AptisListeningUtils.save_audio_file(file)
@@ -180,7 +190,7 @@ def get_submission_detail(
     is_admin = user_role in ["ADMIN", "TEACHER"]
     
     if not is_admin and sub.user_id != user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+        raise HTTPException(status_code=404, detail="Submission not found")
         
     return sub
 

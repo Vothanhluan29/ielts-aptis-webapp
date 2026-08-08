@@ -158,6 +158,11 @@ def refresh_token(
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
     
+    # Refresh Token Rotation: Revoke current token and generate a new one
+    db_token.is_revoked = True
+    db.commit()
+    set_refresh_token_cookie_and_db(db, response, user.id)
+    
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/logout")

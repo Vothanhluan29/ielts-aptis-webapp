@@ -50,12 +50,11 @@ def get_current_user(request: Request, token: str = Depends(oauth2_scheme), db: 
 
 
 def get_admin_user(current_user = Depends(get_current_user)):
-    # 1. Get role from DB, convert to string and make it uppercase
     role_in_db = str(current_user.role).upper()
     role_required = str(UserRole.ADMIN.value).upper()
     
-    # 2. Compare roles robustly (handle Python 3.11 enum stringification)
-    if role_required not in role_in_db:
+    # Compare roles with exact match
+    if role_in_db != role_required:
         raise HTTPException(
             status_code=403,
             detail=f"Insufficient permissions. DB role is '{current_user.role}', required '{UserRole.ADMIN.value}'"
@@ -69,7 +68,7 @@ def get_aptis_manager_user(current_user = Depends(get_current_user)):
     role_admin = str(UserRole.ADMIN.value).upper()
     role_teacher = str(UserRole.TEACHER.value).upper()
     
-    if role_admin not in role_in_db and role_teacher not in role_in_db:
+    if role_in_db not in [role_admin, role_teacher]:
         raise HTTPException(
             status_code=403,
             detail=f"Insufficient permissions. Role '{current_user.role}' is not allowed."

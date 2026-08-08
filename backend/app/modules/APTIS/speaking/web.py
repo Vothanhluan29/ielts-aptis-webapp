@@ -18,14 +18,22 @@ router = APIRouter(prefix="/aptis/speaking", tags=["Aptis Speaking"])
 # =================================================================
 # 1. UPLOAD AUDIO & IMAGE
 # =================================================================
+ALLOWED_AUDIO_TYPES = {
+    "audio/webm", "audio/mp3", "audio/mpeg", "audio/wav", "audio/x-wav",
+    "audio/ogg", "audio/m4a", "audio/mp4", "audio/aac", "audio/flac", "application/octet-stream"
+}
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
+
 @router.post("/upload")
 async def upload_aptis_audio_file(
     file: UploadFile = File(...),
     user = Depends(get_current_user)
 ):
-
-    if not file.content_type.startswith("audio/") and not file.content_type == "application/octet-stream":
-        pass
+    if file.content_type not in ALLOWED_AUDIO_TYPES and not file.content_type.startswith("audio/"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid content type '{file.content_type}'. Must be an audio file."
+        )
 
     public_url = await AptisSpeakingUtils.save_audio_file(file)
     if not public_url:
@@ -39,11 +47,18 @@ async def upload_aptis_image(
     admin = Depends(get_aptis_manager_user)
 ):
     """Upload image files (Part 2, 3, 4)."""
+    if file.content_type not in ALLOWED_IMAGE_TYPES and not file.content_type.startswith("image/"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid content type '{file.content_type}'. Must be an image file."
+        )
     try:
         url = await AptisSpeakingUtils.upload_image(file)
         if not url:
             raise HTTPException(status_code=500, detail="Failed to save image")
         return {"url": url}
+    except HTTPException as he:
+        raise he
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -189,7 +204,7 @@ def get_aptis_submission_detail(
     is_admin = user_role in ["ADMIN", "TEACHER"]
 
     if not is_admin and sub.user_id != user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to view this submission")
+        raise HTTPException(status_code=404, detail="Submission not found")
 
     return sub
 
