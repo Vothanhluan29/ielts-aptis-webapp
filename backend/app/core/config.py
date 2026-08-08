@@ -11,11 +11,17 @@ class Settings(BaseSettings):
     GEMINI_API_KEY: str
     GOOGLE_CLIENT_ID: str
 
+    ENVIRONMENT: str = "development"
     USE_CLOUDINARY: bool = True
     BASE_URL: str = "http://localhost:8000"
     CLOUDINARY_CLOUD_NAME: str
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
+
+    @property
+    def is_production(self) -> bool:
+        return self.ENVIRONMENT.lower() == "production" or self.BASE_URL.startswith("https://")
+
     class Config:
         env_file = ".env"
         case_sensitive = True

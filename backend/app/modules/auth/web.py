@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from app.core.database import get_db
 from app.core import security
 from app.core.config import settings
+from app.core.rate_limiter import limiter
 from app.modules.auth import schemas as auth_schemas
 from app.modules.auth.service import AuthService
 from app.modules.users import schemas as user_schemas
@@ -41,19 +42,21 @@ def set_refresh_token_cookie_and_db(db: Session, response: Response, user_id: in
         key="refresh_token",
         value=refresh_token,
         httponly=True,
-        secure=False,  # Allows localhost to set the cookie over HTTP
+        secure=settings.is_production,
         samesite="lax",
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
     )
 
 @router.post("/register", response_model=user_schemas.UserResponse)
-def register(user_in: user_schemas.UserCreate, db: Session = Depends(get_db)):
+@limiter.limit("3/minute")
+def register(request: Request, user_in: user_schemas.UserCreate, db: Session = Depends(get_db)):
     if UserService.get_by_email(db, user_in.email):
         raise HTTPException(status_code=400, detail="Email already registered")
     return UserService.create(db, user_in)
 
 @router.post("/login", response_model=auth_schemas.Token)
-def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def login(request: Request, response: Response, form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = AuthService.authenticate(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=401, detail="Incorrect email or password")
@@ -68,7 +71,7 @@ def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), 
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False,
+        secure=settings.is_production,
         samesite="lax",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
@@ -76,7 +79,9 @@ def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), 
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/google", response_model=auth_schemas.Token)
+@limiter.limit("10/minute")
 def login_google(
+    request: Request,
     login_data: GoogleLoginSchemas, 
     response: Response,
     db: Session = Depends(get_db)
@@ -100,7 +105,7 @@ def login_google(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False,
+        secure=settings.is_production,
         samesite="lax",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
@@ -108,7 +113,9 @@ def login_google(
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/refresh", response_model=auth_schemas.Token)
+@limiter.limit("10/minute")
 def refresh_token(
+    request: Request,
     response: Response,
     refresh_token: str = Cookie(None),
     db: Session = Depends(get_db)
@@ -146,15 +153,10 @@ def refresh_token(
         key="access_token",
         value=access_token,
         httponly=True,
-        secure=False,
+        secure=settings.is_production,
         samesite="lax",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
-    
-    # Optionally, we could rotate the refresh token here
-    # set_refresh_token_cookie_and_db(db, response, user.id)
-    # db.delete(db_token)
-    # db.commit()
     
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -167,4 +169,4 @@ def logout(response: Response, refresh_token: str = Cookie(None), db: Session = 
             db.commit()
     response.delete_cookie("refresh_token")
     response.delete_cookie("access_token")
-    return {"message": "Logged out successfully"}
+    return {"message": "Logged out successfully"}
