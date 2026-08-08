@@ -1,18 +1,24 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie, Request
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
+# Standard Library Imports
 from datetime import datetime, timedelta, timezone
 
-from app.core.database import get_db
+# Third-Party Imports
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Request, Response, status
+from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
+
+# Local Application Core Imports
 from app.core import security
 from app.core.config import settings
+from app.core.database import get_db
 from app.core.rate_limiter import limiter
+
+# Local Application Modules Imports
 from app.modules.auth import schemas as auth_schemas
+from app.modules.auth.schemas import GoogleLoginSchemas
 from app.modules.auth.service import AuthService
 from app.modules.users import schemas as user_schemas
-from app.modules.auth.schemas import GoogleLoginSchemas
-from app.modules.users.service import UserService
 from app.modules.users.models import RefreshToken, User
+from app.modules.users.service import UserService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 

@@ -1,12 +1,15 @@
+# Standard Library Imports
 import os
 import shutil
 import uuid
+
+# Third-Party Imports
 import cloudinary
 from cloudinary import uploader
-from fastapi import UploadFile
-from app.core.config import settings
+from fastapi import HTTPException, UploadFile
 
-from fastapi import UploadFile, HTTPException
+# Local Application Imports
+from app.core.config import settings
 
 # Whitelist allowed media extensions
 ALLOWED_EXTENSIONS = {

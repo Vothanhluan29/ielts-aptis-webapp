@@ -1,17 +1,21 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
-from sqlalchemy.exc import IntegrityError
+# Standard Library Imports
+import logging
 from typing import List, Optional
 
-from app.core.database import get_db
-from app.core.dependencies import get_current_user, get_aptis_manager_user
+# Third-Party Imports
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session
 
-from app.modules.APTIS.writing import schemas
-from app.modules.APTIS.writing.services.test_service import AptisWritingTestService
-from app.modules.APTIS.writing.services.submission_service import AptisWritingSubmissionService
+# Local Application Core Imports
 from app.core.AI.writing_aptis_suggestion import suggestion_service
+from app.core.database import get_db
+from app.core.dependencies import get_aptis_manager_user, get_current_user
 
-import logging
+# Local Application Modules Imports
+from app.modules.APTIS.writing import schemas
+from app.modules.APTIS.writing.services.submission_service import AptisWritingSubmissionService
+from app.modules.APTIS.writing.services.test_service import AptisWritingTestService
 
 logger = logging.getLogger(__name__)
 

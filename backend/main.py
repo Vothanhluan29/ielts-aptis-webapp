@@ -1,22 +1,24 @@
-from fastapi import FastAPI, APIRouter, Request
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-from contextlib import asynccontextmanager
+# --- 1. Standard Library Imports ---
 import os
-import uvicorn
 import time
+from contextlib import asynccontextmanager
 
+# --- 2. Third-Party Imports ---
+import uvicorn
+from fastapi import APIRouter, FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
-# Import Config & DB
+# --- 3. Local Application Core Imports ---
 from app.core.config import settings
-from app.core.database import engine, Base
-from app.core.scheduler import start_scheduler
+from app.core.database import Base, engine
 from app.core.rate_limiter import limiter
+from app.core.scheduler import start_scheduler
 
-
+# --- 4. Models Imports ---
 from app.modules.users.models import User
 from app.modules.IELTS.reading.models import ReadingTest
 from app.modules.IELTS.listening.models import ListeningTest
@@ -31,7 +33,8 @@ from app.modules.APTIS.grammar_vocab.question_bank.models import AptisGrammarVoc
 from app.modules.APTIS.writing.question_bank.models import AptisWritingBankGroup, AptisWritingBankQuestion
 from app.modules.APTIS.speaking.question_bank.models import AptisSpeakingBankGroup, AptisSpeakingBankQuestion
 
-# Import Routers
+# --- 5. Router Modules Imports ---
+# Core Routers
 from app.modules.auth import web as auth_web
 from app.modules.users import web as users_web
 from app.modules.admin import web as admin_web
@@ -84,7 +87,9 @@ async def lifespan(app: FastAPI):
 # ==========================================
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    lifespan=lifespan
+    lifespan=lifespan,
+    docs_url=None if settings.is_production else "/docs",
+    redoc_url=None if settings.is_production else "/redoc",
 )
 
 app.state.limiter = limiter
@@ -117,6 +122,7 @@ async def add_security_headers(request: Request, call_next):
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Permissions-Policy"] = "geolocation=(), camera=()"
     return response
 
 # ==========================================

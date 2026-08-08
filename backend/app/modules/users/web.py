@@ -1,11 +1,21 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
-from sqlalchemy.orm import Session
+# Standard Library Imports
+import logging
 from typing import List
+
+# Third-Party Imports
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
+from sqlalchemy.orm import Session
+
+# Local Application Core Imports
+from app.core.database import get_db
+from app.core.dependencies import get_admin_user, get_aptis_manager_user, get_current_user
+
+# Local Application Modules Imports
 from app.modules.users import schemas
 from app.modules.users.models import User
 from app.modules.users.service import UserService
-from app.core.dependencies import get_current_user, get_admin_user, get_aptis_manager_user
-from app.core.database import get_db
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -119,8 +129,6 @@ def get_user_by_admin(
     user = UserService.get_by_id(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
-
 @router.patch("/{user_id}", response_model=schemas.UserResponse)
 def update_user_by_admin(
     user_id: int,
@@ -128,10 +136,10 @@ def update_user_by_admin(
     db: Session = Depends(get_db),
     admin_user = Depends(get_admin_user)
 ):
-
     user = UserService.get_by_id(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    logger.info(f"AUDIT LOG: Admin User ID {admin_user.id} updated user ID {user_id} with data {user_update.model_dump(exclude_unset=True)}")
     return UserService.update_user(db, user, user_update)
 
 @router.delete("/{user_id}")
@@ -140,5 +148,5 @@ def delete_user_by_admin(
     db: Session = Depends(get_db),
     admin_user = Depends(get_admin_user)
 ):
-
+    logger.info(f"AUDIT LOG: Admin User ID {admin_user.id} deleted user ID {user_id}")
     return UserService.delete_user(db, user_id)

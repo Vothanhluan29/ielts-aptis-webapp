@@ -1,16 +1,22 @@
+# Standard Library Imports
+import logging
 from typing import List, Optional
 
+# Third-Party Imports
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
+# Local Application Core Imports
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, get_aptis_manager_user
+from app.core.dependencies import get_aptis_manager_user, get_current_user
 from app.modules.users.models import User
 
-
+# Local Application Modules Imports
 from app.modules.APTIS.exam import schemas
-from app.modules.APTIS.exam.services.test_service import AptisExamTestService
 from app.modules.APTIS.exam.services.submission_service import AptisExamSubmissionService
+from app.modules.APTIS.exam.services.test_service import AptisExamTestService
+
+logger = logging.getLogger(__name__)
 
 
 router = APIRouter(prefix="/aptis/exam", tags=["Aptis Exam (Full Test)"])
@@ -105,6 +111,7 @@ def admin_update_cefr_level(
     admin: User = Depends(get_aptis_manager_user),
 ):
     """Admin đặt thủ công CEFR level cho một submission. Không bị auto-reset sau khi đã set."""
+    logger.info(f"AUDIT LOG: Admin User ID {admin.id} overridden CEFR level for submission ID {submission_id} to '{data.cefr_level}'")
     return AptisExamSubmissionService.update_cefr_level(db, submission_id, data.cefr_level)
 
 
