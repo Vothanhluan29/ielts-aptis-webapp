@@ -11,20 +11,21 @@ from app.modules.APTIS.writing.services.test_service import AptisWritingTestServ
 from app.modules.APTIS.writing.services.submission_service import AptisWritingSubmissionService
 from app.core.AI.writing_aptis_suggestion import suggestion_service
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/aptis/writing", tags=["Aptis Writing"])
 
 
-
-
-
 # =====================================================
-# ADMIN ROUTES
+# ADMIN ROUTES (CRUD TESTS)
 # =====================================================
 
 @router.get("/admin/tests", response_model=schemas.WritingTestListPaginatedResponse)
 def get_tests_for_admin(
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100),
     is_mock_selector: bool = Query(False),
     db: Session = Depends(get_db),
     admin=Depends(get_aptis_manager_user),
@@ -56,7 +57,8 @@ def create_test(
         return AptisWritingTestService.create_test(db, test_in)
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to create test: {str(e)}")
+        logger.error(f"Failed to create writing test: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to create test due to an internal error.")
 
 
 @router.put("/admin/tests/{test_id}", response_model=schemas.WritingTestResponse)
@@ -71,9 +73,12 @@ def update_test(
         if not test:
             raise HTTPException(status_code=404, detail="Test not found")
         return test
+    except HTTPException as he:
+        raise he
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Failed to update test: {str(e)}")
+        logger.error(f"Failed to update writing test: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to update test due to an internal error.")
 
 
 @router.delete("/admin/tests/{test_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -91,6 +96,9 @@ def delete_test(
             detail="Cannot delete this test because it is currently assigned to a Full Mock Test.",
         )
     return
+
+
+
 
 
 # =====================================================

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
 from sqlalchemy.orm import Session
 from typing import List
 from app.modules.users import schemas
@@ -49,8 +49,8 @@ def change_password(
 
 @router.get("/", response_model=schemas.UserPaginationResponse)
 def get_all_users_by_admin(
-    skip: int = 0, 
-    limit: int = 10,
+    skip: int = Query(0, ge=0), 
+    limit: int = Query(10, ge=1, le=100),
     role: str = None,
     class_code: str = None,
     db: Session = Depends(get_db),
@@ -77,8 +77,8 @@ def assign_classes_to_teacher(
 
 @router.get("/teacher/students", response_model=schemas.UserPaginationResponse)
 def get_teacher_students(
-    skip: int = 0,
-    limit: int = 10,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, ge=1, le=100),
     class_code: str = None,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)

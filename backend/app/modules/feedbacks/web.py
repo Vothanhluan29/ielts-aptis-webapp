@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -19,8 +19,8 @@ def create_feedback(
 
 @router.get("/my", response_model=List[schemas.FeedbackOut])
 def get_my_feedbacks(
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -42,8 +42,8 @@ def get_pending_feedback_count(
 @router.get("/", response_model=List[schemas.FeedbackOut])
 def get_all_feedbacks(
     status: Optional[str] = None,
-    skip: int = 0,
-    limit: int = 100,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):

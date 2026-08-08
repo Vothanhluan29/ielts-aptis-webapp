@@ -115,11 +115,12 @@ class UserService:
             # Check if exists
             existing = db.query(User).filter(User.student_id == student.student_id).first()
             if not existing:
-                # Use student_id as password, and dummy email if not provided (but email is required by User schema, we will generate one)
+                # Use a structured initial password f"{student_id}@Aptis2026"
+                initial_password = f"{student.student_id}@Aptis2026"
                 email = f"{student.student_id}@student.edu"
                 db_user = User(
                     email=email,
-                    hashed_password=get_password_hash(student.student_id),
+                    hashed_password=get_password_hash(initial_password),
                     full_name=student.full_name,
                     student_id=student.student_id,
                     class_code=student.class_code,

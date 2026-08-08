@@ -40,6 +40,20 @@ async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
             detail=f"File extension '{file_ext}' is not allowed. Permitted: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
         )
 
+    # File size limits
+    MAX_AUDIO_SIZE = 50 * 1024 * 1024  # 50MB
+    MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
+
+    await file.seek(0, os.SEEK_END)
+    file_size = file.file.tell()
+    await file.seek(0)
+
+    if file_ext in {".jpg", ".jpeg", ".png", ".gif", ".webp"} and file_size > MAX_IMAGE_SIZE:
+        raise HTTPException(status_code=413, detail="Image file size exceeds limit (Max 10MB)")
+
+    if file_ext in {".mp3", ".wav", ".webm", ".m4a", ".ogg", ".aac", ".flac"} and file_size > MAX_AUDIO_SIZE:
+        raise HTTPException(status_code=413, detail="Audio file size exceeds limit (Max 50MB)")
+
     # Sanitize folder name to prevent directory traversal
     safe_folder = os.path.basename(folder_name)
 

@@ -32,7 +32,12 @@ async def websocket_endpoint(
     token: str = Query(None), 
     db: Session = Depends(get_db)
 ):
+    # Prioritize HttpOnly Cookie over query parameter
     actual_token = access_token or token
+    if not actual_token:
+        await websocket.close(code=1008)
+        return
+
     user = await get_user_from_token(actual_token, db)
     if not user:
         await websocket.close(code=1008)
@@ -43,15 +48,15 @@ async def websocket_endpoint(
     try:
         while True:
             data = await websocket.receive_text()
-            # We don't really expect clients to send messages right now, but we must keep connection open
+            # Keep connection open
     except WebSocketDisconnect:
         manager.disconnect(websocket, student_id)
 
 
 @router.get("", response_model=List[schemas.NotificationResponse])
 def get_notifications(
-    skip: int = 0,
-    limit: int = 50,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
