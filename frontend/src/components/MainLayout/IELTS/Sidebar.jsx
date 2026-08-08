@@ -6,20 +6,19 @@ import {
   CustomerServiceOutlined,
   EditOutlined,
   AudioOutlined,
-  UserOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   LogoutOutlined,
   AppstoreOutlined,
-  ReadOutlined,
-  MessageOutlined
+  PlusOutlined,
+  ThunderboltOutlined
 } from "@ant-design/icons";
 
 // Nhúng Custom Hook
 import { useSidebar } from "../../../hooks/MainLayout/useSidebar";
 
 /* =========================
-   MENU CONFIG
+   MENU CONFIG (PRESERVED EXACTLY)
 ========================= */
 const SIDEBAR_GROUPS = [
   {
@@ -60,36 +59,49 @@ const Sidebar = ({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 ${sidebarWidth} bg-white border-r border-slate-100 flex flex-col transition-all duration-300 shadow-sm ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:relative`}
+      className={`fixed inset-y-0 left-0 z-50 ${sidebarWidth} bg-gradient-to-b from-[#1859f5] via-[#1651e5] to-[#1143c7] text-white flex flex-col transition-all duration-300 shadow-xl shadow-blue-900/20 md:rounded-r-[2rem] ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      } md:translate-x-0 md:relative`}
     >
-
-      {/* LOGO */}
-      <div className="h-20 flex items-center justify-between px-5 border-b border-slate-100 shrink-0">
+      {/* LOGO AREA */}
+      <div className="h-20 flex items-center justify-between px-5 shrink-0 border-b border-white/10">
         {!sidebarCollapsed && (
-          <div className="flex items-center gap-3">
-            <img src="/logo.jpg" alt="Logo" className="w-8 h-8 object-contain rounded-md shadow-sm" />
-            <span className="text-blue-700 font-black text-2xl tracking-tight">IELTS</span>
-          </div>
+          <Link to="/dashboard" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-blue-900/30 group-hover:scale-105 transition-transform">
+              <img src="/logo.jpg" alt="IELTS Logo" className="w-6 h-6 object-contain rounded" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-white font-black text-xl tracking-tight leading-none">
+                IELTS
+              </span>
+              <span className="text-[10px] text-blue-200/80 font-semibold tracking-widest uppercase mt-0.5">
+                Prep Academy
+              </span>
+            </div>
+          </Link>
         )}
+
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className="p-2 rounded-xl bg-slate-50 border border-slate-100 hover:bg-slate-100 transition text-slate-500 hover:text-slate-700"
+          className={`p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all ${
+            sidebarCollapsed ? "mx-auto" : ""
+          }`}
+          title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
         </button>
       </div>
 
-      {/* NAVIGATION (flex-1 sẽ đẩy Footer xuống đáy, space-y-6 dàn đều các nhóm) */}
-      <nav className="flex-1 px-3 py-6 space-y-6 overflow-y-auto custom-scrollbar">
+      {/* NAVIGATION */}
+      <nav className="flex-1 px-3 py-6 space-y-5 overflow-y-auto custom-scrollbar">
         {SIDEBAR_GROUPS.map((group) => (
           <div key={group.title}>
-            
             {!sidebarCollapsed && (
-              <p className="px-3 mb-2 text-[11px] font-bold uppercase text-slate-500 tracking-widest m-0">
+              <p className="px-3 mb-2 text-[11px] font-black uppercase text-blue-200/60 tracking-wider m-0">
                 {group.title}
               </p>
             )}
-            
+
             <div className="space-y-1">
               {group.items.map((item) => (
                 <SidebarLink
@@ -102,26 +114,25 @@ const Sidebar = ({
                 />
               ))}
             </div>
-
           </div>
         ))}
       </nav>
 
-      {/* FOOTER & LOGOUT (Được ghim ở đáy, có màu nền nhẹ và viền để phân tách) */}
-      <div className="shrink-0 p-4 border-t border-slate-100 bg-white mt-auto">
+      {/* BOTTOM FOOTER / LOGOUT */}
+      <div className="shrink-0 p-4 mt-auto border-t border-white/10">
+        {/* LOGOUT BUTTON */}
         <button
           onClick={handleLogout}
-          className={`flex items-center gap-3 w-full rounded-xl transition-colors ${
-            sidebarCollapsed ? "justify-center h-12" : "px-4 py-2.5"
-          } text-slate-600 hover:text-red-600 hover:bg-red-50 bg-white border border-slate-100 shadow-sm`}
+          className={`flex items-center gap-3 w-full rounded-2xl transition-all ${
+            sidebarCollapsed ? "justify-center h-11" : "px-4 py-2.5"
+          } text-blue-100 hover:text-white hover:bg-white/15 border border-white/10 shadow-sm`}
         >
-          <LogoutOutlined style={{ fontSize: 18 }} />
+          <LogoutOutlined style={{ fontSize: 16 }} />
           {!sidebarCollapsed && (
-            <span className="text-[15px] font-semibold">Sign Out</span>
+            <span className="text-[14px] font-bold">Sign Out</span>
           )}
         </button>
       </div>
-
     </aside>
   );
 };
@@ -130,24 +141,34 @@ const Sidebar = ({
    SIDEBAR LINK
 ========================= */
 const SidebarLink = ({ to, label, icon, active, collapsed }) => {
-  const baseStyle = "flex items-center gap-3 rounded-xl font-semibold transition-all relative overflow-hidden group";
-  const sizeStyle = collapsed ? "justify-center h-11 w-11 mx-auto" : "px-3 py-3";
-  
-  const activeStyle = "bg-blue-800 text-white shadow-md";
-  const inactiveStyle = "text-slate-500 hover:bg-slate-50 hover:text-slate-700";
+  const baseStyle =
+    "flex items-center gap-3 rounded-2xl font-bold transition-all duration-200 relative overflow-hidden group";
+  const sizeStyle = collapsed
+    ? "justify-center h-11 w-11 mx-auto"
+    : "px-3.5 py-2.5";
+
+  const activeStyle =
+    "bg-white/20 text-white shadow-sm backdrop-blur-md border border-white/20 font-extrabold";
+  const inactiveStyle =
+    "text-blue-100/80 hover:bg-white/10 hover:text-white font-medium";
 
   return (
     <Link
       to={to}
       title={collapsed ? label : ""}
-      className={`${baseStyle} ${sizeStyle} ${active ? activeStyle : inactiveStyle}`}
+      className={`${baseStyle} ${sizeStyle} ${
+        active ? activeStyle : inactiveStyle
+      }`}
     >
-      {icon && React.createElement(icon, { 
-        className: `text-lg transition-transform duration-300 ${active ? 'scale-110' : 'group-hover:scale-110'}`
-      })}
+      {icon &&
+        React.createElement(icon, {
+          className: `text-lg transition-transform duration-300 ${
+            active ? "scale-110 text-white" : "group-hover:scale-110 text-blue-200"
+          }`
+        })}
 
       {!collapsed && (
-        <span className="text-[15px] tracking-wide whitespace-nowrap">
+        <span className="text-[14px] tracking-wide whitespace-nowrap">
           {label}
         </span>
       )}
