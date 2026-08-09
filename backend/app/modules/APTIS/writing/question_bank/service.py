@@ -10,8 +10,28 @@ from app.modules.APTIS.writing.models import AptisWritingTest, AptisWritingPart,
 
 class AptisWritingBankService:
     @staticmethod
-    def get_all_bank_groups(db: Session) -> List[AptisWritingBankGroup]:
-        return db.query(AptisWritingBankGroup).order_by(AptisWritingBankGroup.created_at.desc()).all()
+        def get_bank_groups(
+            db: Session, 
+            part_number: int = None, 
+            search: str = None, 
+            difficulty_level: str = None, 
+            skip: int = 0, 
+            limit: int = 10
+        ):
+            query = db.query(AptisWritingBankGroup)
+            
+            if part_number is not None and hasattr(AptisWritingBankGroup, 'part_number'):
+                query = query.filter(AptisWritingBankGroup.part_number == part_number)
+                
+            if search and hasattr(AptisWritingBankGroup, 'instruction'):
+                query = query.filter(AptisWritingBankGroup.instruction.ilike(f"%{search}%"))
+                
+            if difficulty_level and hasattr(AptisWritingBankGroup, 'difficulty_level'):
+                query = query.filter(AptisWritingBankGroup.difficulty_level == difficulty_level)
+                
+            total = query.count()
+            items = query.order_by(AptisWritingBankGroup.id.desc()).offset(skip).limit(limit).all()
+            return {"items": items, "total": total}
 
     @staticmethod
     def get_bank_group(db: Session, group_id: int) -> AptisWritingBankGroup:

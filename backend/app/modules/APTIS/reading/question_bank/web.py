@@ -15,9 +15,17 @@ router = APIRouter(prefix="/aptis/reading", tags=["Aptis Reading Question Bank"]
 def create_bank_group(group_in: bank_schemas.BankGroupCreate, db: Session = Depends(get_db), admin=Depends(get_aptis_manager_user)):
     return BankService.create_bank_group(db, group_in)
 
-@router.get("/bank/groups", response_model=List[bank_schemas.BankGroupResponse])
-def get_bank_groups(part_number: Optional[int] = None, db: Session = Depends(get_db), admin=Depends(get_aptis_manager_user)):
-    return BankService.get_bank_groups(db, part_number)
+@router.get("/admin/bank/groups", response_model=bank_schemas.PaginatedBankGroupResponse)
+def get_bank_groups(
+    part_number: Optional[int] = None,
+    search: Optional[str] = None,
+    difficulty_level: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 10,
+    db: Session = Depends(get_db),
+    admin = Depends(get_aptis_manager_user)
+):
+    return BankService.get_bank_groups(db, part_number, search, difficulty_level, skip, limit)
 
 @router.get("/bank/groups/{group_id}", response_model=bank_schemas.BankGroupResponse)
 def get_bank_group(group_id: int, db: Session = Depends(get_db), admin=Depends(get_aptis_manager_user)):

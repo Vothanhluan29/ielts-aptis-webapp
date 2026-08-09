@@ -38,11 +38,28 @@ class BankService:
         return new_group
 
     @staticmethod
-    def get_bank_groups(db: Session, part_number: int = None):
-        query = db.query(AptisReadingBankGroup)
-        if part_number:
-            query = query.filter(AptisReadingBankGroup.part_number == part_number)
-        return query.order_by(AptisReadingBankGroup.id.desc()).all()
+        def get_bank_groups(
+            db: Session, 
+            part_number: int = None, 
+            search: str = None, 
+            difficulty_level: str = None, 
+            skip: int = 0, 
+            limit: int = 10
+        ):
+            query = db.query(AptisReadingBankGroup)
+            
+            if part_number is not None and hasattr(AptisReadingBankGroup, 'part_number'):
+                query = query.filter(AptisReadingBankGroup.part_number == part_number)
+                
+            if search and hasattr(AptisReadingBankGroup, 'instruction'):
+                query = query.filter(AptisReadingBankGroup.instruction.ilike(f"%{search}%"))
+                
+            if difficulty_level and hasattr(AptisReadingBankGroup, 'difficulty_level'):
+                query = query.filter(AptisReadingBankGroup.difficulty_level == difficulty_level)
+                
+            total = query.count()
+            items = query.order_by(AptisReadingBankGroup.id.desc()).offset(skip).limit(limit).all()
+            return {"items": items, "total": total}
 
     @staticmethod
     def get_bank_group_by_id(db: Session, group_id: int):

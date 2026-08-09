@@ -68,3 +68,8 @@ class GenerateTestConfig(BaseModel):
     is_full_test_only: bool = False
     difficulty_level: Optional[str] = None
     parts_config: List[PartConfig]
+
+
+class PaginatedBankGroupResponse(BaseModel):
+    items: List[BankGroupResponse]
+    total: int

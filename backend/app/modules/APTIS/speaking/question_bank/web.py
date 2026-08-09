@@ -9,12 +9,17 @@ from app.modules.APTIS.speaking.question_bank.service import AptisSpeakingBankSe
 
 router = APIRouter(prefix="/admin/aptis/speaking/bank", tags=["Aptis Speaking Bank"])
 
-@router.get("/", response_model=List[bank_schemas.SpeakingBankGroupResponse])
-def get_all_bank_groups(
+@router.get("/", response_model=bank_schemas.PaginatedSpeakingBankGroupResponse)
+def get_bank_groups(
+    part_number: Optional[int] = None,
+    search: Optional[str] = None,
+    difficulty_level: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 10,
     db: Session = Depends(get_db),
     admin = Depends(get_aptis_manager_user)
 ):
-    return AptisSpeakingBankService.get_all_bank_groups(db)
+    return AptisSpeakingBankService.get_bank_groups(db, part_number, search, difficulty_level, skip, limit)
 
 
 @router.get("/{group_id}", response_model=bank_schemas.SpeakingBankGroupResponse)

@@ -110,13 +110,6 @@ const TipsAdminListPage = () => {
 
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 70,
-      render: (id) => <span className="font-bold text-slate-500">#{id}</span>
-    },
-    {
       title: 'Article Title',
       dataIndex: 'title',
       key: 'title',
@@ -171,14 +164,6 @@ const TipsAdminListPage = () => {
       align: 'right',
       render: (_, record) => (
         <Space size="small">
-          <Tooltip title="View Live Student Article">
-            <Button
-              type="text"
-              icon={<EyeOutlined className="text-slate-500 hover:text-[#445A95]" />}
-              onClick={() => navigate(`/aptis/tips/${record.id}`)}
-            />
-          </Tooltip>
-
           <Tooltip title="Edit Tip Article">
             <Button
               type="text"

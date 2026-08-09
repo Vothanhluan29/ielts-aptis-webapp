@@ -61,3 +61,8 @@ class GenerateTestConfig(BaseModel):
     difficulty_level: Optional[str] = None
     part_difficulties: Optional[dict] = None
     tags: Optional[List[str]] = None
+
+
+class PaginatedBankGroupResponse(BaseModel):
+    items: List[BankGroupResponse]
+    total: int

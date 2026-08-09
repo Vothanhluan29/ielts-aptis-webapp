@@ -8,8 +8,28 @@ from app.modules.APTIS.speaking.models import AptisSpeakingTest, AptisSpeakingPa
 
 class AptisSpeakingBankService:
     @staticmethod
-    def get_all_bank_groups(db: Session) -> List[AptisSpeakingBankGroup]:
-        return db.query(AptisSpeakingBankGroup).order_by(AptisSpeakingBankGroup.id.desc()).all()
+        def get_bank_groups(
+            db: Session, 
+            part_number: int = None, 
+            search: str = None, 
+            difficulty_level: str = None, 
+            skip: int = 0, 
+            limit: int = 10
+        ):
+            query = db.query(AptisSpeakingBankGroup)
+            
+            if part_number is not None and hasattr(AptisSpeakingBankGroup, 'part_number'):
+                query = query.filter(AptisSpeakingBankGroup.part_number == part_number)
+                
+            if search and hasattr(AptisSpeakingBankGroup, 'instruction'):
+                query = query.filter(AptisSpeakingBankGroup.instruction.ilike(f"%{search}%"))
+                
+            if difficulty_level and hasattr(AptisSpeakingBankGroup, 'difficulty_level'):
+                query = query.filter(AptisSpeakingBankGroup.difficulty_level == difficulty_level)
+                
+            total = query.count()
+            items = query.order_by(AptisSpeakingBankGroup.id.desc()).offset(skip).limit(limit).all()
+            return {"items": items, "total": total}
 
     @staticmethod
     def get_bank_group(db: Session, group_id: int) -> AptisSpeakingBankGroup:

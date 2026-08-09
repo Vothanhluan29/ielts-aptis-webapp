@@ -15,6 +15,7 @@ import ConfirmModal from '../../../../../../components/common/ConfirmModal';
 
 const QuestionBankManagePage = () => {
   const [data, setData] = useState([]);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,19 +29,36 @@ const QuestionBankManagePage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
+  
   useEffect(() => {
-    setCurrentPage(1);
+    const delayDebounceFn = setTimeout(() => {
+      if (currentPage !== 1) {
+        setCurrentPage(1); // this will trigger another effect run, but we can just let the next effect run fetch
+      } else {
+        fetchBankGroups();
+      }
+    }, 300);
+    return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, partFilter, difficultyFilter]);
 
   useEffect(() => {
     fetchBankGroups();
-  }, []);
+  }, [currentPage]);
+
 
   const fetchBankGroups = async () => {
     setLoading(true);
     try {
-      const response = await aptisGrammarVocabBankApi.getBankGroups();
-      setData(response);
+      const params = {
+        skip: (currentPage - 1) * pageSize,
+        limit: pageSize,
+        search: searchTerm || undefined,
+        part_number: partFilter || undefined,
+        difficulty_level: difficultyFilter || undefined
+      };
+      const response = await aptisGrammarVocabBankApi.getBankGroups(params);
+      setData(response.items || []);
+      setTotal(response.total || 0);
     } catch (error) {
       message.error('Failed to fetch bank groups');
     } finally {
@@ -74,15 +92,9 @@ const QuestionBankManagePage = () => {
     return partType;
   };
 
-  const filteredData = data.filter(item => {
-    const matchesSearch = item.instruction?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesPart = partFilter ? item.part_type === partFilter : true;
-    const matchesDifficulty = difficultyFilter ? item.difficulty_level === difficultyFilter : true;
-    return matchesSearch && matchesPart && matchesDifficulty;
-  });
-
-  const startIndex = (currentPage - 1) * pageSize;
-  const paginatedData = filteredData.slice(startIndex, startIndex + pageSize);
+  // Server-side pagination handled
+  const paginatedData = data;
+  const filteredData = { length: total };
 
   return (
     <div className="max-w-[1200px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-12">
@@ -201,7 +213,7 @@ const QuestionBankManagePage = () => {
         )}
 
         {/* Empty State */}
-        {!loading && filteredData.length === 0 && (
+        {!loading && data.length === 0 && (
           <div className="py-20 flex flex-col items-center justify-center text-center px-4">
             <div className="w-16 h-16 bg-zinc-50 text-zinc-400 rounded-full flex items-center justify-center mb-4 ring-1 ring-zinc-200">
               <Database size={28} />
@@ -280,11 +292,11 @@ const QuestionBankManagePage = () => {
         </div>
 
         {/* Pagination */}
-        {!loading && filteredData.length > 0 && (
+        {!loading && data.length > 0 && (
           <div className="px-6 py-4 border-t border-zinc-100 flex justify-center bg-zinc-50/50">
             <Pagination 
               current={currentPage} 
-              total={filteredData.length} 
+              total={total} 
               pageSize={pageSize} 
               onChange={(page) => setCurrentPage(page)} 
               showSizeChanger={false}

@@ -53,3 +53,8 @@ class GenerateTestConfig(BaseModel):
     is_full_test_only: Optional[bool] = False
     difficulty_level: Optional[str] = None
     part_difficulties: Optional[Dict[str, Optional[str]]] = None
+
+
+class PaginatedSpeakingBankGroupResponse(BaseModel):
+    items: List[SpeakingBankGroupResponse]
+    total: int

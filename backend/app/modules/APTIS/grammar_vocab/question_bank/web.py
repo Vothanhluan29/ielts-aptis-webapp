@@ -11,12 +11,17 @@ from app.modules.APTIS.grammar_vocab.question_bank.service import AptisGrammarVo
 
 router = APIRouter(prefix="/aptis/grammar-vocab", tags=["Aptis Grammar & Vocabulary Question Bank"])
 
-@router.get("/bank/groups", response_model=List[bank_schemas.BankGroupResponse])
-def get_all_bank_groups(
+@router.get("/admin/bank/groups", response_model=bank_schemas.PaginatedBankGroupResponse)
+def get_bank_groups(
+    part_number: Optional[int] = None,
+    search: Optional[str] = None,
+    difficulty_level: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 10,
     db: Session = Depends(get_db),
     admin = Depends(get_aptis_manager_user)
 ):
-    return AptisGrammarVocabBankService.get_all_bank_groups(db)
+    return AptisGrammarVocabBankService.get_bank_groups(db, part_number, search, difficulty_level, skip, limit)
 
 @router.post("/bank/groups", response_model=bank_schemas.BankGroupResponse, status_code=status.HTTP_201_CREATED)
 def create_bank_group(
