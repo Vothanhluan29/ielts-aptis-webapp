@@ -1,12 +1,12 @@
 import React from 'react';
 import {
   Form, Button, Card, Switch, InputNumber, Space,
-  Select, Spin, Row, Col, Typography, Collapse, Popconfirm, Tabs, Input
+  Select, Spin, Row, Col, Typography, Collapse, Popconfirm, Tabs, Input, Skeleton
 } from 'antd';
 import {
   ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined,
   FontSizeOutlined, BookOutlined, CopyOutlined, InfoCircleOutlined,
-  PlusCircleOutlined, ExclamationCircleOutlined,
+  PlusCircleOutlined, ExclamationCircleOutlined, GlobalOutlined,
 } from '@ant-design/icons';
 
 import MultipleChoiceAdmin from '../../../components/APTIS/question-types/MultipleChoiceAdmin';
@@ -170,8 +170,33 @@ const GramVocabEditPage = () => {
   } = useGramVocabEdit();
 
   const currentTitle = Form.useWatch('title', form);
+  const isPublished = Form.useWatch('is_published', form);
+  const timeLimit = Form.useWatch('time_limit', form);
+  const canSubmit = !!currentTitle && !!timeLimit;
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 80 }}><Spin size="large" /></div>;
+  // Keyboard Shortcuts (Nielsen: Efficiency of Use, User Control & Freedom)
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (canSubmit) form.submit();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/grammar-vocab' : '/admin/aptis/grammar-vocab');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [form, canSubmit, navigate]);
+
+  if (loading) return (
+    <div style={{ maxWidth: 1050, margin: '0 auto', padding: '24px 16px 60px' }}>
+      <Skeleton active title paragraph={{ rows: 1 }} style={{ marginBottom: 40 }} />
+      <Card style={{ marginBottom: 16, borderRadius: 12 }}><Skeleton active paragraph={{ rows: 6 }} /></Card>
+      <Card style={{ borderRadius: 12 }}><Skeleton active paragraph={{ rows: 10 }} /></Card>
+    </div>
+  );
 
   const isMaxed = totalCount >= MAX_QUESTIONS;
 
@@ -252,9 +277,16 @@ const GramVocabEditPage = () => {
             {isMaxed && <ExclamationCircleOutlined style={{ marginRight: 6 }} />}
             {totalCount} / {MAX_QUESTIONS} questions
           </span>
-          <Button type="primary" size="large" icon={<SaveOutlined />} loading={submitting}
-            style={{ backgroundColor: '#4f46e5' }} onClick={() => form.submit()}>
-            {isEditMode ? 'Save Changes' : 'Create Test'}
+          <Button 
+            type="primary" 
+            size="large" 
+            icon={isPublished ? <GlobalOutlined /> : <SaveOutlined />} 
+            loading={submitting}
+            disabled={!canSubmit}
+            style={canSubmit ? { backgroundColor: isPublished ? '#10b981' : '#4f46e5', borderColor: isPublished ? '#10b981' : '#4f46e5' } : undefined} 
+            onClick={() => form.submit()}
+          >
+            {isEditMode ? (isPublished ? 'Update Published' : 'Save Draft') : (isPublished ? 'Publish Test' : 'Save as Draft')}
           </Button>
         </span>
       </div>

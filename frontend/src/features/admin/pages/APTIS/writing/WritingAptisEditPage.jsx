@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { 
   Form, Input, Button, Card, Space, Switch, InputNumber, 
-  Spin, Row, Col, Typography, Tag, Divider, Collapse, message, Select
+  Spin, Row, Col, Typography, Tag, Divider, Collapse, message, Select, Skeleton
 } from 'antd';
 import { 
   ArrowLeftOutlined, SaveOutlined, EditOutlined,
-  MessageOutlined, FormOutlined, FileTextOutlined, MailOutlined, FormOutlined as PenOutlined
+  MessageOutlined, FormOutlined, FileTextOutlined, MailOutlined, FormOutlined as PenOutlined, GlobalOutlined
 } from '@ant-design/icons';
 
 // Import Custom Hook v├á cß║Ñu h├¼nh
@@ -33,8 +33,27 @@ const WritingAptisEditPage = () => {
     clearDraft
   } = useWritingAptisEdit();
 
-  const [activePartKeys, setActivePartKeys] = useState(['0']);
+  const activePartKeys = ['0', '1', '2', '3'];
   const titleValue = Form.useWatch('title', form);
+  const isPublished = Form.useWatch('is_published', form);
+  const timeLimit = Form.useWatch('time_limit', form);
+  const canSubmit = !!titleValue && !!timeLimit;
+
+  // Keyboard Shortcuts (Nielsen: Efficiency of Use, User Control & Freedom)
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (canSubmit) form.submit();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/writing' : '/admin/aptis/writing');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [form, canSubmit, navigate]);
 
   const getPartIcon = (partType) => {
     switch (partType) {
@@ -130,7 +149,13 @@ const WritingAptisEditPage = () => {
     );
   };
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 100 }}><Spin size="large" /></div>;
+  if (loading) return (
+    <div style={{ maxWidth: 1100, margin: '0 auto', paddingBottom: 40, paddingTop: 40 }}>
+      <Skeleton active title paragraph={{ rows: 1 }} style={{ marginBottom: 40 }} />
+      <Card style={{ marginBottom: 16, borderRadius: 12 }}><Skeleton active paragraph={{ rows: 6 }} /></Card>
+      <Card style={{ borderRadius: 12 }}><Skeleton active paragraph={{ rows: 10 }} /></Card>
+    </div>
+  );
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', paddingBottom: 40 }}>
@@ -157,8 +182,16 @@ const WritingAptisEditPage = () => {
           </Title>
         </Space>
         <Space>
-          <Button type="primary" onClick={() => form.submit()} icon={<SaveOutlined />} loading={submitting} size="large" style={{ backgroundColor: '#7c3aed' }}>
-            {isEditMode ? 'Save Changes' : 'Create Test'}
+          <Button 
+            type="primary" 
+            onClick={() => form.submit()} 
+            icon={isPublished ? <GlobalOutlined /> : <SaveOutlined />} 
+            loading={submitting} 
+            disabled={!canSubmit}
+            size="large" 
+            style={canSubmit ? { backgroundColor: isPublished ? '#10b981' : '#7c3aed', borderColor: isPublished ? '#10b981' : '#7c3aed' } : undefined}
+          >
+            {isEditMode ? (isPublished ? 'Update Published' : 'Save Draft') : (isPublished ? 'Publish Test' : 'Save as Draft')}
           </Button>
         </Space>
       </div>

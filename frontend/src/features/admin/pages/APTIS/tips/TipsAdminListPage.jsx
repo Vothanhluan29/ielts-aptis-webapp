@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Table,
@@ -76,6 +76,19 @@ const TipsAdminListPage = () => {
   useEffect(() => {
     fetchAdminTips();
   }, [fetchAdminTips]);
+
+  // Keyboard shortcut to focus search input (Nielsen #7: Flexibility and Efficiency of Use)
+  const searchInputRef = useRef(null);
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleDelete = async (id) => {
     message.loading({ content: 'Deleting tip article...', key: 'delTip' });
@@ -227,8 +240,9 @@ const TipsAdminListPage = () => {
         <div className="flex flex-col sm:flex-row gap-4 mb-6 justify-between items-center bg-slate-50/60 p-4 rounded-2xl border border-slate-100">
           <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
             <Input
+              ref={searchInputRef}
               prefix={<SearchOutlined className="text-slate-400 mr-1" />}
-              placeholder="Search by tip title..."
+              placeholder="Search by title (Ctrl + /)"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -266,15 +280,20 @@ const TipsAdminListPage = () => {
             )}
           </div>
 
-          <Tooltip title="Refresh tip article list">
-            <Button
-              icon={<ReloadOutlined />}
-              onClick={fetchAdminTips}
-              className="rounded-xl font-bold h-10 px-4 text-xs"
-            >
-              Refresh
-            </Button>
-          </Tooltip>
+          <div className="flex items-center gap-3">
+            <span className="text-xs font-bold text-slate-500 whitespace-nowrap bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm hidden sm:inline-block">
+              Total: {total}
+            </span>
+            <Tooltip title="Refresh tip article list">
+              <Button
+                icon={<ReloadOutlined />}
+                onClick={fetchAdminTips}
+                className="rounded-xl font-bold h-10 px-4 text-xs bg-white"
+              >
+                Refresh
+              </Button>
+            </Tooltip>
+          </div>
         </div>
 
         {/* Table */}
@@ -286,16 +305,29 @@ const TipsAdminListPage = () => {
           locale={{
             emptyText: (
               <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                styles={{ image: { height: 120 } }}
                 description={
-                  <span className="text-slate-500 font-semibold text-xs">
-                    {hasActiveFilters ? 'No tip articles match your search criteria.' : 'No tip articles available yet.'}
-                  </span>
+                  <div className="space-y-1 mt-2">
+                    <div className="text-slate-700 font-bold text-base">
+                      {hasActiveFilters ? 'No tip articles match your filters' : 'No tip articles published yet'}
+                    </div>
+                    <div className="text-slate-400 font-medium text-xs max-w-sm mx-auto">
+                      {hasActiveFilters
+                        ? 'Try adjusting your search terms or category filter to find what you are looking for.'
+                        : 'Start creating helpful exam strategies and skill guides to support your students.'}
+                    </div>
+                  </div>
                 }
+                className="py-6"
               >
-                {hasActiveFilters && (
-                  <Button size="small" type="primary" onClick={handleResetFilters} className="rounded-xl font-bold bg-indigo-600">
+                {hasActiveFilters ? (
+                  <Button size="middle" icon={<ClearOutlined />} onClick={handleResetFilters} className="rounded-xl font-bold bg-indigo-50 text-indigo-600 border-none hover:bg-indigo-100 mt-2">
                     Clear Filters
+                  </Button>
+                ) : (
+                  <Button type="primary" size="middle" icon={<PlusOutlined />} onClick={() => navigate(`${basePath}/create`)} className="rounded-xl font-bold bg-indigo-600 border-none shadow-md shadow-indigo-200 mt-2">
+                    Create First Article
                   </Button>
                 )}
               </Empty>

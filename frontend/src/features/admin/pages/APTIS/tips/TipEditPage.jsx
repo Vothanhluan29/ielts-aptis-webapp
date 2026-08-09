@@ -12,7 +12,8 @@ import {
   Divider,
   Tooltip,
   Modal,
-  Segmented
+  Segmented,
+  Skeleton
 } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -23,7 +24,9 @@ import {
   LinkOutlined,
   CloudUploadOutlined,
   InfoCircleOutlined,
-  CheckCircleOutlined
+  CheckCircleOutlined,
+  GlobalOutlined,
+  SaveOutlined
 } from '@ant-design/icons';
 import { tipsApi } from '../../../../../services/tipsApi';
 
@@ -50,6 +53,34 @@ const TipEditPage = () => {
   // Determine base path (/admin or /teacher)
   const isTeacher = location.pathname.startsWith('/teacher');
   const backPath = isTeacher ? '/teacher/tips' : '/admin/aptis/tips';
+
+  const titleValue = Form.useWatch('title', form);
+  const contentValue = Form.useWatch('content', form);
+  const isPublish = Form.useWatch('is_published', form);
+  const canSubmit = !!titleValue && !!contentValue;
+
+  // Auto-save draft to local storage
+  const draftKey = `tip_draft_${id || 'new'}`;
+  
+  useEffect(() => {
+    if (contentValue && !loading) {
+      const timer = setTimeout(() => {
+        localStorage.setItem(draftKey, contentValue);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [contentValue, draftKey, loading]);
+
+  // Load draft on mount (only for new tips or if content is empty)
+  useEffect(() => {
+    if (!isEditing) {
+      const draft = localStorage.getItem(draftKey);
+      if (draft && !form.getFieldValue('content')) {
+        form.setFieldsValue({ content: draft });
+        message.info('Recovered draft content from your previous session.');
+      }
+    }
+  }, [isEditing, draftKey, form]);
 
   // Load Tip Details if Editing
   useEffect(() => {
@@ -94,12 +125,18 @@ const TipEditPage = () => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault();
-        form.submit();
+        if (canSubmit) form.submit();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        // Allow using Esc to trigger the back navigation, but we need to check if there are Modals open first in a real scenario.
+        // For simplicity, we just trigger back logic.
+        handleSafeNavigateBack();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [form]);
+  }, [form, canSubmit]); // Add canSubmit to dependency to ensure we use the latest value in the handler
 
   // Navigation with Unsaved Changes Protection (Nielsen #3: User Control & Freedom)
   const handleSafeNavigateBack = () => {
@@ -134,6 +171,8 @@ const TipEditPage = () => {
         await tipsApi.adminCreateTip(payload);
         message.success({ content: 'New tip article published successfully!', key: 'saveTip' });
       }
+      // Clear draft on successful save
+      localStorage.removeItem(draftKey);
       navigate(backPath);
     } catch (err) {
       console.error('Failed to save tip:', err);
@@ -210,10 +249,22 @@ const TipEditPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="text-center">
-          <Spin size="large" />
-          <p className="mt-4 text-slate-500 font-semibold">Loading tip article editor...</p>
+      <div className="p-4 md:p-8 max-w-6xl mx-auto font-sans min-h-screen">
+        <Skeleton active title paragraph={{ rows: 2 }} className="mb-8" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <Card className="rounded-3xl shadow-sm border border-slate-200 p-4">
+              <Skeleton active title={false} paragraph={{ rows: 14 }} />
+            </Card>
+          </div>
+          <div className="space-y-6">
+            <Card className="rounded-3xl shadow-sm border border-slate-200">
+              <Skeleton active title paragraph={{ rows: 4 }} />
+            </Card>
+            <Card className="rounded-3xl shadow-sm border border-slate-200">
+              <Skeleton active title paragraph={{ rows: 6 }} />
+            </Card>
+          </div>
         </div>
       </div>
     );
@@ -255,12 +306,13 @@ const TipEditPage = () => {
           <Tooltip title="Shortcut: Press Ctrl + S to save">
             <Button
               type="primary"
-              icon={<SendOutlined />}
+              icon={isPublish ? <GlobalOutlined /> : <SaveOutlined />}
               loading={submitting}
+              disabled={!canSubmit}
               onClick={() => form.submit()}
-              className="bg-indigo-600 hover:bg-indigo-500 rounded-xl font-bold h-11 px-7 border-none shadow-md shadow-indigo-200"
+              className={`${isPublish ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-200' : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-200'} rounded-xl font-bold h-11 px-7 border-none shadow-md disabled:bg-slate-300 disabled:shadow-none transition-colors`}
             >
-              {isEditing ? 'Save Changes' : 'Publish Article'}
+              {isEditing ? (isPublish ? 'Publish Changes' : 'Save Draft') : (isPublish ? 'Publish Article' : 'Save as Draft')}
             </Button>
           </Tooltip>
         </div>
@@ -363,8 +415,11 @@ const TipEditPage = () => {
             >
               <div className="flex items-center justify-between bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
                 <div>
-                  <span className="block text-xs font-bold text-slate-700">
+                  <span className="block text-xs font-bold text-slate-700 flex items-center gap-1.5">
                     Visible to students
+                    <Tooltip title="When enabled, students can see this article immediately. When disabled, it is saved as a draft.">
+                      <InfoCircleOutlined className="text-slate-400 font-normal" />
+                    </Tooltip>
                   </span>
                   <span className="text-[11px] text-slate-400 font-medium">
                     Published articles are immediately viewable

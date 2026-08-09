@@ -207,7 +207,7 @@ const AdminFeedbackPage = () => {
           form.resetFields();
         }}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
         width={600}
       >
         {currentFeedback && (

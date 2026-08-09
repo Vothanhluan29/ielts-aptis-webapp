@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { 
   Form, Input, Button, Card, Space, Switch, InputNumber, 
-  Spin, Row, Col, Typography, Popconfirm, Select, Tabs, Tooltip, Collapse 
+  Spin, Row, Col, Typography, Popconfirm, Select, Tabs, Tooltip, Collapse, Skeleton
 } from 'antd';
 import { 
-  ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, BookOutlined, ExclamationCircleOutlined, CopyOutlined
+  ArrowLeftOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, BookOutlined, ExclamationCircleOutlined, CopyOutlined, GlobalOutlined
 } from '@ant-design/icons';
 
 import MultipleChoiceAdmin from '../../../components/APTIS/question-types/MultipleChoiceAdmin';
@@ -46,6 +46,25 @@ const ReadingAptisEditPage = () => {
   const partsValues = Form.useWatch('parts', form) || [];
   const currentPartsCount = partsValues.length;
   const titleValue = Form.useWatch('title', form);
+  const isPublished = Form.useWatch('is_published', form);
+  const timeLimit = Form.useWatch('time_limit', form);
+  const canSubmit = !!titleValue && !!timeLimit;
+  
+  // Keyboard Shortcuts (Nielsen: Efficiency of Use, User Control & Freedom)
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (canSubmit) form.submit();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/reading' : '/admin/aptis/reading');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [form, canSubmit, navigate]);
   
   const totalQuestionsCount = partsValues.reduce((total, part) => {
     const partQs = part?.questions || [];
@@ -63,7 +82,13 @@ const ReadingAptisEditPage = () => {
   const MAX_PARTS = 5; 
   const MAX_QUESTIONS = 29; 
 
-  if (loading) return <div style={{ textAlign: 'center', padding: 50 }}><Spin size="large" /></div>;
+  if (loading) return (
+    <div style={{ maxWidth: 1100, margin: '0 auto', paddingBottom: 40, paddingTop: 40 }}>
+      <Skeleton active title paragraph={{ rows: 1 }} style={{ marginBottom: 40 }} />
+      <Card style={{ marginBottom: 16, borderRadius: 12 }}><Skeleton active paragraph={{ rows: 6 }} /></Card>
+      <Card style={{ borderRadius: 12 }}><Skeleton active paragraph={{ rows: 10 }} /></Card>
+    </div>
+  );
 
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', paddingBottom: 40 }}>
@@ -88,8 +113,16 @@ const ReadingAptisEditPage = () => {
             {totalQuestionsCount >= MAX_QUESTIONS && <ExclamationCircleOutlined style={{ marginRight: 6 }} />}
             {totalQuestionsCount} / {MAX_QUESTIONS} questions
           </span>
-          <Button type="primary" onClick={() => form.submit()} icon={<SaveOutlined />} loading={submitting} size="large" style={{ backgroundColor: '#ea580c' }}>
-            {isEditMode ? 'Save Changes' : 'Create Test'}
+          <Button 
+            type="primary" 
+            onClick={() => form.submit()} 
+            icon={isPublished ? <GlobalOutlined /> : <SaveOutlined />} 
+            loading={submitting} 
+            disabled={!canSubmit}
+            size="large" 
+            style={canSubmit ? { backgroundColor: isPublished ? '#10b981' : '#ea580c', borderColor: isPublished ? '#10b981' : '#ea580c' } : undefined}
+          >
+            {isEditMode ? (isPublished ? 'Update Published' : 'Save Draft') : (isPublished ? 'Publish Test' : 'Save as Draft')}
           </Button>
         </Space>
       </div>

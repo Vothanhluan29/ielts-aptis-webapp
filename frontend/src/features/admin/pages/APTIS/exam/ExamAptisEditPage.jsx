@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Card,
@@ -13,6 +13,7 @@ import {
   Col,
   Spin,
   Divider,
+  Skeleton,
 } from 'antd';
 
 import {
@@ -25,6 +26,8 @@ import {
   MessageOutlined,
   InfoCircleOutlined,
   CloudUploadOutlined,
+  GlobalOutlined,
+  SaveOutlined,
 } from '@ant-design/icons';
 
 import { useExamAptisEditPage } from '../../../hooks/APTIS/exam/useExamAptisEditPage';
@@ -52,10 +55,38 @@ const ExamAptisEditPage = () => {
     onFinish,
   } = useExamAptisEditPage(id, form, navigate);
 
+  const titleValue = Form.useWatch('title', form);
+  const isPublished = Form.useWatch('is_published', form);
+  const canSubmit = !!titleValue;
+
+  // Keyboard Shortcuts (Nielsen: Efficiency of Use, User Control & Freedom)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (canSubmit) form.submit();
+      }
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        navigate(-1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [form, canSubmit, navigate]);
+
   if (loading)
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <Spin size="large" description="Loading test structure..." />
+      <div className="p-4 md:p-8 bg-gray-50 min-h-screen">
+        <Skeleton active title paragraph={{ rows: 2 }} className="mb-8 bg-white p-6 rounded-3xl" />
+        <Row gutter={[32, 32]}>
+          <Col xs={24} lg={10}>
+            <Card className="rounded-3xl border-0 shadow-sm"><Skeleton active paragraph={{ rows: 8 }} /></Card>
+          </Col>
+          <Col xs={24} lg={14}>
+            <Card className="rounded-3xl border-0 shadow-sm"><Skeleton active paragraph={{ rows: 12 }} /></Card>
+          </Col>
+        </Row>
       </div>
     );
 
@@ -87,12 +118,13 @@ const ExamAptisEditPage = () => {
           <Button
             type="primary"
             size="large"
-            icon={<CloudUploadOutlined />}
+            icon={isPublished ? <GlobalOutlined /> : <SaveOutlined />}
             loading={saving}
+            disabled={!canSubmit}
             onClick={() => form.submit()}
-            className="bg-indigo-600 rounded-xl px-10 border-0 shadow-md font-semibold hover:bg-indigo-700"
+            className={`${isPublished ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-indigo-600 hover:bg-indigo-500'} rounded-xl px-10 border-0 shadow-md font-semibold disabled:bg-gray-300 disabled:shadow-none transition-colors`}
           >
-            Save Changes
+            {isEditMode ? (isPublished ? 'Update Published Test' : 'Save Draft') : (isPublished ? 'Publish Test' : 'Save as Draft')}
           </Button>
         </Space>
       </div>

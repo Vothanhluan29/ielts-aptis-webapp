@@ -133,7 +133,7 @@ const FeedbackPage = () => {
           form.resetFields();
         }}
         footer={null}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form
           form={form}

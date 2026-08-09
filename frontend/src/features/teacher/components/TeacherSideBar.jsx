@@ -28,8 +28,8 @@ const NavItem = ({ to, icon: Icon, label, isActive, isCollapsed, badge }) => (
     title={isCollapsed ? label : ""}
     className={`group relative flex items-center gap-3 rounded-xl transition-all duration-200 ${
       isActive
-        ? "bg-white text-[#0288D1] shadow-md font-bold"
-        : "text-slate-700 hover:bg-black/5 hover:text-slate-900 font-medium"
+        ? "!bg-white !text-[#0288D1] shadow-[0_8px_16px_rgba(0,0,0,0.15)] font-bold scale-[1.02] transform ring-1 ring-white/50"
+        : "!text-slate-700 hover:bg-black/5 hover:!text-slate-900 font-medium"
     } ${isCollapsed ? "justify-center h-11 w-11 mx-auto" : "px-3 py-2.5"}`}
   >
     {isActive && !isCollapsed && (
@@ -38,7 +38,7 @@ const NavItem = ({ to, icon: Icon, label, isActive, isCollapsed, badge }) => (
     <div className="relative shrink-0">
       <Icon
         size={18}
-        className={`transition-colors duration-200 ${isActive ? activeText : "text-slate-600 group-hover:text-slate-900"}`}
+        className={`transition-colors duration-200 ${isActive ? "!text-[#0288D1]" : "!text-slate-600 group-hover:!text-slate-900"}`}
       />
       {isCollapsed && badge > 0 && (
         <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center animate-pulse shadow-sm">
@@ -67,15 +67,15 @@ const DropdownMenu = ({ icon: Icon, label, isOpen, onToggle, isCollapsed, childr
       title={isCollapsed ? label : ""}
       className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group ${
         isOpen
-          ? "bg-black/5 text-slate-900 font-bold shadow-inner"
-          : "text-slate-700 hover:bg-black/5 hover:text-slate-900 font-medium"
+          ? "bg-black/5 !text-slate-900 font-bold shadow-inner"
+          : "!text-slate-700 hover:bg-black/5 hover:!text-slate-900 font-medium"
       } ${isCollapsed ? "justify-center" : ""}`}
     >
       <div className="flex items-center gap-3">
         <Icon
           size={18}
           className={`transition-colors duration-200 ${
-            isOpen ? "text-slate-900" : "text-slate-600 group-hover:text-slate-900"
+            isOpen ? "!text-slate-900" : "!text-slate-600 group-hover:!text-slate-900"
           }`}
         />
         {!isCollapsed && <span className="text-[14px]">{label}</span>}
@@ -84,7 +84,7 @@ const DropdownMenu = ({ icon: Icon, label, isOpen, onToggle, isCollapsed, childr
         <ChevronRight
           size={14}
           className={`transition-transform duration-300 ${
-            isOpen ? `rotate-90 text-slate-900` : "text-slate-600 group-hover:text-slate-900"
+            isOpen ? `rotate-90 !text-slate-900` : "!text-slate-600 group-hover:!text-slate-900"
           }`}
         />
       )}
@@ -112,8 +112,8 @@ const SubLink = ({ to, label, isActive }) => (
     to={to}
     className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-[14px] transition-all duration-200 ${
       isActive
-        ? `bg-white text-[#0288D1] font-bold shadow-md`
-        : "text-slate-700 hover:text-slate-900 hover:bg-black/5 font-medium"
+        ? `!bg-white !text-[#0288D1] font-bold shadow-[0_4px_10px_rgba(0,0,0,0.1)] scale-[1.02] transform`
+        : "!text-slate-700 hover:!text-slate-900 hover:bg-black/5 font-medium"
     }`}
   >
     <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${

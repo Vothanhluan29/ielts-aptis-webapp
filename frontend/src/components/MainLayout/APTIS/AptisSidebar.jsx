@@ -158,9 +158,9 @@ const SidebarLink = ({ to, label, icon, active, collapsed }) => {
 
   // Active style: White background with vibrant blue text or glowing white container like sample
   const activeStyle =
-    "bg-white/20 text-white shadow-sm backdrop-blur-md border border-white/20 font-extrabold";
+    "!bg-white !text-[#1859f5] shadow-[0_8px_16px_rgba(0,0,0,0.15)] border border-white font-extrabold scale-[1.02] transform";
   const inactiveStyle =
-    "text-blue-100/80 hover:bg-white/10 hover:text-white font-medium";
+    "!text-blue-100 hover:bg-white/10 hover:!text-white font-medium";
 
   return (
     <Link
@@ -173,7 +173,7 @@ const SidebarLink = ({ to, label, icon, active, collapsed }) => {
       {icon &&
         React.createElement(icon, {
           className: `text-lg transition-transform duration-300 ${
-            active ? "scale-110 text-white" : "group-hover:scale-110 text-blue-200"
+            active ? "scale-110 !text-[#1859f5]" : "group-hover:scale-110 text-blue-200"
           }`
         })}
 

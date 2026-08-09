@@ -131,7 +131,7 @@ const AISuggestionModal = ({ visible, onClose, onCopy, partsData = [] }) => {
       onCancel={handleClose}
       footer={null}
       width={900}
-      destroyOnClose={false}
+      destroyOnHidden={false}
       closeIcon={<X className="text-slate-400 hover:text-slate-600 transition-colors" size={20} />}
       classNames={{
         content: 'p-0 overflow-hidden rounded-2xl shadow-2xl border-0',

@@ -13,8 +13,8 @@ export const useAdminUsers = (isTeacher = false) => {
     setLoading(true);
     try {
       const response = isTeacher 
-        ? await adminUserApi.getTeacherStudents(0, 1000)
-        : await adminUserApi.getAllUsers(0, 1000);
+        ? await adminUserApi.getTeacherStudents(0, 100)
+        : await adminUserApi.getAllUsers(0, 100);
 
       setUsers(response.items || []);
       setTotalUsers(response.total || 0);
