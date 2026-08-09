@@ -45,10 +45,10 @@ const AptisSideBar = ({ layoutProps }) => {
   const { count: pendingFeedbackCount } = useFeedbackCount();
 
   // Professional color palette: dark slate for sidebar
-  const bgSidebar = "bg-[#09090b]"; // Zinc 950
+  const isTeacher = basePath === '/teacher';
+  const bgSidebar = isTeacher ? "bg-[#09090b]" : "bg-[#0F172A]"; // Zinc 950 or Slate 900
   const borderSidebar = "border-zinc-800/60";
   const sectionTitle = "text-[10px] font-bold text-zinc-500 uppercase ml-3 tracking-[0.15em] mb-3 mt-6";
-  const isTeacher = basePath === '/teacher';
 
   return (
     <aside
@@ -87,7 +87,7 @@ const AptisSideBar = ({ layoutProps }) => {
           icon={LayoutDashboard}
           isActive={location.pathname === `${basePath}/dashboard`}
           isCollapsed={isCollapsed}
-          accentColor={isTeacher ? "teal" : "orange"}
+          accentColor={isTeacher ? "teal" : "emerald"}
         />
 
         {/* MANAGEMENT */}
@@ -98,7 +98,7 @@ const AptisSideBar = ({ layoutProps }) => {
           icon={Users}
           isActive={location.pathname === `${basePath}/users`}
           isCollapsed={isCollapsed}
-          accentColor={isTeacher ? "teal" : "orange"}
+          accentColor={isTeacher ? "teal" : "emerald"}
         />
         <SidebarLink
           to={`${basePath}/feedback`}
@@ -106,7 +106,7 @@ const AptisSideBar = ({ layoutProps }) => {
           icon={MessageSquare}
           isActive={location.pathname === `${basePath}/feedback`}
           isCollapsed={isCollapsed}
-          accentColor={isTeacher ? "teal" : "orange"}
+          accentColor={isTeacher ? "teal" : "emerald"}
           badge={pendingFeedbackCount > 0 ? pendingFeedbackCount : null}
         />
 
@@ -120,7 +120,7 @@ const AptisSideBar = ({ layoutProps }) => {
           icon={FileText}
           isActive={location.pathname === `${basePath}/full-tests`}
           isCollapsed={isCollapsed}
-          accentColor={isTeacher ? "teal" : "orange"}
+          accentColor={isTeacher ? "teal" : "emerald"}
         />
 
         {/* QUESTION BANKS DROPDOWN */}
@@ -139,7 +139,7 @@ const AptisSideBar = ({ layoutProps }) => {
                 size={18} 
                 className={`transition-colors duration-200 ${
                   openBank 
-                    ? (isTeacher ? "text-teal-400" : "text-orange-400") 
+                    ? (isTeacher ? "text-teal-400" : "text-emerald-500") 
                     : "text-zinc-400 group-hover:text-zinc-300"
                 }`} 
               />
@@ -150,7 +150,7 @@ const AptisSideBar = ({ layoutProps }) => {
                 size={14} 
                 className={`transition-transform duration-300 ${
                   openBank 
-                    ? `rotate-90 ${isTeacher ? "text-teal-400" : "text-orange-400"}` 
+                    ? `rotate-90 ${isTeacher ? "text-teal-400" : "text-emerald-500"}` 
                     : "text-zinc-500 group-hover:text-zinc-300"
                 }`} 
               />
@@ -169,31 +169,31 @@ const AptisSideBar = ({ layoutProps }) => {
                     to={`${basePath}/listening/bank`} 
                     label="Listening Bank" 
                     isActive={location.pathname.includes(`${basePath}/listening/bank`)} 
-                    accentColor={isTeacher ? "teal" : "orange"} 
+                    accentColor={isTeacher ? "teal" : "emerald"} 
                   />
                   <SubSidebarLink 
                     to={`${basePath}/reading/bank`} 
                     label="Reading Bank" 
                     isActive={location.pathname.includes(`${basePath}/reading/bank`)} 
-                    accentColor={isTeacher ? "teal" : "orange"} 
+                    accentColor={isTeacher ? "teal" : "emerald"} 
                   />
                   <SubSidebarLink 
                     to={`${basePath}/grammar_vocab/bank`} 
                     label="Grammar & Vocab Bank" 
                     isActive={location.pathname.includes(`${basePath}/grammar_vocab/bank`)} 
-                    accentColor={isTeacher ? "teal" : "orange"} 
+                    accentColor={isTeacher ? "teal" : "emerald"} 
                   />
                   <SubSidebarLink 
                     to={`${basePath}/writing/bank`} 
                     label="Writing Bank" 
                     isActive={location.pathname.includes(`${basePath}/writing/bank`)} 
-                    accentColor={isTeacher ? "teal" : "orange"} 
+                    accentColor={isTeacher ? "teal" : "emerald"} 
                   />
                   <SubSidebarLink 
                     to={`${basePath}/speaking/bank`} 
                     label="Speaking Bank" 
                     isActive={location.pathname.includes(`${basePath}/speaking/bank`)} 
-                    accentColor={isTeacher ? "teal" : "orange"} 
+                    accentColor={isTeacher ? "teal" : "emerald"} 
                   />
                 </div>
               </div>
@@ -217,7 +217,7 @@ const AptisSideBar = ({ layoutProps }) => {
                 size={18} 
                 className={`transition-colors duration-200 ${
                   openSkills 
-                    ? (isTeacher ? "text-teal-400" : "text-orange-400") 
+                    ? (isTeacher ? "text-teal-400" : "text-emerald-500") 
                     : "text-zinc-400 group-hover:text-zinc-300"
                 }`} 
               />
@@ -228,7 +228,7 @@ const AptisSideBar = ({ layoutProps }) => {
                 size={14} 
                 className={`transition-transform duration-300 ${
                   openSkills 
-                    ? `rotate-90 ${isTeacher ? "text-teal-400" : "text-orange-400"}` 
+                    ? `rotate-90 ${isTeacher ? "text-teal-400" : "text-emerald-500"}` 
                     : "text-zinc-500 group-hover:text-zinc-300"
                 }`} 
               />
@@ -252,7 +252,7 @@ const AptisSideBar = ({ layoutProps }) => {
                         to={`${basePath}/${skill}`} 
                         label={skill.split("-").map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(" & ")} 
                         isActive={isSkillActive} 
-                        accentColor={isTeacher ? "teal" : "orange"} 
+                        accentColor={isTeacher ? "teal" : "emerald"} 
                       />
                     );
                   })}
@@ -264,7 +264,7 @@ const AptisSideBar = ({ layoutProps }) => {
       </nav>
 
       {/* ── BOTTOM: LOGOUT ── */}
-      <div className={`p-4 border-t ${borderSidebar} shrink-0 bg-[#09090b]`}>
+      <div className={`p-4 border-t ${borderSidebar} shrink-0 ${bgSidebar}`}>
         <button
           onClick={logout}
           className={`flex items-center gap-3 w-full rounded-xl transition-all duration-200 ${
@@ -283,10 +283,10 @@ const AptisSideBar = ({ layoutProps }) => {
 /* =========================
    SIDEBAR LINK COMPONENT
 ========================= */
-const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed, accentColor = "orange", badge = null }) => {
-  const activeBg = accentColor === "orange" ? "bg-orange-500" : "bg-teal-500";
-  const activeText = accentColor === "orange" ? "text-orange-400" : "text-teal-400";
-  const badgeBg = accentColor === "orange" ? "bg-orange-500" : "bg-teal-500";
+const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed, accentColor = "emerald", badge = null }) => {
+  const activeBg = accentColor === "emerald" ? "bg-emerald-600" : accentColor === "emerald" ? "bg-emerald-600" : "bg-teal-500";
+  const activeText = accentColor === "emerald" ? "text-emerald-500" : accentColor === "emerald" ? "text-emerald-500" : "text-teal-400";
+  const badgeBg = accentColor === "emerald" ? "bg-emerald-600" : accentColor === "emerald" ? "bg-emerald-600" : "bg-teal-500";
   
   return (
     <Link
@@ -294,8 +294,8 @@ const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed, accentColor
       title={isCollapsed ? (badge ? `${label} (${badge} pending)` : label) : ""}
       className={`group flex items-center gap-3 rounded-xl font-medium transition-all duration-200 relative ${
         isActive 
-          ? "bg-zinc-800/80 text-white shadow-sm ring-1 ring-zinc-700/50" 
-          : "text-zinc-400 hover:bg-zinc-800/40 hover:text-white"
+          ? "bg-zinc-800/80 !text-white shadow-sm ring-1 ring-zinc-700/50" 
+          : "!text-zinc-400 hover:bg-zinc-800/40 hover:!text-white"
       } ${isCollapsed ? "justify-center h-11 w-11 mx-auto" : "px-3 py-2.5"}`}
     >
       {isActive && !isCollapsed && (
@@ -307,7 +307,7 @@ const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed, accentColor
         {Icon && (
           <Icon 
             size={18} 
-            className={`transition-colors duration-200 ${isActive ? activeText : 'text-zinc-400 group-hover:text-zinc-300'}`} 
+            className={`transition-colors duration-200 ${isActive ? activeText : '!text-zinc-400 group-hover:!text-zinc-300'}`} 
           />
         )}
         {/* Badge dot khi sidebar collapsed */}
@@ -336,10 +336,10 @@ const SidebarLink = ({ to, label, icon: Icon, isActive, isCollapsed, accentColor
 /* =========================
    SUB-SIDEBAR LINK COMPONENT (Dropdown Items)
 ========================= */
-const SubSidebarLink = ({ to, label, isActive, accentColor = "orange" }) => {
-  const activeBg = accentColor === "orange" ? "bg-orange-500/15" : "bg-teal-500/15";
-  const activeText = accentColor === "orange" ? "text-orange-400" : "text-teal-400";
-  const dotColor = accentColor === "orange" ? "bg-orange-400 shadow-[0_0_5px_rgba(251,146,60,0.5)]" : "bg-teal-400 shadow-[0_0_5px_rgba(45,212,191,0.5)]";
+const SubSidebarLink = ({ to, label, isActive, accentColor = "emerald" }) => {
+  const activeBg = accentColor === "emerald" ? "bg-emerald-600/15" : accentColor === "emerald" ? "bg-emerald-600/15" : "bg-teal-500/15";
+  const activeText = accentColor === "emerald" ? "text-emerald-500" : accentColor === "emerald" ? "text-emerald-500" : "text-teal-400";
+  const dotColor = accentColor === "emerald" ? "bg-emerald-600 shadow-[0_0_5px_rgba(16,185,129,0.5)]" : accentColor === "emerald" ? "bg-emerald-500 shadow-[0_0_5px_rgba(16,185,129,0.5)]" : "bg-teal-400 shadow-[0_0_5px_rgba(45,212,191,0.5)]";
 
   return (
     <Link
@@ -347,7 +347,7 @@ const SubSidebarLink = ({ to, label, isActive, accentColor = "orange" }) => {
       className={`group flex items-center gap-3 px-3 py-2.5 rounded-lg text-[14px] font-medium transition-all duration-200 ${
         isActive
           ? `${activeText} ${activeBg} font-semibold ring-1 ring-zinc-700/50`
-          : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
+          : "!text-zinc-400 hover:!text-zinc-200 hover:bg-zinc-800/50"
       }`}
     >
       <div className={`w-2 h-2 rounded-full transition-colors duration-200 ${

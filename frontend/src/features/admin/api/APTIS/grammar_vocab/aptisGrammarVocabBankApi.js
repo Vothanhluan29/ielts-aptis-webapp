@@ -1,8 +1,8 @@
 import axiosClient from "../../../../../services/axiosClient";
 
 const aptisGrammarVocabBankApi = {
-  getBankGroups: () => {
-    return axiosClient.get("/aptis/grammar-vocab/bank/groups");
+  getBankGroups: (params) => {
+    return axiosClient.get("/aptis/grammar-vocab/bank/groups", { params });
   },
 
   getBankGroupById: (id) => {

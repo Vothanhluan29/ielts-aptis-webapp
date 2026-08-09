@@ -11,7 +11,7 @@ from app.modules.APTIS.grammar_vocab.question_bank.service import AptisGrammarVo
 
 router = APIRouter(prefix="/aptis/grammar-vocab", tags=["Aptis Grammar & Vocabulary Question Bank"])
 
-@router.get("/admin/bank/groups", response_model=bank_schemas.PaginatedBankGroupResponse)
+@router.get("/bank/groups", response_model=bank_schemas.PaginatedBankGroupResponse)
 def get_bank_groups(
     part_number: Optional[int] = None,
     search: Optional[str] = None,

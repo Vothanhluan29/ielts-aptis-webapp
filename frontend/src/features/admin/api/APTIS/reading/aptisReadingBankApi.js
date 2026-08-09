@@ -5,12 +5,8 @@ const aptisReadingBankApi = {
     return axiosClient.post('/aptis/reading/bank/groups', data);
   },
   
-  getBankGroups: (part_number = null) => {
-    let url = '/aptis/reading/bank/groups';
-    if (part_number) {
-      url += `?part_number=${part_number}`;
-    }
-    return axiosClient.get(url);
+  getBankGroups: (params) => {
+    return axiosClient.get('/aptis/reading/bank/groups', { params });
   },
 
   getBankGroupById: (id) => {

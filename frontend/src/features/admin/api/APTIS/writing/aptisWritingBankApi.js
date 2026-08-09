@@ -1,8 +1,8 @@
 import axiosClient from "../../../../../services/axiosClient";
 
 const aptisWritingBankApi = {
-  getBankGroups: () => {
-    return axiosClient.get("/aptis/writing/admin/bank/groups");
+  getBankGroups: (params) => {
+    return axiosClient.get("/aptis/writing/admin/bank/groups", { params });
   },
 
   getBankGroupById: (id) => {
