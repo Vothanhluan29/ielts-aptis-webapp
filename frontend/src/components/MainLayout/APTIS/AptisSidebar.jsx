@@ -12,9 +12,7 @@ import {
   AppstoreOutlined,
   ReadOutlined,
   MessageOutlined,
-  PlusOutlined,
-  CloudOutlined,
-  ThunderboltOutlined
+  BulbOutlined
 } from "@ant-design/icons";
 
 // Nhúng Custom Hook
@@ -27,7 +25,8 @@ const SIDEBAR_GROUPS = [
   {
     title: "Main Menu",
     items: [
-      { to: "/aptis/dashboard", label: "Dashboard", icon: DashboardOutlined }
+      { to: "/aptis/dashboard", label: "Dashboard", icon: DashboardOutlined },
+      { to: "/aptis/tips", label: "Exam Tips & Guide", icon: BulbOutlined }
     ]
   },
   {

@@ -19,7 +19,7 @@ const AptisProgressChart = ({ chartData }) => {
               label: 'Individual Skills (Practice)',
               children: (
                 <div style={{ width: '100%', height: 350, marginTop: 16 }}>
-                  <ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height={350} minWidth={1} minHeight={1}>
                     <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                       <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />
@@ -44,7 +44,7 @@ const AptisProgressChart = ({ chartData }) => {
               label: 'Full Mock Test',
               children: (
                 <div style={{ width: '100%', height: 350, marginTop: 16 }}>
-                  <ResponsiveContainer>
+                  <ResponsiveContainer width="100%" height={350} minWidth={1} minHeight={1}>
                     <LineChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                       <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} dy={10} />

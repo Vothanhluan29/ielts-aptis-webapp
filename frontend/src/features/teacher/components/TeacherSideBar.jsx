@@ -10,7 +10,8 @@ import {
   BookMarked,
   FileText,
   Library,
-  ClipboardList
+  ClipboardList,
+  Lightbulb
 } from "lucide-react";
 import { useFeedbackCount } from "../../../contexts/FeedbackCountContext";
 
@@ -223,6 +224,13 @@ const TeacherSideBar = ({ layoutProps }) => {
 
         {/* RESOURCES */}
         {!isCollapsed && <Section label="Resources" />}
+        <NavItem
+          to={`${basePath}/tips`}
+          icon={Lightbulb}
+          label="Exam Tips & Guide"
+          isActive={p.startsWith(`${basePath}/tips`)}
+          isCollapsed={isCollapsed}
+        />
         <NavItem
           to={`${basePath}/full-tests`}
           icon={FileText}

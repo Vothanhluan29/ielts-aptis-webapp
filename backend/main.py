@@ -32,6 +32,7 @@ from app.modules.APTIS.reading.question_bank.models import AptisReadingBankGroup
 from app.modules.APTIS.grammar_vocab.question_bank.models import AptisGrammarVocabBankGroup, AptisGrammarVocabBankQuestion
 from app.modules.APTIS.writing.question_bank.models import AptisWritingBankGroup, AptisWritingBankQuestion
 from app.modules.APTIS.speaking.question_bank.models import AptisSpeakingBankGroup, AptisSpeakingBankQuestion
+from app.modules.tips.models import Tip
 
 # --- 5. Router Modules Imports ---
 # Core Routers
@@ -63,6 +64,7 @@ from app.modules.APTIS.writing.question_bank import web as aptis_writing_bank_we
 from app.modules.APTIS.speaking.question_bank import web as aptis_speaking_bank_web
 from app.modules.APTIS.exam import web as aptis_exam_web
 from app.modules.APTIS.user_stats_Aptis import web as aptis_user_stats_web
+from app.modules.tips import web as aptis_tips_web
 
 
 # ==========================================
@@ -104,11 +106,13 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",                       
+        "http://127.0.0.1:5173",                       
         "http://localhost",
         "http://127.0.0.1",
         "https://ielts-aptis-frontend.onrender.com",
         "https://english.greenwich-it.com"
     ],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -173,6 +177,7 @@ api_router.include_router(aptis_writing_bank_web.router)
 api_router.include_router(aptis_speaking_bank_web.router)
 api_router.include_router(aptis_exam_web.router) 
 api_router.include_router(aptis_user_stats_web.router)
+api_router.include_router(aptis_tips_web.router)
 
 app.include_router(api_router)
 

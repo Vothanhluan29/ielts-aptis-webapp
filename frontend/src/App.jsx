@@ -102,6 +102,12 @@ import ExamAptisExamPage from './features/public/pages/APTIS/exam/ExamAptisExamP
 import ExamAptisResultPage from './features/public/pages/APTIS/exam/ExamAptisResultPage';
 import ExamAptisHistoryPage from './features/public/pages/APTIS/exam/ExamAptisHistoryPage';
 
+// TIPS & STRATEGIES
+import TipsStudentListPage from './features/public/pages/APTIS/tips/TipsStudentListPage';
+import TipDetailPage from './features/public/pages/APTIS/tips/TipDetailPage';
+import TipsAdminListPage from './features/admin/pages/APTIS/tips/TipsAdminListPage';
+import TipEditPage from './features/admin/pages/APTIS/tips/TipEditPage';
+
 
 
 /* --- ADMIN PAGES --- */
@@ -254,6 +260,10 @@ function App() {
           <Route path="aptis/exam/lobby/:id" element={<ExamAptisLobbyPage />} />
           <Route path="aptis/exam/result/:id" element={<ExamAptisResultPage />} />
           <Route path="aptis/exam/history" element={<ExamAptisHistoryPage />} />
+
+          {/* APTIS TIPS */}
+          <Route path="aptis/tips" element={<TipsStudentListPage />} />
+          <Route path="aptis/tips/:id" element={<TipDetailPage />} />
         </Route>
 
         {/* ================= FULLSCREEN EXAM MODE ================= */}
@@ -286,6 +296,9 @@ function App() {
             <Route path="aptis/profile" element={<AdminProfilePage/>}/>
             <Route path="feedback" element={<AdminFeedbackPage/>}/>
             <Route path="aptis/feedback" element={<AdminFeedbackPage/>}/>
+            <Route path="aptis/tips" element={<TipsAdminListPage />} />
+            <Route path="aptis/tips/create" element={<TipEditPage />} />
+            <Route path="aptis/tips/edit/:id" element={<TipEditPage />} />
 
             {/* APTIS GRADING (CHAM BAI) */}
             <Route path="aptis/submissions/listening" element={<ListeningSubmissionListPage />} />
@@ -384,6 +397,9 @@ function App() {
             <Route path="users" element={<UserManagement/>}/>
             <Route path="profile" element={<AdminProfilePage/>}/>
             <Route path="feedback" element={<FeedbackPage />} />
+            <Route path="tips" element={<TipsAdminListPage />} />
+            <Route path="tips/create" element={<TipEditPage />} />
+            <Route path="tips/edit/:id" element={<TipEditPage />} />
 
             {/* APTIS GRADING (CHAM BAI) */}
             <Route path="submissions/listening" element={<ListeningSubmissionListPage />} />

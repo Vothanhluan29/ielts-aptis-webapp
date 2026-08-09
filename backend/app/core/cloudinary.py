@@ -47,9 +47,9 @@ async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
     MAX_AUDIO_SIZE = 50 * 1024 * 1024  # 50MB
     MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 
-    await file.seek(0, os.SEEK_END)
+    file.file.seek(0, os.SEEK_END)
     file_size = file.file.tell()
-    await file.seek(0)
+    file.file.seek(0)
 
     if file_ext in {".jpg", ".jpeg", ".png", ".gif", ".webp"} and file_size > MAX_IMAGE_SIZE:
         raise HTTPException(status_code=413, detail="Image file size exceeds limit (Max 10MB)")
@@ -70,12 +70,16 @@ async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
 
         try:
             # Move file pointer to the beginning before reading/saving
+            file.file.seek(0)
             await file.seek(0)
             with open(file_path, "wb") as buffer:
                 shutil.copyfileobj(file.file, buffer)
 
             # Return localhost URL
             base_url = settings.BASE_URL.rstrip('/')
+            if not settings.USE_CLOUDINARY and ("english.greenwich-it.com" in base_url or "onrender.com" in base_url):
+                base_url = "http://localhost:8000"
+
             url_path = f"static/{safe_folder}/{filename}"
             return f"{base_url}/{url_path}"
 
@@ -85,6 +89,7 @@ async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
 
     # CASE 2: UPLOAD TO CLOUDINARY (when deployed)
     try:
+        file.file.seek(0)
         await file.seek(0)  # Ensure reading from the beginning
         file_content = await file.read()
 

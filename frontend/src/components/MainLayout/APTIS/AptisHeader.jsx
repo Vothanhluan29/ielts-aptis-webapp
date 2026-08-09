@@ -21,6 +21,7 @@ const PAGE_TITLES = {
   '/aptis/reading':       'Reading Practice',
   '/aptis/writing':       'Writing Practice',
   '/aptis/speaking':      'Speaking Practice',
+  '/aptis/tips':          'Exam Tips & Guide',
   '/aptis/profile':       'Account Settings',
 };
 
