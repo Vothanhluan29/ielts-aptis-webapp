@@ -33,7 +33,7 @@ const WritingAptisEditPage = () => {
     clearDraft
   } = useWritingAptisEdit();
 
-  const activePartKeys = ['0', '1', '2', '3'];
+  const [activePartKeys, setActivePartKeys] = useState(['0', '1', '2', '3']);
   const titleValue = Form.useWatch('title', form);
   const isPublished = Form.useWatch('is_published', form);
   const timeLimit = Form.useWatch('time_limit', form);
