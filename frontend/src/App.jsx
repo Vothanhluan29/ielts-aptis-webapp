@@ -205,6 +205,7 @@ function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="profile" element={<StudentProfile />} />
           
+          {/* 
           <Route path="exam" element={<ExamListPage />} /> 
           <Route path="exam/lobby/:id" element={<ExamLobbyPage />} /> 
           <Route path="exam/result/:id" element={<ExamResultPage />} />
@@ -225,6 +226,7 @@ function App() {
           <Route path="speaking" element={<SpeakingListPage />} />
           <Route path="speaking/history" element={<SpeakingHistoryPage />} />
           <Route path="speaking/result/:id" element={<SpeakingResultPage />} />
+          */}
 
           {/*  --- APTIS STUDENT ROUTES ---*/}
           <Route path="aptis/dashboard" element={<DashboardAptisStudentPage />} />
@@ -268,11 +270,13 @@ function App() {
 
         {/* ================= FULLSCREEN EXAM MODE ================= */}
         {/* IELTS FULLSCREEN */}
+        {/* 
         <Route path="/exam/taking/:id" element={<ExamTakingPage />} />
         <Route path="/reading/exam/:id" element={<ReadingExamPage />} />
         <Route path="/listening/exam/:id" element={<ListeningExamPage />} />
         <Route path="/writing/exam/:id" element={<WritingExamPage />} />
         <Route path="/speaking/exam/:id" element={<SpeakingExamPage />} />
+        */}
 
         {/* APTIS FULLSCREEN */}
         <Route path="/aptis/exam/taking/:id" element={<ExamAptisExamPage />} />
