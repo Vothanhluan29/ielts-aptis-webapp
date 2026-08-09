@@ -66,13 +66,13 @@ const SpeakingGradingDetailPage = () => {
         <Space>
           <div className="bg-gray-100 px-3 py-1 rounded-md border border-gray-200">
             <Text className="text-gray-500 text-xs mr-2 uppercase">Total Score</Text>
-            <Text strong className="text-lg text-indigo-600">{totalScore}/50</Text>
+            <Text strong className="text-lg text-[#445A95]">{totalScore}/50</Text>
             <Badge count={autoSuggestCEFR(totalScore)} style={{ backgroundColor: getCEFRColor(autoSuggestCEFR(totalScore)), marginLeft: 8 }} />
           </div>
           <Button 
             type="primary" icon={<SaveOutlined />} 
             loading={submitting} onClick={handleSaveGrade}
-            className="bg-indigo-600 font-medium"
+            className="bg-[#445A95] font-medium"
           >
             Save Results
           </Button>
@@ -159,7 +159,7 @@ const SpeakingGradingDetailPage = () => {
             <Card 
               size="small" 
               className="shadow-sm border-gray-200 rounded-lg"
-              title={<Space><EditOutlined className="text-indigo-500" /><Text strong>Grading Panel</Text></Space>}
+              title={<Space><EditOutlined className="text-[#445A95]" /><Text strong>Grading Panel</Text></Space>}
             >
               <div className="space-y-3">
                 {gradingSections.map((sec) => {

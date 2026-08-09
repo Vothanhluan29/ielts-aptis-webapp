@@ -49,23 +49,23 @@ const ListeningAptisListPage = () => {
           ),
           mainBtnText: 'Start Now',
           mainBtnAction: () => handleNavigateLobby(testId),
-          mainBtnClass: "bg-gradient-to-r from-blue-500 to-blue-400 text-white border-none shadow-md shadow-blue-500/30 hover:opacity-90 hover:scale-[1.02]",
+          mainBtnClass: "bg-gradient-to-r from-teal-500 to-blue-500 text-white border-none shadow-md shadow-teal-500/30 hover:opacity-90 hover:scale-[1.02]",
           showRetry: false
         };
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/50 via-white to-blue-100/30 font-sans p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50/50 via-white to-blue-50/30 font-sans p-4 md:p-8">
       <div className="max-w-6xl mx-auto w-full">
         
         {/* ===== HEADER BANNER ===== */}
-        <div className="mb-10 bg-white/60 backdrop-blur-xl p-8 rounded-[2rem] border border-white/80 shadow-xl shadow-blue-500/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+        <div className="mb-10 bg-white/60 backdrop-blur-xl p-8 rounded-[2rem] border border-white/80 shadow-xl shadow-teal-500/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
           {/* Decorative blur */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-100 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-60 pointer-events-none" />
 
           <div className="flex items-center gap-5 relative z-10">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-400 flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-blue-500 flex items-center justify-center shadow-lg shadow-teal-500/30 shrink-0">
               <Headphones size={32} className="text-white" strokeWidth={2.5} />
             </div>
             <div>
@@ -83,7 +83,7 @@ const ListeningAptisListPage = () => {
                   onClick={() => setFilterStatus(opt.value)}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                     filterStatus === opt.value
-                      ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
+                      ? 'bg-blue-500 text-white shadow-md shadow-teal-500/20'
                       : 'bg-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50/50'
                   }`}
                 >
@@ -110,7 +110,7 @@ const ListeningAptisListPage = () => {
             ))}
           </div>
         ) : filteredTests.length === 0 ? (
-          <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-blue-500/5 flex flex-col items-center justify-center p-20 text-center">
+          <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-teal-500/5 flex flex-col items-center justify-center p-20 text-center">
             <div className="w-20 h-20 rounded-[1.5rem] bg-blue-100 flex items-center justify-center mb-5 shadow-inner">
               <Headphones size={40} className="text-blue-500" />
             </div>
@@ -127,7 +127,7 @@ const ListeningAptisListPage = () => {
                 return (
                   <div
                     key={test.id}
-                    className={`group bg-white/60 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/80 flex flex-col transition-all duration-300 shadow-lg shadow-blue-500/5 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1 ${
+                    className={`group bg-white/60 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/80 flex flex-col transition-all duration-300 shadow-lg shadow-teal-500/5 hover:shadow-2xl hover:shadow-teal-500/10 hover:-translate-y-1 ${
                       isDone ? 'border-l-4 border-l-green-500' : 'border-l-4 border-l-blue-500'
                     }`}
                   >

@@ -26,19 +26,16 @@ const NavItem = ({ to, icon: Icon, label, isActive, isCollapsed, badge }) => (
   <Link
     to={to}
     title={isCollapsed ? label : ""}
-    className={`group relative flex items-center gap-3 rounded-xl transition-all duration-200 ${
+    className={`group relative flex items-center gap-3 transition-all duration-200 ${
       isActive
-        ? "!bg-white !text-[#0288D1] shadow-[0_8px_16px_rgba(0,0,0,0.15)] font-bold scale-[1.02] transform ring-1 ring-white/50"
-        : "!text-slate-700 hover:bg-black/5 hover:!text-slate-900 font-medium"
-    } ${isCollapsed ? "justify-center h-11 w-11 mx-auto" : "px-3 py-2.5"}`}
+        ? "!bg-[#F8FAFC] !text-[#445A95] font-bold rounded-l-full rounded-r-none"
+        : "!text-white/80 hover:bg-white/10 hover:!text-white font-medium rounded-l-full rounded-r-none"
+    } ${isCollapsed ? "justify-center h-12 w-12 mx-auto rounded-full" : "pl-4 pr-2 py-3"}`}
   >
-    {isActive && !isCollapsed && (
-      <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-[#0288D1] rounded-r-full`} />
-    )}
     <div className="relative shrink-0">
       <Icon
         size={18}
-        className={`transition-colors duration-200 ${isActive ? "!text-[#0288D1]" : "!text-slate-600 group-hover:!text-slate-900"}`}
+        className={`transition-colors duration-200 ${isActive ? "!text-[#445A95]" : "!text-white/70 group-hover:!text-white"}`}
       />
       {isCollapsed && badge > 0 && (
         <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 px-0.5 rounded-full bg-rose-500 text-white text-[9px] font-bold flex items-center justify-center animate-pulse shadow-sm">
@@ -65,17 +62,17 @@ const DropdownMenu = ({ icon: Icon, label, isOpen, onToggle, isCollapsed, childr
     <button
       onClick={onToggle}
       title={isCollapsed ? label : ""}
-      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group ${
+      className={`w-full flex items-center justify-between transition-all duration-200 group rounded-l-full rounded-r-none ${
         isOpen
-          ? "bg-black/5 !text-slate-900 font-bold shadow-inner"
-          : "!text-slate-700 hover:bg-black/5 hover:!text-slate-900 font-medium"
-      } ${isCollapsed ? "justify-center" : ""}`}
+          ? "bg-white/10 !text-white font-bold"
+          : "!text-white/80 hover:bg-white/10 hover:!text-white font-medium"
+      } ${isCollapsed ? "justify-center h-12 w-12 mx-auto rounded-full" : "pl-4 pr-3 py-3"}`}
     >
       <div className="flex items-center gap-3">
         <Icon
           size={18}
           className={`transition-colors duration-200 ${
-            isOpen ? "!text-slate-900" : "!text-slate-600 group-hover:!text-slate-900"
+            isOpen ? "!text-white" : "!text-white/70 group-hover:!text-white"
           }`}
         />
         {!isCollapsed && <span className="text-[14px]">{label}</span>}
@@ -84,7 +81,7 @@ const DropdownMenu = ({ icon: Icon, label, isOpen, onToggle, isCollapsed, childr
         <ChevronRight
           size={14}
           className={`transition-transform duration-300 ${
-            isOpen ? `rotate-90 !text-slate-900` : "!text-slate-600 group-hover:!text-slate-900"
+            isOpen ? `rotate-90 !text-white` : "!text-white/70 group-hover:!text-white"
           }`}
         />
       )}
@@ -97,7 +94,7 @@ const DropdownMenu = ({ icon: Icon, label, isOpen, onToggle, isCollapsed, childr
         }`}
       >
         <div className="overflow-hidden">
-          <div className="ml-5 border-l-2 border-black/10 pl-3 py-1 space-y-1">
+          <div className="ml-5 border-l-2 border-white/10 pl-2 py-1 space-y-1">
             {children}
           </div>
         </div>
@@ -110,14 +107,14 @@ const DropdownMenu = ({ icon: Icon, label, isOpen, onToggle, isCollapsed, childr
 const SubLink = ({ to, label, isActive }) => (
   <Link
     to={to}
-    className={`group flex items-center gap-3 px-3 py-2 rounded-lg text-[14px] transition-all duration-200 ${
+    className={`group flex items-center gap-3 pl-4 pr-2 py-2.5 rounded-l-full rounded-r-none text-[14px] transition-all duration-200 ${
       isActive
-        ? `!bg-white !text-[#0288D1] font-bold shadow-[0_4px_10px_rgba(0,0,0,0.1)] scale-[1.02] transform`
-        : "!text-slate-700 hover:!text-slate-900 hover:bg-black/5 font-medium"
+        ? `!bg-[#F8FAFC] !text-[#445A95] font-bold`
+        : "!text-white/80 hover:!text-white hover:bg-white/10 font-medium"
     }`}
   >
     <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-200 ${
-      isActive ? dotActive : "bg-slate-400 group-hover:bg-slate-600"
+      isActive ? "bg-[#445A95]" : "bg-white/40 group-hover:bg-white"
     }`} />
     {label}
   </Link>
@@ -125,7 +122,7 @@ const SubLink = ({ to, label, isActive }) => (
 
 /* ── Section Header ── */
 const Section = ({ label }) => (
-  <p className="text-[10px] font-bold text-slate-600 uppercase ml-3 tracking-[0.15em] mb-2 mt-5 select-none">
+  <p className="text-[10px] font-bold text-white/70 uppercase ml-3 tracking-[0.15em] mb-2 mt-5 select-none">
     {label}
   </p>
 );
@@ -143,27 +140,27 @@ const TeacherSideBar = ({ layoutProps }) => {
   const [openBank, setOpenBank]       = useState(p.includes(`${basePath}/bank`) || p.includes(`${basePath}/listening`) || p.includes(`${basePath}/reading`) || p.includes(`${basePath}/writing`) || p.includes(`${basePath}/speaking`) || p.includes(`${basePath}/grammar`));
   const [openLib, setOpenLib]         = useState(p.includes(`${basePath}/library`) || p.includes(`${basePath}/skills`));
 
-  const border = "border-black/10";
-  const bg = "bg-[#81D4FA]";
+  const border = "border-transparent";
+  const bg = "bg-[#445A95]";
 
   return (
     <aside
-      className={`flex flex-col transition-all duration-300 ease-in-out border-r ${border} shadow-sm ${bg} text-slate-800 z-50 relative ${
+      className={`flex flex-col transition-all duration-300 ease-in-out shadow-sm ${bg} text-white z-50 relative ${
         isCollapsed ? "w-[72px]" : "w-[252px]"
       }`}
     >
       {/* ── BRANDING ── */}
-      <div className={`h-[68px] flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-4'} border-b ${border} shrink-0 bg-black/5`}>
+      <div className={`h-[68px] flex items-center ${isCollapsed ? 'justify-center' : 'justify-between px-4'} border-b ${border} shrink-0 bg-white/10`}>
         {!isCollapsed && (
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-lg bg-white overflow-hidden shadow-sm flex items-center justify-center shrink-0 p-0.5">
               <img src="/logo.jpg" alt="Greenwich Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-[18px] font-extrabold tracking-tight text-slate-900 leading-tight m-0">
-                Aptis<span className="text-slate-700 font-bold ml-1 text-[16px]">Teacher</span>
+              <h1 className="text-[18px] font-extrabold tracking-tight text-white leading-tight m-0">
+                Aptis<span className="text-white/80 font-bold ml-1 text-[16px]">Teacher</span>
               </h1>
-              <span className="text-[10px] text-slate-600 font-semibold tracking-[0.15em] uppercase">
+              <span className="text-[10px] text-white/70 font-semibold tracking-[0.15em] uppercase">
                 Workspace
               </span>
             </div>
@@ -171,14 +168,14 @@ const TeacherSideBar = ({ layoutProps }) => {
         )}
         <button
           onClick={toggleSidebar}
-          className="p-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-black/10 transition-colors focus:outline-none"
+          className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/20 transition-colors focus:outline-none"
         >
           {isCollapsed ? <ChevronRight size={17} /> : <ChevronLeft size={17} />}
         </button>
       </div>
 
       {/* ── NAV ── */}
-      <nav className="flex-1 px-2.5 py-3 space-y-0.5 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 pl-4 pr-0 py-5 space-y-1 overflow-y-auto custom-scrollbar">
 
         {/* HOME */}
         {!isCollapsed && <Section label="Home" />}
@@ -279,7 +276,7 @@ const TeacherSideBar = ({ layoutProps }) => {
           title={isCollapsed ? "Sign Out" : ""}
           className={`flex items-center gap-3 w-full rounded-xl transition-all duration-200 ${
             isCollapsed ? "justify-center h-11" : "px-4 py-2.5"
-          } text-slate-700 hover:text-rose-600 hover:bg-rose-500/10 font-medium group`}
+          } text-white/80 hover:text-rose-600 hover:bg-rose-500/10 font-medium group`}
         >
           <LogOut size={17} className="group-hover:-translate-x-0.5 transition-transform" />
           {!isCollapsed && <span className="text-[14px]">Sign Out</span>}

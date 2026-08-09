@@ -174,7 +174,7 @@ const TipsAdminListPage = () => {
           <Tooltip title="View Live Student Article">
             <Button
               type="text"
-              icon={<EyeOutlined className="text-slate-500 hover:text-indigo-600" />}
+              icon={<EyeOutlined className="text-slate-500 hover:text-[#445A95]" />}
               onClick={() => navigate(`/aptis/tips/${record.id}`)}
             />
           </Tooltip>
@@ -182,7 +182,7 @@ const TipsAdminListPage = () => {
           <Tooltip title="Edit Tip Article">
             <Button
               type="text"
-              icon={<EditOutlined className="text-indigo-600" />}
+              icon={<EditOutlined className="text-[#445A95]" />}
               onClick={() => navigate(`${basePath}/edit/${record.id}`)}
             />
           </Tooltip>
@@ -212,7 +212,7 @@ const TipsAdminListPage = () => {
         className="rounded-3xl shadow-sm border border-slate-200"
         title={
           <div className="flex items-center gap-3 py-2">
-            <div className="p-3 rounded-2xl bg-indigo-50 text-indigo-600 shadow-sm">
+            <div className="p-3 rounded-2xl bg-[#F8FAFC] text-[#445A95] shadow-sm">
               <BookOutlined className="text-xl" />
             </div>
             <div>
@@ -230,7 +230,7 @@ const TipsAdminListPage = () => {
             type="primary"
             icon={<PlusOutlined />}
             onClick={() => navigate(`${basePath}/create`)}
-            className="bg-indigo-600 hover:bg-indigo-500 font-bold rounded-xl h-11 px-6 border-none shadow-md shadow-indigo-200"
+            className="bg-[#445A95] hover:bg-[#445A95] font-bold rounded-xl h-11 px-6 border-none shadow-md shadow-[#445A95]/20"
           >
             Create New Tip
           </Button>
@@ -322,11 +322,11 @@ const TipsAdminListPage = () => {
                 className="py-6"
               >
                 {hasActiveFilters ? (
-                  <Button size="middle" icon={<ClearOutlined />} onClick={handleResetFilters} className="rounded-xl font-bold bg-indigo-50 text-indigo-600 border-none hover:bg-indigo-100 mt-2">
+                  <Button size="middle" icon={<ClearOutlined />} onClick={handleResetFilters} className="rounded-xl font-bold bg-[#F8FAFC] text-[#445A95] border-none hover:bg-[#445A95]/10 mt-2">
                     Clear Filters
                   </Button>
                 ) : (
-                  <Button type="primary" size="middle" icon={<PlusOutlined />} onClick={() => navigate(`${basePath}/create`)} className="rounded-xl font-bold bg-indigo-600 border-none shadow-md shadow-indigo-200 mt-2">
+                  <Button type="primary" size="middle" icon={<PlusOutlined />} onClick={() => navigate(`${basePath}/create`)} className="rounded-xl font-bold bg-[#445A95] border-none shadow-md shadow-[#445A95]/20 mt-2">
                     Create First Article
                   </Button>
                 )}

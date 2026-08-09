@@ -110,7 +110,6 @@ const TipsStudentListPage = () => {
                     : 'bg-white/80 backdrop-blur-sm text-slate-600 border-slate-200/80 hover:bg-slate-50 hover:border-slate-300'
                 }`}
               >
-                <Icon size={16} />
                 <span>{item.label}</span>
               </button>
             );

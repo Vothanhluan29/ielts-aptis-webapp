@@ -81,7 +81,7 @@ const QuestionBankManagePage = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 mt-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-indigo-500/10 text-indigo-600 rounded-xl ring-1 ring-indigo-500/20">
+            <div className="p-2.5 bg-[#445A95]/10 text-[#445A95] rounded-xl ring-1 ring-[#445A95]/20">
               <Database size={24} />
             </div>
             <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Aptis Writing Question Bank</h1>
@@ -102,7 +102,7 @@ const QuestionBankManagePage = () => {
           
           <button
             onClick={() => navigate(`${basePath}/create`)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-indigo-600/20 focus:outline-none"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-[#3A4D81] hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none"
           >
             <Plus size={18} />
             New Group
@@ -119,7 +119,7 @@ const QuestionBankManagePage = () => {
             placeholder="Search by instruction..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
+            className="w-full pl-10 pr-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#445A95]/20 focus:border-[#445A95] transition-all shadow-sm"
             style={{ height: '42px' }}
           />
         </div>
@@ -200,7 +200,7 @@ const QuestionBankManagePage = () => {
             <p className="text-zinc-500 max-w-sm mb-6">Start building your question bank by creating a new group.</p>
             <button
               onClick={() => navigate(`${basePath}/create`)}
-              className="text-indigo-600 font-bold hover:text-indigo-700 flex items-center gap-1.5"
+              className="text-[#445A95] font-bold hover:text-[#3A4D81] flex items-center gap-1.5"
             >
               <Plus size={16} /> Create group
             </button>
@@ -213,11 +213,11 @@ const QuestionBankManagePage = () => {
             <div 
               key={item.id} 
               onDoubleClick={() => navigate(`${basePath}/edit/${item.id}`)}
-              className="px-6 py-4 flex flex-col md:grid md:grid-cols-11 gap-4 md:items-center hover:bg-indigo-50/30 transition-colors group relative"
+              className="px-6 py-4 flex flex-col md:grid md:grid-cols-11 gap-4 md:items-center hover:bg-[#F8FAFC]/30 transition-colors group relative"
             >
               {/* Part */}
               <div className="col-span-2">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-500/20">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#F8FAFC] text-[#3A4D81] ring-1 ring-[#445A95]/20">
                   <FormOutlined size={12} />
                   {item.part_type.replace('_', ' ')}
                 </span>
@@ -248,7 +248,7 @@ const QuestionBankManagePage = () => {
               <div className="col-span-1 flex md:justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
                   onClick={() => navigate(`${basePath}/edit/${item.id}`)}
-                  className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors focus:outline-none"
+                  className="p-2 text-zinc-400 hover:text-[#445A95] hover:bg-[#F8FAFC] rounded-lg transition-colors focus:outline-none"
                   title="Edit Group"
                 >
                   <Edit2 size={16} />

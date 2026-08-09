@@ -132,7 +132,7 @@ const BankGroupEditPage = () => {
           icon={<SaveOutlined />} 
           onClick={handleSave} 
           loading={submitting}
-          className="bg-indigo-600 hover:bg-indigo-700 shadow-sm"
+          className="bg-[#445A95] hover:bg-[#3A4D81] shadow-sm"
         >
           Save Changes
         </Button>

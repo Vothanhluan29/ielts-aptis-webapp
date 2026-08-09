@@ -280,7 +280,7 @@ const TipEditPage = () => {
             <Button
               icon={<ArrowLeftOutlined />}
               onClick={handleSafeNavigateBack}
-              className="rounded-full font-bold border-slate-200 text-slate-600 hover:text-indigo-600 hover:border-indigo-300"
+              className="rounded-full font-bold border-slate-200 text-slate-600 hover:text-[#445A95] hover:border-indigo-300"
             >
               Back
             </Button>
@@ -310,7 +310,7 @@ const TipEditPage = () => {
               loading={submitting}
               disabled={!canSubmit}
               onClick={() => form.submit()}
-              className={`${isPublish ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-200' : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-200'} rounded-xl font-bold h-11 px-7 border-none shadow-md disabled:bg-slate-300 disabled:shadow-none transition-colors`}
+              className={`${isPublish ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-200' : 'bg-[#445A95] hover:bg-[#445A95] shadow-[#445A95]/20'} rounded-xl font-bold h-11 px-7 border-none shadow-md disabled:bg-slate-300 disabled:shadow-none transition-colors`}
             >
               {isEditing ? (isPublish ? 'Publish Changes' : 'Save Draft') : (isPublish ? 'Publish Article' : 'Save as Draft')}
             </Button>
@@ -464,21 +464,21 @@ const TipEditPage = () => {
                 {!thumbnailPreview ? (
                   <div
                     onClick={() => !uploadingImage && fileInputRef.current?.click()}
-                    className={`rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:bg-indigo-50/30 hover:border-indigo-300 group ${
+                    className={`rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:bg-[#F8FAFC]/30 hover:border-indigo-300 group ${
                       uploadingImage ? 'opacity-50 pointer-events cursor-wait' : ''
                     }`}
                   >
                     {uploadingImage ? (
                       <div className="py-4">
                         <Spin size="medium" />
-                        <p className="mt-3 text-xs font-bold text-indigo-600 m-0">Uploading image file...</p>
+                        <p className="mt-3 text-xs font-bold text-[#445A95] m-0">Uploading image file...</p>
                       </div>
                     ) : (
                       <>
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <div className="w-12 h-12 rounded-2xl bg-[#F8FAFC] text-[#445A95] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
                           <CloudUploadOutlined className="text-2xl" />
                         </div>
-                        <p className="m-0 font-bold text-sm text-slate-700 group-hover:text-indigo-600">
+                        <p className="m-0 font-bold text-sm text-slate-700 group-hover:text-[#445A95]">
                           Click to upload cover image
                         </p>
                         <p className="m-0 mt-1 text-[11px] font-medium text-slate-400">
@@ -488,7 +488,7 @@ const TipEditPage = () => {
                           size="small"
                           type="primary"
                           icon={<UploadOutlined />}
-                          className="mt-4 rounded-xl font-bold bg-indigo-600 border-none shadow-sm"
+                          className="mt-4 rounded-xl font-bold bg-[#445A95] border-none shadow-sm"
                         >
                           Select Image File
                         </Button>

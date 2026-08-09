@@ -99,7 +99,7 @@ const ExamAptisEditPage = () => {
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate(-1)}
             shape="circle"
-            className="border-gray-200 hover:text-indigo-600 shadow-sm"
+            className="border-gray-200 hover:text-[#445A95] shadow-sm"
           />
 
           <div>
@@ -122,7 +122,7 @@ const ExamAptisEditPage = () => {
             loading={saving}
             disabled={!canSubmit}
             onClick={() => form.submit()}
-            className={`${isPublished ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-indigo-600 hover:bg-indigo-500'} rounded-xl px-10 border-0 shadow-md font-semibold disabled:bg-gray-300 disabled:shadow-none transition-colors`}
+            className={`${isPublished ? 'bg-emerald-600 hover:bg-emerald-500' : 'bg-[#445A95] hover:bg-[#445A95]'} rounded-xl px-10 border-0 shadow-md font-semibold disabled:bg-gray-300 disabled:shadow-none transition-colors`}
           >
             {isEditMode ? (isPublished ? 'Update Published Test' : 'Save Draft') : (isPublished ? 'Publish Test' : 'Save as Draft')}
           </Button>
@@ -152,7 +152,7 @@ const ExamAptisEditPage = () => {
               className="rounded-3xl border-0 shadow-sm overflow-hidden"
               title={
                 <Space>
-                  <InfoCircleOutlined className="text-indigo-500" />
+                  <InfoCircleOutlined className="text-[#445A95]" />
                   <Text strong>Test Information</Text>
                 </Space>
               }
@@ -245,7 +245,7 @@ const ExamAptisEditPage = () => {
               className="rounded-3xl border-0 shadow-sm"
               title={
                 <Space>
-                  <AppstoreAddOutlined className="text-indigo-500" />
+                  <AppstoreAddOutlined className="text-[#445A95]" />
                   <Text strong>Skill Structure (Components)</Text>
                 </Space>
               }
@@ -254,7 +254,7 @@ const ExamAptisEditPage = () => {
                 name="grammar_vocab_test_id"
                 label={
                   <Space>
-                    <FontColorsOutlined className="text-blue-600" />
+                    <FontColorsOutlined className="text-[#445A95]" />
                     <Text strong>
                       1. Grammar & Vocabulary (Core)
                     </Text>
@@ -270,7 +270,7 @@ const ExamAptisEditPage = () => {
                 >
                   {componentOptions.grammarVocab.map((t) => (
                     <Option key={t.id} value={t.id}>
-                      <span className="text-blue-600 font-bold mr-2">
+                      <span className="text-[#445A95] font-bold mr-2">
                         ID: {t.id}
                       </span>
                       {t.title}
@@ -398,7 +398,7 @@ const ExamAptisEditPage = () => {
               </Row>
 
               <div className="mt-4 p-4 bg-blue-50 rounded-2xl border border-blue-100 flex items-start gap-3">
-                <InfoCircleOutlined className="text-blue-500 mt-1" />
+                <InfoCircleOutlined className="text-[#445A95] mt-1" />
                 <Text type="secondary" className="text-xs">
                   The system automatically links individual tests into this Full Test. Students will complete the test sequentially from skill 1 to skill 5.
                 </Text>

@@ -14,17 +14,17 @@ import { useExamAptisSubmissionDetail } from '../../../hooks/APTIS/exam/useExamA
 const CEFR_OPTIONS = [
   { value: 'A0', label: 'Beginner',            color: '#9CA3AF', bg: '#F9FAFB' },
   { value: 'A1', label: 'Elementary',           color: '#3B82F6', bg: '#EFF6FF' },
-  { value: 'A2', label: 'Pre-Intermediate',     color: '#10B981', bg: '#ECFDF5' },
-  { value: 'B1', label: 'Intermediate',         color: '#F59E0B', bg: '#FFFBEB' },
+  { value: 'A2', label: 'Pre-Intermediate',     color: '#445A95', bg: '#F8FAFC' },
+  { value: 'B1', label: 'Intermediate',         color: '#445A95', bg: '#F8FAFC' },
   { value: 'B2', label: 'Upper-Intermediate',   color: '#8B5CF6', bg: '#F5F3FF' },
   { value: 'C',  label: 'Advanced',             color: '#EF4444', bg: '#FEF2F2' },
 ];
-const CEFR_COLOR = { A0:'#9CA3AF', A1:'#3B82F6', A2:'#10B981', B1:'#F59E0B', B2:'#8B5CF6', C:'#EF4444' };
+const CEFR_COLOR = { A0:'#9CA3AF', A1:'#3B82F6', A2:'#445A95', B1:'#445A95', B2:'#8B5CF6', C:'#EF4444' };
 
 // ─── 4 KỸ NĂNG CHÍNH (Grammar&Vocab tách riêng phía trên) ───
 const SKILLS = [
-  { key: 'listening', label: 'Listening', icon: <AudioOutlined />, color: '#10B981', bg: '#ECFDF5', manual: false },
-  { key: 'reading',   label: 'Reading',   icon: <ReadOutlined />,  color: '#F59E0B', bg: '#FFFBEB', manual: false },
+  { key: 'listening', label: 'Listening', icon: <AudioOutlined />, color: '#445A95', bg: '#F8FAFC', manual: false },
+  { key: 'reading',   label: 'Reading',   icon: <ReadOutlined />,  color: '#445A95', bg: '#F8FAFC', manual: false },
   { key: 'writing',   label: 'Writing',   icon: <EditOutlined />,  color: '#8B5CF6', bg: '#F5F3FF', manual: true  },
   { key: 'speaking',  label: 'Speaking',  icon: <AudioOutlined />, color: '#EF4444', bg: '#FEF2F2', manual: true  },
 ];
@@ -94,7 +94,7 @@ const GrammarVocabSection = ({ grammarVocabScore, grammarScore, vocabScore }) =>
             ? <Tag color="success" className="rounded-full border-0 m-0 text-xs font-semibold">Graded</Tag>
             : <Tag color="processing" className="rounded-full border-0 m-0 text-xs font-semibold">Pending</Tag>
           }
-          <div className="text-2xl font-bold" style={{ color:'#4F46E5' }}>
+          <div className="text-2xl font-bold" style={{ color:'#445A95' }}>
             {gvGraded ? grammarVocabScore : '—'}<span className="text-sm font-normal text-gray-400">/50</span>
           </div>
         </div>
@@ -154,7 +154,7 @@ const CefrOverrideModal = ({ open, loading, currentCefr, onSave, onCancel }) => 
     <Modal open={open} onCancel={onCancel} footer={null} width={440} centered
       title={
         <div className="flex items-center gap-2.5 pb-1">
-          <TrophyOutlined style={{ color:'#4F46E5', fontSize:18 }} />
+          <TrophyOutlined style={{ color:'#445A95', fontSize:18 }} />
           <span className="text-base font-semibold text-slate-800">Override CEFR Level</span>
         </div>
       }
@@ -190,7 +190,7 @@ const CefrOverrideModal = ({ open, loading, currentCefr, onSave, onCancel }) => 
           disabled={!selected || loading}
           onClick={() => selected && onSave(selected)}
           className="px-5 py-2 rounded-xl text-xs font-semibold text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-          style={{ background: selOpt ? selOpt.color : '#4F46E5' }}
+          style={{ background: selOpt ? selOpt.color : '#445A95' }}
         >
           {loading ? 'Saving…' : `Set ${selected || '—'}`}
         </button>
@@ -223,7 +223,7 @@ const ExamAptisSubmissionDetailPage = () => {
   if (!data) return <div className="p-10 text-center text-red-500 font-bold">Submission data not found!</div>;
 
   const cefrKey = data.overall_cefr_level?.toUpperCase();
-  const cefrColor = CEFR_COLOR[cefrKey] || '#4F46E5';
+  const cefrColor = CEFR_COLOR[cefrKey] || '#445A95';
 
   return (
     <div className="min-h-screen bg-slate-50 p-6">
@@ -277,7 +277,7 @@ const ExamAptisSubmissionDetailPage = () => {
               <div className="relative w-32 h-32 mx-auto my-4">
                 <svg width="128" height="128" viewBox="0 0 128 128" style={{ transform:'rotate(-90deg)' }}>
                   <circle cx="64" cy="64" r="50" stroke="#F1F5F9" strokeWidth="8" fill="none" />
-                  <circle cx="64" cy="64" r="50" stroke="#4F46E5" strokeWidth="8" fill="none"
+                  <circle cx="64" cy="64" r="50" stroke="#445A95" strokeWidth="8" fill="none"
                     strokeDasharray={circumference} strokeDashoffset={offset} strokeLinecap="round"
                     style={{ transition:'stroke-dashoffset .8s ease' }}
                   />
@@ -316,8 +316,8 @@ const ExamAptisSubmissionDetailPage = () => {
               {/* Admin override button */}
               <button onClick={handleOpenCefrModal}
                 className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-semibold border transition-all"
-                style={{ borderColor:'#4F46E5', color:'#4F46E5', background:'transparent' }}
-                onMouseEnter={e => { e.currentTarget.style.background='#EEF2FF'; }}
+                style={{ borderColor:'#445A95', color:'#445A95', background:'transparent' }}
+                onMouseEnter={e => { e.currentTarget.style.background='#F8FAFC'; }}
                 onMouseLeave={e => { e.currentTarget.style.background='transparent'; }}
               >
                 <TrophyOutlined style={{ fontSize:12 }} />
@@ -374,10 +374,10 @@ const ExamAptisSubmissionDetailPage = () => {
                 <InfoCircleOutlined className="text-blue-400" style={{ fontSize:13 }} /> Examiner Guide
               </div>
               <ul className="list-disc pl-5 space-y-1.5 text-xs text-slate-500">
-                <li><span className="font-semibold text-blue-600">Grammar &amp; Vocabulary</span> is scored separately and <span className="font-semibold text-slate-700">not included</span> in the overall 4-skill total.</li>
+                <li><span className="font-semibold text-[#445A95]">Grammar &amp; Vocabulary</span> is scored separately and <span className="font-semibold text-slate-700">not included</span> in the overall 4-skill total.</li>
                 <li><span className="font-semibold text-slate-600">Listening &amp; Reading</span> are auto-graded by the system.</li>
-                <li><span className="font-semibold text-indigo-600">Writing &amp; Speaking</span> require manual grading — click <span className="font-semibold">"Grade Now"</span>.</li>
-                <li>Use <span className="font-semibold text-indigo-600">Set CEFR Level</span> to manually override the student's CEFR band. It will not be auto-reset after being set.</li>
+                <li><span className="font-semibold text-[#445A95]">Writing &amp; Speaking</span> require manual grading — click <span className="font-semibold">"Grade Now"</span>.</li>
+                <li>Use <span className="font-semibold text-[#445A95]">Set CEFR Level</span> to manually override the student's CEFR band. It will not be auto-reset after being set.</li>
               </ul>
             </div>
           </div>

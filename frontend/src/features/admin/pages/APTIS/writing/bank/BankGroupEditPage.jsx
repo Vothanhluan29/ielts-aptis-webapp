@@ -228,7 +228,7 @@ const BankGroupEditPage = () => {
           icon={<SaveOutlined />} 
           onClick={handleSave} 
           loading={submitting}
-          className="bg-indigo-600 hover:bg-indigo-700 shadow-sm"
+          className="bg-[#445A95] hover:bg-[#3A4D81] shadow-sm"
         >
           Save Changes
         </Button>
@@ -270,7 +270,7 @@ const BankGroupEditPage = () => {
                   <Card 
                     key={key}
                     title={
-                      <div className="flex items-center gap-2 text-indigo-700">
+                      <div className="flex items-center gap-2 text-[#3A4D81]">
                         <FormOutlined /> 
                         <span>Group {index + 1} Questions for {currentPartType?.replace('_', ' ')}</span>
                       </div>
@@ -304,7 +304,7 @@ const BankGroupEditPage = () => {
                     onClick={() => add({ instruction: '', questions: getDefaultQuestions(currentPartType) })} 
                     block 
                     icon={<PlusOutlined />}
-                    className="border-indigo-300 text-indigo-600 bg-indigo-50/50 hover:bg-indigo-50"
+                    className="border-indigo-300 text-[#445A95] bg-[#F8FAFC]/50 hover:bg-[#F8FAFC]"
                   >
                     Add Another Group
                   </Button>

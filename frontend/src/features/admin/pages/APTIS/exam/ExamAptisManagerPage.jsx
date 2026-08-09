@@ -196,7 +196,7 @@ const ExamAptisManagerPage = () => {
               <div className="col-span-6 md:col-span-1 flex justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
                   onClick={() => navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/full-tests/edit/${test.id}` : `/admin/aptis/full-tests/edit/${test.id}`))}
-                  className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors focus:outline-none"
+                  className="p-2 text-zinc-400 hover:text-[#445A95] hover:bg-[#F8FAFC] rounded-lg transition-colors focus:outline-none"
                   title="Edit Test"
                 >
                   <Edit2 size={16} />
@@ -230,7 +230,7 @@ const ExamAptisManagerPage = () => {
                 >
                   Prev
                 </button>
-                <div className="px-3 py-1 rounded-md text-xs font-bold bg-blue-50 text-blue-600">
+                <div className="px-3 py-1 rounded-md text-xs font-bold bg-blue-50 text-[#445A95]">
                   {pagination.current}
                 </div>
                 <button 

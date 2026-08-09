@@ -106,7 +106,7 @@ const ExamAptisSubmissionsManager = () => {
         if (status === 'PENDING') {
           return <Tag color="warning" icon={<ClockCircleOutlined />} className="rounded-full px-3 py-0.5 border-0 bg-amber-50 text-amber-600 font-bold">Needs Grading</Tag>;
         }
-        return <Tag color="processing" icon={<SyncOutlined spin />} className="rounded-full px-3 py-0.5 border-0 bg-blue-50 text-blue-600 font-bold">In Progress</Tag>;
+        return <Tag color="processing" icon={<SyncOutlined spin />} className="rounded-full px-3 py-0.5 border-0 bg-blue-50 text-[#445A95] font-bold">In Progress</Tag>;
       },
     },
     {
@@ -263,8 +263,8 @@ const ExamAptisSubmissionsManager = () => {
         <Col span={6}>
           <Card variant="borderless" className="shadow-sm rounded-xl border border-blue-200 bg-blue-50 relative overflow-hidden">
             <SyncOutlined className="absolute -right-4 -bottom-4 text-7xl text-blue-200 opacity-40" />
-            <Text className="text-blue-600 font-bold text-xs uppercase tracking-wider">In Progress</Text>
-            <div className="mt-1"><span className="text-3xl font-black text-blue-600">{stats.in_progress}</span> <span className="text-xs text-blue-500 font-medium">ongoing</span></div>
+            <Text className="text-[#445A95] font-bold text-xs uppercase tracking-wider">In Progress</Text>
+            <div className="mt-1"><span className="text-3xl font-black text-[#445A95]">{stats.in_progress}</span> <span className="text-xs text-[#445A95] font-medium">ongoing</span></div>
           </Card>
         </Col>
       </Row>

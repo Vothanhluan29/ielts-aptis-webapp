@@ -25,8 +25,7 @@ const SIDEBAR_GROUPS = [
   {
     title: "Main Menu",
     items: [
-      { to: "/aptis/dashboard", label: "Dashboard", icon: DashboardOutlined },
-      { to: "/aptis/tips", label: "Exam Tips & Guide", icon: BulbOutlined }
+      { to: "/aptis/dashboard", label: "Dashboard", icon: DashboardOutlined }
     ]
   },
   {
@@ -48,6 +47,7 @@ const SIDEBAR_GROUPS = [
   {
     title: "Support",
     items: [
+      { to: "/aptis/tips", label: "Exam Tips & Guide", icon: BulbOutlined },
       { to: "/feedback", label: "Feedback & Help", icon: MessageOutlined }
     ]
   }
@@ -68,22 +68,22 @@ const AptisSidebar = ({
 
   return (
     <aside
-      className={`fixed inset-y-0 left-0 z-50 ${sidebarWidth} bg-gradient-to-b from-[#1859f5] via-[#1651e5] to-[#1143c7] text-white flex flex-col transition-all duration-300 shadow-xl shadow-blue-900/20 md:rounded-r-[2rem] ${
+      className={`fixed inset-y-0 left-0 z-50 ${sidebarWidth} bg-[#F8FAFC] text-slate-800 flex flex-col transition-all duration-300 shadow-xl shadow-slate-200/50 border-r border-slate-200 md:rounded-r-[2rem] ${
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       } md:translate-x-0 md:relative`}
     >
       {/* LOGO AREA */}
-      <div className="h-20 flex items-center justify-between px-5 shrink-0 border-b border-white/10">
+      <div className="h-20 flex items-center justify-between px-5 shrink-0 border-b border-slate-200">
         {!sidebarCollapsed && (
           <Link to="/aptis/dashboard" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg shadow-blue-900/30 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm border border-slate-100 group-hover:scale-105 transition-transform">
               <img src="/logo.jpg" alt="APTIS Logo" className="w-6 h-6 object-contain rounded" />
             </div>
             <div className="flex flex-col">
-              <span className="text-white font-black text-xl tracking-tight leading-none">
+              <span className="text-slate-800 font-black text-xl tracking-tight leading-none">
                 APTIS
               </span>
-              <span className="text-[10px] text-blue-200/80 font-semibold tracking-widest uppercase mt-0.5">
+              <span className="text-[10px] text-slate-500 font-semibold tracking-widest uppercase mt-0.5">
                 Learning Hub
               </span>
             </div>
@@ -92,7 +92,7 @@ const AptisSidebar = ({
 
         <button
           onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-          className={`p-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/10 text-white transition-all ${
+          className={`p-2 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-600 transition-all ${
             sidebarCollapsed ? "mx-auto" : ""
           }`}
           title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -106,7 +106,7 @@ const AptisSidebar = ({
         {SIDEBAR_GROUPS.map((group) => (
           <div key={group.title}>
             {!sidebarCollapsed && (
-              <p className="px-3 mb-2 text-[11px] font-black uppercase text-blue-200/60 tracking-wider m-0">
+              <p className="px-3 mb-2 text-[11px] font-black uppercase text-slate-400 tracking-wider m-0">
                 {group.title}
               </p>
             )}
@@ -128,13 +128,13 @@ const AptisSidebar = ({
       </nav>
 
       {/* BOTTOM FOOTER / LOGOUT */}
-      <div className="shrink-0 p-4 mt-auto border-t border-white/10">
+      <div className="shrink-0 p-4 mt-auto border-t border-slate-200">
         {/* LOGOUT BUTTON */}
         <button
           onClick={handleLogout}
           className={`flex items-center gap-3 w-full rounded-2xl transition-all ${
             sidebarCollapsed ? "justify-center h-11" : "px-4 py-2.5"
-          } text-blue-100 hover:text-white hover:bg-white/15 border border-white/10 shadow-sm`}
+          } text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 shadow-sm`}
         >
           <LogoutOutlined style={{ fontSize: 16 }} />
           {!sidebarCollapsed && (
@@ -156,11 +156,11 @@ const SidebarLink = ({ to, label, icon, active, collapsed }) => {
     ? "justify-center h-11 w-11 mx-auto"
     : "px-3.5 py-2.5";
 
-  // Active style: White background with vibrant blue text or glowing white container like sample
+  // Active style: Vibrant blue background with white text
   const activeStyle =
-    "!bg-white !text-[#1859f5] shadow-[0_8px_16px_rgba(0,0,0,0.15)] border border-white font-extrabold scale-[1.02] transform";
+    "!bg-blue-600 !text-white shadow-md shadow-blue-500/20 font-extrabold scale-[1.02] transform";
   const inactiveStyle =
-    "!text-blue-100 hover:bg-white/10 hover:!text-white font-medium";
+    "!text-slate-600 hover:bg-slate-200/50 hover:!text-slate-900 font-medium";
 
   return (
     <Link
@@ -173,7 +173,7 @@ const SidebarLink = ({ to, label, icon, active, collapsed }) => {
       {icon &&
         React.createElement(icon, {
           className: `text-lg transition-transform duration-300 ${
-            active ? "scale-110 !text-[#1859f5]" : "group-hover:scale-110 text-blue-200"
+            active ? "scale-110 !text-white" : "group-hover:scale-110 text-slate-400"
           }`
         })}
 

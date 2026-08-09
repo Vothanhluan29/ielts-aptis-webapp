@@ -50,7 +50,7 @@ const ReadingAptisManagerList = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 mt-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-blue-500/10 text-blue-600 rounded-xl ring-1 ring-blue-500/20">
+            <div className="p-2.5 bg-[#445A95]/10 text-[#445A95] rounded-xl ring-1 ring-[#445A95]/20">
               <BookOpen size={24} />
             </div>
             <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Reading Test Bank</h1>
@@ -70,7 +70,7 @@ const ReadingAptisManagerList = () => {
                 checked={isMockFilter}
                 onChange={(e) => setIsMockFilter(e.target.checked)}
               />
-              <div className={`block w-10 h-6 rounded-full transition-colors ${isMockFilter ? 'bg-blue-500' : 'bg-zinc-200'}`}></div>
+              <div className={`block w-10 h-6 rounded-full transition-colors ${isMockFilter ? 'bg-[#445A95]' : 'bg-zinc-200'}`}></div>
               <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${isMockFilter ? 'translate-x-4' : ''}`}></div>
             </div>
             <span className="text-sm font-bold text-zinc-600 select-none">Mock Only</span>
@@ -78,7 +78,7 @@ const ReadingAptisManagerList = () => {
           
           <button
             onClick={() => navigate(ROUTES.CREATE)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-blue-600/20 focus:outline-none"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-blue-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none"
           >
             <Plus size={18} />
             New Test
@@ -132,7 +132,7 @@ const ReadingAptisManagerList = () => {
             <p className="text-zinc-500 max-w-sm mb-6">There are no tests matching your criteria.</p>
             <button
               onClick={() => navigate(ROUTES.CREATE)}
-              className="text-blue-600 font-bold hover:text-blue-700 flex items-center gap-1.5"
+              className="text-[#445A95] font-bold hover:text-blue-700 flex items-center gap-1.5"
             >
               <Plus size={16} /> Create test
             </button>
@@ -177,7 +177,7 @@ const ReadingAptisManagerList = () => {
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold ${
                   test.is_full_test_only 
                     ? 'bg-purple-100 text-purple-700' 
-                    : 'bg-indigo-100 text-indigo-700'
+                    : 'bg-[#445A95]/10 text-[#3A4D81]'
                 }`}>
                   {test.is_full_test_only ? <LayoutGrid size={12} /> : <BookOpen size={12} />}
                   {test.is_full_test_only ? 'FULL TEST' : 'PRACTICE'}
@@ -200,7 +200,7 @@ const ReadingAptisManagerList = () => {
               <div className="col-span-6 md:col-span-1 flex justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
                   onClick={() => navigate(ROUTES.EDIT(test.id))}
-                  className="p-2 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors focus:outline-none"
+                  className="p-2 text-zinc-400 hover:text-[#445A95] hover:bg-[#F8FAFC] rounded-lg transition-colors focus:outline-none"
                   title="Edit Test"
                 >
                   <Edit2 size={16} />
@@ -234,7 +234,7 @@ const ReadingAptisManagerList = () => {
                 >
                   Prev
                 </button>
-                <div className="px-3 py-1 rounded-md text-xs font-bold bg-blue-50 text-blue-600">
+                <div className="px-3 py-1 rounded-md text-xs font-bold bg-blue-50 text-[#445A95]">
                   {pagination.current}
                 </div>
                 <button 

@@ -17,27 +17,27 @@ const { Title, Text } = Typography;
 const SKILL_CONFIG = {
   listening: {
     label: 'Listening',
-    color: '#10B981',
-    accent: '#ECFDF5',
-    border: '#D1FAE5',
+    color: '#445A95',
+    accent: '#F8FAFC',
+    border: '#445A95',
     icon: '🎧',
     totalLabel: '/50',
     scoreKey: 'score',
   },
   reading: {
     label: 'Reading',
-    color: '#F59E0B',
-    accent: '#FFFBEB',
-    border: '#FDE68A',
+    color: '#445A95',
+    accent: '#F8FAFC',
+    border: '#445A95',
     icon: '📖',
     totalLabel: '/50',
     scoreKey: 'score',
   },
   grammar_vocab: {
     label: 'Grammar & Vocabulary',
-    color: '#4F46E5',
-    accent: '#EEF2FF',
-    border: '#C7D2FE',
+    color: '#445A95',
+    accent: '#F8FAFC',
+    border: '#445A95',
     icon: '📝',
     totalLabel: '/50',
     scoreKey: 'total_score',
@@ -200,7 +200,7 @@ const AutoGradedSubmissionListPage = ({ skill, api, detailRoute }) => {
         <Col span={8}>
           <Card variant="borderless" className="shadow-sm rounded-xl border border-blue-100 bg-blue-50 relative overflow-hidden">
             <InfoCircleOutlined className="absolute -right-4 -bottom-4 text-7xl text-blue-100" />
-            <Text className="text-blue-600 font-bold text-xs uppercase tracking-wider">Access Level</Text>
+            <Text className="text-[#445A95] font-bold text-xs uppercase tracking-wider">Access Level</Text>
             <div className="mt-1 text-sm font-bold text-blue-700">View Only</div>
             <div className="text-[10px] text-blue-400">No editing allowed</div>
           </Card>

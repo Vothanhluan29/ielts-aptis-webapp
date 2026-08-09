@@ -135,7 +135,7 @@ const BankGroupEditPage = () => {
         <button
           onClick={() => form.submit()}
           disabled={submitting}
-          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-indigo-600/20 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed"
+          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-[#3A4D81] hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {submitting ? (
             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
@@ -156,7 +156,7 @@ const BankGroupEditPage = () => {
         {/* ================= GENERAL GROUP SETTINGS ================= */}
         <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-sm overflow-hidden mb-8">
           <div className="px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 flex items-center gap-2">
-            <Settings size={18} className="text-indigo-500" />
+            <Settings size={18} className="text-[#445A95]" />
             <h2 className="text-base font-bold text-zinc-800 m-0">Group Information</h2>
           </div>
           
@@ -194,11 +194,11 @@ const BankGroupEditPage = () => {
               
               {showPassage && (
                 <Col span={24}>
-                  <div className="mt-2 mb-6 p-5 bg-indigo-50/50 rounded-xl border border-indigo-100/50">
+                  <div className="mt-2 mb-6 p-5 bg-[#F8FAFC]/50 rounded-xl border border-[#445A95]/10/50">
                     <Form.Item 
                       name="content"
                       label={
-                        <div className="flex items-center gap-2 text-indigo-700 font-bold mb-1">
+                        <div className="flex items-center gap-2 text-[#3A4D81] font-bold mb-1">
                           <BookOpen size={16} />
                           Reading Passage (Content)
                         </div>
@@ -208,7 +208,7 @@ const BankGroupEditPage = () => {
                       <BlurTextArea 
                         rows={8} 
                         placeholder="Paste the reading text here..." 
-                        className="bg-white border-zinc-200 hover:border-indigo-400 focus:border-indigo-500 rounded-lg p-4"
+                        className="bg-white border-zinc-200 hover:border-indigo-400 focus:border-[#445A95] rounded-lg p-4"
                       />
                     </Form.Item>
                   </div>
@@ -224,7 +224,7 @@ const BankGroupEditPage = () => {
               <BlurTextArea 
                 rows={3} 
                 placeholder="E.g., Read the text and answer the questions..." 
-                className="bg-zinc-50/50 border-zinc-200 hover:border-indigo-400 focus:border-indigo-500 rounded-xl p-4"
+                className="bg-zinc-50/50 border-zinc-200 hover:border-indigo-400 focus:border-[#445A95] rounded-xl p-4"
               />
             </Form.Item>
           </div>
@@ -245,12 +245,12 @@ const BankGroupEditPage = () => {
                   return {
                     key: qKey.toString(),
                     forceRender: true,
-                    label: <span className="font-bold text-indigo-700 text-base">Question {qIndex + 1}</span>,
+                    label: <span className="font-bold text-[#3A4D81] text-base">Question {qIndex + 1}</span>,
                     extra: (
                       <span onClick={e => e.stopPropagation()} className="flex gap-2">
                         <button
                           type="button"
-                          className="p-1.5 text-zinc-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-md transition-colors"
+                          className="p-1.5 text-zinc-400 hover:text-[#445A95] hover:bg-[#F8FAFC] rounded-md transition-colors"
                           onClick={(e) => {
                             e.stopPropagation();
                             const currentQuestion = form.getFieldValue(['questions', qName]);
@@ -312,7 +312,7 @@ const BankGroupEditPage = () => {
                                 >
                                   <BlurInput 
                                     placeholder="E.g: What is the main topic?" 
-                                    className="bg-white border-zinc-200 hover:border-indigo-400 focus:border-indigo-500 rounded-lg px-4 py-2"
+                                    className="bg-white border-zinc-200 hover:border-indigo-400 focus:border-[#445A95] rounded-lg px-4 py-2"
                                   />
                                 </Form.Item>
                                 <button 
@@ -321,7 +321,7 @@ const BankGroupEditPage = () => {
                                     const currentText = form.getFieldValue(['questions', qName, 'question_text']) || '';
                                     form.setFieldValue(['questions', qName, 'question_text'], currentText + ' ___ ');
                                   }}
-                                  className="px-4 py-2 border border-dashed border-zinc-300 text-zinc-600 rounded-lg font-medium hover:border-indigo-400 hover:text-indigo-600 transition-colors bg-white"
+                                  className="px-4 py-2 border border-dashed border-zinc-300 text-zinc-600 rounded-lg font-medium hover:border-indigo-400 hover:text-[#445A95] transition-colors bg-white"
                                 >
                                   Insert "___"
                                 </button>
@@ -368,7 +368,7 @@ const BankGroupEditPage = () => {
                           <BlurTextArea 
                             rows={2} 
                             placeholder="Reason for selecting this answer..." 
-                            className="bg-white border-zinc-200 hover:border-indigo-400 focus:border-indigo-500 rounded-lg p-3"
+                            className="bg-white border-zinc-200 hover:border-indigo-400 focus:border-[#445A95] rounded-lg p-3"
                           />
                         </Form.Item>
                       </div>
@@ -397,7 +397,7 @@ const BankGroupEditPage = () => {
                         addQ({ question_type: 'MULTIPLE_CHOICE', options: ['', '', ''], correct_answer: '0' });
                         setActiveQuestionKeys([...activeQuestionKeys, qFields.length.toString()]);
                       }} 
-                      className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-indigo-200 text-indigo-600 bg-indigo-50/50 hover:bg-indigo-50 hover:border-indigo-300 rounded-xl font-bold transition-all focus:outline-none"
+                      className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-[#445A95]/20 text-[#445A95] bg-[#F8FAFC]/50 hover:bg-[#F8FAFC] hover:border-indigo-300 rounded-xl font-bold transition-all focus:outline-none"
                     >
                       <Plus size={18} />
                       ADD QUESTION TO THIS GROUP

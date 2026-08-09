@@ -40,7 +40,7 @@ const SpeakingAptisListPage = () => {
           ),
           mainBtnText: 'View History',
           mainBtnAction: handleNavigateHistory,
-          mainBtnClass: "bg-transparent text-rose-600 border-2 border-rose-200 hover:bg-rose-50 hover:border-rose-300",
+          mainBtnClass: "bg-transparent text-blue-600 border-2 border-blue-200 hover:bg-blue-50 hover:border-blue-300",
           isDone: true,
           showRetry: true,
           accentBorder: "border-l-green-500"
@@ -66,31 +66,31 @@ const SpeakingAptisListPage = () => {
       default:
         return {
           badge: (
-            <span className="inline-flex items-center gap-1.5 bg-rose-100 text-rose-700 px-3 py-1 rounded-full text-xs font-bold">
+            <span className="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">
               <AlertCircle size={12} /> Not Started
             </span>
           ),
           mainBtnText: 'Start Now',
           mainBtnAction: () => handleNavigateLobby(testId),
-          mainBtnClass: "bg-gradient-to-r from-rose-500 to-rose-400 text-white border-none shadow-md shadow-rose-500/30 hover:opacity-90 hover:scale-[1.02]",
+          mainBtnClass: "bg-gradient-to-r from-teal-500 to-blue-500 text-white border-none shadow-md shadow-teal-500/30 hover:opacity-90 hover:scale-[1.02]",
           isDone: false,
           showRetry: false,
-          accentBorder: "border-l-rose-500"
+          accentBorder: "border-l-blue-500"
         };
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50/50 via-white to-rose-100/30 font-sans p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50/50 via-white to-blue-50/30 font-sans p-4 md:p-8">
       <div className="max-w-6xl mx-auto w-full">
         
         {/* ===== HEADER BANNER ===== */}
-        <div className="mb-10 bg-white/60 backdrop-blur-xl p-8 rounded-[2rem] border border-white/80 shadow-xl shadow-rose-500/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+        <div className="mb-10 bg-white/60 backdrop-blur-xl p-8 rounded-[2rem] border border-white/80 shadow-xl shadow-teal-500/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
           {/* Decorative blur */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-rose-100 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-60 pointer-events-none" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-100 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 opacity-60 pointer-events-none" />
 
           <div className="flex items-center gap-5 relative z-10">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-rose-500 to-rose-400 flex items-center justify-center shadow-lg shadow-rose-500/30 shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-blue-500 flex items-center justify-center shadow-lg shadow-teal-500/30 shrink-0">
               <Mic size={32} className="text-white" strokeWidth={2.5} />
             </div>
             <div>
@@ -108,7 +108,7 @@ const SpeakingAptisListPage = () => {
                   onClick={() => setFilterStatus(opt.value)}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
                     filterStatus === opt.value
-                      ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
+                      ? 'bg-blue-500 text-white shadow-md shadow-teal-500/20'
                       : 'bg-transparent text-slate-500 hover:text-slate-700 hover:bg-slate-50/50'
                   }`}
                 >
@@ -118,7 +118,7 @@ const SpeakingAptisListPage = () => {
             </div>
             <button
               onClick={handleNavigateHistory}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-slate-200 bg-white/80 backdrop-blur-sm text-sm font-bold text-slate-600 hover:border-rose-300 hover:text-rose-600 transition-all shadow-sm hover:shadow"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-slate-200 bg-white/80 backdrop-blur-sm text-sm font-bold text-slate-600 hover:border-blue-300 hover:text-blue-600 transition-all shadow-sm hover:shadow"
             >
               <History size={16} /> History
             </button>
@@ -135,9 +135,9 @@ const SpeakingAptisListPage = () => {
             ))}
           </div>
         ) : filteredTests.length === 0 ? (
-          <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-rose-500/5 flex flex-col items-center justify-center p-20 text-center">
-            <div className="w-20 h-20 rounded-[1.5rem] bg-rose-100 flex items-center justify-center mb-5 shadow-inner">
-              <Mic size={40} className="text-rose-500" />
+          <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white/80 shadow-xl shadow-teal-500/5 flex flex-col items-center justify-center p-20 text-center">
+            <div className="w-20 h-20 rounded-[1.5rem] bg-blue-100 flex items-center justify-center mb-5 shadow-inner">
+              <Mic size={40} className="text-blue-500" />
             </div>
             <p className="m-0 text-lg font-bold text-slate-700">No tests found.</p>
             <p className="mt-2 text-sm text-slate-500 font-medium">Try a different filter or check back later.</p>
@@ -152,7 +152,7 @@ const SpeakingAptisListPage = () => {
                 return (
                   <div
                     key={test.id}
-                    className={`group bg-white/60 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/80 flex flex-col transition-all duration-300 shadow-lg shadow-rose-500/5 hover:shadow-2xl hover:shadow-rose-500/10 hover:-translate-y-1 border-l-4 ${config.accentBorder}`}
+                    className={`group bg-white/60 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/80 flex flex-col transition-all duration-300 shadow-lg shadow-teal-500/5 hover:shadow-2xl hover:shadow-teal-500/10 hover:-translate-y-1 border-l-4 ${config.accentBorder}`}
                   >
                     <div className="p-6 pb-4">
                       <div className="flex justify-between items-center mb-4">
@@ -168,7 +168,7 @@ const SpeakingAptisListPage = () => {
                           </span>
                         </div>
                       </div>
-                      <h3 className="m-0 mb-2 text-lg font-extrabold text-slate-800 leading-snug line-clamp-1 group-hover:text-rose-600 transition-colors">
+                      <h3 className="m-0 mb-2 text-lg font-extrabold text-slate-800 leading-snug line-clamp-1 group-hover:text-blue-600 transition-colors">
                         {test.title}
                       </h3>
                       <p className="m-0 text-sm text-slate-500 leading-relaxed line-clamp-2 font-medium">
@@ -191,7 +191,7 @@ const SpeakingAptisListPage = () => {
                       {config.showRetry && (
                         <button
                           onClick={(e) => { e.stopPropagation(); handleNavigateLobby(test.id); }}
-                          className="w-full py-2.5 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-transparent text-slate-500 border-2 border-slate-200 hover:border-rose-400 hover:text-rose-500 transition-all duration-300"
+                          className="w-full py-2.5 px-4 rounded-xl text-sm font-bold flex items-center justify-center gap-2 bg-transparent text-slate-500 border-2 border-slate-200 hover:border-blue-400 hover:text-blue-500 transition-all duration-300"
                         >
                           <RotateCcw size={14} /> Retry Test
                         </button>

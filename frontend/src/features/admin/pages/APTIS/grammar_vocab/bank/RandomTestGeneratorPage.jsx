@@ -63,7 +63,7 @@ const RandomTestGeneratorPage = () => {
           />
           <div>
             <div className="flex items-center gap-2">
-              <Shuffle size={17} className="text-indigo-500" />
+              <Shuffle size={17} className="text-[#445A95]" />
               <h1 className="m-0 text-2xl font-black text-zinc-800 tracking-tight">Generate Random Test</h1>
             </div>
             <p className="m-0 text-xs text-zinc-400 mt-0.5">Grammar &amp; Vocabulary · Auto-pick from question bank</p>
@@ -94,8 +94,8 @@ const RandomTestGeneratorPage = () => {
             {/* Section 1 - Basic Info */}
             <div style={{ padding: '24px 28px', borderBottom: '1px solid #f4f4f5' }}>
               <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
-                  <Settings size={14} className="text-indigo-600" />
+                <div className="w-8 h-8 rounded-lg bg-[#445A95]/10 flex items-center justify-center">
+                  <Settings size={14} className="text-[#445A95]" />
                 </div>
                 <span className="text-base font-bold text-zinc-700">Basic Information</span>
               </div>
