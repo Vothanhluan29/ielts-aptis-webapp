@@ -10,28 +10,28 @@ from app.modules.APTIS.grammar_vocab.models import AptisGrammarVocabTest, AptisG
 
 class AptisGrammarVocabBankService:
     @staticmethod
-        def get_bank_groups(
-            db: Session, 
-            part_number: int = None, 
-            search: str = None, 
-            difficulty_level: str = None, 
-            skip: int = 0, 
-            limit: int = 10
-        ):
-            query = db.query(AptisGrammarVocabBankGroup)
+    def get_bank_groups(
+        db: Session, 
+        part_number: int = None, 
+        search: str = None, 
+        difficulty_level: str = None, 
+        skip: int = 0, 
+        limit: int = 10
+    ):
+        query = db.query(AptisGrammarVocabBankGroup)
+        
+        if part_number is not None and hasattr(AptisGrammarVocabBankGroup, 'part_number'):
+            query = query.filter(AptisGrammarVocabBankGroup.part_number == part_number)
             
-            if part_number is not None and hasattr(AptisGrammarVocabBankGroup, 'part_number'):
-                query = query.filter(AptisGrammarVocabBankGroup.part_number == part_number)
-                
-            if search and hasattr(AptisGrammarVocabBankGroup, 'instruction'):
-                query = query.filter(AptisGrammarVocabBankGroup.instruction.ilike(f"%{search}%"))
-                
-            if difficulty_level and hasattr(AptisGrammarVocabBankGroup, 'difficulty_level'):
-                query = query.filter(AptisGrammarVocabBankGroup.difficulty_level == difficulty_level)
-                
-            total = query.count()
-            items = query.order_by(AptisGrammarVocabBankGroup.id.desc()).offset(skip).limit(limit).all()
-            return {"items": items, "total": total}
+        if search and hasattr(AptisGrammarVocabBankGroup, 'instruction'):
+            query = query.filter(AptisGrammarVocabBankGroup.instruction.ilike(f"%{search}%"))
+            
+        if difficulty_level and hasattr(AptisGrammarVocabBankGroup, 'difficulty_level'):
+            query = query.filter(AptisGrammarVocabBankGroup.difficulty_level == difficulty_level)
+            
+        total = query.count()
+        items = query.order_by(AptisGrammarVocabBankGroup.id.desc()).offset(skip).limit(limit).all()
+        return {"items": items, "total": total}
 
     @staticmethod
     def get_bank_group(db: Session, group_id: int) -> AptisGrammarVocabBankGroup:
