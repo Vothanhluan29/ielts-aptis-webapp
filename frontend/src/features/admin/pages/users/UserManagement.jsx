@@ -312,18 +312,19 @@ const UserManagement = () => {
       render: (_, user) => {
         if (user.role === 'student') {
           return (
-            <div className="group flex items-center gap-2">
-              <Typography.Text
-                editable={{
-                  onChange: (value) => handleUpdateUser(user.id, { class_code: value }),
-                  tooltip: 'Click to edit class',
-                  triggerType: ['text', 'icon'],
-                }}
-                className={user.class_code ? "bg-blue-50 text-blue-600 px-2 py-0.5 rounded-lg border border-blue-100 font-semibold text-xs" : "text-gray-300 text-xs italic"}
-              >
-                {user.class_code || 'Assign class'}
-              </Typography.Text>
-            </div>
+            <Select
+              mode="tags"
+              allowClear
+              placeholder="Assign class"
+              value={user.class_code ? [user.class_code] : []}
+              onChange={(values) => {
+                const newValue = values.length > 0 ? values[values.length - 1] : null;
+                handleUpdateUser(user.id, { class_code: newValue });
+              }}
+              className="w-full min-w-[110px]"
+              size="small"
+              options={uniqueClasses.map(c => ({ label: c, value: c }))}
+            />
           );
         }
         if (user.role === 'teacher' && user.managed_classes?.length > 0)
