@@ -76,9 +76,7 @@ const TipsStudentListPage = () => {
               <h1 className="m-0 text-2xl md:text-3xl font-black text-slate-800 tracking-tight leading-tight">
                 APTIS Exam Tips & Skill Strategies
               </h1>
-              <p className="m-0 mt-1 text-slate-500 font-medium text-sm md:text-base">
-                Learn proven techniques, scoring strategies, and secrets directly from our top teachers.
-              </p>
+
             </div>
           </div>
 

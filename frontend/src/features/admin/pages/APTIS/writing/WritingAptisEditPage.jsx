@@ -160,19 +160,7 @@ const WritingAptisEditPage = () => {
   return (
     <div style={{ maxWidth: 1100, margin: '0 auto', paddingBottom: 40 }}>
       {/* ================= HEADER ================= */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        marginBottom: 20,
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        backgroundColor: '#ffffff',
-        padding: '16px 20px',
-        borderBottom: '1px solid #e5e7eb',
-        borderRadius: '0 0 12px 12px',
-        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)'
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
         <Space>
           <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(window.location.pathname.startsWith('/teacher') ? '/teacher/writing' : '/admin/aptis/writing')}>
             Back

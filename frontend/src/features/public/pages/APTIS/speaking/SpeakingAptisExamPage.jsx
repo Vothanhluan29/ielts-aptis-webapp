@@ -255,7 +255,7 @@ const SpeakingAptisExamPage = ({
                 <span style={{ position: 'relative', display: 'block', width: 10, height: 10, borderRadius: '50%', background: '#ef4444' }} />
               </span>
             )}
-            {isPrep ? '⏳ Preparation time' : '🔴 Recording in progress'}
+            {isPrep ? 'Preparation time' : 'Recording in progress'}
           </div>
 
           {/* Timer ring */}
@@ -287,10 +287,10 @@ const SpeakingAptisExamPage = ({
               style={{
                 marginTop: 12, background: 'none', border: 'none',
                 color: '#f59e0b', fontWeight: 600, fontSize: 14,
-                cursor: 'pointer', textDecoration: 'underline',
+                cursor: 'pointer', textDecoration: 'none',
               }}
             >
-              Skip preparation — record now
+              Skip preparation record now
             </button>
           )}
         </div>
