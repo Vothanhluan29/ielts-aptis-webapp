@@ -59,9 +59,14 @@ class AptisSpeakingTestService:
         if test_in.is_full_test_only is not None: test.is_full_test_only = test_in.is_full_test_only
 
         if test_in.parts is not None:
-            db.query(AptisSpeakingPart).filter(AptisSpeakingPart.test_id == test_id).delete()
+            # Delete related questions first to avoid ForeignKeyViolation
+            existing_parts = db.query(AptisSpeakingPart).filter(AptisSpeakingPart.test_id == test_id).all()
+            part_ids = [p.id for p in existing_parts]
+            if part_ids:
+                db.query(AptisSpeakingQuestion).filter(AptisSpeakingQuestion.part_id.in_(part_ids)).delete(synchronize_session=False)
+            
+            db.query(AptisSpeakingPart).filter(AptisSpeakingPart.test_id == test_id).delete(synchronize_session=False)
             db.flush()
-
             for p in test_in.parts:
                 db_part = AptisSpeakingPart(
                     test_id=test.id,

@@ -10,7 +10,8 @@ import {
   Tooltip,
   Tag,
   Switch,
-  Input
+  Input,
+  Typography
 } from 'antd';
 
 import {
@@ -309,7 +310,22 @@ const UserManagement = () => {
       key: 'class_code',
       width: 160,
       render: (_, user) => {
-        if (user.class_code) return <Tag color="blue" className="font-semibold rounded-lg">{user.class_code}</Tag>;
+        if (user.role === 'student') {
+          return (
+            <div className="group flex items-center gap-2">
+              <Typography.Text
+                editable={{
+                  onChange: (value) => handleUpdateUser(user.id, { class_code: value }),
+                  tooltip: 'Click to edit class',
+                  triggerType: ['text', 'icon'],
+                }}
+                className={user.class_code ? "bg-blue-50 text-blue-600 px-2 py-0.5 rounded-lg border border-blue-100 font-semibold text-xs" : "text-gray-300 text-xs italic"}
+              >
+                {user.class_code || 'Assign class'}
+              </Typography.Text>
+            </div>
+          );
+        }
         if (user.role === 'teacher' && user.managed_classes?.length > 0)
           return <div className="flex flex-wrap gap-1">{user.managed_classes.map(c => <Tag key={c} color="orange" className="text-xs">{c}</Tag>)}</div>;
         return <span className="text-gray-300 text-xs">—</span>;
