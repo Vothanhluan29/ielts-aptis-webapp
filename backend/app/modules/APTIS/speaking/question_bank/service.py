@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List
 import random
 from fastapi import HTTPException
@@ -120,16 +121,15 @@ class AptisSpeakingBankService:
             if part_diff:
                 query = query.filter(AptisSpeakingBankGroup.difficulty_level == part_diff)
             
-            groups = query.all()
+            selected_group = query.order_by(func.random()).first()
             
-            if not groups:
+            if not selected_group:
                 # Fallback without difficulty
                 query_fallback = db.query(AptisSpeakingBankGroup).filter(AptisSpeakingBankGroup.part_type == part_type)
-                groups = query_fallback.all()
-                if not groups:
+                selected_group = query_fallback.order_by(func.random()).first()
+                if not selected_group:
                     raise HTTPException(status_code=400, detail=f"No Bank Groups found for {part_type.replace('_', ' ').title()}")
             
-            selected_group = random.choice(groups)
             selected_groups.append(selected_group)
 
         new_test = AptisSpeakingTest(

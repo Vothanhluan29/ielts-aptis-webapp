@@ -138,10 +138,14 @@ class BankService:
 
             # Find exactly 1 random bank group for this part
             query = db.query(AptisListeningBankGroup)\
+                .join(AptisListeningBankGroup.questions)\
                 .filter(AptisListeningBankGroup.part_number == part_config.part_number)
             
             if part_config.difficulty:
                 query = query.filter(AptisListeningBankGroup.difficulty_level == part_config.difficulty)
+
+            query = query.group_by(AptisListeningBankGroup.id)\
+                .having(func.count(AptisListeningBankQuestion.id) >= part_config.num_questions)
 
             random_bank_group = query.order_by(func.random()).first()
 
@@ -149,7 +153,7 @@ class BankService:
                 diff_msg = f" with difficulty {part_config.difficulty}" if part_config.difficulty else ""
                 raise HTTPException(
                     status_code=400, 
-                    detail=f"No questions found in the bank for Part {part_config.part_number}{diff_msg}. Please add more questions to the bank or select a different configuration."
+                    detail=f"No bank groups found with at least {part_config.num_questions} questions for Part {part_config.part_number}{diff_msg}. Please add more questions to the bank or select a different configuration."
                 )
 
             new_group = AptisListeningQuestionGroup(

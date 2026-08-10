@@ -142,10 +142,14 @@ class BankService:
             db.flush()
 
             query = db.query(AptisReadingBankGroup)\
+                .join(AptisReadingBankGroup.questions)\
                 .filter(AptisReadingBankGroup.part_number == p_num)
 
             if part_config.difficulty:
                 query = query.filter(AptisReadingBankGroup.difficulty_level == part_config.difficulty)
+
+            query = query.group_by(AptisReadingBankGroup.id)\
+                .having(func.count(AptisReadingBankQuestion.id) >= num_q)
 
             random_bank_group = query.order_by(func.random()).first()
 
@@ -153,7 +157,7 @@ class BankService:
                 diff_msg = f" with difficulty {part_config.difficulty}" if part_config.difficulty else ""
                 raise HTTPException(
                     status_code=400, 
-                    detail=f"No questions found in the bank for Part {p_num}{diff_msg}. Please add more questions to the bank or select a different configuration."
+                    detail=f"No bank groups found with at least {num_q} questions for Part {p_num}{diff_msg}. Please add more questions to the bank or select a different configuration."
                 )
 
             new_group = AptisReadingQuestionGroup(

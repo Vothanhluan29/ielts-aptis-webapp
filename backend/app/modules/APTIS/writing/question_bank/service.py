@@ -118,11 +118,11 @@ class AptisWritingBankService:
             if diff_to_use:
                 query = query.filter(AptisWritingBankGroup.difficulty_level == diff_to_use)
             
-            groups = query.all()
-            if not groups:
+            selected_group = query.order_by(func.random()).first()
+            if not selected_group:
                 raise HTTPException(status_code=400, detail=f"Not enough groups for {part_type.value.replace('_', ' ').title()} in the bank.")
             
-            selected_groups.append(random.choice(groups))
+            selected_groups.append(selected_group)
 
         # Create Test
         db_test = AptisWritingTest(
