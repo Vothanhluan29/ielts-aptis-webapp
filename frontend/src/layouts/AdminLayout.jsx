@@ -34,11 +34,8 @@ const AdminLayout = () => {
     <FeedbackCountProvider>
       <div className="flex h-screen bg-slate-100 font-sans text-zinc-900 overflow-hidden">
 
-        {isAptis ? (
-          <AptisSideBar layoutProps={layoutProps} />
-        ) : (
-          <SideBar layoutProps={layoutProps} />
-        )}
+        {/* MAIN VIEWPORT */}
+        <AptisSideBar layoutProps={layoutProps} />
 
         {/* MAIN VIEWPORT */}
         <div className="flex-1 flex flex-col overflow-hidden relative w-full">

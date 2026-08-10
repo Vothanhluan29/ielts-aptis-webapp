@@ -1,6 +1,9 @@
 services:
   db:
-    image: postgres:alpine
+    image: vothanhluan/ielts-aptis-db:latest
+    build:
+      context: ./postgres_init
+      dockerfile: Dockerfile
     container_name: ielts_aptis_db
     environment:
       POSTGRES_USER: postgres

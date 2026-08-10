@@ -39,26 +39,6 @@ const ALL_STAT_CARDS = [
     aptisOnly: false,
   },
   {
-    title: 'IELTS Mock Exams',
-    key: 'total_full_tests',
-    icon: BookOpen,
-    color: 'text-indigo-600',
-    bg: 'bg-indigo-500/10',
-    ring: 'ring-indigo-500/20',
-    aptisOnly: false, // hidden for teacher
-    ieltsOnly: true,
-  },
-  {
-    title: 'IELTS Attempts',
-    key: 'total_submissions',
-    icon: FileText,
-    color: 'text-violet-600',
-    bg: 'bg-violet-500/10',
-    ring: 'ring-violet-500/20',
-    aptisOnly: false,
-    ieltsOnly: true,
-  },
-  {
     title: 'APTIS Mock Exams',
     key: 'total_aptis_full_tests', 
     icon: Trophy,
@@ -240,7 +220,7 @@ const AdminDashboardPage = () => {
       {/* ── MAIN BENTO GRID ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Top Stats Grid (Spans full width via columns) */}
-        <div className="col-span-1 md:col-span-2 lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
+        <div className="col-span-1 md:col-span-2 lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {ALL_STAT_CARDS.map((item) => (
             <div key={item.key} className="col-span-1 sm:col-span-1 lg:col-span-1">
               <StatCard item={item} value={stats?.[item.key]} />

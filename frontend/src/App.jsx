@@ -290,8 +290,8 @@ function App() {
         {/* ================= ADMIN LAYOUT ================= */}
         <Route element={<AdminRoute />}>
           <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route index element={<Navigate to="/admin/aptis/dashboard" replace />} />
+            <Route path="dashboard" element={<Navigate to="/admin/aptis/dashboard" replace />} />
             <Route path="aptis/dashboard" element={<AdminDashboardPage />} />
             <Route path="users" element={<UserManagement/>}/>
             <Route path="aptis/users" element={<UserManagement/>}/>

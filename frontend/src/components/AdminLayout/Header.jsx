@@ -43,28 +43,7 @@ export default function Header() {
 
       {/* ── CENTER: MODULE SWITCHER ── */}
       <div className="flex-1 flex justify-center">
-        {!isTeacher && (
-          <div className="flex items-center p-1 bg-zinc-100/80 backdrop-blur-sm rounded-xl border border-zinc-200 shadow-inner">
-            <Link to="/admin/dashboard" className="block focus:outline-none">
-              <div className={`flex items-center justify-center px-6 py-2 rounded-lg text-[13px] font-bold tracking-wide transition-all duration-300 ${
-                !isAptis 
-                  ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-zinc-200/50' 
-                  : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'
-              }`}>
-                IELTS
-              </div>
-            </Link>
-            <Link to="/admin/aptis/dashboard" className="block focus:outline-none">
-              <div className={`flex items-center justify-center px-6 py-2 rounded-lg text-[13px] font-bold tracking-wide transition-all duration-300 ${
-                isAptis 
-                  ? 'bg-white text-orange-600 shadow-sm ring-1 ring-zinc-200/50' 
-                  : 'text-zinc-500 hover:text-zinc-700 hover:bg-zinc-200/50'
-              }`}>
-                APTIS
-              </div>
-            </Link>
-          </div>
-        )}
+        {/* Module Switcher removed to only show APTIS */}
       </div>
 
       {/* ── RIGHT: PROFILE ── */}

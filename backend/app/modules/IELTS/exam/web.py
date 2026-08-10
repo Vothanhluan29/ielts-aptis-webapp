@@ -18,7 +18,7 @@ router = APIRouter(prefix="/exam", tags=[" IELTS Exam (Full Test)"])
 # =========================
 
 # 🔥 FIX 1: Sửa response_model thành FullTestListItem để khớp với Service
-@router.get("/admin/full-tests", response_model=schemas.FullTestListPaginatedResponse)
+@router.get("/admin/tests", response_model=schemas.FullTestListPaginatedResponse)
 def get_all_full_tests_for_admin(
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
