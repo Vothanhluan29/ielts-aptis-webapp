@@ -22,7 +22,7 @@ export const useSpeakingResult = () => {
         setSubmission(data);
       } catch (error) {
         console.error("Error fetching speaking result:", error);
-        toast.error("Không thể tải kết quả bài thi.");
+        toast.error("Failed to load test results.");
       } finally {
         setLoading(false);
       }

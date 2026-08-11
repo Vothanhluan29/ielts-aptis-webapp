@@ -196,7 +196,7 @@ const WritingAptisEditPage = () => {
         layout="vertical" 
         onFinish={onFinish} 
         onFinishFailed={(errorInfo) => {
-          message.error('Vui lòng điền đầy đủ các trường thông tin bắt buộc (kể cả trong các phần bị ẩn)!');
+          message.error('Please fill in all required fields (including hidden sections)!');
           setActivePartKeys(['0', '1', '2', '3']);
         }}
         onValuesChange={handleFormChange}

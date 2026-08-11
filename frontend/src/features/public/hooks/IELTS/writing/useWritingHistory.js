@@ -18,7 +18,7 @@ export const useWritingHistory = () => {
         setHistory(data);
       } catch (error) {
         console.error("Failed to load writing history", error);
-        toast.error("Không thể tải lịch sử làm bài. Vui lòng thử lại sau.");
+        toast.error("Failed to load test history. Please try again later.");
         setHistory([]);
       } finally {
         setLoading(false);
