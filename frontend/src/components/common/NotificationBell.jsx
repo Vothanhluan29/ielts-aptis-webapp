@@ -25,9 +25,12 @@ const NotificationBell = () => {
       markAsRead(notification.id);
     }
     setIsOpen(false);
-    // Navigate to exam history or specific result page based on notification
-    // For now we just route to dashboard or history.
-    navigate('/aptis/dashboard');
+    navigate('/aptis/notifications');
+  };
+
+  const handleViewAll = () => {
+    setIsOpen(false);
+    navigate('/aptis/notifications');
   };
 
   return (
@@ -95,6 +98,17 @@ const NotificationBell = () => {
               </div>
             )}
           </div>
+          
+          {notifications.length > 0 && (
+            <div className="p-3 border-t border-slate-100 bg-slate-50/50">
+              <button 
+                onClick={handleViewAll}
+                className="w-full text-center text-sm font-bold text-blue-600 hover:text-blue-700 py-1"
+              >
+                View all notifications
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

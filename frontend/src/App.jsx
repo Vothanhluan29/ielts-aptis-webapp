@@ -25,6 +25,7 @@ import AdminFeedbackPage from './features/admin/pages/feedback/AdminFeedbackPage
 /* --- STUDENT PAGES --- */
 import DashboardPage from './features/public/pages/IELTS/dashboard/DashBoardPage';
 import DashboardAptisStudentPage from './features/public/pages/APTIS/dashboard/DashboardAptisStudentPage';
+import NotificationsPage from './features/public/pages/notifications/NotificationsPage';
 
 // Exam (Full Mock Test)
 import ExamListPage from './features/public/pages/IELTS/exam/ExamListPage';
@@ -234,6 +235,7 @@ function App() {
           <Route path="aptis/dashboard" element={<DashboardAptisStudentPage />} />
           <Route path="aptis/profile" element={<StudentProfile />} /> 
           <Route path="feedback" element={<FeedbackPage />} />
+          <Route path="aptis/notifications" element={<NotificationsPage />} />
 
           <Route path="aptis/grammar-vocab" element={<GrammarVocabAptisListPage/>} />
           <Route path="aptis/grammar-vocab/lobby/:id" element={<GrammarVocabLobbyPage />} />

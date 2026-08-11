@@ -88,7 +88,7 @@ class AptisWritingSubmissionService:
 
     @staticmethod
     def grade_submission(db: Session, submission_id: int, grader_id: int, req: schemas.WritingGradeRequest):
-        sub = db.query(AptisWritingSubmission).filter(AptisWritingSubmission.id == submission_id).first()
+        sub = db.query(AptisWritingSubmission).options(joinedload(AptisWritingSubmission.test)).filter(AptisWritingSubmission.id == submission_id).first()
         if not sub:
             return None
             
@@ -109,10 +109,11 @@ class AptisWritingSubmissionService:
         # NOTIFICATION SYSTEM
         # ----------------------------------------------------
         if not sub.is_full_test_only:
+            test_title = sub.test.title if sub.test else "Writing Test"
             notification = notif_models.Notification(
                 student_id=sub.user_id,
                 title="Writing test graded",
-                message=f"Your Writing test has been graded by a teacher. You achieved CEFR level {req.cefr_level}.",
+                message=f'Your "{test_title}" has been graded by a teacher. You achieved CEFR level {req.cefr_level}.',
                 type="SUCCESS"
             )
             db.add(notification)

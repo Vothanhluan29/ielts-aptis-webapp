@@ -142,7 +142,8 @@ class AptisSpeakingSubmissionService:
     @staticmethod
     def grade_submission(db: Session, submission_id: int, grader_id: int, req: schemas.SpeakingGradeRequest):
         sub = db.query(AptisSpeakingSubmission).options(
-            joinedload(AptisSpeakingSubmission.answers)
+            joinedload(AptisSpeakingSubmission.answers),
+            joinedload(AptisSpeakingSubmission.test)
         ).filter(AptisSpeakingSubmission.id == submission_id).first()
         
         if not sub: return None
@@ -166,10 +167,11 @@ class AptisSpeakingSubmissionService:
         # NOTIFICATION SYSTEM
         # ----------------------------------------------------
         if not sub.is_full_test_only:
+            test_title = sub.test.title if sub.test else "Speaking Test"
             notification = notif_models.Notification(
                 student_id=sub.user_id,
                 title="Speaking test graded",
-                message=f"Your Speaking test has been graded by a teacher. You achieved CEFR level {req.cefr_level}.",
+                message=f'Your "{test_title}" has been graded by a teacher. You achieved CEFR level {req.cefr_level}.',
                 type="SUCCESS"
             )
             db.add(notification)

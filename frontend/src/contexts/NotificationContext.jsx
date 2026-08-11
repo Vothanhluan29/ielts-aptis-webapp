@@ -73,8 +73,18 @@ export const NotificationProvider = ({ children }) => {
     }
   };
 
+  const clearAllNotifications = async () => {
+    try {
+      await api.delete(`/notifications/clear-all`);
+      setNotifications([]);
+      setUnreadCount(0);
+    } catch (err) {
+      console.error("Failed to clear notifications", err);
+    }
+  };
+
   return (
-    <NotificationContext.Provider value={{ notifications, unreadCount, markAsRead, markAllAsRead }}>
+    <NotificationContext.Provider value={{ notifications, unreadCount, markAsRead, markAllAsRead, clearAllNotifications }}>
       {children}
     </NotificationContext.Provider>
   );
