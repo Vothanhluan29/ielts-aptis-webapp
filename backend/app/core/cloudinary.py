@@ -4,8 +4,7 @@ import shutil
 import uuid
 
 # Third-Party Imports
-import cloudinary
-from cloudinary import uploader
+
 from fastapi import HTTPException, UploadFile
 
 # Local Application Imports
@@ -19,13 +18,7 @@ ALLOWED_EXTENSIONS = {
     ".jpg", ".jpeg", ".png", ".gif", ".webp"
 }
 
-# Configure Cloudinary settings
-cloudinary.config(
-    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
-    api_key=settings.CLOUDINARY_API_KEY,
-    api_secret=settings.CLOUDINARY_API_SECRET,
-    secure=True
-)
+
 
 async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
     """
