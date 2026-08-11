@@ -56,7 +56,6 @@ const TipEditPage = () => {
 
   const titleValue = Form.useWatch('title', form);
   const contentValue = Form.useWatch('content', form);
-  const isPublish = Form.useWatch('is_published', form);
   const canSubmit = !!titleValue && !!contentValue;
 
   // Auto-save draft to local storage
@@ -306,13 +305,13 @@ const TipEditPage = () => {
           <Tooltip title="Shortcut: Press Ctrl + S to save">
             <Button
               type="primary"
-              icon={isPublish ? <GlobalOutlined /> : <SaveOutlined />}
+              icon={<GlobalOutlined />}
               loading={submitting}
               disabled={!canSubmit}
               onClick={() => form.submit()}
-              className={`${isPublish ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-200' : 'bg-[#445A95] hover:bg-[#445A95] shadow-[#445A95]/20'} rounded-xl font-bold h-11 px-7 border-none shadow-md disabled:bg-slate-300 disabled:shadow-none transition-colors`}
+              className="bg-emerald-600 hover:bg-emerald-500 shadow-emerald-200 rounded-xl font-bold h-11 px-7 border-none shadow-md disabled:bg-slate-300 disabled:shadow-none transition-colors"
             >
-              {isEditing ? (isPublish ? 'Publish Changes' : 'Save Draft') : (isPublish ? 'Publish Article' : 'Save as Draft')}
+              {isEditing ? 'Publish Changes' : 'Publish Article'}
             </Button>
           </Tooltip>
         </div>
@@ -404,29 +403,6 @@ const TipEditPage = () => {
               label={<span className="font-bold text-slate-700">Target Exam</span>}
             >
               <Input disabled value="APTIS" className="rounded-xl h-11 font-bold bg-slate-50 text-slate-600" />
-            </Form.Item>
-
-            <Divider className="my-4 border-slate-100" />
-
-            <Form.Item
-              name="is_published"
-              label={<span className="font-bold text-slate-700">Publish Visibility</span>}
-              valuePropName="checked"
-            >
-              <div className="flex items-center justify-between bg-slate-50 p-3.5 rounded-2xl border border-slate-100">
-                <div>
-                  <span className="block text-xs font-bold text-slate-700 flex items-center gap-1.5">
-                    Visible to students
-                    <Tooltip title="When enabled, students can see this article immediately. When disabled, it is saved as a draft.">
-                      <InfoCircleOutlined className="text-slate-400 font-normal" />
-                    </Tooltip>
-                  </span>
-                  <span className="text-[11px] text-slate-400 font-medium">
-                    Published articles are immediately viewable
-                  </span>
-                </div>
-                <Switch checkedChildren="Public" unCheckedChildren="Draft" />
-              </div>
             </Form.Item>
           </Card>
 
