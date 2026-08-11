@@ -4,15 +4,6 @@ import { SKILL_CONFIG, getCEFRColor } from './dashboardAptisConfig';
 
 const { Text } = Typography;
 
-const getEstimatedCEFR = (score) => {
-  if (score >= 40) return 'C';
-  if (score >= 30) return 'B2';
-  if (score >= 20) return 'B1';
-  if (score >= 10) return 'A2';
-  if (score > 0) return 'A1';
-  return 'A0';
-};
-
 const AverageAptisSkillScores = ({ skillStats }) => {
   return (
     <div className="rounded-[2rem] bg-white/60 backdrop-blur-xl shadow-xl shadow-indigo-500/5 border border-white/80 p-6 md:p-8 h-full transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10">
@@ -23,7 +14,7 @@ const AverageAptisSkillScores = ({ skillStats }) => {
           if (!config) return null;
 
           const percent = (stat.average_score / 50) * 100;
-          const cefrLevel = getEstimatedCEFR(stat.average_score);
+          const cefrLevel = stat.average_cefr || 'A0';
           const cefrColor = getCEFRColor(cefrLevel);
 
           return (
@@ -36,13 +27,20 @@ const AverageAptisSkillScores = ({ skillStats }) => {
                   <Text className="font-bold text-slate-700 text-sm md:text-base">{config.label}</Text>
                 </div>
                 
-                {/* Khu vực bên phải: CHỈ HIỂN THỊ THẺ CEFR */}
-                <Tag 
-                  color={cefrColor} 
-                  className="m-0 px-3 py-1 rounded-xl font-black text-sm border-0 shadow-md min-w-10 text-center tracking-wider"
-                >
-                  {cefrLevel}
-                </Tag>
+                {/* Khu vực bên phải: CHỈ HIỂN THỊ THẺ CEFR HOẶC ĐIỂM */}
+                {stat.skill === 'GRAMMAR_VOCAB' ? (
+                  <div className="flex items-baseline gap-1 bg-slate-100 px-3 py-1 rounded-xl">
+                    <Text className="font-black text-slate-700">{stat.average_score}</Text>
+                    <Text className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">/ 50</Text>
+                  </div>
+                ) : (
+                  <Tag 
+                    color={cefrColor} 
+                    className="m-0 px-3 py-1 rounded-xl font-black text-sm border-0 shadow-md min-w-10 text-center tracking-wider"
+                  >
+                    {cefrLevel}
+                  </Tag>
+                )}
               </div>
               
               <Progress 

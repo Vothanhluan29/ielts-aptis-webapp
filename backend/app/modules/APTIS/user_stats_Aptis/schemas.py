@@ -15,6 +15,7 @@ class SkillType(str, enum.Enum):
 class SkillStats(BaseModel):
     skill: SkillType
     average_score: float = 0.0
+    average_cefr: Optional[str] = "A0"
     total_tests: int = 0
 class FullTestStats(BaseModel):
     total_exams: int = 0         

@@ -27,22 +27,49 @@ class AptisUserStatsService:
             return getattr(submission, 'score', None)
 
     @staticmethod
-    def _calculate_average_score(submissions, is_speaking=False) -> Tuple[float, int]:
+    def _calculate_average_stats(submissions, is_speaking=False, is_gv=False) -> Tuple[float, int, str]:
         if not submissions:
-            return 0.0, 0
+            return 0.0, 0, "A0"
 
         graded_scores = []
+        cefr_ranks = []
+        
         for s in submissions:
-            score = AptisUserStatsService._get_score_from_submission(s, is_speaking=is_speaking)
+            if is_gv:
+                score = getattr(s, 'total_score', None)
+            else:
+                score = AptisUserStatsService._get_score_from_submission(s, is_speaking=is_speaking)
+                
             if score is not None and score >= 0:
                 graded_scores.append(score)
 
-        total_tests = len(submissions)
-        if not graded_scores:
-            return 0.0, total_tests
+            cefr = getattr(s, 'cefr_level', None)
+            if cefr:
+                rank = CEFR_RANKS.get(cefr.upper(), -1)
+                if rank >= 0:
+                    cefr_ranks.append(rank)
 
-        avg = round(sum(graded_scores) / len(graded_scores), 1)
-        return avg, total_tests
+        total_tests = len(submissions)
+        avg_score = 0.0
+        if graded_scores:
+            avg_score = round(sum(graded_scores) / len(graded_scores), 1)
+
+        avg_cefr = "A0"
+        if cefr_ranks:
+            avg_rank = round(sum(cefr_ranks) / len(cefr_ranks))
+            for k, v in CEFR_RANKS.items():
+                if v == avg_rank:
+                    avg_cefr = k
+                    break
+        else:
+            if avg_score > 0:
+                if avg_score >= 40: avg_cefr = "C"
+                elif avg_score >= 30: avg_cefr = "B2"
+                elif avg_score >= 20: avg_cefr = "B1"
+                elif avg_score >= 10: avg_cefr = "A2"
+                elif avg_score > 0: avg_cefr = "A1"
+
+        return avg_score, total_tests, avg_cefr
 
     @staticmethod
     def _generate_chart_data(exam_subs, gv_subs, read_subs, list_subs, writ_subs, speak_subs) -> List[schemas.ChartDataPoint]:
@@ -156,18 +183,18 @@ class AptisUserStatsService:
             highest_overall=max_overall, highest_cefr=highest_cefr
         )
 
-        gv_avg, gv_count = AptisUserStatsService._calculate_average_score(gv_subs)
-        r_avg, r_count = AptisUserStatsService._calculate_average_score(read_subs)
-        l_avg, l_count = AptisUserStatsService._calculate_average_score(list_subs)
-        w_avg, w_count = AptisUserStatsService._calculate_average_score(writ_subs)
-        s_avg, s_count = AptisUserStatsService._calculate_average_score(speak_subs, is_speaking=True)
+        gv_avg, gv_count, gv_cefr = AptisUserStatsService._calculate_average_stats(gv_subs, is_gv=True)
+        r_avg, r_count, r_cefr = AptisUserStatsService._calculate_average_stats(read_subs)
+        l_avg, l_count, l_cefr = AptisUserStatsService._calculate_average_stats(list_subs)
+        w_avg, w_count, w_cefr = AptisUserStatsService._calculate_average_stats(writ_subs)
+        s_avg, s_count, s_cefr = AptisUserStatsService._calculate_average_stats(speak_subs, is_speaking=True)
 
         skill_stats_list = [
-            schemas.SkillStats(skill="GRAMMAR_VOCAB", average_score=gv_avg, total_tests=gv_count),
-            schemas.SkillStats(skill="READING", average_score=r_avg, total_tests=r_count),
-            schemas.SkillStats(skill="LISTENING", average_score=l_avg, total_tests=l_count),
-            schemas.SkillStats(skill="WRITING", average_score=w_avg, total_tests=w_count),
-            schemas.SkillStats(skill="SPEAKING", average_score=s_avg, total_tests=s_count),
+            schemas.SkillStats(skill="GRAMMAR_VOCAB", average_score=gv_avg, average_cefr=gv_cefr, total_tests=gv_count),
+            schemas.SkillStats(skill="READING", average_score=r_avg, average_cefr=r_cefr, total_tests=r_count),
+            schemas.SkillStats(skill="LISTENING", average_score=l_avg, average_cefr=l_cefr, total_tests=l_count),
+            schemas.SkillStats(skill="WRITING", average_score=w_avg, average_cefr=w_cefr, total_tests=w_count),
+            schemas.SkillStats(skill="SPEAKING", average_score=s_avg, average_cefr=s_cefr, total_tests=s_count),
         ]
 
         return schemas.AptisOverviewStatsResponse(
