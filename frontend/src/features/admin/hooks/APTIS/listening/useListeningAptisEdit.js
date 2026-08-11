@@ -25,6 +25,7 @@ export const useListeningAptisEdit = () => {
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [activePartKeys, setActivePartKeys] = useState(['0']);
+  const [uploadProgress, setUploadProgress] = useState({});
 
   const fetchTestDetail = useCallback(async () => {
     setLoading(true);
@@ -262,10 +263,14 @@ export const useListeningAptisEdit = () => {
   };
 
   const handleUploadAudio = async (options, partName, qName = null) => {
-    const { file, onSuccess, onError } = options;
+    const { file, onSuccess, onError, onProgress } = options;
+    const progressKey = qName !== null ? `part_${partName}_q_${qName}` : `part_${partName}`;
 
     try {
-      const res = await listeningAptisAdminApi.uploadAudio(file);
+      const res = await listeningAptisAdminApi.uploadAudio(file, (progressEvent) => {
+        onProgress(progressEvent);
+        setUploadProgress(prev => ({ ...prev, [progressKey]: progressEvent.percent }));
+      });
       const audioUrl = res.data?.url || res.url;
 
       if (qName !== null) {
@@ -279,6 +284,12 @@ export const useListeningAptisEdit = () => {
     } catch (err) {
       onError({ err });
       message.error(`${file.name} upload failed.`);
+    } finally {
+      setUploadProgress(prev => {
+        const next = { ...prev };
+        delete next[progressKey];
+        return next;
+      });
     }
   };
 
@@ -299,5 +310,6 @@ export const useListeningAptisEdit = () => {
     handleFormChange,
     restoreDraft,
     clearDraft,
+    uploadProgress,
   };
 };

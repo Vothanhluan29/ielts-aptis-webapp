@@ -81,11 +81,19 @@ class AptisListeningTestService:
         if test_in.is_full_test_only is not None: test.is_full_test_only = test_in.is_full_test_only
 
         if test_in.parts is not None:
+            existing_parts = db.query(AptisListeningPart).filter(AptisListeningPart.test_id == test_id).all()
+            if existing_parts:
+                part_ids = [p.id for p in existing_parts]
+                existing_groups = db.query(AptisListeningQuestionGroup).filter(AptisListeningQuestionGroup.part_id.in_(part_ids)).all()
+                if existing_groups:
+                    group_ids = [g.id for g in existing_groups]
+                    db.query(AptisListeningQuestion).filter(AptisListeningQuestion.group_id.in_(group_ids)).delete(synchronize_session=False)
+                db.query(AptisListeningQuestionGroup).filter(AptisListeningQuestionGroup.part_id.in_(part_ids)).delete(synchronize_session=False)
             db.query(AptisListeningPart).filter(AptisListeningPart.test_id == test_id).delete(synchronize_session=False)
             db.flush()
 
             for p_data in test_in.parts:
-                db_part = AptisListeningPart(test_id=test.id, part_number=p_data.part_number)
+                db_part = AptisListeningPart(test_id=test.id, title=p_data.title, part_number=p_data.part_number)
                 db.add(db_part)
                 db.flush()
 

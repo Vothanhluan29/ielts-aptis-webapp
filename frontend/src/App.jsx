@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; 
+import { Toaster } from 'react-hot-toast';
 
 /* --- LAYOUTS --- */
 import MainLayout from './layouts/MainLayout';
@@ -189,6 +190,7 @@ function App() {
   return (
     <>
       <ToastContainer position="top-right" autoClose={3000} />
+      <Toaster position="top-center" reverseOrder={false} />
       
       <Routes>
         {/* PUBLIC / AUTH */}

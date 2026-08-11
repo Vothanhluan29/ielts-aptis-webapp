@@ -28,6 +28,7 @@ const BankGroupEditPage = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [activeQuestionKeys, setActiveQuestionKeys] = useState([]);
+  const [uploadProgress, setUploadProgress] = useState({});
 
   const isCreateMode = !id || id === 'create';
   const currentPartNumber = Form.useWatch('part_number', form);
@@ -97,20 +98,30 @@ const BankGroupEditPage = () => {
 };
 
   const handleUploadAudio = async (options, isGroupLevel = false, qName = null) => {
-    const { file, onSuccess, onError } = options;
+    const { file, onSuccess, onError, onProgress } = options;
+    const progressKey = isGroupLevel ? 'group' : `q_${qName}`;
     try {
-      const res = await listeningAptisAdminApi.uploadAudio(file);
+      const res = await listeningAptisAdminApi.uploadAudio(file, (progressEvent) => {
+        onProgress(progressEvent);
+        setUploadProgress(prev => ({ ...prev, [progressKey]: progressEvent.percent }));
+      });
       message.success('Audio uploaded successfully');
       
       if (isGroupLevel) {
-        form.setFieldValue('audio_url', res.url);
+        form.setFieldValue('audio_url', res.data?.url || res.url);
       } else if (qName !== null) {
-        form.setFieldValue(['questions', qName, 'audio_url'], res.url);
+        form.setFieldValue(['questions', qName, 'audio_url'], res.data?.url || res.url);
       }
       onSuccess('ok');
     } catch (error) {
       message.error('Upload failed');
       onError(error);
+    } finally {
+      setUploadProgress(prev => {
+        const next = { ...prev };
+        delete next[progressKey];
+        return next;
+      });
     }
   };
 
@@ -234,8 +245,9 @@ const BankGroupEditPage = () => {
                             icon={<UploadOutlined />} 
                             size="large"
                             className="bg-white text-[#445A95] border-[#445A95]/20 hover:border-indigo-400 hover:text-[#3A4D81] font-semibold rounded-lg"
+                            loading={uploadProgress['group'] !== undefined}
                           >
-                            Upload MP3
+                            {uploadProgress['group'] !== undefined ? `Uploading ${uploadProgress['group']}%` : 'Upload MP3'}
                           </Button>
                         </Upload>
                       </div>
@@ -338,7 +350,13 @@ const BankGroupEditPage = () => {
                                   showUploadList={false} 
                                   accept="audio/*"
                                 >
-                                  <Button icon={<UploadOutlined />} className="bg-white font-medium rounded-lg">Upload MP3</Button>
+                                  <Button 
+                                    icon={<UploadOutlined />} 
+                                    className="bg-white font-medium rounded-lg"
+                                    loading={uploadProgress[`q_${qName}`] !== undefined}
+                                  >
+                                    {uploadProgress[`q_${qName}`] !== undefined ? `Uploading ${uploadProgress[`q_${qName}`]}%` : 'Upload MP3'}
+                                  </Button>
                                 </Upload>
                               </div>
                             </Form.Item>

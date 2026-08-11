@@ -33,7 +33,8 @@ const ListeningAptisEditPage = () => {
     lastSavedTime,
     handleFormChange,
     restoreDraft,
-    clearDraft
+    clearDraft,
+    uploadProgress
   } = useListeningAptisEdit();
 
   const [activeTabKey, setActiveTabKey] = useState('0');
@@ -236,7 +237,16 @@ const ListeningAptisEditPage = () => {
                                   customRequest={(options) => handleUploadAudio(options, partName)} 
                                   showUploadList={false} accept="audio/*"
                                 >
-                                  <Button icon={<UploadOutlined />} type="primary" ghost>Upload MP3</Button>
+                                  <Button 
+                                    icon={<UploadOutlined />} 
+                                    type="primary" 
+                                    ghost
+                                    loading={uploadProgress[`part_${partName}`] !== undefined}
+                                  >
+                                    {uploadProgress[`part_${partName}`] !== undefined 
+                                      ? `Uploading ${uploadProgress[`part_${partName}`]}%` 
+                                      : 'Upload MP3'}
+                                  </Button>
                                 </Upload>
                               </div>
                             </Form.Item>
@@ -299,7 +309,14 @@ const ListeningAptisEditPage = () => {
                                             customRequest={(options) => handleUploadAudio(options, partName, qName)} 
                                             showUploadList={false} accept="audio/*"
                                           >
-                                            <Button icon={<UploadOutlined />}>Upload MP3</Button>
+                                            <Button 
+                                              icon={<UploadOutlined />}
+                                              loading={uploadProgress[`part_${partName}_q_${qName}`] !== undefined}
+                                            >
+                                              {uploadProgress[`part_${partName}_q_${qName}`] !== undefined 
+                                                ? `Uploading ${uploadProgress[`part_${partName}_q_${qName}`]}%` 
+                                                : 'Upload MP3'}
+                                            </Button>
                                           </Upload>
                                         </div>
                                       </Form.Item>
