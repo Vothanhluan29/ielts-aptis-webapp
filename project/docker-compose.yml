@@ -24,7 +24,10 @@ services:
       - REFRESH_TOKEN_EXPIRE_DAYS=7
       - GEMINI_API_KEY=AIzaSyD_4xJgfBY56qdbEiO-hGgTnmtWCXEU4S0
       - GOOGLE_CLIENT_ID=251893554534-skskt9risg1c3jofn8k3489ce4dhdrve.apps.googleusercontent.com
-
+      - CLOUDINARY_CLOUD_NAME=kexinnvd
+      - CLOUDINARY_API_KEY=934551637461136
+      - CLOUDINARY_API_SECRET=lKs242fxHqqSL1AgM0VTWga1qW8
+      - USE_CLOUDINARY=True
       - BASE_URL=https://english.greenwich-it.com
     depends_on:
       - db

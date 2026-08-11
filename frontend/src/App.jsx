@@ -296,8 +296,6 @@ function App() {
             <Route path="users" element={<UserManagement/>}/>
             <Route path="aptis/users" element={<UserManagement/>}/>
             <Route path="submissions" element={<AdminSubmissions/>}/>
-            <Route path="profile" element={<AdminProfilePage/>}/>
-            <Route path="aptis/profile" element={<AdminProfilePage/>}/>
             <Route path="feedback" element={<AdminFeedbackPage/>}/>
             <Route path="aptis/feedback" element={<AdminFeedbackPage/>}/>
             <Route path="aptis/tips" element={<TipsAdminListPage />} />
@@ -399,7 +397,6 @@ function App() {
             <Route index element={<Navigate to="/teacher/dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboardPage />} />
             <Route path="users" element={<UserManagement/>}/>
-            <Route path="profile" element={<AdminProfilePage/>}/>
             <Route path="feedback" element={<FeedbackPage />} />
             <Route path="tips" element={<TipsAdminListPage />} />
             <Route path="tips/create" element={<TipEditPage />} />

@@ -76,7 +76,7 @@ export default function TeacherHeader() {
 
         {/* RIGHT: User Profile */}
         <div className="flex items-center gap-4">
-          <Link to="/teacher/profile" className="group flex items-center gap-3 bg-zinc-50 hover:bg-teal-50 px-3 py-1.5 rounded-xl border border-zinc-200 hover:border-teal-200 transition-all">
+          <div className="group flex items-center gap-3 bg-zinc-50 hover:bg-teal-50 px-3 py-1.5 rounded-xl border border-zinc-200 hover:border-teal-200 transition-all cursor-default">
             <div className="flex flex-col items-end">
               <span className="text-sm font-bold text-zinc-900 group-hover:text-teal-700 transition-colors leading-tight">
                 {lastName || "Teacher"}
@@ -100,7 +100,7 @@ export default function TeacherHeader() {
                 )}
               </div>
             )}
-          </Link>
+          </div>
         </div>
         
       </div>

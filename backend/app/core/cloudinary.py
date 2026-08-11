@@ -4,7 +4,8 @@ import shutil
 import uuid
 
 # Third-Party Imports
-
+import cloudinary
+from cloudinary import uploader
 from fastapi import HTTPException, UploadFile
 
 # Local Application Imports
@@ -18,7 +19,13 @@ ALLOWED_EXTENSIONS = {
     ".jpg", ".jpeg", ".png", ".gif", ".webp"
 }
 
-
+# Configure Cloudinary settings
+cloudinary.config(
+    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+    api_key=settings.CLOUDINARY_API_KEY,
+    api_secret=settings.CLOUDINARY_API_SECRET,
+    secure=True
+)
 
 async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
     """
@@ -53,30 +60,47 @@ async def upload_smart_file(file: UploadFile, folder_name: str) -> str:
     # Sanitize folder name to prevent directory traversal
     safe_folder = os.path.basename(folder_name)
 
-    # SAVE LOCALLY
-    upload_dir = os.path.join("static", safe_folder)
-    os.makedirs(upload_dir, exist_ok=True)
+    # CASE 1: SAVE LOCALLY (for local testing)
+    if not settings.USE_CLOUDINARY:
+        upload_dir = os.path.join("static", safe_folder)
+        os.makedirs(upload_dir, exist_ok=True)
 
-    filename = f"{uuid.uuid4()}{file_ext}"
-    file_path = os.path.join(upload_dir, filename)
+        filename = f"{uuid.uuid4()}{file_ext}"
+        file_path = os.path.join(upload_dir, filename)
 
+        try:
+            # Move file pointer to the beginning before reading/saving
+            file.file.seek(0)
+            await file.seek(0)
+            with open(file_path, "wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+
+            # Return localhost URL
+            base_url = settings.BASE_URL.rstrip('/')
+            if not settings.USE_CLOUDINARY and ("english.greenwich-it.com" in base_url or "onrender.com" in base_url):
+                base_url = "http://localhost:8000"
+
+            url_path = f"static/{safe_folder}/{filename}"
+            return f"{base_url}/{url_path}"
+
+        except Exception as e:
+            print(f"Local save error: {e}")
+            raise HTTPException(status_code=500, detail="Failed to save file locally")
+
+    # CASE 2: UPLOAD TO CLOUDINARY (when deployed)
     try:
-        # Move file pointer to the beginning before reading/saving
         file.file.seek(0)
-        await file.seek(0)
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+        await file.seek(0)  # Ensure reading from the beginning
+        file_content = await file.read()
 
-        # Return localhost URL
-        base_url = settings.BASE_URL.rstrip('/')
-        if "english.greenwich-it.com" in base_url or "onrender.com" in base_url:
-            # Note: We keep this logic intact, though if you want a local folder 
-            # while running on production domain, this might need an update depending on deployment.
-            base_url = "http://localhost:8000"
+        result = uploader.upload(
+            file_content,
+            folder=safe_folder,
+            resource_type="auto"
+        )
 
-        url_path = f"static/{safe_folder}/{filename}"
-        return f"{base_url}/{url_path}"
+        return result.get("secure_url")
 
     except Exception as e:
-        print(f"Local save error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to save file locally")
+        print(f"Cloudinary upload error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to upload file to Cloudinary")

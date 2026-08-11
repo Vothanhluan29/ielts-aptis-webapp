@@ -48,7 +48,7 @@ export default function Header() {
 
       {/* ── RIGHT: PROFILE ── */}
       <div className="flex-1 flex justify-end">
-        <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-white hover:bg-zinc-50 border border-zinc-200 transition-colors cursor-pointer group shadow-sm">
+        <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-white hover:bg-zinc-50 border border-zinc-200 transition-colors cursor-default group shadow-sm">
           <div className="flex flex-col justify-center text-right pl-2">
             <span className="text-zinc-800 font-bold text-[13px] tracking-tight leading-none group-hover:text-indigo-600 transition-colors">
               {lastName || (isTeacher ? "TEACHER" : "ADMIN")}
