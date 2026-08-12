@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
 # Đổi JSONB thành JSON chung (hoặc bạn giữ JSONB nếu hệ thống chỉ dùng rặt PostgreSQL)
 from sqlalchemy.types import JSON 
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 import enum
 from app.core.database import Base
