@@ -49,7 +49,7 @@ def set_refresh_token_cookie_and_db(db: Session, response: Response, user_id: in
         value=refresh_token,
         httponly=True,
         secure=settings.is_production,
-        samesite="lax",
+        samesite="none",
         max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
     )
 
@@ -78,7 +78,7 @@ def login(request: Request, response: Response, form_data: OAuth2PasswordRequest
         value=access_token,
         httponly=True,
         secure=settings.is_production,
-        samesite="lax",
+        samesite="none",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
     
@@ -112,7 +112,7 @@ def login_google(
         value=access_token,
         httponly=True,
         secure=settings.is_production,
-        samesite="lax",
+        samesite="none",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
     
@@ -160,7 +160,7 @@ def refresh_token(
         value=access_token,
         httponly=True,
         secure=settings.is_production,
-        samesite="lax",
+        samesite="none",
         max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
     )
     
