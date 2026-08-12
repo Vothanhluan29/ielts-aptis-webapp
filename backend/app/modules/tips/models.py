@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 # Third-Party Imports
 from sqlalchemy import Column, Integer, String, Text, Boolean, DateTime, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 
 # Local Application Core Imports
 from app.core.database import Base
@@ -29,4 +29,4 @@ class Tip(Base):
         onupdate=lambda: datetime.now(timezone.utc)
     )
 
-    author = relationship("User", backref="tips")
+    author = relationship("User", backref=backref("tips", cascade="all, delete-orphan"))

@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum, Boolean, DateTime, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from datetime import datetime
 import enum
 from app.core.database import Base
@@ -115,4 +115,4 @@ class AptisGrammarVocabSubmission(Base):
     submitted_at = Column(DateTime, default=datetime.utcnow)
 
     test = relationship("AptisGrammarVocabTest", back_populates="submissions")
-    user = relationship("User") 
+    user = relationship("User", backref=backref("aptis_grammar_vocab_submissions", cascade="all, delete-orphan"))

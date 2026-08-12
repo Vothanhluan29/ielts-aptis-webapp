@@ -1,6 +1,6 @@
 import enum
 from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Enum as SQLEnum, func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from app.core.database import Base
 
 class FeedbackType(str, enum.Enum):
@@ -26,4 +26,4 @@ class Feedback(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     # Relationships
-    user = relationship("User", backref="feedbacks")
+    user = relationship("User", backref=backref("feedbacks", cascade="all, delete-orphan"))

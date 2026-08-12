@@ -128,4 +128,4 @@ class AptisReadingSubmission(Base):
 
     # Quan hệ
     test = relationship("AptisReadingTest", back_populates="submissions")
-    user = relationship("User")
+    user = relationship("User", backref=backref("aptis_reading_submissions", cascade="all, delete-orphan"))

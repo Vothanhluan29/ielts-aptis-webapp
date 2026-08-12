@@ -100,13 +100,21 @@ class UserService:
 
     @staticmethod
     def delete_user(db: Session, user_id: int):
+        from sqlalchemy.exc import IntegrityError
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
-        db.delete(user)
-        db.commit()
-        return {"message": "User deleted successfully"}
+        try:
+            db.delete(user)
+            db.commit()
+            return {"message": "User deleted successfully"}
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(
+                status_code=400, 
+                detail="Cannot delete user because they have associated records. Please remove them first."
+            )
         
     @staticmethod
     def bulk_create_students(db: Session, students_in: list[schemas.StudentImport]):

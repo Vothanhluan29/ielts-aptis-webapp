@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 from sqlalchemy.types import JSON
 import enum
@@ -113,4 +113,4 @@ class AptisListeningSubmission(Base):
 
     # Quan hệ
     test = relationship("AptisListeningTest", back_populates="submissions")
-    user = relationship("User")
+    user = relationship("User", backref=backref("aptis_listening_submissions", cascade="all, delete-orphan"))

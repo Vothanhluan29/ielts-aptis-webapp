@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime, Boolean, JSON
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.sql import func
 import enum
 from app.core.database import Base
@@ -90,5 +90,5 @@ class AptisWritingSubmission(Base):
     graded_at = Column(DateTime(timezone=True), nullable=True)
 
     test = relationship("AptisWritingTest", back_populates="submissions")
-    user = relationship("User", foreign_keys=[user_id])
+    user = relationship("User", foreign_keys=[user_id], backref=backref("aptis_writing_submissions", cascade="all, delete-orphan"))
     grader = relationship("User", foreign_keys=[graded_by])

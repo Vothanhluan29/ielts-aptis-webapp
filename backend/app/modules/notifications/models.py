@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 import uuid
 from datetime import datetime, timezone
 
@@ -17,4 +17,4 @@ class Notification(Base):
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-    student = relationship("User")
+    student = relationship("User", backref=backref("notifications", cascade="all, delete-orphan"))

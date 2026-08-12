@@ -178,6 +178,14 @@ def logout(response: Response, refresh_token: str = Cookie(None), db: Session = 
         if db_token:
             db_token.is_revoked = True
             db.commit()
-    response.delete_cookie("refresh_token")
-    response.delete_cookie("access_token")
+    response.delete_cookie(
+        "refresh_token",
+        secure=settings.is_production,
+        samesite="none"
+    )
+    response.delete_cookie(
+        "access_token",
+        secure=settings.is_production,
+        samesite="none"
+    )
     return {"message": "Logged out successfully"}
