@@ -127,15 +127,7 @@ const RandomTestGeneratorPage = () => {
 
             <div style={{ padding: '16px 28px' }}>
               <div className="flex items-center gap-6 flex-wrap">
-                <Form.Item name="is_full_test_only" valuePropName="checked" className="m-0" style={{ display: 'flex' }}>
-                  <div className="flex items-center gap-2.5">
-                    <Switch size="small" />
-                    <div>
-                      <div className="text-sm font-semibold text-zinc-700 leading-none">Full Test Only</div>
-                      <div className="text-sm text-zinc-400 mt-0.5">Part of 4-skill mock test</div>
-                    </div>
-                  </div>
-                </Form.Item>
+
                 <div className="flex-1 hidden md:block" />
                 <button type="submit" disabled={loading} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 15, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
                   {loading ? <span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} /> : <Wand2 size={15} />}

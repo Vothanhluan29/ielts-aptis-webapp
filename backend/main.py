@@ -110,7 +110,8 @@ app.add_middleware(
         "http://localhost",
         "http://127.0.0.1",
         "https://ielts-aptis-frontend.onrender.com",
-        "https://english.greenwich-it.com"
+        "https://english.greenwich-it.com",
+        "https://aptisnew.greenwichvietnam.edu.vn"
     ],
     allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
     allow_credentials=True,
@@ -121,7 +122,7 @@ app.add_middleware(
 @app.middleware("http")
 async def add_security_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups"
+    response.headers["Cross-Origin-Opener-Policy"] = "unsafe-none"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"

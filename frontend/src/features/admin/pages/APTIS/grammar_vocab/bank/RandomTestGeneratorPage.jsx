@@ -178,25 +178,7 @@ const RandomTestGeneratorPage = () => {
             {/* Section 3 - Options + Generate */}
             <div style={{ padding: '16px 28px' }}>
               <div className="flex items-center gap-6 flex-wrap">
-                <Form.Item name="is_published" valuePropName="checked" className="m-0" style={{ display: 'flex' }}>
-                  <div className="flex items-center gap-2.5">
-                    <Switch size="small" />
-                    <div>
-                      <div className="text-sm font-semibold text-zinc-700 leading-none">Published</div>
-                      <div className="text-sm text-zinc-400 mt-0.5">Visible to students now</div>
-                    </div>
-                  </div>
-                </Form.Item>
-                <div className="w-px h-8 bg-zinc-200 hidden md:block" />
-                <Form.Item name="is_full_test_only" valuePropName="checked" className="m-0" style={{ display: 'flex' }}>
-                  <div className="flex items-center gap-2.5">
-                    <Switch size="small" />
-                    <div>
-                      <div className="text-sm font-semibold text-zinc-700 leading-none">Full Test Only</div>
-                      <div className="text-sm text-zinc-400 mt-0.5">Part of 4-skill mock test</div>
-                    </div>
-                  </div>
-                </Form.Item>
+
                 <div className="flex-1 hidden md:block" />
                 <Button
                   type="primary"
