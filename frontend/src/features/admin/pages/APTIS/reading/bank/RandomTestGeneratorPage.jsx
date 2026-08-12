@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, InputNumber, Switch, Select, message, Spin } from 'antd';
 import { ArrowLeft, Settings2, Clock, CheckCircle2, BookOpen, Wand2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -12,6 +12,7 @@ const RandomTestGeneratorPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [bankGroups, setBankGroups] = useState([]);
+  const [bankStats, setBankStats] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
   const isTeacher = location.pathname.includes('/teacher');
@@ -19,7 +20,14 @@ const RandomTestGeneratorPage = () => {
 
   useEffect(() => {
     aptisReadingBankApi.getBankGroups().then(setBankGroups).catch(console.error);
+    aptisReadingBankApi.getBankStats().then(setBankStats).catch(console.error);
   }, []);
+
+  const getOptionLabel = (part, level) => {
+    const stat = bankStats.find(s => s.part === part && s.difficulty_level === level);
+    const count = stat ? stat.count : 0;
+    return `${level} (${count})`;
+  };
 
   const handleDifficultyChange = (part, value) => {
     if (!value) return;
@@ -109,7 +117,7 @@ const RandomTestGeneratorPage = () => {
                     <div className="text-sm font-semibold text-zinc-500 mb-2 uppercase tracking-wide">Part {part}</div>
                     <Form.Item name={`difficulty_part_${part}`} className="mb-0">
                       <Select allowClear placeholder="Any" size="large" style={{ width: '100%' }} onChange={(v) => handleDifficultyChange(part, v)}>
-                        {LEVELS.map(l => <Option key={l} value={l}>{l}</Option>)}
+                        {LEVELS.map(l => <Option key={l} value={l}>{getOptionLabel(part, l)}</Option>)}
                       </Select>
                     </Form.Item>
                   </div>

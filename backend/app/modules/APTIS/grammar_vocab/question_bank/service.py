@@ -101,6 +101,52 @@ class AptisGrammarVocabBankService:
         db.commit()
 
     @staticmethod
+    def get_bank_stats(db: Session):
+        # Grammar: count questions
+        grammar_stats = db.query(
+            AptisGrammarVocabBankGroup.difficulty_level,
+            func.count(AptisGrammarVocabBankQuestion.id).label('count')
+        ).join(
+            AptisGrammarVocabBankGroup, AptisGrammarVocabBankQuestion.bank_group_id == AptisGrammarVocabBankGroup.id
+        ).filter(
+            AptisGrammarVocabBankGroup.part_type == AptisQuestionPart.GRAMMAR
+        ).group_by(AptisGrammarVocabBankGroup.difficulty_level).all()
+
+        # Vocab: count groups with >= 5 questions
+        vocab_types = [
+            AptisQuestionPart.VOCAB_WORD_DEFINITION,
+            AptisQuestionPart.VOCAB_WORD_PAIRS,
+            AptisQuestionPart.VOCAB_WORD_USAGE,
+            AptisQuestionPart.VOCAB_WORD_COMBINATIONS
+        ]
+        subq = db.query(
+            AptisGrammarVocabBankGroup.id,
+            AptisGrammarVocabBankGroup.difficulty_level
+        ).join(
+            AptisGrammarVocabBankQuestion, AptisGrammarVocabBankQuestion.bank_group_id == AptisGrammarVocabBankGroup.id
+        ).filter(
+            AptisGrammarVocabBankGroup.part_type.in_(vocab_types)
+        ).group_by(
+            AptisGrammarVocabBankGroup.id,
+            AptisGrammarVocabBankGroup.difficulty_level
+        ).having(
+            func.count(AptisGrammarVocabBankQuestion.id) >= 5
+        ).subquery()
+        
+        vocab_stats = db.query(
+            subq.c.difficulty_level,
+            func.count(subq.c.id).label('count')
+        ).group_by(subq.c.difficulty_level).all()
+
+        results = []
+        for row in grammar_stats:
+            results.append({"part": "GRAMMAR", "difficulty_level": row.difficulty_level, "count": row.count})
+        for row in vocab_stats:
+            results.append({"part": "VOCAB", "difficulty_level": row.difficulty_level, "count": row.count})
+            
+        return results
+
+    @staticmethod
     def generate_test(db: Session, config: bank_schemas.GenerateTestConfig):
         # We need 25 Grammar questions and 25 Vocab questions (Vocab usually consists of 5 groups of 5 questions each)
         

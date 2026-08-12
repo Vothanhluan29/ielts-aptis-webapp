@@ -22,6 +22,11 @@ def get_bank_groups(
     return AptisSpeakingBankService.get_bank_groups(db, part_number, search, difficulty_level, skip, limit)
 
 
+@router.get("/stats", response_model=List[bank_schemas.BankGroupStatItem])
+def get_bank_stats(db: Session = Depends(get_db), admin = Depends(get_aptis_manager_user)):
+    return AptisSpeakingBankService.get_bank_stats(db)
+
+
 @router.get("/{group_id}", response_model=bank_schemas.SpeakingBankGroupResponse)
 def get_bank_group(
     group_id: int,

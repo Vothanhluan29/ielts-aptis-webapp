@@ -5,6 +5,10 @@ const aptisWritingBankApi = {
     return axiosClient.get("/aptis/writing/admin/bank/groups", { params });
   },
 
+  getBankStats: () => {
+    return axiosClient.get("/aptis/writing/admin/bank/stats");
+  },
+
   getBankGroupById: (id) => {
     return axiosClient.get(`/aptis/writing/admin/bank/groups/${id}`);
   },

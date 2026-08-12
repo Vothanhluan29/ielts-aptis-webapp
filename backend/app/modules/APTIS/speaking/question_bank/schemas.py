@@ -58,3 +58,8 @@ class GenerateTestConfig(BaseModel):
 class PaginatedSpeakingBankGroupResponse(BaseModel):
     items: List[SpeakingBankGroupResponse]
     total: int
+
+class BankGroupStatItem(BaseModel):
+    part: Any
+    difficulty_level: Optional[str]
+    count: int

@@ -99,6 +99,22 @@ class AptisWritingBankService:
         db.commit()
 
     @staticmethod
+    def get_bank_stats(db: Session):
+        stats = db.query(
+            AptisWritingBankGroup.part_type,
+            AptisWritingBankGroup.difficulty_level,
+            func.count(AptisWritingBankGroup.id).label('count')
+        ).group_by(
+            AptisWritingBankGroup.part_type,
+            AptisWritingBankGroup.difficulty_level
+        ).all()
+        
+        return [
+            {"part": row.part_type.value if hasattr(row.part_type, 'value') else row.part_type, "difficulty_level": row.difficulty_level, "count": row.count}
+            for row in stats
+        ]
+
+    @staticmethod
     def generate_test(db: Session, config: bank_schemas.GenerateTestConfig):
         parts_to_pick = [
             AptisWritingPartType.PART_1,

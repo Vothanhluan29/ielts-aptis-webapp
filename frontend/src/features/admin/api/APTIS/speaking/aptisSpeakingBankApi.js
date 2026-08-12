@@ -6,6 +6,10 @@ const aptisSpeakingBankApi = {
     return axiosClient.get("/admin/aptis/speaking/bank/");
   },
 
+  getBankStats: () => {
+    return axiosClient.get("/admin/aptis/speaking/bank/stats");
+  },
+
   // Get a single speaking bank group by ID
   getBankGroupById: (id) => {
     return axiosClient.get(`/admin/aptis/speaking/bank/${id}`);

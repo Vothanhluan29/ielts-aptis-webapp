@@ -9,6 +9,10 @@ const aptisReadingBankApi = {
     return axiosClient.get('/aptis/reading/bank/groups', { params });
   },
 
+  getBankStats: () => {
+    return axiosClient.get('/aptis/reading/bank/stats');
+  },
+
   getBankGroupById: (id) => {
     return axiosClient.get(`/aptis/reading/bank/groups/${id}`);
   },

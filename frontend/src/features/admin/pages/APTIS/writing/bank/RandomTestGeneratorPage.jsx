@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, InputNumber, Switch, Select, message, Spin } from 'antd';
 import { ArrowLeft, Settings2, Clock, CheckCircle2, PenLine, Wand2 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -17,6 +17,18 @@ const RandomTestGeneratorPage = () => {
 
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+  const [bankStats, setBankStats] = useState([]);
+
+  useEffect(() => {
+    aptisWritingBankApi.getBankStats().then(setBankStats).catch(console.error);
+  }, []);
+
+  const getOptionLabel = (part, level) => {
+    const partType = `PART_${part}`;
+    const stat = bankStats.find(s => s.part === partType && s.difficulty_level === level);
+    const count = stat ? stat.count : 0;
+    return `${level} (${count})`;
+  };
 
   const handleGenerate = async (values) => {
     setSubmitting(true);
@@ -101,7 +113,7 @@ const RandomTestGeneratorPage = () => {
                     <div className="text-sm font-semibold text-zinc-500 mb-2 uppercase tracking-wide">Part {part}</div>
                     <Form.Item name={`difficulty_part_${part}`} className="mb-0">
                       <Select allowClear placeholder="Any" size="large" style={{ width: '100%' }}>
-                        {LEVELS.map(l => <Option key={l} value={l}>{l}</Option>)}
+                        {LEVELS.map(l => <Option key={l} value={l}>{getOptionLabel(part, l)}</Option>)}
                       </Select>
                     </Form.Item>
                   </div>

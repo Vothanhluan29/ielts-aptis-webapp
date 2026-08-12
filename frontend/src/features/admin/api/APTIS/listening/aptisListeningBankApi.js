@@ -4,6 +4,9 @@ const aptisListeningBankApi = {
   getBankGroups: (params) => {
     return axiosClient.get('/aptis/listening/admin/bank/groups', { params });
   },
+  getBankStats: () => {
+    return axiosClient.get('/aptis/listening/admin/bank/stats');
+  },
   getBankGroupById: (id) => {
     return axiosClient.get(`/aptis/listening/admin/bank/groups/${id}`);
   },

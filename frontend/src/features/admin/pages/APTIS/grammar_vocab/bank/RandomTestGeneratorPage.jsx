@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Spin, message, Switch, Select, InputNumber } from 'antd';
 import { ArrowLeftOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -18,6 +18,17 @@ const RandomTestGeneratorPage = () => {
 
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
+  const [bankStats, setBankStats] = useState([]);
+
+  useEffect(() => {
+    aptisGrammarVocabBankApi.getBankStats().then(setBankStats).catch(console.error);
+  }, []);
+
+  const getOptionLabel = (part, level) => {
+    const stat = bankStats.find(s => s.part === part && s.difficulty_level === level);
+    const count = stat ? stat.count : 0;
+    return `${level} (${count})`;
+  };
 
   const handleGenerate = async () => {
     try {
@@ -146,7 +157,7 @@ const RandomTestGeneratorPage = () => {
                   </div>
                   <Form.Item name="difficulty_grammar" className="mb-0">
                     <Select allowClear placeholder="Any Level" size="large" style={{ width: '100%' }}>
-                      {LEVELS.map(l => <Option key={l} value={l}>{l}</Option>)}
+                      {LEVELS.map(l => <Option key={l} value={l}>{getOptionLabel('GRAMMAR', l)}</Option>)}
                     </Select>
                   </Form.Item>
                 </div>
@@ -157,7 +168,7 @@ const RandomTestGeneratorPage = () => {
                   </div>
                   <Form.Item name="difficulty_vocab" className="mb-0">
                     <Select allowClear placeholder="Any Level" size="large" style={{ width: '100%' }}>
-                      {LEVELS.map(l => <Option key={l} value={l}>{l}</Option>)}
+                      {LEVELS.map(l => <Option key={l} value={l}>{getOptionLabel('VOCAB', l)}</Option>)}
                     </Select>
                   </Form.Item>
                 </div>

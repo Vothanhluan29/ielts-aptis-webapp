@@ -5,6 +5,10 @@ const aptisGrammarVocabBankApi = {
     return axiosClient.get("/aptis/grammar-vocab/bank/groups", { params });
   },
 
+  getBankStats: () => {
+    return axiosClient.get("/aptis/grammar-vocab/bank/stats");
+  },
+
   getBankGroupById: (id) => {
     return axiosClient.get(`/aptis/grammar-vocab/bank/groups/${id}`);
   },

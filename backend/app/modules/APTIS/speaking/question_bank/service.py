@@ -104,6 +104,22 @@ class AptisSpeakingBankService:
         db.commit()
 
     @staticmethod
+    def get_bank_stats(db: Session):
+        stats = db.query(
+            AptisSpeakingBankGroup.part_type,
+            AptisSpeakingBankGroup.difficulty_level,
+            func.count(AptisSpeakingBankGroup.id).label('count')
+        ).group_by(
+            AptisSpeakingBankGroup.part_type,
+            AptisSpeakingBankGroup.difficulty_level
+        ).all()
+        
+        return [
+            {"part": row.part_type, "difficulty_level": row.difficulty_level, "count": row.count}
+            for row in stats
+        ]
+
+    @staticmethod
     def generate_test(db: Session, config: bank_schemas.GenerateTestConfig):
         parts_to_pick = [
             "PART_1",

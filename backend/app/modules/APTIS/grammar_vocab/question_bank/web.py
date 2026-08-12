@@ -23,6 +23,10 @@ def get_bank_groups(
 ):
     return AptisGrammarVocabBankService.get_bank_groups(db, part_number, search, difficulty_level, skip, limit)
 
+@router.get("/bank/stats", response_model=List[bank_schemas.BankGroupStatItem])
+def get_bank_stats(db: Session = Depends(get_db), admin = Depends(get_aptis_manager_user)):
+    return AptisGrammarVocabBankService.get_bank_stats(db)
+
 @router.post("/bank/groups", response_model=bank_schemas.BankGroupResponse, status_code=status.HTTP_201_CREATED)
 def create_bank_group(
     group_in: bank_schemas.BankGroupCreate,

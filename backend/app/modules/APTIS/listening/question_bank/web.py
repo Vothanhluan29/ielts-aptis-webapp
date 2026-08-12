@@ -31,6 +31,10 @@ def get_bank_groups(
 ):
     return BankService.get_bank_groups(db, part_number, search, difficulty_level, skip, limit)
 
+@router.get("/admin/bank/stats", response_model=List[bank_schemas.BankGroupStatItem])
+def get_bank_stats(db: Session = Depends(get_db), admin = Depends(get_aptis_manager_user)):
+    return BankService.get_bank_stats(db)
+
 @router.get("/admin/bank/groups/{group_id}", response_model=bank_schemas.BankGroupResponse)
 def get_bank_group(
     group_id: int,

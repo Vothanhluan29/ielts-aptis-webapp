@@ -113,6 +113,22 @@ class BankService:
         return {"detail": "Deleted successfully"}
 
     @staticmethod
+    def get_bank_stats(db: Session):
+        stats = db.query(
+            AptisListeningBankGroup.part_number,
+            AptisListeningBankGroup.difficulty_level,
+            func.count(AptisListeningBankGroup.id).label('count')
+        ).group_by(
+            AptisListeningBankGroup.part_number,
+            AptisListeningBankGroup.difficulty_level
+        ).all()
+        
+        return [
+            {"part": row.part_number, "difficulty_level": row.difficulty_level, "count": row.count}
+            for row in stats
+        ]
+
+    @staticmethod
     def generate_test(db: Session, config: bank_schemas.GenerateTestConfig):
         # 1. Create Test Record
         new_test = AptisListeningTest(

@@ -71,3 +71,8 @@ class GenerateTestConfig(BaseModel):
 class PaginatedBankGroupResponse(BaseModel):
     items: List[BankGroupResponse]
     total: int
+
+class BankGroupStatItem(BaseModel):
+    part: int
+    difficulty_level: Optional[str]
+    count: int
