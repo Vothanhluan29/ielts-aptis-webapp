@@ -156,9 +156,9 @@ const SidebarLink = ({ to, label, icon, active, collapsed }) => {
     ? "justify-center h-11 w-11 mx-auto"
     : "px-3.5 py-2.5";
 
-  // Active style: Vibrant blue background with white text
+  // Active style: Vibrant navy background with white text
   const activeStyle =
-    "!bg-blue-600 !text-white shadow-md shadow-blue-500/20 font-extrabold scale-[1.02] transform";
+    "!bg-[#1E3A8A] !text-white shadow-md shadow-[#1E3A8A]/20 font-extrabold scale-[1.02] transform";
   const inactiveStyle =
     "!text-slate-600 hover:bg-slate-200/50 hover:!text-slate-900 font-medium";
 

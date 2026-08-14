@@ -63,7 +63,7 @@ const AptisHeader = ({
       <div className="flex items-center gap-4 md:gap-6 shrink-0">
         {/* Mobile menu toggle */}
         <button
-          className="md:hidden p-2 rounded-xl text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-all"
+          className="md:hidden p-2 rounded-xl text-slate-500 hover:text-[#1E3A8A] hover:bg-[#EFF4FF] transition-all"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
           <Menu size={22} />
@@ -87,7 +87,7 @@ const AptisHeader = ({
           onClick={() => setProfileOpen(!profileOpen)}
           className="flex items-center gap-2.5 p-1 pr-2 rounded-full hover:bg-slate-100/80 transition-colors outline-none group"
         >
-          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-white font-bold shadow-md shadow-blue-600/20 shrink-0 ring-2 ring-white bg-gradient-to-br from-blue-500 to-blue-700 group-hover:scale-105 transition-transform">
+          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-white font-bold shadow-md shadow-[#1E3A8A]/20 shrink-0 ring-2 ring-white bg-[#1E3A8A] group-hover:scale-105 transition-transform">
             {user?.avatar_url ? (
               <img src={user.avatar_url} alt="avatar" className="w-full h-full object-cover" />
             ) : (
@@ -98,7 +98,7 @@ const AptisHeader = ({
             <span className="text-[13px] font-bold text-slate-800 leading-tight">
               {user?.full_name || "Aptis Student"}
             </span>
-            <span className="text-[10px] text-blue-600 font-black uppercase tracking-wider">
+            <span className="text-[10px] text-[#1E3A8A] font-black uppercase tracking-wider">
               Student
             </span>
           </div>
@@ -130,9 +130,9 @@ const AptisHeader = ({
               <Link
                 to="/aptis/profile"
                 onClick={() => setProfileOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-700 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-700 rounded-xl hover:bg-[#EFF4FF] hover:text-[#1E3A8A] transition-colors duration-150"
               >
-                <div className="p-1.5 bg-slate-100 rounded-lg text-blue-600"><User size={16} /></div>
+                <div className="p-1.5 bg-slate-100 rounded-lg text-[#1E3A8A]"><User size={16} /></div>
                 Profile Settings
               </Link>
 
