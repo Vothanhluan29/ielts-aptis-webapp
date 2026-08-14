@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Modal, Form, Input, Select, Tag, message, Typography } from 'antd';
-import { MessageSquarePlus, LifeBuoy, Lightbulb, Clock, CheckCircle, Send } from 'lucide-react';
+import { Table, Button, Modal, Form, Input, Select, message, Typography } from 'antd';
 import axiosClient from '../../../../services/axiosClient';
 
 const { Option } = Select;
@@ -54,28 +53,22 @@ const FeedbackPage = () => {
       key: 'feedback_type',
       render: (type) => (
         type === 'help' ? (
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-blue-100 text-blue-600">
-              <LifeBuoy size={16} />
-            </div>
-            <span className="font-semibold text-blue-700 tracking-wide text-xs uppercase">Help</span>
-          </div>
+          <span style={{ background: '#EFF6FF', color: '#1D4ED8', padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700, border: '1px solid #BFDBFE' }}>
+            HELP
+          </span>
         ) : (
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-600">
-              <Lightbulb size={16} />
-            </div>
-            <span className="font-semibold text-emerald-700 tracking-wide text-xs uppercase">Feedback</span>
-          </div>
+          <span style={{ background: '#D1FAE5', color: '#047857', padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700, border: '1px solid #A7F3D0' }}>
+            FEEDBACK
+          </span>
         )
       ),
-      width: 140,
+      width: 120,
     },
     {
       title: 'TITLE',
       dataIndex: 'title',
       key: 'title',
-      render: (title) => <span className="font-bold text-slate-700">{title}</span>,
+      render: (title) => <span style={{ fontWeight: 700, color: '#111827' }}>{title}</span>,
       width: 250,
     },
     {
@@ -84,93 +77,99 @@ const FeedbackPage = () => {
       key: 'status',
       render: (status) => (
         status === 'resolved' ? (
-          <Tag color="success" icon={<CheckCircle size={14} className="mr-1" />} className="px-3 py-1 rounded-full font-bold border-0 shadow-sm">
+          <span style={{ background: '#F0FDF4', color: '#15803D', padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700, border: '1px solid #BBF7D0' }}>
             RESOLVED
-          </Tag>
+          </span>
         ) : (
-          <Tag color="warning" icon={<Clock size={14} className="mr-1" />} className="px-3 py-1 rounded-full font-bold border-0 shadow-sm">
+          <span style={{ background: '#FFFBEB', color: '#B45309', padding: '4px 10px', borderRadius: 99, fontSize: 11, fontWeight: 700, border: '1px solid #FDE68A' }}>
             PENDING
-          </Tag>
+          </span>
         )
       ),
-      width: 130,
+      width: 120,
     },
     {
       title: 'ADMIN RESPONSE',
       dataIndex: 'admin_response',
       key: 'admin_response',
       render: (response) => response ? (
-        <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm text-slate-600 relative overflow-hidden shadow-inner">
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+        <div style={{ background: '#F9FAFB', padding: '12px', borderRadius: 8, border: '1px solid #E5E7EB', borderLeft: '3px solid #1E3A8A', fontSize: 13, color: '#4B5563' }}>
           {response}
         </div>
       ) : (
-        <span className="text-slate-400 italic text-sm font-medium">Waiting for response...</span>
+        <span style={{ color: '#9CA3AF', fontStyle: 'italic', fontSize: 13 }}>Waiting for response...</span>
       ),
     },
     {
       title: 'SUBMITTED AT',
       dataIndex: 'created_at',
       key: 'created_at',
-      render: (date) => <span className="text-sm font-medium text-slate-500">{new Date(date).toLocaleString()}</span>,
+      render: (date) => <span style={{ fontSize: 13, color: '#6B7280', fontWeight: 500 }}>{new Date(date).toLocaleString()}</span>,
       width: 180,
     },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50/50 via-white to-teal-50/30 p-4 md:p-8 animate-in fade-in duration-700">
-      <div className="max-w-6xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/60 backdrop-blur-xl p-6 md:p-8 rounded-[2rem] shadow-xl shadow-indigo-500/5 border border-white/80">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50/50 via-white to-blue-50/30 font-sans p-4 md:p-8">
+      <div className="max-w-6xl mx-auto w-full">
+        
+        {/* ── HEADER ── */}
+        <div style={{
+          display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
+          marginBottom: 32,
+        }}>
           <div>
-            <h1 className="text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-600 tracking-tight">
+            <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#111827', lineHeight: 1.2 }}>
               Feedback & Help
             </h1>
-            <p className="text-slate-500 mt-2 font-medium text-base">
-              Submit your feedback or request help from our support team.
+            <p style={{ margin: 0, fontSize: 13, color: '#6B7280', marginTop: 2 }}>
+              Submit your feedback or request help from our support team
             </p>
           </div>
+
           <Button 
             type="primary" 
-            size="large"
-            icon={<MessageSquarePlus size={18} />} 
             onClick={() => setIsModalVisible(true)}
-            className="flex items-center gap-2 px-6 h-12 rounded-full font-bold bg-gradient-to-r from-blue-600 to-indigo-600 border-0 shadow-lg shadow-blue-500/30 hover:scale-105 hover:shadow-blue-500/50 transition-all duration-300"
+            style={{
+              background: '#1E3A8A', color: '#fff',
+              border: 'none', fontWeight: 700, height: 40, borderRadius: 8,
+              boxShadow: '0 2px 8px rgba(30,58,138,0.18)', padding: '0 20px'
+            }}
           >
             New Request
           </Button>
         </div>
 
-        {/* Table Container */}
-        <div className="bg-white/70 backdrop-blur-2xl shadow-xl shadow-indigo-500/5 border border-white/80 rounded-[2rem] overflow-hidden p-2 md:p-6 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-500/10">
+        {/* ── TABLE CONTAINER ── */}
+        <div style={{
+          background: '#fff', borderRadius: 14, border: '1px solid #E5E7EB',
+          padding: '24px 16px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          overflowX: 'auto'
+        }}>
           <Table 
             columns={columns} 
             dataSource={feedbacks} 
             rowKey="id" 
             loading={loading}
-            pagination={{ pageSize: 10, className: 'px-4' }}
-            rowClassName="hover:bg-slate-50/50 transition-colors"
+            pagination={{ pageSize: 10 }}
             expandable={{
               expandedRowRender: (record) => (
-                <div className="p-5 bg-gradient-to-r from-indigo-50/50 to-blue-50/50 rounded-xl border border-indigo-100/50 my-2 mx-4 shadow-inner">
-                  <h4 className="font-bold text-indigo-900 mb-2 flex items-center gap-2">
-                    <MessageSquarePlus size={16} /> 
+                <div style={{ padding: 16, background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0', margin: '8px 16px' }}>
+                  <h4 style={{ fontWeight: 700, color: '#1E3A8A', margin: '0 0 8px', fontSize: 13 }}>
                     Your Description
                   </h4>
-                  <p className="text-slate-700 whitespace-pre-wrap leading-relaxed">{record.description}</p>
+                  <p style={{ color: '#475569', whiteSpace: 'pre-wrap', margin: 0, fontSize: 13, lineHeight: 1.6 }}>{record.description}</p>
                 </div>
               ),
             }}
           />
         </div>
 
-        {/* Modal */}
+        {/* ── MODAL ── */}
         <Modal
           title={
-            <div className="flex items-center gap-3 text-xl font-black text-slate-800">
-              <div className="p-2 rounded-xl bg-indigo-100 text-indigo-600">
-                <Send size={20} />
-              </div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#111827' }}>
               Submit Request
             </div>
           }
@@ -183,7 +182,7 @@ const FeedbackPage = () => {
           destroyOnHidden
           centered
           styles={{
-            content: { borderRadius: '24px', padding: '32px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid rgba(255,255,255,0.8)' }
+            content: { borderRadius: 16, padding: 32, border: '1px solid #E5E7EB' }
           }}
         >
           <Form
@@ -191,45 +190,41 @@ const FeedbackPage = () => {
             layout="vertical"
             onFinish={handleCreateFeedback}
             initialValues={{ feedback_type: 'help' }}
-            className="mt-6"
+            style={{ marginTop: 24 }}
             requiredMark={false}
           >
             <Form.Item
               name="feedback_type"
-              label={<Text strong className="text-slate-600">Request Type</Text>}
+              label={<Text strong style={{ color: '#4B5563' }}>Request Type</Text>}
               rules={[{ required: true, message: 'Please select a type' }]}
             >
-              <Select size="large" className="rounded-xl">
-                <Option value="help">
-                  <div className="flex items-center gap-2 font-medium"><LifeBuoy size={16} className="text-blue-500" /> Need Help / Support</div>
-                </Option>
-                <Option value="feedback">
-                  <div className="flex items-center gap-2 font-medium"><Lightbulb size={16} className="text-emerald-500" /> System Feedback / Suggestion</div>
-                </Option>
+              <Select size="large">
+                <Option value="help">Need Help / Support</Option>
+                <Option value="feedback">System Feedback / Suggestion</Option>
               </Select>
             </Form.Item>
 
             <Form.Item
               name="title"
-              label={<Text strong className="text-slate-600">Title</Text>}
+              label={<Text strong style={{ color: '#4B5563' }}>Title</Text>}
               rules={[{ required: true, message: 'Please enter a title' }]}
             >
-              <Input size="large" placeholder="Brief summary of your request" className="rounded-xl px-4" />
+              <Input size="large" placeholder="Brief summary of your request" style={{ borderRadius: 8 }} />
             </Form.Item>
 
             <Form.Item
               name="description"
-              label={<Text strong className="text-slate-600">Description</Text>}
+              label={<Text strong style={{ color: '#4B5563' }}>Description</Text>}
               rules={[{ required: true, message: 'Please describe in detail' }]}
             >
-              <TextArea rows={5} placeholder="Detailed explanation..." className="rounded-xl p-4" />
+              <TextArea rows={5} placeholder="Detailed explanation..." style={{ borderRadius: 8 }} />
             </Form.Item>
 
-            <div className="flex justify-end gap-3 mt-8">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 32 }}>
               <Button 
                 size="large"
                 onClick={() => setIsModalVisible(false)}
-                className="rounded-full px-6 font-semibold border-slate-200 hover:bg-slate-50"
+                style={{ borderRadius: 8, fontWeight: 600, color: '#4B5563', border: '1px solid #E5E7EB' }}
               >
                 Cancel
               </Button>
@@ -238,7 +233,7 @@ const FeedbackPage = () => {
                 size="large"
                 htmlType="submit" 
                 loading={submitting} 
-                className="rounded-full px-8 font-bold bg-gradient-to-r from-blue-600 to-indigo-600 border-0 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+                style={{ borderRadius: 8, fontWeight: 700, background: '#1E3A8A', border: 'none', boxShadow: '0 2px 8px rgba(30,58,138,0.18)' }}
               >
                 Submit Now
               </Button>

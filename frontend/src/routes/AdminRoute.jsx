@@ -42,7 +42,8 @@ const AdminRoute = () => {
     );
   }
 
-  const isAuthorized = role === 'admin' || role === 'teacher';
+  const safeRole = role ? role.toLowerCase() : '';
+  const isAuthorized = safeRole === 'admin' || safeRole.includes('admin') || safeRole === 'teacher' || safeRole.includes('teacher');
 
   return isAuthorized ? <Outlet /> : <Navigate to="/aptis/dashboard" replace />;
 };
