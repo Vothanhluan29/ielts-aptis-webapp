@@ -50,7 +50,7 @@ const GramVocabManagePage = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 mt-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-pink-500/10 text-pink-600 rounded-xl ring-1 ring-pink-500/20">
+            <div className="p-2.5 bg-[#445A95]/10 text-[#445A95] rounded-xl ring-1 ring-[#445A95]/20">
               <GraduationCap size={24} />
             </div>
             <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Grammar & Vocabulary</h1>
@@ -70,7 +70,7 @@ const GramVocabManagePage = () => {
                 checked={isMockFilter}
                 onChange={(e) => setIsMockFilter(e.target.checked)}
               />
-              <div className={`block w-10 h-6 rounded-full transition-colors ${isMockFilter ? 'bg-pink-500' : 'bg-zinc-200'}`}></div>
+              <div className={`block w-10 h-6 rounded-full transition-colors ${isMockFilter ? 'bg-[#445A95]' : 'bg-zinc-200'}`}></div>
               <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${isMockFilter ? 'translate-x-4' : ''}`}></div>
             </div>
             <span className="text-sm font-bold text-zinc-600 select-none">Mock Only</span>
@@ -78,7 +78,7 @@ const GramVocabManagePage = () => {
           
           <button
             onClick={() => navigate(ROUTES.CREATE)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-pink-600 text-white font-bold rounded-xl hover:bg-pink-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-pink-600/20 focus:outline-none"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-blue-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none"
           >
             <Plus size={18} />
             New Test
@@ -132,7 +132,7 @@ const GramVocabManagePage = () => {
             <p className="text-zinc-500 max-w-sm mb-6">There are no tests matching your criteria.</p>
             <button
               onClick={() => navigate(ROUTES.CREATE)}
-              className="text-pink-600 font-bold hover:text-pink-700 flex items-center gap-1.5"
+              className="text-[#445A95] font-bold hover:text-blue-700 flex items-center gap-1.5"
             >
               <Plus size={16} /> Create test
             </button>
@@ -145,7 +145,7 @@ const GramVocabManagePage = () => {
             <div 
               key={test.id} 
               onDoubleClick={() => navigate(ROUTES.EDIT(test.id))}
-              className="px-6 py-4 flex flex-col md:grid md:grid-cols-12 gap-4 md:items-center hover:bg-pink-50/30 transition-colors group relative"
+              className="px-6 py-4 flex flex-col md:grid md:grid-cols-12 gap-4 md:items-center hover:bg-blue-50/30 transition-colors group relative"
             >
               {/* Col 1: Title & Date */}
               <div className="col-span-12 md:col-span-4 pr-4">
@@ -234,7 +234,7 @@ const GramVocabManagePage = () => {
                 >
                   Prev
                 </button>
-                <div className="px-3 py-1 rounded-md text-xs font-bold bg-pink-50 text-pink-600">
+                <div className="px-3 py-1 rounded-md text-xs font-bold bg-blue-50 text-[#445A95]">
                   {pagination.current}
                 </div>
                 <button 

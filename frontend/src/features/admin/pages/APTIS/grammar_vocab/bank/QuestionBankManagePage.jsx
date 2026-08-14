@@ -115,7 +115,7 @@ const QuestionBankManagePage = () => {
         <div className="flex items-center gap-4 w-full md:w-auto">
           <button
             onClick={() => navigate(`${basePath}/generate`)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-50 text-emerald-600 font-bold rounded-xl hover:bg-emerald-100 ring-1 ring-emerald-500/20 transition-all focus:outline-none"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 bg-[#F8FAFC] text-[#445A95] font-bold rounded-xl hover:bg-[#EFF6FF] ring-1 ring-[#445A95]/20 transition-all focus:outline-none"
           >
             <Settings size={18} />
             Random Test
@@ -123,7 +123,7 @@ const QuestionBankManagePage = () => {
           
           <button
             onClick={() => navigate(`${basePath}/create`)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-[#3A4D81] hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-blue-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none"
           >
             <Plus size={18} />
             New Group
@@ -222,7 +222,7 @@ const QuestionBankManagePage = () => {
             <p className="text-zinc-500 max-w-sm mb-6">Start building your question bank by creating a new group.</p>
             <button
               onClick={() => navigate(`${basePath}/create`)}
-              className="text-[#445A95] font-bold hover:text-[#3A4D81] flex items-center gap-1.5"
+              className="text-[#445A95] font-bold hover:text-blue-700 flex items-center gap-1.5"
             >
               <Plus size={16} /> Create group
             </button>
@@ -235,14 +235,14 @@ const QuestionBankManagePage = () => {
             <div 
               key={item.id} 
               onDoubleClick={() => navigate(`${basePath}/edit/${item.id}`)}
-              className="px-6 py-4 flex flex-col md:grid md:grid-cols-11 gap-4 md:items-center hover:bg-[#F8FAFC]/30 transition-colors group relative"
+              className="px-6 py-4 flex flex-col md:grid md:grid-cols-11 gap-4 md:items-center hover:bg-blue-50/30 transition-colors group relative"
             >
               {/* Part */}
               <div className="col-span-3">
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
                   item.part_type === 'GRAMMAR' 
-                    ? 'bg-blue-50 text-blue-700 ring-1 ring-[#445A95]/20'
-                    : 'bg-[#F8FAFC] text-[#3A4D81] ring-1 ring-[#445A95]/20'
+                    ? 'bg-[#EFF6FF] text-[#445A95] ring-1 ring-[#445A95]/20'
+                    : 'bg-[#F8FAFC] text-[#6B7280] ring-1 ring-zinc-200'
                 }`}>
                   <BookOpen size={12} />
                   {getPartLabel(item.part_type)}
@@ -274,7 +274,7 @@ const QuestionBankManagePage = () => {
               <div className="col-span-1 flex md:justify-end gap-2 md:opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
                   onClick={() => navigate(`${basePath}/edit/${item.id}`)}
-                  className="p-2 text-zinc-400 hover:text-[#445A95] hover:bg-[#F8FAFC] rounded-lg transition-colors focus:outline-none"
+                  className="p-2 text-zinc-400 hover:text-[#445A95] hover:bg-blue-50 rounded-lg transition-colors focus:outline-none"
                   title="Edit Group"
                 >
                   <Edit2 size={16} />

@@ -7,6 +7,7 @@ import {
   Eye, 
   EyeOff,
   Edit3,
+  PenTool,
   Sparkles,
   Clock,
   LayoutGrid
@@ -50,10 +51,10 @@ const WritingAptisManagerList = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 mt-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-amber-500/10 text-amber-600 rounded-xl ring-1 ring-amber-500/20">
-              <Edit3 size={24} />
+            <div className="p-2.5 bg-[#445A95]/10 text-[#445A95] rounded-xl ring-1 ring-[#445A95]/20">
+              <PenTool size={24} />
             </div>
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Writing Test Bank</h1>
+            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Writing Tests</h1>
           </div>
           <p className="text-zinc-500 font-medium text-[15px] ml-[52px]">
             Manage Aptis Writing test content
@@ -70,7 +71,7 @@ const WritingAptisManagerList = () => {
                 checked={isMockFilter}
                 onChange={(e) => setIsMockFilter(e.target.checked)}
               />
-              <div className={`block w-10 h-6 rounded-full transition-colors ${isMockFilter ? 'bg-amber-500' : 'bg-zinc-200'}`}></div>
+              <div className={`block w-10 h-6 rounded-full transition-colors ${isMockFilter ? 'bg-[#445A95]' : 'bg-zinc-200'}`}></div>
               <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${isMockFilter ? 'translate-x-4' : ''}`}></div>
             </div>
             <span className="text-sm font-bold text-zinc-600 select-none">Mock Only</span>
@@ -78,7 +79,7 @@ const WritingAptisManagerList = () => {
           
           <button
             onClick={() => navigate(ROUTES.CREATE)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-amber-600 text-white font-bold rounded-xl hover:bg-amber-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-amber-600/20 focus:outline-none"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-blue-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none"
           >
             <Plus size={18} />
             New Test
@@ -132,7 +133,7 @@ const WritingAptisManagerList = () => {
             <p className="text-zinc-500 max-w-sm mb-6">There are no tests matching your criteria.</p>
             <button
               onClick={() => navigate(ROUTES.CREATE)}
-              className="text-amber-600 font-bold hover:text-amber-700 flex items-center gap-1.5"
+              className="text-[#445A95] font-bold hover:text-blue-700 flex items-center gap-1.5"
             >
               <Plus size={16} /> Create test
             </button>
@@ -145,7 +146,7 @@ const WritingAptisManagerList = () => {
             <div 
               key={test.id} 
               onDoubleClick={() => navigate(ROUTES.EDIT(test.id))}
-              className="px-6 py-4 flex flex-col md:grid md:grid-cols-12 gap-4 md:items-center hover:bg-amber-50/30 transition-colors group relative"
+              className="px-6 py-4 flex flex-col md:grid md:grid-cols-12 gap-4 md:items-center hover:bg-blue-50/30 transition-colors group relative"
             >
               {/* Col 1: Title & Date */}
               <div className="col-span-12 md:col-span-4 pr-4">
@@ -177,7 +178,7 @@ const WritingAptisManagerList = () => {
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold ${
                   test.is_full_test_only 
                     ? 'bg-purple-100 text-purple-700' 
-                    : 'bg-amber-100 text-amber-700'
+                    : 'bg-[#445A95]/10 text-[#3A4D81]'
                 }`}>
                   {test.is_full_test_only ? <LayoutGrid size={12} /> : <Edit3 size={12} />}
                   {test.is_full_test_only ? 'FULL TEST' : 'PRACTICE'}
@@ -234,7 +235,7 @@ const WritingAptisManagerList = () => {
                 >
                   Prev
                 </button>
-                <div className="px-3 py-1 rounded-md text-xs font-bold bg-amber-50 text-amber-600">
+                <div className="px-3 py-1 rounded-md text-xs font-bold bg-blue-50 text-[#445A95]">
                   {pagination.current}
                 </div>
                 <button 

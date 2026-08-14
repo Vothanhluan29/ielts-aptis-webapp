@@ -72,7 +72,7 @@ const ExamAptisManagerPage = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 mt-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2.5 bg-orange-500/10 text-orange-600 rounded-xl ring-1 ring-orange-500/20">
+            <div className="p-2.5 bg-[#445A95]/10 text-[#445A95] rounded-xl ring-1 ring-[#445A95]/20">
               <LayoutGrid size={24} />
             </div>
             <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Aptis Full Tests</h1>
@@ -94,7 +94,7 @@ const ExamAptisManagerPage = () => {
           
           <button
             onClick={() => navigate(window.location.pathname.startsWith("/teacher") ? "/teacher/full-tests/create" : "/admin/aptis/full-tests/create")}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-orange-600 text-white font-bold rounded-xl hover:bg-orange-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-orange-600/20 focus:outline-none"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-blue-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none"
           >
             <Plus size={18} />
             Create New Test
@@ -144,7 +144,7 @@ const ExamAptisManagerPage = () => {
             <p className="text-zinc-500 max-w-sm mb-6">You haven't created any Aptis full tests yet. Click the button above to create one.</p>
             <button
               onClick={() => navigate(window.location.pathname.startsWith("/teacher") ? "/teacher/full-tests/create" : "/admin/aptis/full-tests/create")}
-              className="text-orange-600 font-bold hover:text-orange-700 flex items-center gap-1.5"
+              className="text-[#445A95] font-bold hover:text-blue-700 flex items-center gap-1.5"
             >
               <Plus size={16} /> Create your first test
             </button>
@@ -157,7 +157,7 @@ const ExamAptisManagerPage = () => {
             <div 
               key={test.id} 
               onDoubleClick={() => navigate((window.location.pathname.startsWith("/teacher") ? `/teacher/full-tests/edit/${test.id}` : `/admin/aptis/full-tests/edit/${test.id}`))}
-              className="px-6 py-4 flex flex-col md:grid md:grid-cols-12 gap-4 md:items-center hover:bg-orange-50/30 transition-colors group relative"
+              className="px-6 py-4 flex flex-col md:grid md:grid-cols-12 gap-4 md:items-center hover:bg-blue-50/30 transition-colors group relative"
             >
               {/* Col 1: Title & Date */}
               <div className="col-span-12 md:col-span-4 pr-4">

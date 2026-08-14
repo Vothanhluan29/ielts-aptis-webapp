@@ -53,7 +53,7 @@ const ReadingAptisManagerList = () => {
             <div className="p-2.5 bg-[#445A95]/10 text-[#445A95] rounded-xl ring-1 ring-[#445A95]/20">
               <BookOpen size={24} />
             </div>
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Reading Test Bank</h1>
+            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">Reading Tests</h1>
           </div>
           <p className="text-zinc-500 font-medium text-[15px] ml-[52px]">
             Manage Aptis Reading test content
