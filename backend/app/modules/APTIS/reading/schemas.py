@@ -9,7 +9,7 @@ class AptisReadingQuestionType(str, Enum):
     REORDER_SENTENCES = "REORDER_SENTENCES"     
     MATCHING_OPINIONS = "MATCHING_OPINIONS"    
     MATCHING_HEADINGS = "MATCHING_HEADINGS"       
-    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"           
+    MULTIPLE_CHOICE = "MULTIPLE_CHOICE"
 
 
 # ==================== BASE MODELS ====================

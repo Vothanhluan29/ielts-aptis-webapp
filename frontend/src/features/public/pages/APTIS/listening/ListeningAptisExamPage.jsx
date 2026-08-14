@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Progress, message } from 'antd';
+import { message } from 'antd';
 import {
   Clock, Headphones, ChevronLeft, ChevronRight, Send,
   Play, CheckCircle2, AlertCircle, Volume2, VolumeX
@@ -12,7 +12,26 @@ import { useListeningAptisExam } from '../../../hooks/APTIS/listening/useListeni
 import { usePreventNavigation } from '../../../hooks/usePreventNavigation';
 
 /* ─────────────────────────────────────────────────────────
-   AUDIO PLAYER — APTIS style
+   DESIGN TOKENS — đồng nhất với ReadingAptisExamPage
+───────────────────────────────────────────────────────── */
+const T = {
+  bg:                '#F5F6FA',
+  surface:           '#FFFFFF',
+  border:            '#E5E7EB',
+  borderMid:         '#D1D5DB',
+  navy:              '#1E3A8A',
+  navyLight:         '#EFF4FF',
+  navyBorder:        '#BFDBFE',
+  textPrimary:       '#111827',
+  textSecondary:     '#6B7280',
+  textMuted:         '#9CA3AF',
+  timerUrgent:       '#DC2626',
+  timerUrgentBg:     '#FEF2F2',
+  timerUrgentBorder: '#FCA5A5',
+};
+
+/* ─────────────────────────────────────────────────────────
+   AUDIO PLAYER — navy style
 ───────────────────────────────────────────────────────── */
 const AptisAudioPlayer = ({ src, startTime, endTime }) => {
   const audioRef = useRef(null);
@@ -71,23 +90,26 @@ const AptisAudioPlayer = ({ src, startTime, endTime }) => {
 
   if (!src) return (
     <div style={{
-      background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 10,
-      padding: '10px 16px', color: '#dc2626', fontSize: 13, fontWeight: 600, marginBottom: 16,
+      background: T.timerUrgentBg, border: `1px solid ${T.timerUrgentBorder}`,
+      borderRadius: 8, padding: '10px 14px',
+      color: T.timerUrgent, fontSize: 13, fontWeight: 600, marginBottom: 14,
     }}>
       ⚠ Audio file missing for this question.
     </div>
   );
 
-  const baseUrl = import.meta.env.VITE_API_BASE_URL ? import.meta.env.VITE_API_BASE_URL.replace('/api', '') : 'http://localhost:8000';
+  const baseUrl = import.meta.env.VITE_API_BASE_URL
+    ? import.meta.env.VITE_API_BASE_URL.replace('/api', '')
+    : 'http://localhost:8000';
   const resolvedSrc = src.startsWith('http') ? src : `${baseUrl}${src}`;
 
   return (
     <div style={{
-      background: isLocked ? '#f8fafc' : '#eff6ff',
-      border: `1.5px solid ${isLocked ? '#e2e8f0' : '#bfdbfe'}`,
-      borderRadius: 12, padding: '14px 18px',
+      background: isLocked ? '#F9FAFB' : T.navyLight,
+      border: `1.5px solid ${isLocked ? T.border : T.navyBorder}`,
+      borderRadius: 10, padding: '12px 16px',
       display: 'flex', alignItems: 'center', gap: 14,
-      marginBottom: 20, transition: 'all 0.2s',
+      marginBottom: 18, transition: 'all 0.2s',
     }}>
       <audio
         ref={audioRef} src={resolvedSrc}
@@ -101,37 +123,37 @@ const AptisAudioPlayer = ({ src, startTime, endTime }) => {
         disabled={isLocked || isPlaying}
         title={isLocked ? 'Maximum plays reached' : 'Play audio'}
         style={{
-          width: 44, height: 44, borderRadius: '50%', border: 'none',
+          width: 42, height: 42, borderRadius: '50%', border: 'none',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           cursor: isLocked ? 'not-allowed' : isPlaying ? 'default' : 'pointer',
-          background: isLocked ? '#e2e8f0' : isPlaying ? '#93c5fd' : '#2563eb',
+          background: isLocked ? T.borderMid : isPlaying ? '#6B8EC8' : T.navy,
           color: '#fff', flexShrink: 0,
-          boxShadow: isLocked ? 'none' : '0 2px 8px rgba(37,99,235,0.30)',
+          boxShadow: isLocked ? 'none' : `0 2px 8px rgba(30,58,138,0.30)`,
           transition: 'all 0.2s',
         }}
       >
-        {isLocked ? <VolumeX size={18} /> : <Play size={18} fill="white" />}
+        {isLocked ? <VolumeX size={17} /> : <Play size={17} fill="white" />}
       </button>
 
       {/* Progress & label */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: isLocked ? '#94a3b8' : '#1d4ed8' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 7 }}>
+          <span style={{ fontSize: 13, fontWeight: 600, color: isLocked ? T.textMuted : T.navy }}>
             {isPlaying ? 'Playing…' : isLocked ? 'Audio played' : 'Press play to listen'}
           </span>
           <span style={{
             fontSize: 11, fontWeight: 700,
-            background: isLocked ? '#f1f5f9' : '#dbeafe',
-            color: isLocked ? '#94a3b8' : '#1e40af',
+            background: isLocked ? '#F3F4F6' : T.navyBorder,
+            color: isLocked ? T.textMuted : T.navy,
             padding: '2px 8px', borderRadius: 20,
           }}>
             {isLocked ? '0 plays left' : `${playsLeft} play${playsLeft !== 1 ? 's' : ''} left`}
           </span>
         </div>
-        <div style={{ height: 5, borderRadius: 99, background: '#dbeafe', overflow: 'hidden' }}>
+        <div style={{ height: 4, borderRadius: 99, background: isLocked ? T.border : T.navyBorder, overflow: 'hidden' }}>
           <div style={{
             height: '100%', borderRadius: 99,
-            background: isLocked ? '#94a3b8' : '#2563eb',
+            background: isLocked ? T.textMuted : T.navy,
             width: `${isLocked ? 100 : progress}%`,
             transition: 'width 0.1s linear',
           }} />
@@ -159,28 +181,51 @@ const ListeningAptisExamPage = ({
 
   usePreventNavigation(!isFullTest && !submitting, '/aptis/listening');
 
-  useEffect(() => {
-    if (!loading && activePart) {
-      console.log('[Listening] activePart audio:', testDetail?.audio_url, activePart);
-    }
-  }, [loading, activePart, testDetail]);
-
-  if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ width: 44, height: 44, borderRadius: '50%', border: '4px solid #2563eb', borderTopColor: 'transparent', animation: 'aptis-spin 0.8s linear infinite', margin: '0 auto 16px' }} />
-        <p style={{ color: '#94a3b8', margin: 0 }}>Loading test...</p>
-      </div>
+  /* ── Timer widget ── */
+  const TimerWidget = ({ compact = false }) => (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 6,
+      padding: compact ? '4px 11px' : '5px 13px',
+      borderRadius: 7,
+      background: isTimeRunningOut ? T.timerUrgentBg : 'transparent',
+      border: `1.5px solid ${isTimeRunningOut ? T.timerUrgentBorder : T.borderMid}`,
+      color: isTimeRunningOut ? T.timerUrgent : T.textPrimary,
+      fontWeight: 700,
+      fontSize: compact ? 14 : 16,
+      fontFamily: "'Inter', sans-serif",
+      transition: 'all 0.3s',
+    }}>
+      <Clock size={compact ? 14 : 15} />
+      {formatTime(timeLeft)}
     </div>
   );
 
+  /* ── Loading ── */
+  if (loading) return (
+    <div style={{ minHeight: '100vh', background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          width: 36, height: 36, borderRadius: '50%',
+          border: `3px solid ${T.navy}`, borderTopColor: 'transparent',
+          animation: 'aptis-spin 0.8s linear infinite', margin: '0 auto 14px',
+        }} />
+        <p style={{ color: T.textMuted, margin: 0, fontSize: 14 }}>Loading test...</p>
+      </div>
+      <style>{`@keyframes aptis-spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+
+  /* ── Empty ── */
   if (parts.length === 0) return (
-    <div style={{ minHeight: '100vh', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center', background: '#fff', padding: '48px 40px', borderRadius: 16, border: '1px solid #e2e8f0' }}>
-        <AlertCircle size={40} color="#f87171" style={{ marginBottom: 16 }} />
-        <p style={{ fontWeight: 700, fontSize: 16, color: '#1e293b', margin: '0 0 8px' }}>Empty Test</p>
-        <p style={{ color: '#94a3b8', fontSize: 13, margin: '0 0 20px' }}>No content has been added to this test.</p>
-        <button onClick={handleGoBackEmpty} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#2563eb', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Go Back</button>
+    <div style={{ minHeight: '100vh', background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center', background: T.surface, padding: '48px 40px', borderRadius: 12, border: `1px solid ${T.border}` }}>
+        <AlertCircle size={36} color="#F87171" style={{ marginBottom: 14 }} />
+        <p style={{ fontWeight: 700, fontSize: 15, margin: '0 0 6px', color: T.textPrimary }}>Empty Test</p>
+        <p style={{ fontSize: 13, color: T.textSecondary, margin: '0 0 20px' }}>No content has been added to this test.</p>
+        <button onClick={handleGoBackEmpty} style={{
+          padding: '8px 22px', borderRadius: 8, border: 'none',
+          background: T.navy, color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer',
+        }}>Go Back</button>
       </div>
     </div>
   );
@@ -191,67 +236,59 @@ const ListeningAptisExamPage = ({
   return (
     <div style={{
       minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh',
-      background: '#f0f4f8', display: 'flex', flexDirection: 'column',
+      background: T.bg, display: 'flex', flexDirection: 'column',
       fontFamily: "'Inter', -apple-system, sans-serif",
     }}>
 
       {/* ═══════════════ TOP BAR ═══════════════ */}
       {!isFullTest ? (
         <div style={{
-          height: 56, background: '#fff',
-          borderBottom: '1px solid #e2e8f0',
-          display: 'flex', alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 24px', position: 'sticky', top: 0, zIndex: 20,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          height: 54, background: T.surface,
+          borderBottom: `1px solid ${T.border}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 24px', position: 'sticky', top: 0, zIndex: 40,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* LEFT: Skill badge + test title */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              background: '#eff6ff', color: '#1d4ed8',
-              padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
+              display: 'flex', alignItems: 'center', gap: 5,
+              background: T.navy, color: '#fff',
+              padding: '3px 9px', borderRadius: 5,
+              fontWeight: 700, fontSize: 11,
+              letterSpacing: '0.06em', textTransform: 'uppercase',
             }}>
-              <Headphones size={13} />
-              Listening Test
+              <Headphones size={11} />
+              Listening
             </div>
             {testDetail?.title && (
-              <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>
+              <span style={{
+                fontSize: 13, color: T.textSecondary,
+                fontWeight: 500, maxWidth: 320,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>
                 {testDetail.title}
               </span>
             )}
           </div>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 7,
-            padding: '5px 14px', borderRadius: 8, fontWeight: 700, fontSize: 16,
-            background: isTimeRunningOut ? '#fef2f2' : '#eff6ff',
-            color: isTimeRunningOut ? '#dc2626' : '#1d4ed8',
-            border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#bfdbfe'}`,
-          }}>
-            <Clock size={16} /> {formatTime(timeLeft)}
-          </div>
+
+          {/* RIGHT: Timer */}
+          <TimerWidget />
         </div>
       ) : document.getElementById('aptis-timer-portal') ? (
-        createPortal(
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 7,
-            padding: '4px 12px', borderRadius: 8, fontWeight: 700, fontSize: 15,
-            background: isTimeRunningOut ? '#fef2f2' : '#eff6ff',
-            color: isTimeRunningOut ? '#dc2626' : '#1d4ed8',
-            border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#bfdbfe'}`,
-            fontFamily: "'Inter', sans-serif"
-          }}>
-            <Clock size={15} /> {formatTime(timeLeft)}
-          </div>,
-          document.getElementById('aptis-timer-portal')
-        )
+        createPortal(<TimerWidget compact />, document.getElementById('aptis-timer-portal'))
       ) : null}
 
-      {/* ═══════════════ PART TABS ═══════════════ */}
+      {/* ═══════════════ PART NAVIGATION — Tab Underline ═══════════════ */}
       <div style={{
-        background: '#fff', borderBottom: '1px solid #f1f5f9',
-        padding: '10px 24px',
+        background: T.surface,
+        borderBottom: `1px solid ${T.border}`,
+        padding: '0 24px',
       }}>
-        <div style={{ display: 'flex', gap: 6, maxWidth: 820, margin: '0 auto' }}>
+        <div style={{
+          display: 'flex', alignItems: 'flex-end', gap: 0,
+          width: '100%',
+        }}>
           {parts.map((p, idx) => {
             const active = currentPartId === p.id;
             return (
@@ -259,46 +296,63 @@ const ListeningAptisExamPage = ({
                 key={p.id}
                 onClick={() => setCurrentPartId(p.id)}
                 style={{
-                  padding: '6px 18px', borderRadius: 20, border: '1.5px solid',
-                  borderColor: active ? '#2563eb' : '#e2e8f0',
-                  background: active ? '#2563eb' : '#fff',
-                  color: active ? '#fff' : '#64748b',
-                  fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                  padding: '14px 22px 12px',
+                  border: 'none',
+                  borderBottom: active ? `2px solid ${T.navy}` : '2px solid transparent',
+                  background: 'transparent',
+                  color: active ? T.navy : T.textSecondary,
+                  fontWeight: active ? 700 : 500,
+                  fontSize: 14,
+                  cursor: 'pointer',
                   transition: 'all 0.15s',
+                  lineHeight: 1,
+                  marginBottom: -1,
+                  outline: 'none',
                 }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.color = T.textPrimary; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.color = T.textSecondary; }}
               >
                 Part {p.part_number || idx + 1}
               </button>
             );
           })}
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: answeredQ === totalQ && totalQ > 0 ? '#16a34a' : '#94a3b8' }}>
-            {answeredQ === totalQ && totalQ > 0 ? <CheckCircle2 size={14} /> : <AlertCircle size={14} />}
-            {answeredQ}/{totalQ} answered
+
+          {/* Right: answered badge */}
+          <div style={{
+            marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5,
+            paddingBottom: 12, fontSize: 12, fontWeight: 500,
+            color: answeredQ === totalQ && totalQ > 0 ? '#16A34A' : T.textMuted,
+          }}>
+            <CheckCircle2
+              size={13}
+              color={answeredQ === totalQ && totalQ > 0 ? '#16A34A' : T.textMuted}
+            />
+            <span>{answeredQ}/{totalQ} answered</span>
           </div>
         </div>
       </div>
 
       {/* ═══════════════ CONTENT ═══════════════ */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '24px 16px' }}>
-        <div style={{ maxWidth: 820, margin: '0 auto' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+        <div style={{ width: '100%', margin: '0 auto' }}>
 
-          {/* Instructions banner */}
-          <div style={{
-            background: '#eff6ff', border: '1px solid #bfdbfe',
-            borderRadius: 10, padding: '12px 16px',
-            display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20,
+          {/* Instructions — plain italic */}
+          <p style={{
+            fontSize: 13, color: T.textSecondary, fontStyle: 'italic',
+            margin: '0 0 18px', lineHeight: 1.6,
+            display: 'flex', alignItems: 'center', gap: 6,
           }}>
-            <Volume2 size={16} color="#1d4ed8" style={{ flexShrink: 0 }} />
-            <p style={{ margin: 0, fontSize: 13, color: '#1e40af', fontWeight: 500 }}>
-              Listen carefully to each audio clip. You may listen to each clip a maximum of <strong>2 times</strong>. Select the best answer for each question.
-            </p>
-          </div>
+            <Volume2 size={13} color={T.textMuted} style={{ flexShrink: 0 }} />
+            Listen carefully to each audio clip. You may listen to each clip a maximum of <strong style={{ fontStyle: 'normal' }}>2 times</strong>. Select the best answer for each question.
+          </p>
 
           {/* Groups */}
           {!activePart?.groups || activePart.groups.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: '#94a3b8' }}>No questions in this section.</div>
+            <div style={{ textAlign: 'center', padding: '60px 0', color: T.textMuted, fontSize: 14 }}>
+              No questions in this section.
+            </div>
           ) : (
-            activePart.groups.map((group, gIdx) => {
+            activePart.groups.map((group) => {
               const groupAudioSrc = group.audio_url || group.media_url || activePart?.audio_url || testDetail?.audio_url;
               const hasQAudio = group.questions?.some(q => q.audio_url || q.media_url);
 
@@ -306,23 +360,27 @@ const ListeningAptisExamPage = ({
                 <div
                   key={group.id}
                   style={{
-                    background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0',
-                    overflow: 'hidden', marginBottom: 20,
-                    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                    background: T.surface, borderRadius: 10,
+                    border: `1px solid ${T.border}`,
+                    overflow: 'hidden', marginBottom: 18,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                   }}
                 >
                   {/* Group header */}
                   <div style={{
-                    padding: '14px 20px', borderBottom: '1px solid #f1f5f9',
-                    background: '#fafbff', display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '11px 18px',
+                    borderBottom: `1px solid ${T.border}`,
+                    background: '#FAFAFA',
+                    display: 'flex', alignItems: 'center', gap: 8,
                   }}>
-                    <div style={{ width: 3, height: 16, background: '#2563eb', borderRadius: 99 }} />
-                    <span style={{ fontSize: 13, fontWeight: 700, color: '#1e40af' }}>
-                      Questions {group.questions?.[0]?.question_number} – {group.questions?.[group.questions.length - 1]?.question_number}
+                    <div style={{ width: 3, height: 16, background: T.navy, borderRadius: 99 }} />
+                    <span style={{ fontSize: 13, fontWeight: 600, color: T.textPrimary }}>
+                      Questions {group.questions?.[0]?.question_number}
+                      {group.questions?.length > 1 && ` – ${group.questions?.[group.questions.length - 1]?.question_number}`}
                     </span>
                   </div>
 
-                  <div style={{ padding: '20px' }}>
+                  <div style={{ padding: '18px 20px' }}>
                     {/* Group-level audio */}
                     {(groupAudioSrc || !hasQAudio) && (
                       <AptisAudioPlayer
@@ -333,7 +391,7 @@ const ListeningAptisExamPage = ({
                     )}
 
                     {/* Questions */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
                       {group.questions?.map((q, qIdx) => {
                         const qType = q.question_type?.toUpperCase() || '';
                         const pType = q.part_type?.toUpperCase() || '';
@@ -342,25 +400,37 @@ const ListeningAptisExamPage = ({
                         const qAudioSrc = q.audio_url || q.media_url;
 
                         return (
-                          <div key={q.id} style={{ borderRadius: 10, border: '1px solid #f1f5f9', overflow: 'hidden' }}>
-                            {qAudioSrc && <div style={{ padding: '12px 16px 0' }}><AptisAudioPlayer src={qAudioSrc} /></div>}
-                            <div style={{ padding: qAudioSrc ? '0 8px 8px' : '4px 8px 8px' }}>
-                              {isDropdown ? (
-                                <DropdownQuestion
-                                  questionId={q.id} questionNumber={q.question_number || qIdx + 1}
-                                  questionText={q.question_text} options={q.options}
-                                  selectedValue={answers[qKey]}
-                                  onChange={(a, b) => handleAnswerChange(qKey, b !== undefined ? b : a)}
-                                />
-                              ) : (
-                                <MultipleChoiceQuestion
-                                  questionId={q.id} questionNumber={q.question_number || qIdx + 1}
-                                  questionText={q.question_text} options={q.options}
-                                  selectedValue={answers[qKey]}
-                                  onChange={(a, b) => handleAnswerChange(qKey, b !== undefined ? b : a)}
-                                />
-                              )}
-                            </div>
+                          <div key={q.id} className="listening-question-card" style={{
+                            border: `1px solid ${T.borderMid}`,
+                            borderRadius: 12,
+                            padding: '20px 24px',
+                            background: '#FFFFFF',
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
+                          }}>
+                            {qAudioSrc && (
+                              <div style={{ marginBottom: 12 }}>
+                                <AptisAudioPlayer src={qAudioSrc} />
+                              </div>
+                            )}
+                            {isDropdown ? (
+                              <DropdownQuestion
+                                questionId={q.id}
+                                questionNumber={q.question_number || qIdx + 1}
+                                questionText={q.question_text}
+                                options={q.options}
+                                selectedValue={answers[qKey]}
+                                onChange={(a, b) => handleAnswerChange(qKey, b !== undefined ? b : a)}
+                              />
+                            ) : (
+                              <MultipleChoiceQuestion
+                                questionId={q.id}
+                                questionNumber={q.question_number || qIdx + 1}
+                                questionText={q.question_text}
+                                options={q.options}
+                                selectedValue={answers[qKey]}
+                                onChange={(a, b) => handleAnswerChange(qKey, b !== undefined ? b : a)}
+                              />
+                            )}
                           </div>
                         );
                       })}
@@ -375,69 +445,84 @@ const ListeningAptisExamPage = ({
 
       {/* ═══════════════ FOOTER ═══════════════ */}
       <div style={{
-        height: 64, background: '#fff', borderTop: '1px solid #e2e8f0',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 24px', position: 'sticky', bottom: 0, zIndex: 20,
+        background: T.surface,
+        borderTop: `1px solid ${T.border}`,
+        position: 'sticky', bottom: 0, zIndex: 40,
+        padding: '0 24px',
       }}>
-        <button
-          onClick={() => setCurrentPartId(parts[currentTabIndex - 1]?.id)}
-          disabled={currentTabIndex === 0 || submitting}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 18px', borderRadius: 8,
-            border: '1.5px solid #e2e8f0', background: '#fff',
-            color: currentTabIndex === 0 ? '#cbd5e1' : '#475569',
-            fontWeight: 600, fontSize: 14, cursor: currentTabIndex === 0 ? 'not-allowed' : 'pointer',
-          }}
-        >
-          <ChevronLeft size={16} /> Previous
-        </button>
+        <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
 
-        {/* Part dots */}
-        <div style={{ display: 'flex', gap: 8 }}>
-          {parts.map((p, idx) => (
-            <div key={p.id} style={{
-              width: 8, height: 8, borderRadius: '50%',
-              background: currentPartId === p.id ? '#2563eb' : '#cbd5e1',
-              transition: 'background 0.2s',
-            }} />
-          ))}
+          {/* Previous */}
+          <button
+            onClick={() => setCurrentPartId(parts[currentTabIndex - 1]?.id)}
+            disabled={currentTabIndex === 0 || submitting}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '7px 16px', borderRadius: 7,
+              border: `1.5px solid ${currentTabIndex === 0 ? T.border : T.borderMid}`,
+              background: T.surface,
+              color: currentTabIndex === 0 ? T.textMuted : T.textSecondary,
+              fontWeight: 600, fontSize: 13,
+              cursor: currentTabIndex === 0 ? 'not-allowed' : 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            <ChevronLeft size={15} /> Previous
+          </button>
+
+          {/* Center: Part indicator */}
+          <div style={{ fontSize: 13, color: T.textMuted, fontWeight: 500, flexShrink: 0 }}>
+            Part {currentTabIndex + 1} of {parts.length}
+          </div>
+
+          {/* Next / Submit */}
+          {currentTabIndex < parts.length - 1 ? (
+            <button
+              onClick={() => setCurrentPartId(parts[currentTabIndex + 1]?.id)}
+              disabled={submitting}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '7px 16px', borderRadius: 7,
+                border: 'none',
+                background: T.textPrimary,
+                color: '#fff',
+                fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              Next <ChevronRight size={15} />
+            </button>
+          ) : (
+            <button
+              onClick={confirmSubmit}
+              disabled={submitting}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '7px 20px', borderRadius: 7,
+                border: 'none',
+                background: submitting ? '#93C5FD' : T.navy,
+                color: '#fff', fontWeight: 700, fontSize: 13,
+                cursor: submitting ? 'not-allowed' : 'pointer',
+                boxShadow: submitting ? 'none' : `0 2px 8px rgba(30,58,138,0.25)`,
+                transition: 'all 0.15s',
+              }}
+            >
+              {submitting
+                ? <><div style={{ width: 13, height: 13, border: '2px solid rgba(255,255,255,0.5)', borderTopColor: '#fff', borderRadius: '50%', animation: 'aptis-spin 0.8s linear infinite' }} /> Submitting...</>
+                : <><Send size={14} /> {isFullTest ? 'Submit & Continue' : 'Submit Test'}</>
+              }
+            </button>
+          )}
         </div>
-
-        {currentTabIndex < parts.length - 1 ? (
-          <button
-            onClick={() => setCurrentPartId(parts[currentTabIndex + 1]?.id)}
-            disabled={submitting}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 18px', borderRadius: 8,
-              border: 'none', background: '#1e293b',
-              color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer',
-            }}
-          >
-            Next <ChevronRight size={16} />
-          </button>
-        ) : (
-          <button
-            onClick={confirmSubmit}
-            disabled={submitting}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 7,
-              padding: '8px 22px', borderRadius: 8, border: 'none',
-              background: submitting ? '#93c5fd' : 'linear-gradient(135deg, #2563eb, #1d4ed8)',
-              color: '#fff', fontWeight: 700, fontSize: 14, cursor: submitting ? 'not-allowed' : 'pointer',
-              boxShadow: '0 2px 8px rgba(37,99,235,0.35)',
-            }}
-          >
-            {submitting
-              ? <><div style={{ width: 14, height: 14, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'aptis-spin 0.8s linear infinite' }} /> Submitting...</>
-              : <><Send size={15} /> {isFullTest ? 'Submit & Continue to Reading' : 'Submit Test'}</>
-            }
-          </button>
-        )}
       </div>
 
-      <style>{`@keyframes aptis-spin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`
+        @keyframes aptis-spin { to { transform: rotate(360deg); } }
+        .listening-question-card > div:last-child {
+          border-top: none !important;
+          padding: 0 !important;
+        }
+      `}</style>
     </div>
   );
 };

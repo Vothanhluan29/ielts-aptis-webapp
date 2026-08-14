@@ -13,6 +13,25 @@ import { useReadingAptisExam } from '../../../hooks/APTIS/reading/useReadingApti
 import { usePreventNavigation } from '../../../hooks/usePreventNavigation';
 
 /* ─────────────────────────────────────────────────────────
+   DESIGN TOKENS
+───────────────────────────────────────────────────────── */
+const T = {
+  bg:           '#F5F6FA',
+  surface:      '#FFFFFF',
+  border:       '#E5E7EB',
+  borderMid:    '#D1D5DB',
+  navy:         '#1E3A8A',
+  navyLight:    '#EFF4FF',
+  navyBorder:   '#BFDBFE',
+  textPrimary:  '#111827',
+  textSecondary:'#6B7280',
+  textMuted:    '#9CA3AF',
+  timerUrgent:  '#DC2626',
+  timerUrgentBg:'#FEF2F2',
+  timerUrgentBorder:'#FCA5A5',
+};
+
+/* ─────────────────────────────────────────────────────────
    HELPERS
 ───────────────────────────────────────────────────────── */
 const getTrueQuestionCount = (groups) => {
@@ -48,7 +67,7 @@ const ReadingAptisExamPage = ({
   /* ── Dynamic question numbering ── */
   const renderQuestionsList = (groups) => {
     if (!groups?.length) return (
-      <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8', fontSize: 14 }}>
+      <div style={{ textAlign: 'center', padding: '40px 0', color: T.textMuted, fontSize: 14 }}>
         No questions in this section.
       </div>
     );
@@ -66,19 +85,18 @@ const ReadingAptisExamPage = ({
     }
 
     return groups.map((group) => (
-      <div key={group.id} style={{ marginBottom: 28 }}>
+      <div key={group.id} style={{ marginBottom: 8 }}>
         {!hasReadingPassage && group.instruction && (
           <div style={{
-            background: '#f0fdfa', border: '1px solid #99f6e4',
-            borderLeft: '3px solid #14b8a6', borderRadius: 10,
-            padding: '12px 16px', marginBottom: 16, fontSize: 14,
-            color: '#0f766e', fontWeight: 600,
+            fontSize: 13, color: T.textSecondary,
+            fontStyle: 'italic', marginBottom: 16,
+            paddingLeft: 4,
           }}>
             {group.instruction}
           </div>
         )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           {group.questions?.map((q) => {
             const qType = q.question_type?.toUpperCase() || '';
             const pType = q.part_type?.toUpperCase() || '';
@@ -104,147 +122,219 @@ const ReadingAptisExamPage = ({
     ));
   };
 
+  /* ── Answered count for current part ── */
+  const getAnsweredCount = () => {
+    if (!activePart?.groups) return 0;
+    const qIds = activePart.groups.flatMap(g => (g.questions || []).map(q => q.id));
+    return qIds.filter(id => answers[id] !== undefined && answers[id] !== '').length;
+  };
+
   /* ── Loading / Empty ── */
   if (loading) return (
-    <div style={{ minHeight: '100vh', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ minHeight: '100vh', background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ textAlign: 'center' }}>
-        <div style={{ width: 44, height: 44, borderRadius: '50%', border: '4px solid #0d9488', borderTopColor: 'transparent', animation: 'aptis-spin 0.8s linear infinite', margin: '0 auto 16px' }} />
-        <p style={{ color: '#94a3b8', margin: 0 }}>Loading test...</p>
+        <div style={{ width: 36, height: 36, borderRadius: '50%', border: `3px solid ${T.navy}`, borderTopColor: 'transparent', animation: 'aptis-spin 0.8s linear infinite', margin: '0 auto 14px' }} />
+        <p style={{ color: T.textMuted, margin: 0, fontSize: 14 }}>Loading test...</p>
       </div>
       <style>{`@keyframes aptis-spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 
   if (parts.length === 0) return (
-    <div style={{ minHeight: '100vh', background: '#f0f4f8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center', background: '#fff', padding: '48px 40px', borderRadius: 16, border: '1px solid #e2e8f0' }}>
-        <AlertCircle size={40} color="#f87171" style={{ marginBottom: 16 }} />
-        <p style={{ fontWeight: 700, fontSize: 16, margin: '0 0 8px' }}>Empty Test</p>
-        <button onClick={handleGoBackEmpty} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#0d9488', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>Go Back</button>
+    <div style={{ minHeight: '100vh', background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ textAlign: 'center', background: T.surface, padding: '48px 40px', borderRadius: 12, border: `1px solid ${T.border}` }}>
+        <AlertCircle size={36} color="#F87171" style={{ marginBottom: 14 }} />
+        <p style={{ fontWeight: 700, fontSize: 15, margin: '0 0 6px', color: T.textPrimary }}>Empty Test</p>
+        <p style={{ fontSize: 13, color: T.textSecondary, margin: '0 0 20px' }}>This test has no questions yet.</p>
+        <button onClick={handleGoBackEmpty} style={{
+          padding: '8px 22px', borderRadius: 8, border: 'none',
+          background: T.navy, color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer',
+        }}>Go Back</button>
       </div>
     </div>
   );
 
   const currentPartTrueQCount = getTrueQuestionCount(activePart?.groups);
-  const totalAnswered = Object.keys(answers).length;
+  const answeredCount = getAnsweredCount();
+  const progressPct = currentPartTrueQCount > 0 ? Math.round((answeredCount / currentPartTrueQCount) * 100) : 0;
+
+  /* ── Timer widget (reusable) ── */
+  const TimerWidget = ({ compact = false }) => (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 6,
+      padding: compact ? '4px 11px' : '5px 13px',
+      borderRadius: 7,
+      background: isTimeRunningOut ? T.timerUrgentBg : 'transparent',
+      border: `1.5px solid ${isTimeRunningOut ? T.timerUrgentBorder : T.borderMid}`,
+      color: isTimeRunningOut ? T.timerUrgent : T.textPrimary,
+      fontWeight: 700,
+      fontSize: compact ? 14 : 16,
+      fontFamily: "'Inter', sans-serif",
+      transition: 'all 0.3s',
+    }}>
+      <Clock size={compact ? 14 : 15} />
+      {formatTime(timeLeft)}
+    </div>
+  );
 
   return (
     <div style={{
       minHeight: isFullTest ? 'calc(100vh - 64px)' : '100vh',
-      background: '#f0f4f8', display: 'flex', flexDirection: 'column',
+      background: T.bg, display: 'flex', flexDirection: 'column',
       fontFamily: "'Inter', -apple-system, sans-serif",
     }}>
 
       {/* ═══════════════ TOP BAR ═══════════════ */}
       {!isFullTest ? (
         <div style={{
-          height: 56, background: '#fff',
-          borderBottom: '1px solid #e2e8f0',
+          height: 54, background: T.surface,
+          borderBottom: `1px solid ${T.border}`,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '0 24px', position: 'sticky', top: 0, zIndex: 40,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* LEFT: Skill badge + test title */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              background: '#f0fdfa', color: '#0f766e',
-              padding: '4px 10px', borderRadius: 6, fontWeight: 700, fontSize: 12,
+              display: 'flex', alignItems: 'center', gap: 5,
+              background: T.navy, color: '#fff',
+              padding: '3px 9px', borderRadius: 5,
+              fontWeight: 700, fontSize: 11,
+              letterSpacing: '0.06em', textTransform: 'uppercase',
             }}>
-              <BookOpen size={13} />
-              Reading Test
+              <BookOpen size={11} />
+              Reading
             </div>
-            {testDetail?.title && <span style={{ fontSize: 13, color: '#64748b', fontWeight: 500 }}>{testDetail.title}</span>}
+            {testDetail?.title && (
+              <span style={{
+                fontSize: 13, color: T.textSecondary,
+                fontWeight: 500, maxWidth: 320,
+                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+              }}>
+                {testDetail.title}
+              </span>
+            )}
           </div>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 7,
-            padding: '5px 14px', borderRadius: 8, fontWeight: 700, fontSize: 16,
-            background: isTimeRunningOut ? '#fef2f2' : '#f0fdfa',
-            color: isTimeRunningOut ? '#dc2626' : '#0f766e',
-            border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#99f6e4'}`,
-          }}>
-            <Clock size={16} /> {formatTime(timeLeft)}
-          </div>
+
+          {/* RIGHT: Timer */}
+          <TimerWidget />
         </div>
       ) : document.getElementById('aptis-timer-portal') ? (
-        createPortal(
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: 7,
-            padding: '4px 12px', borderRadius: 8, fontWeight: 700, fontSize: 15,
-            background: isTimeRunningOut ? '#fef2f2' : '#f0fdfa',
-            color: isTimeRunningOut ? '#dc2626' : '#0f766e',
-            border: `1.5px solid ${isTimeRunningOut ? '#fca5a5' : '#99f6e4'}`,
-            fontFamily: "'Inter', sans-serif"
-          }}>
-            <Clock size={15} /> {formatTime(timeLeft)}
-          </div>,
-          document.getElementById('aptis-timer-portal')
-        )
+        createPortal(<TimerWidget compact />, document.getElementById('aptis-timer-portal'))
       ) : null}
 
-      {/* ═══════════════ PART TABS ═══════════════ */}
-      <div style={{ background: '#fff', borderBottom: '1px solid #f1f5f9', padding: '10px 24px' }}>
-        <div style={{ display: 'flex', gap: 6, maxWidth: hasReadingPassage ? 1240 : 820, margin: '0 auto', alignItems: 'center' }}>
+      {/* ═══════════════ PART NAVIGATION — Tab Underline ═══════════════ */}
+      <div style={{
+        background: T.surface,
+        borderBottom: `1px solid ${T.border}`,
+        padding: '0 24px',
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'flex-end', gap: 0,
+          width: '100%',
+          margin: '0 auto',
+        }}>
           {parts.map((p, idx) => {
             const active = currentPartId === p.id;
             return (
-              <button key={p.id} onClick={() => setCurrentPartId(p.id)} style={{
-                padding: '6px 18px', borderRadius: 20, border: '1.5px solid',
-                borderColor: active ? '#0d9488' : '#e2e8f0',
-                background: active ? '#0d9488' : '#fff',
-                color: active ? '#fff' : '#64748b',
-                fontWeight: 600, fontSize: 13, cursor: 'pointer', transition: 'all 0.15s',
-              }}>
+              <button
+                key={p.id}
+                onClick={() => setCurrentPartId(p.id)}
+                style={{
+                  padding: '14px 22px 12px',
+                  border: 'none',
+                  borderBottom: active ? `2px solid ${T.navy}` : '2px solid transparent',
+                  background: 'transparent',
+                  color: active ? T.navy : T.textSecondary,
+                  fontWeight: active ? 700 : 500,
+                  fontSize: 14,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s',
+                  lineHeight: 1,
+                  marginBottom: -1,
+                  outline: 'none',
+                }}
+                onMouseEnter={e => { if (!active) e.currentTarget.style.color = T.textPrimary; }}
+                onMouseLeave={e => { if (!active) e.currentTarget.style.color = T.textSecondary; }}
+              >
                 Part {p.part_number || idx + 1}
               </button>
             );
           })}
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#94a3b8' }}>
-            <CheckCircle2 size={13} />
-            {currentPartTrueQCount} questions in this part
+
+          {/* Right: progress badge */}
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5, paddingBottom: 12, fontSize: 12, color: T.textMuted, fontWeight: 500 }}>
+            <CheckCircle2 size={13} color={answeredCount === currentPartTrueQCount && currentPartTrueQCount > 0 ? '#16A34A' : T.textMuted} />
+            <span style={{ color: answeredCount === currentPartTrueQCount && currentPartTrueQCount > 0 ? '#16A34A' : T.textMuted }}>
+              {answeredCount}/{currentPartTrueQCount} answered
+            </span>
           </div>
         </div>
       </div>
 
-      {/* ═══════════════ CONTENT ═══════════════ */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 16px' }}>
-        <div style={{ maxWidth: hasReadingPassage ? 1240 : 820, margin: '0 auto' }}>
+      {/* ═══════════════ CONTENT AREA ═══════════════ */}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+        <div style={{ width: '100%', margin: '0 auto' }}>
 
           {hasReadingPassage ? (
-            /* ── SPLIT SCREEN: Passage left, Questions right ── */
-            <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+            /* ── SPLIT SCREEN ── */
+            <div style={{ display: 'flex', gap: 18, alignItems: 'flex-start' }}>
 
               {/* LEFT: Passage */}
-              <div style={{ flex: 1, position: 'sticky', top: 20 }}>
-                <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+              <div style={{ flex: 1.35, position: 'sticky', top: 20 }}>
+                <div style={{
+                  background: T.surface, borderRadius: 10,
+                  border: `1px solid ${T.border}`,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                  overflow: 'hidden',
+                }}>
+                  {/* Passage header */}
                   <div style={{
-                    padding: '14px 20px', borderBottom: '1px solid #f0fdfa',
-                    background: '#f0fdfa', display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '11px 18px',
+                    borderBottom: `1px solid ${T.border}`,
+                    display: 'flex', alignItems: 'center', gap: 7,
+                    background: '#FAFAFA',
                   }}>
-                    <FileText size={16} color="#0d9488" />
-                    <span style={{ fontWeight: 700, fontSize: 14, color: '#0f766e' }}>Reading Passage</span>
+                    <FileText size={14} color={T.navy} />
+                    <span style={{ fontWeight: 600, fontSize: 12, color: T.textSecondary, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                      Passage
+                    </span>
                   </div>
-                  <div style={{ maxHeight: '65vh', overflowY: 'auto', padding: '20px 24px' }} className="custom-scrollbar">
+
+                  {/* Passage body */}
+                  <div style={{ maxHeight: '65vh', overflowY: 'auto', padding: '20px 22px' }} className="exam-scrollbar">
+                    {/* Instructions first */}
+                    {activePart?.groups?.map((group) => {
+                      if (!group.instruction) return null;
+                      return (
+                        <p key={`inst-${group.id}`} style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, whiteSpace: 'pre-wrap', marginBottom: 16 }}>
+                          {group.instruction}
+                        </p>
+                      );
+                    })}
+
+                    {/* Then activePart content */}
                     {activePart?.content && (
                       <p style={{
-                        fontSize: 15, lineHeight: 1.9, color: '#374151',
+                        fontSize: 15, lineHeight: 1.85, color: '#374151',
                         whiteSpace: 'pre-wrap', textAlign: 'justify',
-                        background: '#fafffe', border: '1px solid #ccfbf1',
-                        borderRadius: 10, padding: '20px', marginBottom: 20,
+                        margin: '0 0 18px',
                       }}>{activePart.content}</p>
                     )}
+
+                    {/* Then group resources/contents */}
                     {activePart?.groups?.map((group) => {
                       const groupContent = group.transcript || group.content || group.text;
-                      if (!group.instruction && !group.image_url && !groupContent) return null;
+                      if (!group.image_url && !groupContent) return null;
                       return (
-                        <div key={group.id} style={{ marginBottom: 20 }}>
-                          {group.image_url && <img src={group.image_url} alt="Reading Resource" style={{ maxWidth: '100%', borderRadius: 10, marginBottom: 16 }} />}
-                          {group.instruction && <p style={{ fontWeight: 700, fontSize: 15, color: '#1e293b', whiteSpace: 'pre-wrap', marginBottom: 12 }}>{group.instruction}</p>}
+                        <div key={group.id} style={{ marginBottom: 18 }}>
+                          {group.image_url && (
+                            <img src={group.image_url} alt="Reading Resource" style={{ maxWidth: '100%', borderRadius: 8, marginBottom: 14 }} />
+                          )}
                           {groupContent && (
                             <p style={{
-                              fontSize: 15, lineHeight: 1.9, color: '#374151',
-                              whiteSpace: 'pre-wrap', textAlign: 'justify',
-                              background: '#fafffe', border: '1px solid #ccfbf1',
-                              borderRadius: 10, padding: '20px',
+                              fontSize: 15, lineHeight: 1.85, color: '#374151',
+                              whiteSpace: 'pre-wrap', textAlign: 'justify', margin: 0,
                             }}>{groupContent}</p>
                           )}
                         </div>
@@ -256,27 +346,35 @@ const ReadingAptisExamPage = ({
 
               {/* RIGHT: Questions */}
               <div style={{ flex: 1 }}>
-                <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+                <div style={{
+                  background: T.surface, borderRadius: 10,
+                  border: `1px solid ${T.border}`,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                  overflow: 'hidden',
+                }}>
+                  {/* Questions header */}
                   <div style={{
-                    padding: '14px 20px', borderBottom: '1px solid #f1f5f9',
-                    background: '#fafbff', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '11px 18px',
+                    borderBottom: `1px solid ${T.border}`,
+                    background: '#FAFAFA',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <BookOpenCheck size={16} color="#0d9488" />
-                      <span style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>Questions</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                      <BookOpenCheck size={14} color={T.navy} />
+                      <span style={{ fontWeight: 600, fontSize: 12, color: T.textSecondary, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                        Questions
+                      </span>
                     </div>
-                    <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>
+                    <span style={{ fontSize: 12, color: T.textMuted }}>
                       {currentPartTrueQCount} questions
                     </span>
                   </div>
-                  <div style={{ padding: '20px' }}>
-                    <div style={{
-                      background: '#f0fdfa', border: '1px solid #99f6e4',
-                      borderLeft: '3px solid #14b8a6', borderRadius: 10,
-                      padding: '12px 16px', marginBottom: 20, fontSize: 13, color: '#0f766e', fontWeight: 500,
-                    }}>
-                      Read the passage and answer the questions. Use the text to support your answers.
-                    </div>
+
+                  {/* Questions body */}
+                  <div style={{ padding: '18px 20px' }}>
+                    <p style={{ fontSize: 13, color: T.textSecondary, fontStyle: 'italic', margin: '0 0 18px', lineHeight: 1.6 }}>
+                      Read the passage carefully and answer the following questions.
+                    </p>
                     {renderQuestionsList(activePart.groups)}
                   </div>
                 </div>
@@ -285,24 +383,33 @@ const ReadingAptisExamPage = ({
 
           ) : (
             /* ── SINGLE COLUMN ── */
-            <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+            <div style={{
+              background: T.surface, borderRadius: 10,
+              border: `1px solid ${T.border}`,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              overflow: 'hidden',
+            }}>
+              {/* Header */}
               <div style={{
-                padding: '14px 20px', borderBottom: '1px solid #f1f5f9',
-                background: '#fafbff', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '11px 20px',
+                borderBottom: `1px solid ${T.border}`,
+                background: '#FAFAFA',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div style={{ width: 4, height: 18, background: '#0d9488', borderRadius: 99 }} />
-                  <span style={{ fontWeight: 700, fontSize: 15, color: '#1e293b' }}>Questions</span>
+                  <div style={{ width: 3, height: 16, background: T.navy, borderRadius: 99 }} />
+                  <span style={{ fontWeight: 600, fontSize: 13, color: T.textPrimary }}>
+                    Questions
+                  </span>
                 </div>
-                <span style={{ fontSize: 12, color: '#94a3b8' }}>{currentPartTrueQCount} questions</span>
+                <span style={{ fontSize: 12, color: T.textMuted }}>{currentPartTrueQCount} questions</span>
               </div>
+
+              {/* Body */}
               <div style={{ padding: '20px 24px' }}>
-                <div style={{
-                  background: '#f0fdfa', border: '1px solid #99f6e4', borderLeft: '3px solid #14b8a6',
-                  borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 13, color: '#0f766e', fontWeight: 500,
-                }}>
-                  Read the instructions and answer the questions below.
-                </div>
+                <p style={{ fontSize: 13, color: T.textSecondary, fontStyle: 'italic', margin: '0 0 20px', lineHeight: 1.6 }}>
+                  Read the instructions carefully and answer the questions below.
+                </p>
                 {renderQuestionsList(activePart?.groups)}
               </div>
             </div>
@@ -312,70 +419,84 @@ const ReadingAptisExamPage = ({
 
       {/* ═══════════════ FOOTER ═══════════════ */}
       <div style={{
-        height: 64, background: '#fff', borderTop: '1px solid #e2e8f0',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 24px', position: 'sticky', bottom: 0, zIndex: 40,
+        background: T.surface,
+        borderTop: `1px solid ${T.border}`,
+        position: 'sticky', bottom: 0, zIndex: 40,
+        padding: '0 24px',
       }}>
-        <button
-          onClick={() => setCurrentPartId(parts[currentTabIndex - 1]?.id)}
-          disabled={currentTabIndex === 0 || submitting}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '8px 18px', borderRadius: 8, border: '1.5px solid #e2e8f0', background: '#fff',
-            color: currentTabIndex === 0 ? '#cbd5e1' : '#475569',
-            fontWeight: 600, fontSize: 14, cursor: currentTabIndex === 0 ? 'not-allowed' : 'pointer',
-          }}
-        >
-          <ChevronLeft size={16} /> Previous
-        </button>
+        {/* Navigation row */}
+        <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
 
-        <div style={{ display: 'flex', gap: 8 }}>
-          {parts.map((p, idx) => (
-            <div key={p.id} style={{
-              width: 8, height: 8, borderRadius: '50%',
-              background: currentPartId === p.id ? '#0d9488' : '#cbd5e1',
-              transition: 'background 0.2s',
-            }} />
-          ))}
+          {/* Previous */}
+          <button
+            onClick={() => setCurrentPartId(parts[currentTabIndex - 1]?.id)}
+            disabled={currentTabIndex === 0 || submitting}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 5,
+              padding: '7px 16px', borderRadius: 7,
+              border: `1.5px solid ${currentTabIndex === 0 ? T.border : T.borderMid}`,
+              background: T.surface,
+              color: currentTabIndex === 0 ? T.textMuted : T.textSecondary,
+              fontWeight: 600, fontSize: 13,
+              cursor: currentTabIndex === 0 ? 'not-allowed' : 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            <ChevronLeft size={15} /> Previous
+          </button>
+
+          {/* Center: Part progress text */}
+          <div style={{ fontSize: 13, color: T.textMuted, fontWeight: 500, flexShrink: 0 }}>
+            Part {currentTabIndex + 1} of {parts.length}
+          </div>
+
+          {/* Next / Submit */}
+          {currentTabIndex < parts.length - 1 ? (
+            <button
+              onClick={() => setCurrentPartId(parts[currentTabIndex + 1]?.id)}
+              disabled={submitting}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 5,
+                padding: '7px 16px', borderRadius: 7,
+                border: 'none',
+                background: T.textPrimary,
+                color: '#fff',
+                fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              Next <ChevronRight size={15} />
+            </button>
+          ) : (
+            <button
+              onClick={confirmSubmit}
+              disabled={submitting}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 7,
+                padding: '7px 20px', borderRadius: 7,
+                border: 'none',
+                background: submitting ? '#93C5FD' : T.navy,
+                color: '#fff', fontWeight: 700, fontSize: 13,
+                cursor: submitting ? 'not-allowed' : 'pointer',
+                boxShadow: submitting ? 'none' : '0 2px 8px rgba(30,58,138,0.25)',
+                transition: 'all 0.15s',
+              }}
+            >
+              {submitting
+                ? <><div style={{ width: 13, height: 13, border: '2px solid rgba(255,255,255,0.5)', borderTopColor: '#fff', borderRadius: '50%', animation: 'aptis-spin 0.8s linear infinite' }} /> Submitting...</>
+                : <><Send size={14} /> {isFullTest ? 'Submit & Continue' : 'Submit Test'}</>
+              }
+            </button>
+          )}
         </div>
-
-        {currentTabIndex < parts.length - 1 ? (
-          <button
-            onClick={() => setCurrentPartId(parts[currentTabIndex + 1]?.id)}
-            disabled={submitting}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '8px 18px', borderRadius: 8, border: 'none', background: '#1e293b',
-              color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer',
-            }}
-          >
-            Next <ChevronRight size={16} />
-          </button>
-        ) : (
-          <button
-            onClick={confirmSubmit}
-            disabled={submitting}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 7,
-              padding: '8px 22px', borderRadius: 8, border: 'none',
-              background: submitting ? '#5eead4' : 'linear-gradient(135deg, #0d9488, #0f766e)',
-              color: '#fff', fontWeight: 700, fontSize: 14, cursor: submitting ? 'not-allowed' : 'pointer',
-              boxShadow: '0 2px 8px rgba(13,148,136,0.35)',
-            }}
-          >
-            {submitting
-              ? <><div style={{ width: 14, height: 14, border: '2px solid #fff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'aptis-spin 0.8s linear infinite' }} /> Submitting...</>
-              : <><Send size={15} /> {isFullTest ? 'Submit & Go to Writing' : 'Submit Test'}</>
-            }
-          </button>
-        )}
       </div>
 
       <style>{`
         @keyframes aptis-spin { to { transform: rotate(360deg); } }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .exam-scrollbar::-webkit-scrollbar { width: 5px; }
+        .exam-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .exam-scrollbar::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 10px; }
+        .exam-scrollbar::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
       `}</style>
     </div>
   );

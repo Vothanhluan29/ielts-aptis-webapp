@@ -1,59 +1,67 @@
 import React from 'react';
-import { Select, Typography } from 'antd';
+import { Select } from 'antd';
 
-const { Text } = Typography;
+const NAVY = '#1E3A8A';
 
 const DropdownQuestion = ({ questionId, questionNumber, questionText, options, selectedValue, onChange }) => {
-  // 1. Normalize options data from Backend
+  // Normalize options
   let parsedOptions = options;
   if (typeof options === 'string') {
     try {
       parsedOptions = JSON.parse(options);
     } catch (error) {
-      parsedOptions = {error: "Invalid options format", errorDetails: error.message};
+      parsedOptions = { error: "Invalid options format", errorDetails: error.message };
     }
   }
 
-  // 2. Convert to array object format { value, label } for Ant Design Select component
   let selectOptions = [];
   if (parsedOptions) {
     if (typeof parsedOptions === 'object' && !Array.isArray(parsedOptions)) {
-      // Case: options is an Object {"A": "Big", "B": "Small", "C": "Large"}
       selectOptions = Object.entries(parsedOptions).map(([key, val]) => ({
-        value: key, // Save key (e.g., "A") to DB when submitting
-        label: `${key}. ${val}` // Display "A. Big" on UI
+        value: key,
+        label: `${key}. ${val}`
       }));
     } else if (Array.isArray(parsedOptions)) {
-      // Fallback case: options is an Array ["Big", "Small", "Large"]
-      selectOptions = parsedOptions.map(opt => ({
-        value: opt,
-        label: opt
-      }));
+      selectOptions = parsedOptions.map(opt => ({ value: opt, label: opt }));
     }
   }
 
   return (
-    <div className="mb-6 p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:border-emerald-300 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
-      {/* LEFT COLUMN: Question */}
-      <div className="flex-1">
-        <Text strong className="text-slate-800 text-base">
-          {questionNumber}. {questionText}
-        </Text>
+    <div style={{
+      padding: '28px 0',
+      borderTop: '1px solid #E5E7EB',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 10,
+    }}>
+      {/* Question text */}
+      <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+        <span style={{
+          minWidth: 24, height: 24,
+          background: NAVY, color: '#fff',
+          borderRadius: 5, fontWeight: 700, fontSize: 12,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0, marginTop: 1,
+        }}>
+          {questionNumber}
+        </span>
+        <span style={{ fontSize: 14, color: '#1F2937', fontWeight: 500, lineHeight: 1.65 }}>
+          {questionText}
+        </span>
       </div>
 
-      {/* RIGHT COLUMN: Answer dropdown */}
-      <div className="w-full md:w-72 shrink-0">
+      {/* Dropdown */}
+      <div style={{ paddingLeft: 34 }}>
         <Select
           showSearch
           allowClear
           placeholder="Select an answer..."
-          className="w-full"
           size="large"
+          style={{ width: '100%', maxWidth: 340 }}
           value={selectedValue || null}
-          onChange={(value) => onChange(questionId, value || "")}
+          onChange={(value) => onChange(questionId, value || '')}
           options={selectOptions}
-          // Support quick answer search when typing
-          filterOption={(input, option) => 
+          filterOption={(input, option) =>
             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
           }
         />

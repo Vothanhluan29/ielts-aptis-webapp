@@ -1,21 +1,18 @@
 import React from 'react';
-import { Typography, Input } from 'antd';
+import { Input } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 
-const { Paragraph } = Typography;
+const NAVY = '#1E3A8A';
 
-const FillInBlankQuestion = ({ 
-  questionId, 
-  questionNumber, 
-  questionText, 
-  selectedValue, 
-  onChange 
+const FillInBlankQuestion = ({
+  questionId,
+  questionNumber,
+  questionText,
+  selectedValue,
+  onChange
 }) => {
-  
   const handleInputChange = (e) => {
-    if (onChange) {
-      onChange(questionId, e.target.value);
-    }
+    if (onChange) onChange(questionId, e.target.value);
   };
 
   const renderFormattedText = (text) => {
@@ -23,39 +20,56 @@ const FillInBlankQuestion = ({
     const parts = text.split(/(_+)/g);
     return parts.map((part, index) => {
       if (part.includes('_')) {
-        return <span key={index} className="text-orange-400 font-black tracking-widest">{part}</span>;
+        return (
+          <span key={index} style={{
+            color: NAVY, fontWeight: 700,
+            letterSpacing: '0.1em', textDecoration: 'underline',
+            textDecorationStyle: 'dotted',
+          }}>
+            {part}
+          </span>
+        );
       }
       return <span key={index}>{part}</span>;
     });
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-5 md:p-6 mb-6 shadow-sm transition-all hover:border-orange-200 hover:shadow-md">
-      
-      <div className="flex gap-4 items-start mb-5">
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-orange-100 text-orange-600 font-black text-lg shrink-0">
+    <div style={{ padding: '28px 0', borderTop: '1px solid #E5E7EB' }}>
+
+      {/* Question text */}
+      <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: 14 }}>
+        <span style={{
+          minWidth: 24, height: 24,
+          background: NAVY, color: '#fff',
+          borderRadius: 5, fontWeight: 700, fontSize: 12,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          flexShrink: 0, marginTop: 1,
+        }}>
           {questionNumber}
-        </div>
-        <div className="flex-1 mt-1">
-          <Paragraph className="text-slate-800 text-base md:text-lg font-semibold m-0 leading-relaxed whitespace-pre-wrap">
-            {renderFormattedText(questionText)}
-          </Paragraph>
-        </div>
+        </span>
+        <span style={{ fontSize: 14, color: '#1F2937', fontWeight: 500, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+          {renderFormattedText(questionText)}
+        </span>
       </div>
 
-      <div className="pl-0 md:pl-14">
-        <Input 
+      {/* Input */}
+      <div style={{ paddingLeft: 34 }}>
+        <Input
           size="large"
-          prefix={<EditOutlined className="text-slate-400 mr-2" />}
+          prefix={<EditOutlined style={{ color: '#9CA3AF', marginRight: 4 }} />}
           placeholder="Type your answer here..."
           value={selectedValue || ''}
           onChange={handleInputChange}
           autoComplete="off"
           spellCheck="false"
-          className="w-full max-w-md rounded-xl border-slate-300 hover:border-orange-400 focus:border-orange-500 focus:ring-2 focus:ring-orange-100 h-12 text-base font-medium text-slate-700 shadow-inner"
+          style={{
+            width: '100%', maxWidth: 340,
+            borderRadius: 7, fontSize: 14,
+            fontWeight: 500, color: '#1F2937',
+          }}
         />
       </div>
-      
     </div>
   );
 };

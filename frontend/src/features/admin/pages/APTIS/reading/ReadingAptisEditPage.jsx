@@ -369,9 +369,9 @@ const ReadingAptisEditPage = () => {
                                                     <Select>
                                                       <Option value="MULTIPLE_CHOICE">Multiple Choice</Option>
                                                       <Option value="FILL_IN_BLANKS">Fill in the Blanks</Option>
-                                                      <Option value="MATCHING_OPINIONS">Matching Opinions (P3)</Option>
-                                                      <Option value="MATCHING_HEADINGS">Matching Headings (P4)</Option>
-                                                      <Option value="REORDER_SENTENCES">Reorder Sentences (P2)</Option>
+                                                      <Option value="MATCHING_OPINIONS">Matching Opinions</Option>
+                                                      <Option value="MATCHING_HEADINGS">Matching Headings</Option>
+                                                      <Option value="REORDER_SENTENCES">Reorder Sentences</Option>
                                                     </Select>
                                                   </Form.Item>
                                                 </Col>
