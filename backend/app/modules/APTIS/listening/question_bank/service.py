@@ -192,10 +192,10 @@ class BankService:
                 )
             selected_qs = random.sample(available_qs, part_config.num_questions)
 
-            for bank_q in selected_qs:
+            for idx, bank_q in enumerate(selected_qs):
                 new_q = AptisListeningQuestion(
                     group_id=new_group.id,
-                    question_number=bank_q.question_number,
+                    question_number=idx + 1,
                     question_text=bank_q.question_text,
                     question_type=bank_q.question_type,
                     options=bank_q.options,

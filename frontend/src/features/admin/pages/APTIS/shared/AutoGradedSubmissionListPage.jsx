@@ -164,11 +164,20 @@ const AutoGradedSubmissionListPage = ({ skill, api, detailRoute }) => {
       {/* HEADER */}
       <div className="mb-6 flex justify-between items-center flex-wrap gap-3">
         <div>
-          <Title level={3} className="mb-1 font-bold" style={{ color: cfg.color }}>
-            {cfg.label} Submissions
+          <Title level={3} className="mb-1 font-bold">
+            <span style={{
+              background: 'linear-gradient(135deg, #445A95, #5C76B5)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}>
+              {cfg.label} Submissions
+            </span>
           </Title>
           <Text className="text-gray-500">
-            Admin view-only · Standalone practice submissions · Auto-graded
+            {window.location.pathname.startsWith('/teacher')
+              ? `Teacher Gradebook · Auto-graded · ${cfg.label} practice`
+              : 'Admin view-only · Standalone practice submissions · Auto-graded'}
           </Text>
         </div>
         <div className="flex items-center gap-2">

@@ -18,9 +18,9 @@ const { Title, Text } = Typography;
 
 const SpeakingSubmissionListPage = () => {
   const isTeacher = window.location.pathname.startsWith('/teacher');
-  const themeColorDark = isTeacher ? 'text-teal-900' : 'text-orange-900';
-  const themeColor = isTeacher ? 'text-teal-500' : 'text-orange-500';
-  const themeBgLight = isTeacher ? 'bg-teal-50 text-teal-500' : 'bg-orange-50 text-orange-500';
+  const themeColorDark = isTeacher ? 'text-[#2D3D6B]' : 'text-orange-900';
+  const themeColor = isTeacher ? 'text-[#445A95]' : 'text-orange-500';
+  const themeBgLight = isTeacher ? 'bg-[#F0F3FF] text-[#445A95]' : 'bg-orange-50 text-orange-500';
 
   const navigate = useNavigate();
 
@@ -187,7 +187,7 @@ const SpeakingSubmissionListPage = () => {
         <Title level={3} className="mb-1 font-bold">
             <span style={{
               background: isTeacher
-                ? 'linear-gradient(135deg, #0d9488, #0891b2)'
+                ? 'linear-gradient(135deg, #445A95, #5C76B5)'
                 : 'linear-gradient(135deg, #f97316, #ea580c)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',

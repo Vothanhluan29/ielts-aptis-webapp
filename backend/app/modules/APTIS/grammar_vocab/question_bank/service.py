@@ -167,7 +167,11 @@ class AptisGrammarVocabBankService:
             raise HTTPException(status_code=400, detail=f"Not enough grammar questions in the bank. Need 25, found {len(all_grammar_question_ids)}.")
             
         selected_grammar_q_ids = random.sample(all_grammar_question_ids, 25)
-        selected_grammar_questions = db.query(AptisGrammarVocabBankQuestion).filter(AptisGrammarVocabBankQuestion.id.in_(selected_grammar_q_ids)).all()
+        db_grammar_questions = db.query(AptisGrammarVocabBankQuestion).filter(AptisGrammarVocabBankQuestion.id.in_(selected_grammar_q_ids)).all()
+        
+        # Reorder to match the random sequence
+        grammar_q_map = {q.id: q for q in db_grammar_questions}
+        selected_grammar_questions = [grammar_q_map[q_id] for q_id in selected_grammar_q_ids if q_id in grammar_q_map]
 
         # Get Vocab groups (We need exactly 5 groups of 5 questions each)
         vocab_types = [
@@ -195,7 +199,11 @@ class AptisGrammarVocabBankService:
             raise HTTPException(status_code=400, detail=f"Not enough valid vocab groups (with at least 5 questions) in the bank. Need 5 groups, found {len(valid_vocab_group_ids)}.")
             
         selected_vocab_group_ids = random.sample(valid_vocab_group_ids, 5)
-        selected_vocab_groups = db.query(AptisGrammarVocabBankGroup).filter(AptisGrammarVocabBankGroup.id.in_(selected_vocab_group_ids)).all()
+        db_vocab_groups = db.query(AptisGrammarVocabBankGroup).filter(AptisGrammarVocabBankGroup.id.in_(selected_vocab_group_ids)).all()
+
+        # Reorder to match the random sequence
+        vocab_group_map = {g.id: g for g in db_vocab_groups}
+        selected_vocab_groups = [vocab_group_map[g_id] for g_id in selected_vocab_group_ids if g_id in vocab_group_map]
 
         # Create the Test
         db_test = AptisGrammarVocabTest(

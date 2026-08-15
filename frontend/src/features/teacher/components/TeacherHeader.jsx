@@ -76,12 +76,12 @@ export default function TeacherHeader() {
 
         {/* RIGHT: User Profile */}
         <div className="flex items-center gap-4">
-          <div className="group flex items-center gap-3 bg-zinc-50 hover:bg-teal-50 px-3 py-1.5 rounded-xl border border-zinc-200 hover:border-teal-200 transition-all cursor-default">
+          <div className="group flex items-center gap-3 bg-zinc-50 hover:bg-[#F0F3FF] px-3 py-1.5 rounded-xl border border-zinc-200 hover:border-[#C7D0F0] transition-all cursor-default">
             <div className="flex flex-col items-end">
-              <span className="text-sm font-bold text-zinc-900 group-hover:text-teal-700 transition-colors leading-tight">
+              <span className="text-sm font-bold text-zinc-900 group-hover:text-[#445A95] transition-colors leading-tight">
                 {lastName || "Teacher"}
               </span>
-              <span className="text-[11px] font-semibold text-teal-600 uppercase tracking-wider">
+              <span className="text-[11px] font-semibold text-[#445A95] uppercase tracking-wider">
                 Teacher
               </span>
             </div>
@@ -89,10 +89,10 @@ export default function TeacherHeader() {
               <img
                 src={admin.avatar_url}
                 alt="Avatar"
-                className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm group-hover:border-teal-100 transition-all"
+                className="w-9 h-9 rounded-full object-cover border-2 border-white shadow-sm group-hover:border-[#C7D0F0] transition-all"
               />
             ) : (
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white shadow-sm border-2 border-white group-hover:border-teal-100 transition-all">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center text-white shadow-sm border-2 border-white group-hover:border-[#C7D0F0] transition-all" style={{ background: 'linear-gradient(135deg, #445A95, #5C76B5)' }}>
                 {initials ? (
                   <span className="text-sm font-bold tracking-wider">{initials}</span>
                 ) : (

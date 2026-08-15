@@ -9,15 +9,14 @@ import {
   Switch,
   message,
   Spin,
-  Divider,
   Tooltip,
   Modal,
   Segmented,
-  Skeleton
+  Skeleton,
+  Typography
 } from 'antd';
 import {
   ArrowLeftOutlined,
-  SendOutlined,
   PictureOutlined,
   UploadOutlined,
   DeleteOutlined,
@@ -26,10 +25,13 @@ import {
   InfoCircleOutlined,
   CheckCircleOutlined,
   GlobalOutlined,
-  SaveOutlined
+  SendOutlined,
+  FileTextOutlined,
+  SettingOutlined
 } from '@ant-design/icons';
 import { tipsApi } from '../../../../../services/tipsApi';
 
+const { Title, Text } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
@@ -119,7 +121,7 @@ const TipEditPage = () => {
     }
   }, [id, isEditing, form, navigate, backPath]);
 
-  // Keyboard Shortcut: Ctrl + S / Cmd + S to quick save (Nielsen #7: Efficiency of Use)
+  // Keyboard Shortcut: Ctrl + S / Cmd + S to quick save
   useEffect(() => {
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -128,16 +130,14 @@ const TipEditPage = () => {
       }
       if (e.key === 'Escape') {
         e.preventDefault();
-        // Allow using Esc to trigger the back navigation, but we need to check if there are Modals open first in a real scenario.
-        // For simplicity, we just trigger back logic.
         handleSafeNavigateBack();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [form, canSubmit]); // Add canSubmit to dependency to ensure we use the latest value in the handler
+  }, [form, canSubmit]);
 
-  // Navigation with Unsaved Changes Protection (Nielsen #3: User Control & Freedom)
+  // Navigation with Unsaved Changes Protection
   const handleSafeNavigateBack = () => {
     if (form.isFieldsTouched()) {
       Modal.confirm({
@@ -184,7 +184,7 @@ const TipEditPage = () => {
     }
   };
 
-  // Image Upload Processing Handler (Nielsen #1 Status, #5 Prevention, #9 Error Recovery)
+  // Image Upload Processing Handler
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -248,19 +248,19 @@ const TipEditPage = () => {
 
   if (loading) {
     return (
-      <div className="p-4 md:p-8 max-w-6xl mx-auto font-sans min-h-screen">
+      <div className="p-6 max-w-6xl mx-auto font-sans min-h-screen">
         <Skeleton active title paragraph={{ rows: 2 }} className="mb-8" />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <Card className="rounded-3xl shadow-sm border border-slate-200 p-4">
+            <Card className="rounded-2xl shadow-sm border-0 p-4">
               <Skeleton active title={false} paragraph={{ rows: 14 }} />
             </Card>
           </div>
           <div className="space-y-6">
-            <Card className="rounded-3xl shadow-sm border border-slate-200">
+            <Card className="rounded-2xl shadow-sm border-0">
               <Skeleton active title paragraph={{ rows: 4 }} />
             </Card>
-            <Card className="rounded-3xl shadow-sm border border-slate-200">
+            <Card className="rounded-2xl shadow-sm border-0">
               <Skeleton active title paragraph={{ rows: 6 }} />
             </Card>
           </div>
@@ -270,27 +270,36 @@ const TipEditPage = () => {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto font-sans">
+    <div className="p-6 bg-gray-50 min-h-screen">
       
-      {/* HEADER BAR (Nielsen #3 Control & Freedom, #4 Standards) */}
+      {/* HEADER BAR */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div className="flex items-center gap-4">
           <Tooltip title="Back to Tips List">
             <Button
               icon={<ArrowLeftOutlined />}
               onClick={handleSafeNavigateBack}
-              className="rounded-full font-bold border-slate-200 text-slate-600 hover:text-[#445A95] hover:border-indigo-300"
+              className="rounded-xl font-bold bg-white text-gray-600 hover:text-[#445A95] hover:border-[#445A95] border-gray-200 shadow-sm"
             >
               Back
             </Button>
           </Tooltip>
           <div>
-            <h1 className="m-0 text-xl md:text-2xl font-black text-slate-800 tracking-tight">
-              {isEditing ? 'Edit Exam Tip Article' : 'Create New Exam Tip'}
-            </h1>
-            <p className="m-0 text-xs text-slate-400 font-semibold mt-0.5">
+            <Title level={3} className="m-0 font-bold">
+              <span style={{
+                background: isTeacher
+                  ? 'linear-gradient(135deg, #445A95, #5C76B5)'
+                  : 'linear-gradient(135deg, #f97316, #ea580c)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}>
+                {isEditing ? 'Edit Exam Tip Article' : 'Create New Exam Tip'}
+              </span>
+            </Title>
+            <Text className="text-gray-500 text-xs font-semibold block mt-0.5">
               {isEditing ? `Modifying Tip Article #${id}` : 'Publish high-impact strategies and skill guides for students'}
-            </p>
+            </Text>
           </div>
         </div>
 
@@ -305,11 +314,16 @@ const TipEditPage = () => {
           <Tooltip title="Shortcut: Press Ctrl + S to save">
             <Button
               type="primary"
-              icon={<GlobalOutlined />}
+              icon={<SendOutlined />}
               loading={submitting}
               disabled={!canSubmit}
               onClick={() => form.submit()}
-              className="bg-emerald-600 hover:bg-emerald-500 shadow-emerald-200 rounded-xl font-bold h-11 px-7 border-none shadow-md disabled:bg-slate-300 disabled:shadow-none transition-colors"
+              className="rounded-xl font-bold h-11 px-7 border-none shadow-md transition-all text-white"
+              style={{
+                background: isTeacher
+                  ? 'linear-gradient(135deg, #445A95, #5C76B5)'
+                  : 'linear-gradient(135deg, #f97316, #ea580c)'
+              }}
             >
               {isEditing ? 'Publish Changes' : 'Publish Article'}
             </Button>
@@ -327,28 +341,29 @@ const TipEditPage = () => {
         <Form.Item name="thumbnail_url" noStyle>
           <Input type="hidden" />
         </Form.Item>
+
         {/* MAIN LEFT COLUMN */}
         <div className="lg:col-span-2 space-y-6">
-          <Card className="rounded-3xl shadow-sm border border-slate-200 p-2 md:p-4">
+          <Card className="shadow-sm rounded-2xl border-0 overflow-hidden" styles={{ body: { padding: '24px' } }}>
             
             <Form.Item
               name="title"
-              label={<span className="font-extrabold text-slate-700 text-base">Article Title <span className="text-red-500">*</span></span>}
+              label={<span className="font-extrabold text-gray-700 text-base">Article Title <span className="text-red-500">*</span></span>}
               rules={[{ required: true, message: 'Please enter article title' }]}
             >
               <Input
                 placeholder="e.g. 5 Proven Strategies to Master APTIS Listening Part 3"
-                className="rounded-2xl h-12 text-lg font-bold text-slate-800"
+                className="rounded-xl h-12 text-base font-bold text-gray-800"
               />
             </Form.Item>
 
             <Form.Item
               name="summary"
               label={
-                <span className="font-extrabold text-slate-700 text-sm flex items-center gap-1.5">
+                <span className="font-extrabold text-gray-700 text-sm flex items-center gap-1.5">
                   Key Takeaway / Short Summary
                   <Tooltip title="This summary appears in student tip card previews and highlighted callout boxes">
-                    <InfoCircleOutlined className="text-slate-400 font-normal" />
+                    <InfoCircleOutlined className="text-gray-400 font-normal" />
                   </Tooltip>
                 </span>
               }
@@ -356,19 +371,19 @@ const TipEditPage = () => {
               <TextArea
                 rows={3}
                 placeholder="Provide a concise summary highlighting key advice for students..."
-                className="rounded-2xl text-sm font-medium"
+                className="rounded-xl text-sm font-medium"
               />
             </Form.Item>
 
             <Form.Item
               name="content"
-              label={<span className="font-extrabold text-slate-700 text-sm">Full Article Content <span className="text-red-500">*</span></span>}
+              label={<span className="font-extrabold text-gray-700 text-sm">Full Article Content <span className="text-red-500">*</span></span>}
               rules={[{ required: true, message: 'Please write full article content' }]}
             >
               <TextArea
                 rows={16}
                 placeholder="Write detailed strategy guides, skill rules, exam examples, and actionable advice for students..."
-                className="rounded-2xl text-base font-normal leading-relaxed font-sans"
+                className="rounded-xl text-sm font-normal leading-relaxed font-sans"
               />
             </Form.Item>
 
@@ -380,15 +395,21 @@ const TipEditPage = () => {
           
           {/* PUBLICATION SETTINGS CARD */}
           <Card
-            className="rounded-3xl shadow-sm border border-slate-200"
-            title={<span className="font-extrabold text-slate-800 text-base">Publication Settings</span>}
+            className="shadow-sm rounded-2xl border-0 overflow-hidden"
+            styles={{ body: { padding: '20px' } }}
+            title={
+              <div className="flex items-center gap-2">
+                <SettingOutlined className="text-[#445A95]" />
+                <span className="font-bold text-gray-800 text-sm">Publication Settings</span>
+              </div>
+            }
           >
             <Form.Item
               name="category"
-              label={<span className="font-bold text-slate-700">Skill Category</span>}
+              label={<span className="font-bold text-gray-700 text-xs uppercase tracking-wider">Skill Category</span>}
               rules={[{ required: true, message: 'Please select a skill category' }]}
             >
-              <Select className="rounded-xl h-11 font-bold">
+              <Select className="rounded-xl h-11 font-semibold">
                 <Option value="GRAMMAR_VOCAB">Grammar & Vocabulary</Option>
                 <Option value="LISTENING">Listening</Option>
                 <Option value="READING">Reading</Option>
@@ -399,17 +420,34 @@ const TipEditPage = () => {
             </Form.Item>
 
             <Form.Item
-              name="target_exam"
-              label={<span className="font-bold text-slate-700">Target Exam</span>}
+              name="is_published"
+              valuePropName="checked"
+              label={<span className="font-bold text-gray-700 text-xs uppercase tracking-wider">Visibility Status</span>}
             >
-              <Input disabled value="APTIS" className="rounded-xl h-11 font-bold bg-slate-50 text-slate-600" />
+              <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 border border-gray-200">
+                <span className="text-xs font-semibold text-gray-700">Published to Students</span>
+                <Switch defaultChecked />
+              </div>
+            </Form.Item>
+
+            <Form.Item
+              name="target_exam"
+              label={<span className="font-bold text-gray-700 text-xs uppercase tracking-wider">Target Exam</span>}
+            >
+              <Input disabled value="APTIS" className="rounded-xl h-10 font-bold bg-gray-50 text-gray-600" />
             </Form.Item>
           </Card>
 
-          {/* COVER THUMBNAIL UPLOAD CARD (Nielsen #1 Status, #3 Freedom, #5 Prevention, #7 Flexibility) */}
+          {/* COVER THUMBNAIL UPLOAD CARD */}
           <Card
-            className="rounded-3xl shadow-sm border border-slate-200"
-            title={<span className="font-extrabold text-slate-800 text-base">Cover Thumbnail Image</span>}
+            className="shadow-sm rounded-2xl border-0 overflow-hidden"
+            styles={{ body: { padding: '20px' } }}
+            title={
+              <div className="flex items-center gap-2">
+                <PictureOutlined className="text-[#445A95]" />
+                <span className="font-bold text-gray-800 text-sm">Cover Thumbnail Image</span>
+              </div>
+            }
           >
             {/* Input Method Toggle */}
             <div className="mb-4">
@@ -421,11 +459,11 @@ const TipEditPage = () => {
                   { label: 'Upload File', value: 'upload', icon: <CloudUploadOutlined /> },
                   { label: 'Image Link URL', value: 'url', icon: <LinkOutlined /> }
                 ]}
-                className="p-1 rounded-2xl font-bold bg-slate-100"
+                className="p-1 rounded-xl font-bold bg-gray-100"
               />
             </div>
 
-            {/* Hidden HTML File Input for Direct Upload */}
+            {/* Hidden HTML File Input */}
             <input
               type="file"
               ref={fileInputRef}
@@ -434,13 +472,13 @@ const TipEditPage = () => {
               className="hidden"
             />
 
-            {/* MODE 1: Direct File Upload Dropzone / Button */}
+            {/* MODE 1: Direct File Upload Dropzone */}
             {imageInputMode === 'upload' && (
               <div className="space-y-3">
                 {!thumbnailPreview ? (
                   <div
                     onClick={() => !uploadingImage && fileInputRef.current?.click()}
-                    className={`rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:bg-[#F8FAFC]/30 hover:border-indigo-300 group ${
+                    className={`rounded-2xl border-2 border-dashed border-[#C7D0F0] bg-[#F0F3FF]/40 p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-all hover:bg-[#F0F3FF] hover:border-[#445A95] group ${
                       uploadingImage ? 'opacity-50 pointer-events cursor-wait' : ''
                     }`}
                   >
@@ -451,20 +489,23 @@ const TipEditPage = () => {
                       </div>
                     ) : (
                       <>
-                        <div className="w-12 h-12 rounded-2xl bg-[#F8FAFC] text-[#445A95] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm">
+                        <div className="w-12 h-12 rounded-2xl bg-[#F0F3FF] text-[#445A95] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-sm border border-[#C7D0F0]/50">
                           <CloudUploadOutlined className="text-2xl" />
                         </div>
-                        <p className="m-0 font-bold text-sm text-slate-700 group-hover:text-[#445A95]">
+                        <p className="m-0 font-bold text-sm text-gray-700 group-hover:text-[#445A95]">
                           Click to upload cover image
                         </p>
-                        <p className="m-0 mt-1 text-[11px] font-medium text-slate-400">
+                        <p className="m-0 mt-1 text-[11px] font-medium text-gray-400">
                           Supports PNG, JPG, WEBP, GIF (Max {MAX_FILE_SIZE_MB}MB)
                         </p>
                         <Button
                           size="small"
                           type="primary"
                           icon={<UploadOutlined />}
-                          className="mt-4 rounded-xl font-bold bg-[#445A95] border-none shadow-sm"
+                          className="mt-4 rounded-xl font-bold text-white border-none shadow-sm"
+                          style={{
+                            background: isTeacher ? '#445A95' : '#f97316'
+                          }}
                         >
                           Select Image File
                         </Button>
@@ -473,7 +514,7 @@ const TipEditPage = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <div className="rounded-2xl overflow-hidden h-44 border border-slate-200 shadow-sm relative group">
+                    <div className="rounded-2xl overflow-hidden h-44 border border-gray-200 shadow-sm relative group">
                       <img
                         src={thumbnailPreview}
                         alt="Tip Cover Preview"
@@ -488,7 +529,7 @@ const TipEditPage = () => {
                           size="small"
                           icon={<UploadOutlined />}
                           onClick={() => fileInputRef.current?.click()}
-                          className="rounded-xl font-bold bg-white/90 text-slate-800 border-none hover:bg-white"
+                          className="rounded-xl font-bold bg-white/90 text-gray-800 border-none hover:bg-white"
                         >
                           Replace
                         </Button>
@@ -504,7 +545,7 @@ const TipEditPage = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs font-semibold text-emerald-600 bg-emerald-50 px-3.5 py-2 rounded-xl border border-emerald-100">
+                    <div className="flex items-center justify-between text-xs font-semibold text-green-600 bg-green-50 px-3.5 py-2 rounded-xl border border-green-100">
                       <span className="flex items-center gap-1.5">
                         <CheckCircleOutlined /> Image attached successfully
                       </span>
@@ -527,13 +568,13 @@ const TipEditPage = () => {
             {imageInputMode === 'url' && (
               <div className="space-y-3">
                 <div className="mb-2">
-                  <label className="font-bold text-slate-700 text-xs block mb-1">
+                  <label className="font-bold text-gray-700 text-xs block mb-1">
                     Image Web Address (URL)
                   </label>
                   <Input
                     placeholder="https://images.unsplash.com/..."
                     value={thumbnailPreview}
-                    className="rounded-xl h-11 text-xs font-semibold"
+                    className="rounded-xl h-10 text-xs font-semibold"
                     onChange={(e) => {
                       const val = e.target.value;
                       form.setFieldsValue({ thumbnail_url: val });
@@ -543,7 +584,7 @@ const TipEditPage = () => {
                 </div>
 
                 {thumbnailPreview ? (
-                  <div className="rounded-2xl overflow-hidden h-40 border border-slate-200 shadow-sm relative group">
+                  <div className="rounded-2xl overflow-hidden h-40 border border-gray-200 shadow-sm relative group">
                     <img
                       src={thumbnailPreview}
                       alt="URL Preview"
@@ -564,8 +605,8 @@ const TipEditPage = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="rounded-2xl h-32 bg-slate-50 border-2 border-dashed border-slate-200 flex flex-col items-center justify-center text-slate-400 text-xs font-medium p-4 text-center">
-                    <PictureOutlined className="text-2xl mb-1 text-slate-300" />
+                  <div className="rounded-2xl h-32 bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 text-xs font-medium p-4 text-center">
+                    <PictureOutlined className="text-2xl mb-1 text-gray-300" />
                     <span>Paste image URL above to display preview</span>
                   </div>
                 )}
@@ -581,3 +622,4 @@ const TipEditPage = () => {
 };
 
 export default TipEditPage;
+
