@@ -29,10 +29,10 @@ const BankGroupEditPage = () => {
   const [activeQuestionKeys, setActiveQuestionKeys] = useState([]);
 
   const partNumber = Form.useWatch('part_number', form);
-  const showPassage = partNumber === 4 || partNumber === 5;
+  const contentValue = Form.useWatch('content', form);
+  const showPassage = [1, 4, 5].includes(Number(partNumber)) || Boolean(contentValue);
 
   const isCreateMode = !id || id === 'create';
-  const currentPartNumber = Form.useWatch('part_number', form);
 
   useEffect(() => {
     if (!isCreateMode) {
@@ -194,21 +194,33 @@ const BankGroupEditPage = () => {
               
               {showPassage && (
                 <Col span={24}>
-                  <div className="mt-2 mb-6 p-5 bg-[#F8FAFC]/50 rounded-xl border border-[#445A95]/10/50">
+                  <div className="mt-2 mb-6 p-5 bg-[#F8FAFC] rounded-2xl border border-[#C7D0F0]/70 shadow-sm">
                     <Form.Item 
                       name="content"
                       label={
-                        <div className="flex items-center gap-2 text-[#3A4D81] font-bold mb-1">
-                          <BookOpen size={16} />
-                          Reading Passage (Content)
+                        <div className="flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2 text-[#445A95] font-bold text-sm">
+                            <BookOpen size={17} />
+                            {Number(partNumber) === 1 
+                              ? 'Reading Passage / Short Text / Email (Part 1)' 
+                              : 'Reading Passage / Long Text (Content)'}
+                          </div>
+                          <span className="text-xs text-zinc-400 font-normal">
+                            {Number(partNumber) === 1 
+                              ? 'Text displayed for students to read and fill in blanks' 
+                              : 'Main reading article'}
+                          </span>
                         </div>
                       }
                       style={{ marginBottom: 0 }}
                     >
                       <BlurTextArea 
-                        rows={8} 
-                        placeholder="Paste the reading text here..." 
-                        className="bg-white border-zinc-200 hover:border-indigo-400 focus:border-[#445A95] rounded-lg p-4"
+                        rows={Number(partNumber) === 1 ? 6 : 9} 
+                        placeholder={Number(partNumber) === 1
+                          ? "Enter or paste the short text / email passage for Part 1 here..."
+                          : "Paste the reading passage text here..."
+                        } 
+                        className="bg-white border-zinc-200 hover:border-[#445A95] focus:border-[#445A95] rounded-xl p-4 text-sm leading-relaxed"
                       />
                     </Form.Item>
                   </div>
