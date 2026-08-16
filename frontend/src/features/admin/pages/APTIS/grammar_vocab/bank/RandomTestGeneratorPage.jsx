@@ -64,32 +64,17 @@ const RandomTestGeneratorPage = () => {
   return (
     <div style={{ maxWidth: 1080, margin: '0 auto', padding: '20px 16px 40px' }}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-3">
-          <Button
-            type="text"
-            icon={<ArrowLeftOutlined />}
-            onClick={() => navigate(bankPath)}
-            style={{ borderRadius: 10, background: '#f4f4f5', color: '#71717a' }}
-          />
-          <div>
-            <div className="flex items-center gap-2">
-              <Shuffle size={17} className="text-[#445A95]" />
-              <h1 className="m-0 text-2xl font-black text-zinc-800 tracking-tight">Generate Random Test</h1>
-            </div>
-            <p className="m-0 text-xs text-zinc-400 mt-0.5">Grammar &amp; Vocabulary · Auto-pick from question bank</p>
+      <div className="flex items-center gap-3 mb-5">
+        <button onClick={() => navigate(bankPath)} style={{ padding: '7px 10px', background: '#f4f4f5', border: 'none', borderRadius: 10, cursor: 'pointer', color: '#71717a' }}>
+          <ArrowLeft size={18} />
+        </button>
+        <div>
+          <div className="flex items-center gap-2">
+            <Shuffle size={17} className="text-[#445A95]" />
+            <h1 className="m-0 text-2xl font-black text-zinc-800 tracking-tight">Generate Random Test</h1>
           </div>
+          <p className="m-0 text-xs text-zinc-400 mt-0.5">Grammar &amp; Vocabulary · Auto-pick from question bank</p>
         </div>
-        <Button
-          type="primary"
-          size="large"
-          icon={<ThunderboltOutlined />}
-          onClick={() => form.submit()}
-          loading={submitting}
-          style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', border: 'none', borderRadius: 10, fontWeight: 600, paddingInline: 20 }}
-        >
-          Generate
-        </Button>
       </div>
 
       <Spin spinning={submitting} tip="Generating...">
@@ -180,14 +165,10 @@ const RandomTestGeneratorPage = () => {
               <div className="flex items-center gap-6 flex-wrap">
 
                 <div className="flex-1 hidden md:block" />
-                <Button
-                  type="primary"
-                  onClick={() => form.submit()}
-                  loading={submitting}
-                  style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', border: 'none', borderRadius: 8, fontWeight: 600 }}
-                >
+                <button type="submit" disabled={submitting} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px', background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 15, cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1 }}>
+                  {submitting && <span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />}
                   Generate Test
-                </Button>
+                </button>
               </div>
             </div>
           </div>
