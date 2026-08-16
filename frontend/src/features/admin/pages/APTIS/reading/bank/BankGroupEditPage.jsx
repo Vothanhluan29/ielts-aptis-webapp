@@ -32,6 +32,32 @@ const BankGroupEditPage = () => {
   const contentValue = Form.useWatch('content', form);
   const showPassage = [1, 4, 5].includes(Number(partNumber)) || Boolean(contentValue);
 
+  const questionsWatch = Form.useWatch('questions', form) || [];
+  let currentTotalItems = 0;
+  questionsWatch.forEach(q => {
+    if (q?.question_type === 'REORDER_SENTENCES') {
+      let ans = q?.correct_answer;
+      if (Array.isArray(ans)) {
+        currentTotalItems += ans.length;
+      } else if (typeof ans === 'string') {
+        if (ans.includes('-')) {
+          currentTotalItems += ans.split('-').length;
+        } else if (ans.includes(',')) {
+          currentTotalItems += ans.split(',').length;
+        } else {
+          currentTotalItems += ans ? ans.length : 1;
+        }
+      } else {
+        currentTotalItems += 1;
+      }
+    } else if (q) {
+      currentTotalItems += 1;
+    }
+  });
+
+  const targetLimit = (Number(partNumber) === 4 || Number(partNumber) === 5) ? 7 : 5;
+  const isLimitReached = currentTotalItems >= targetLimit;
+
   const isCreateMode = !id || id === 'create';
 
   useEffect(() => {
@@ -316,7 +342,8 @@ const BankGroupEditPage = () => {
                       <span onClick={e => e.stopPropagation()} className="flex gap-2">
                         <button
                           type="button"
-                          className="p-1.5 text-zinc-400 hover:text-[#445A95] hover:bg-[#F8FAFC] rounded-md transition-colors"
+                          className="p-1.5 text-zinc-400 hover:text-[#445A95] hover:bg-[#F8FAFC] rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={isLimitReached}
                           onClick={(e) => {
                             e.stopPropagation();
                             const currentQuestion = form.getFieldValue(['questions', qName]);
@@ -459,14 +486,15 @@ const BankGroupEditPage = () => {
 
                     <button 
                       type="button"
+                      disabled={isLimitReached}
                       onClick={() => {
                         addQ({ question_type: 'MULTIPLE_CHOICE', options: ['', '', ''], correct_answer: '0' });
                         setActiveQuestionKeys([...activeQuestionKeys, qFields.length.toString()]);
                       }} 
-                      className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-[#445A95]/20 text-[#445A95] bg-[#F8FAFC]/50 hover:bg-[#F8FAFC] hover:border-indigo-300 rounded-xl font-bold transition-all focus:outline-none"
+                      className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-[#445A95]/20 text-[#445A95] bg-[#F8FAFC]/50 hover:bg-[#F8FAFC] hover:border-indigo-300 rounded-xl font-bold transition-all focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:border-zinc-200"
                     >
                       <Plus size={18} />
-                      ADD QUESTION TO THIS GROUP
+                      {isLimitReached ? `LIMIT REACHED (${targetLimit}/${targetLimit} ITEMS)` : 'ADD QUESTION TO THIS GROUP'}
                     </button>
                   </>
                 );

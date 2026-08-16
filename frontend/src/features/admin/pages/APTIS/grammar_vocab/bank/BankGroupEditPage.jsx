@@ -241,6 +241,7 @@ const BankGroupEditPage = () => {
                             type="text" 
                             size="small" 
                             icon={<CopyOutlined />} 
+                            disabled={fields.length >= 25}
                             onClick={() => {
                               const qToCopy = form.getFieldValue(['questions', name]);
                               const newQ = { ...qToCopy };
@@ -295,6 +296,7 @@ const BankGroupEditPage = () => {
                   <div style={{ marginTop: 16 }}>
                     <Button 
                       type="dashed" 
+                      disabled={fields.length >= 25}
                       onClick={() => {
                         const newIndex = fields.length;
                         add({ question_number: newIndex + 1 });
