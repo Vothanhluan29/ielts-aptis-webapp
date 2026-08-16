@@ -102,7 +102,7 @@ const IELTS_SKILLS = [
 ];
 
 const APTIS_SKILLS = [
-  { key: 'GrammarVocab', label: 'Grammar & Vocab', icon: GraduationCap, color: 'text-pink-500', bg: 'bg-pink-500/10', fill: '#ec4899', route: '/teacher/grammar_vocab' },
+  { key: 'GrammarVocab', label: 'Grammar & Vocab', icon: GraduationCap, color: 'text-pink-500', bg: 'bg-pink-500/10', fill: '#ec4899', route: '/teacher/grammar-vocab' },
   { key: 'Reading', label: 'Reading', icon: BookOpen, color: 'text-blue-500', bg: 'bg-blue-500/10', fill: '#3b82f6', route: '/teacher/reading' },
   { key: 'Listening', label: 'Listening', icon: Headphones, color: 'text-teal-500', bg: 'bg-teal-500/10', fill: '#14b8a6', route: '/teacher/listening' },
   { key: 'Writing', label: 'Writing', icon: Edit3, color: 'text-amber-500', bg: 'bg-amber-500/10', fill: '#f59e0b', route: '/teacher/writing' },
@@ -182,7 +182,7 @@ const SkillBankRows = ({ skills, data, navigate }) => {
       <div className="flex items-center justify-between mb-5">
         <div>
           <h3 className="text-base font-black text-zinc-800 tracking-tight">APTIS Test Library</h3>
-          <p className="text-xs text-zinc-400 font-medium mt-0.5">{total} questions total</p>
+          <p className="text-xs text-zinc-400 font-medium mt-0.5">{total} tests total</p>
         </div>
         <div className="p-2 rounded-xl bg-[#445A95]/10">
           <Library size={16} className="text-[#445A95]" />
