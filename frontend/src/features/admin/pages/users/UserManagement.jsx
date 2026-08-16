@@ -33,14 +33,14 @@ const { Option } = Select;
 /* ================= TEACHER STUDENT ROW ================= */
 
 const StudentRow = ({ user }) => (
-  <div className="flex items-center px-5 py-4 hover:bg-orange-50/40 transition-colors duration-200 border-b border-zinc-100 last:border-0">
+  <div className="flex items-center px-6 py-4 hover:bg-[#F8FAFC] transition-colors duration-200 border-b border-zinc-100 last:border-0 group">
     <div className="flex items-center gap-4 min-w-0 flex-1">
       <div className="relative shrink-0">
         <Avatar
-          size={46}
+          size={44}
           src={user.avatar_url}
           icon={!user.avatar_url && <UserOutlined />}
-          className={!user.avatar_url ? 'bg-gradient-to-br from-orange-400 to-rose-500 text-white font-bold' : ''}
+          style={!user.avatar_url ? { background: 'linear-gradient(135deg,#445A95,#6B7FBD)', color: '#fff', fontWeight: 700 } : {}}
         >
           {!user.avatar_url && user.full_name?.[0]?.toUpperCase()}
         </Avatar>
@@ -50,19 +50,19 @@ const StudentRow = ({ user }) => (
       <div className="min-w-0">
         <p className="font-bold text-zinc-900 text-[14px] leading-tight truncate">
           {user.full_name || '—'}
-          {user.student_id && <span className="ml-2 text-zinc-400 font-normal text-xs">({user.student_id})</span>}
+          {user.student_id && <span className="ml-2 text-zinc-400 font-normal text-xs">#{user.student_id}</span>}
         </p>
-        <p className="text-zinc-500 text-[12px] flex items-center gap-1 mt-0.5 truncate">
-          <MailOutlined className="text-zinc-400 shrink-0" />
+        <p className="text-zinc-400 text-[12px] flex items-center gap-1 mt-0.5 truncate">
+          <MailOutlined className="text-zinc-300 shrink-0" />
           {user.email}
         </p>
       </div>
     </div>
 
     {/* Class Column */}
-    <div className="w-32 shrink-0 px-4">
+    <div className="w-36 shrink-0 px-4">
       {user.class_code ? (
-        <span className="bg-orange-100 text-orange-600 px-2 py-1 rounded text-[11px] font-bold border border-orange-200/50">
+        <span className="bg-[#445A95]/10 text-[#445A95] px-3 py-1 rounded-lg text-[11px] font-bold border border-[#445A95]/20">
           {user.class_code}
         </span>
       ) : (
@@ -71,7 +71,7 @@ const StudentRow = ({ user }) => (
     </div>
 
     {/* Status Column */}
-    <div className="w-28 shrink-0 flex justify-end">
+    <div className="w-32 shrink-0 flex justify-end">
       <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wide ${
         user.is_active
           ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200'
@@ -167,44 +167,53 @@ const UserManagement = () => {
   /* ──────────────────────────────────────
      TEACHER VIEW
   ────────────────────────────────────── */
+  /* ── TEACHER VIEW ── */
   if (isTeacher) {
+    const totalAll = rawUsers?.filter(u => u.role?.toLowerCase() === 'student').length || 0;
     const activeCount = teacherStudents.filter(u => u.is_active).length;
     const inactiveCount = teacherStudents.filter(u => !u.is_active).length;
 
     return (
-      <div className="max-w-[1100px] mx-auto pb-10">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-2 h-8 rounded-full bg-gradient-to-b from-orange-500 to-rose-500" />
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight">My Students</h1>
+      <div className="max-w-[1100px] mx-auto pb-12 animate-in fade-in zoom-in-95 duration-500">
+
+        {/* ── STICKY HEADER ── */}
+        <div className="bg-zinc-50/90 backdrop-blur-md pb-4 mb-6 pt-2 -mx-4 px-4 border-b border-zinc-200/50 flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-black text-zinc-900 tracking-tight">My Students</h1>
+            <p className="text-sm font-medium text-zinc-500">Students in your assigned classes</p>
           </div>
-          <p className="text-zinc-500 text-sm ml-5 font-medium">Students in your assigned classes</p>
+          <div className="flex items-center gap-2 bg-[#445A95]/10 text-[#445A95] px-4 py-2 rounded-xl">
+            <Users size={16} />
+            <span className="text-sm font-bold">{totalAll} Total</span>
+          </div>
         </div>
 
-        {/* Stat Cards */}
+        {/* ── STAT CARDS ── */}
         <div className="grid grid-cols-3 gap-4 mb-6">
           {[
-            { label: 'Total', value: rawUsers?.filter(u => u.role?.toLowerCase() === 'student').length || 0, icon: <Users size={20} />, colors: 'bg-orange-50 text-orange-500' },
-            { label: 'Active', value: activeCount, icon: <UserCheck size={20} />, colors: 'bg-emerald-50 text-emerald-500' },
-            { label: 'Suspended', value: inactiveCount, icon: <UserX size={20} />, colors: 'bg-red-50 text-red-400' },
-          ].map(item => (
-            <div key={item.label} className="bg-white rounded-2xl p-5 ring-1 ring-zinc-200/60 shadow-sm flex items-center gap-4">
-              <div className={`p-3 rounded-xl ${item.colors.split(' ')[0]}`}>
-                <span className={item.colors.split(' ')[1]}>{item.icon}</span>
+            { label: 'All Students', value: totalAll,      icon: Users,     color: 'text-[#445A95]', bg: 'bg-[#445A95]/10',   ring: 'ring-[#445A95]/20' },
+            { label: 'Active',       value: activeCount,   icon: UserCheck, color: 'text-emerald-600', bg: 'bg-emerald-500/10', ring: 'ring-emerald-500/20' },
+            { label: 'Suspended',    value: inactiveCount, icon: UserX,     color: 'text-red-500',    bg: 'bg-red-500/10',     ring: 'ring-red-500/20' },
+          ].map(item => {
+            const Icon = item.icon;
+            return (
+              <div key={item.label} className="bg-white rounded-[20px] p-5 ring-1 ring-zinc-200/60 shadow-sm flex items-center gap-4 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200">
+                <div className={`p-3 rounded-xl ${item.bg} ring-1 ${item.ring}`}>
+                  <Icon size={20} className={item.color} />
+                </div>
+                <div>
+                  <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">{item.label}</p>
+                  <p className="text-2xl font-black text-zinc-900">{item.value}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">{item.label}</p>
-                <p className="text-2xl font-black text-zinc-900">{item.value}</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* Search & Filter */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-4">
-          <div className="flex-1 bg-white rounded-2xl px-5 py-4 ring-1 ring-zinc-200/60 shadow-sm flex items-center gap-3">
-            <SearchOutlined className="text-zinc-400" />
+        {/* ── SEARCH & FILTER ── */}
+        <div className="flex flex-col sm:flex-row gap-3 mb-5">
+          <div className="flex-1 bg-white rounded-2xl px-5 py-3.5 ring-1 ring-zinc-200/60 shadow-sm flex items-center gap-3">
+            <SearchOutlined className="text-zinc-400 text-base" />
             <input
               type="text"
               value={teacherSearch}
@@ -213,10 +222,10 @@ const UserManagement = () => {
               className="flex-1 bg-transparent text-[14px] text-zinc-800 placeholder:text-zinc-400 outline-none font-medium"
             />
             {teacherSearch && (
-              <button onClick={() => setTeacherSearch('')} className="text-zinc-400 hover:text-zinc-700 text-xs font-bold px-2 py-0.5 rounded-lg hover:bg-zinc-100">Clear</button>
+              <button onClick={() => setTeacherSearch('')} className="text-zinc-400 hover:text-zinc-700 text-xs font-bold px-2 py-0.5 rounded-lg hover:bg-zinc-100 transition-colors">Clear</button>
             )}
           </div>
-          <div className="w-full sm:w-56 bg-white rounded-2xl p-2 ring-1 ring-zinc-200/60 shadow-sm">
+          <div className="w-full sm:w-52 bg-white rounded-2xl px-2 ring-1 ring-zinc-200/60 shadow-sm">
             <Select
               allowClear
               placeholder="Filter by Class"
@@ -231,17 +240,19 @@ const UserManagement = () => {
           </div>
         </div>
 
-        {/* Student List */}
-        <div className="bg-white rounded-2xl ring-1 ring-zinc-200/60 shadow-sm overflow-hidden">
-          <div className="px-5 py-3 bg-zinc-50 border-b border-zinc-100 flex items-center">
-            <span className="flex-1 text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Student</span>
-            <span className="w-32 px-4 shrink-0 text-[11px] font-bold text-zinc-500 uppercase tracking-widest">Class</span>
-            <span className="w-28 shrink-0 text-[11px] font-bold text-zinc-500 uppercase tracking-widest text-right">Status</span>
+        {/* ── STUDENT LIST ── */}
+        <div className="bg-white rounded-[20px] ring-1 ring-zinc-200/60 shadow-sm overflow-hidden">
+          {/* Table Header */}
+          <div className="px-6 py-3 bg-zinc-50 border-b border-zinc-100 flex items-center">
+            <span className="flex-1 text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Student</span>
+            <span className="w-36 px-4 shrink-0 text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Class</span>
+            <span className="w-32 shrink-0 text-[11px] font-bold text-zinc-400 uppercase tracking-widest text-right">Status</span>
           </div>
+
           {teacherStudents.length === 0 ? (
             <div className="py-20 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 rounded-full bg-zinc-100 flex items-center justify-center mb-4">
-                <Users size={28} className="text-zinc-400" />
+              <div className="w-16 h-16 rounded-full bg-[#445A95]/10 flex items-center justify-center mb-4">
+                <Users size={28} className="text-[#445A95]" />
               </div>
               <p className="text-zinc-700 font-bold text-base mb-1">No students found</p>
               <p className="text-zinc-400 text-sm">
@@ -255,7 +266,8 @@ const UserManagement = () => {
 
         {teacherStudents.length > 0 && (
           <p className="text-center text-xs text-zinc-400 font-medium mt-4">
-            Showing {teacherStudents.length} student{teacherStudents.length !== 1 ? 's' : ''}
+            Showing <span className="font-bold text-zinc-600">{teacherStudents.length}</span> student{teacherStudents.length !== 1 ? 's' : ''}
+            {(teacherSearch || teacherClassFilter) && <span className="text-zinc-400"> — filtered</span>}
           </p>
         )}
       </div>
