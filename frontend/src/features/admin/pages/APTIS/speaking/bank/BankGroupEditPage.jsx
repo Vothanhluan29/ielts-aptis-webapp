@@ -173,6 +173,14 @@ const BankGroupEditPage = () => {
     } catch (error) {
       if (error.errorFields) {
         message.error('Please fill in all required fields');
+        if (error.errorFields.length > 0) {
+          setTimeout(() => {
+            form.scrollToField(error.errorFields[0].name, {
+              behavior: 'smooth',
+              block: 'center',
+            });
+          }, 100);
+        }
       } else {
         message.error('An error occurred while saving');
       }

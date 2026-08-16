@@ -119,7 +119,15 @@ const BankGroupEditPage = () => {
       navigate(basePath);
     } catch (error) {
       console.error(error);
-      message.error('Please check all required fields.');
+      message.error('Please fill in all required fields.');
+      if (error.errorFields && error.errorFields.length > 0) {
+        setTimeout(() => {
+          form.scrollToField(error.errorFields[0].name, {
+            behavior: 'smooth',
+            block: 'center',
+          });
+        }, 100);
+      }
     } finally {
       setSubmitting(false);
     }

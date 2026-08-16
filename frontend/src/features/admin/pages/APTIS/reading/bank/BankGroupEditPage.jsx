@@ -184,6 +184,27 @@ const BankGroupEditPage = () => {
     }
   };
 
+  const onFinishFailed = (errorInfo) => {
+    message.error('Please fill in all required fields.');
+    if (errorInfo.errorFields && errorInfo.errorFields.length > 0) {
+      const questionErrors = errorInfo.errorFields.filter(f => f.name && f.name[0] === 'questions');
+      if (questionErrors.length > 0) {
+        const keysToExpand = questionErrors.map(f => f.name[1].toString());
+        setActiveQuestionKeys(prev => {
+          const newKeys = new Set([...prev, ...keysToExpand]);
+          return Array.from(newKeys);
+        });
+      }
+      
+      setTimeout(() => {
+        form.scrollToField(errorInfo.errorFields[0].name, {
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 100);
+    }
+  };
+
   if (loading) return (
     <div className="flex justify-center items-center min-h-[400px]">
       <Spin size="large" />
@@ -230,6 +251,7 @@ const BankGroupEditPage = () => {
         form={form} 
         layout="vertical" 
         onFinish={onFinish} 
+        onFinishFailed={onFinishFailed}
         autoComplete="off"
         requiredMark={false}
       >
