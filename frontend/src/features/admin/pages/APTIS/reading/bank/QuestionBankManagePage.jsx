@@ -13,6 +13,32 @@ import { message, Select, Pagination } from 'antd';
 import aptisReadingBankApi from '../../../../api/APTIS/reading/aptisReadingBankApi';
 import ConfirmModal from '../../../../../../components/common/ConfirmModal';
 
+const calculateItems = (questions) => {
+  if (!questions) return 0;
+  let totalItems = 0;
+  questions.forEach(q => {
+    if (q?.question_type === 'REORDER_SENTENCES') {
+      let ans = q?.correct_answer;
+      if (Array.isArray(ans)) {
+        totalItems += ans.length;
+      } else if (typeof ans === 'string') {
+        if (ans.includes('-')) {
+          totalItems += ans.split('-').length;
+        } else if (ans.includes(',')) {
+          totalItems += ans.split(',').length;
+        } else {
+          totalItems += ans ? ans.length : 1;
+        }
+      } else {
+        totalItems += 1;
+      }
+    } else {
+      totalItems += 1;
+    }
+  });
+  return totalItems;
+};
+
 const QuestionBankManagePage = () => {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
@@ -245,8 +271,8 @@ const QuestionBankManagePage = () => {
 
               {/* Questions Count */}
               <div className="col-span-1 flex md:justify-center items-center">
-                <span className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 bg-zinc-100 text-zinc-700 text-xs font-bold rounded-lg">
-                  {item.questions?.length || 0}
+                <span className="inline-flex items-center justify-center min-w-[28px] h-7 px-2 bg-zinc-100 text-zinc-700 text-xs font-bold rounded-lg" title="Total Items">
+                  {calculateItems(item.questions)}
                 </span>
               </div>
 
