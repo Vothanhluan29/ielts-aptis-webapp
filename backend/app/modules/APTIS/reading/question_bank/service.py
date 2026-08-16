@@ -141,13 +141,20 @@ class BankService:
         db.add(new_test)
         db.flush()
 
-        import random
         total_items = 0
+
+        TARGET_ITEMS_PER_PART = {
+            1: 5,
+            2: 5,
+            3: 5,
+            4: 7,
+            5: 7
+        }
 
         # 2. Iterate over parts_config
         for part_config in config.parts_config:
             p_num = part_config.part_number
-            num_q = part_config.num_questions
+            target_items = TARGET_ITEMS_PER_PART.get(p_num, 5)
 
             new_part = AptisReadingPart(
                 test_id=new_test.id,
@@ -165,7 +172,7 @@ class BankService:
                 query = query.filter(AptisReadingBankGroup.difficulty_level == part_config.difficulty)
 
             query = query.group_by(AptisReadingBankGroup.id)\
-                .having(func.count(AptisReadingBankQuestion.id) >= num_q)
+                .having(func.count(AptisReadingBankQuestion.id) >= 1)
 
             random_bank_group = query.order_by(func.random()).first()
 
@@ -173,7 +180,7 @@ class BankService:
                 diff_msg = f" with difficulty {part_config.difficulty}" if part_config.difficulty else ""
                 raise HTTPException(
                     status_code=400, 
-                    detail=f"No bank groups found with at least {num_q} questions for Part {p_num}{diff_msg}. Please add more questions to the bank or select a different configuration."
+                    detail=f"No valid bank groups found for Part {p_num}{diff_msg}. Please add groups with questions to the bank."
                 )
 
             new_group = AptisReadingQuestionGroup(
@@ -189,17 +196,14 @@ class BankService:
             db.add(new_group)
             db.flush()
 
-            available_qs = random_bank_group.questions
+            # Sort available questions by question_number to maintain their logical order
+            available_qs = sorted(random_bank_group.questions, key=lambda q: q.question_number)
             
-            if len(available_qs) < num_q:
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Not enough questions in bank group for Part {p_num}. Required: {num_q}, Available: {len(available_qs)}. Please add more questions to this bank group."
-                )
-            
-            selected_qs = random.sample(available_qs, num_q)
+            part_items_added = 0
 
-            for idx, bank_q in enumerate(selected_qs):
+            for idx, bank_q in enumerate(available_qs):
+                if part_items_added >= target_items:
+                    break
                 if total_items >= 29:
                     break
 
@@ -247,6 +251,7 @@ class BankService:
                     explanation=bank_q.explanation
                 )
                 db.add(new_q)
+                part_items_added += items_added
                 total_items += items_added
 
             if total_items >= 29:

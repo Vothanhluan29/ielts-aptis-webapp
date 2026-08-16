@@ -85,6 +85,12 @@ const BankGroupEditPage = () => {
   const handleSave = async () => {
     try {
       const values = await form.validateFields();
+      
+      if (!values.questions || values.questions.length !== 25) {
+        message.error(`A Bank Group must contain exactly 25 questions. Currently it has ${values.questions?.length || 0}.`);
+        return;
+      }
+
       setSubmitting(true);
       
       const payload = {

@@ -89,11 +89,44 @@ const BankGroupEditPage = () => {
   };
 
   const onFinish = async (values) => {
+    // Validate target items
+    let totalItems = 0;
+    const questions = values.questions || [];
+    
+    questions.forEach(q => {
+      if (q.question_type === 'REORDER_SENTENCES') {
+        let ans = q.correct_answer;
+        if (Array.isArray(ans)) {
+          totalItems += ans.length;
+        } else if (typeof ans === 'string') {
+          if (ans.includes('-')) {
+            totalItems += ans.split('-').length;
+          } else if (ans.includes(',')) {
+            totalItems += ans.split(',').length;
+          } else {
+            totalItems += ans ? ans.length : 1;
+          }
+        } else {
+          totalItems += 1;
+        }
+      } else {
+        totalItems += 1;
+      }
+    });
+
+    const pNum = Number(values.part_number);
+    const targetItems = (pNum === 4 || pNum === 5) ? 7 : 5;
+
+    if (totalItems !== targetItems) {
+      message.error(`Part ${pNum} requires exactly ${targetItems} items. Currently you have configured ${totalItems} items.`);
+      return;
+    }
+
     setSubmitting(true);
     try {
       const payload = {
         ...values,
-        questions: (values.questions || []).map((q, idx) => {
+        questions: questions.map((q, idx) => {
           let finalCorrectAnswer = q.correct_answer;
           if (Array.isArray(finalCorrectAnswer)) {
             finalCorrectAnswer = finalCorrectAnswer.join(',');
