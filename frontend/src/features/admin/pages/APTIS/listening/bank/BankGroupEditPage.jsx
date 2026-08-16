@@ -39,7 +39,12 @@ const BankGroupEditPage = () => {
       fetchGroup();
     } else {
       setLoading(false);
-      form.setFieldsValue({ part_number: 1, difficulty_level: 'A1' });
+      form.setFieldsValue({ 
+        part_number: 1, 
+        difficulty_level: 'A1',
+        questions: [{ question_type: 'MULTIPLE_CHOICE', options: ['', '', ''], correct_answer: '0', audio_url: '' }]
+      });
+      setActiveQuestionKeys(['0']);
     }
   }, [id, isCreateMode]);
 
@@ -69,6 +74,12 @@ const BankGroupEditPage = () => {
   };
 
   const onFinish = async (values) => {
+    const questions = values.questions || [];
+    if (questions.length === 0) {
+      message.error('Please add at least one question to this group.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       // Ensure questions have valid order/numbering
@@ -96,6 +107,27 @@ const BankGroupEditPage = () => {
     setSubmitting(false);
   }
 };
+
+  const onFinishFailed = (errorInfo) => {
+    message.error('Please fill in all required fields.');
+    if (errorInfo.errorFields && errorInfo.errorFields.length > 0) {
+      const questionErrors = errorInfo.errorFields.filter(f => f.name && f.name[0] === 'questions');
+      if (questionErrors.length > 0) {
+        const keysToExpand = questionErrors.map(f => f.name[1].toString());
+        setActiveQuestionKeys(prev => {
+          const newKeys = new Set([...prev, ...keysToExpand]);
+          return Array.from(newKeys);
+        });
+      }
+      
+      setTimeout(() => {
+        form.scrollToField(errorInfo.errorFields[0].name, {
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }, 100);
+    }
+  };
 
   const handleUploadAudio = async (options, isGroupLevel = false, qName = null) => {
     const { file, onSuccess, onError, onProgress } = options;
@@ -171,6 +203,7 @@ const BankGroupEditPage = () => {
         form={form} 
         layout="vertical" 
         onFinish={onFinish} 
+        onFinishFailed={onFinishFailed}
         autoComplete="off"
         requiredMark={false}
       >

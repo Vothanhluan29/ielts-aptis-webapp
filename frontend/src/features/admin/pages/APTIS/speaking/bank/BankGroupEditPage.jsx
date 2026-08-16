@@ -210,6 +210,7 @@ const BankGroupEditPage = () => {
                 <div key={`q-${qIdx}`} className="mb-4 bg-zinc-50/50 p-5 rounded-xl border border-zinc-200 shadow-sm">
                   <Form.Item 
                     name={[groupName, 'questions', qIdx, 'question_text']} 
+                    rules={[{ required: true, message: 'Please enter question text!' }]}
                     label={
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">Q{qIdx + 1}</span>
