@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Input, Button, Spin, message, Switch, Select, InputNumber } from 'antd';
 import { ArrowLeftOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Settings, Clock, BookOpen, Zap, Shuffle } from 'lucide-react';
+import { Settings, Clock, BookOpen, Zap, Shuffle, ArrowLeft } from 'lucide-react';
 
 import aptisGrammarVocabBankApi from '../../../../api/APTIS/grammar_vocab/aptisGrammarVocabBankApi';
 
