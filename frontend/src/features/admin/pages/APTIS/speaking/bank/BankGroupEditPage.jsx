@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Form, Input, Button, Card, Space, Select, 
-  Spin, Typography, Row, Col, message, Upload, Image, InputNumber
+  Form, Input, Select, Spin, Row, Col, message, Upload, Image, InputNumber
 } from 'antd';
-import { SaveOutlined, ArrowLeftOutlined, UploadOutlined, PictureOutlined, SoundOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
+import { ArrowLeft, Save, Settings, Layers, Plus, Trash2, Upload as UploadIcon, Image as ImageIcon, Volume2, Mic } from 'lucide-react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 import { BlurTextArea } from '../../../../../../components/common/BlurInput';
@@ -11,7 +10,6 @@ import aptisSpeakingBankApi from '../../../../api/APTIS/speaking/aptisSpeakingBa
 import speakingAptisApi from '../../../../api/APTIS/speaking/speakingAptisAdminApi';
 import { PART_CONFIGS } from '../../../../hooks/APTIS/speaking/useSpeakingAptisEdit';
 
-const { Title, Text } = Typography;
 const { Option } = Select;
 
 const BankGroupEditPage = () => {
@@ -191,43 +189,54 @@ const BankGroupEditPage = () => {
     const hasTwoImages = config.images === 2; 
 
     return (
-      <div style={{ padding: '8px 4px' }}>
+      <div className="pt-2">
         <Row gutter={32}>
-          <Col span={hasImage ? 15 : 24}>
-            <Form.Item name={[groupName, 'instruction']} label={<Text strong>Pre-start Instruction / Context</Text>}>
-              <BlurTextArea rows={2} placeholder="e.g. You have 30 seconds to answer each question..." />
+          <Col span={24} md={hasImage ? 15 : 24}>
+            <Form.Item name={[groupName, 'instruction']} label={<span className="text-sm font-bold text-zinc-700">Pre-start Instruction / Context (Optional)</span>}>
+              <BlurTextArea rows={2} placeholder="e.g. You have 30 seconds to answer each question..." className="bg-white hover:border-[#445A95] focus:border-[#445A95] rounded-xl p-4 text-sm transition-all" />
             </Form.Item>
             
-            <div style={{ marginTop: 20 }}>
-              <Text strong style={{ display: 'block', marginBottom: 16, color: '#444' }}>Questions & Audio List</Text>
+            <div className="mt-6">
+              <span className="text-sm font-bold text-zinc-700 block mb-4">Questions & Audio List</span>
               {Array.from({ length: config.qCount }).map((_, qIdx) => (
-                <div key={`q-${qIdx}`} style={{ marginBottom: 16, backgroundColor: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
-                  <Row gutter={16}>
-                    <Col span={13}>
-                      <Form.Item 
-                        name={[groupName, 'questions', qIdx, 'question_text']} 
-                        label={<span style={{ fontWeight: 600, color: '#3b82f6' }}>Question {qIdx + 1} Text</span>}
-                        style={{ marginBottom: 0 }}
-                      >
-                        <BlurTextArea rows={3} placeholder="Transcript or question content..." />
-                      </Form.Item>
-                    </Col>
-                    <Col span={11}>
-                      <Form.Item label={<span style={{ fontWeight: 600, color: '#475569' }}>Audio</span>} shouldUpdate noStyle>
+                <div key={`q-${qIdx}`} className="mb-4 bg-zinc-50/50 p-5 rounded-xl border border-zinc-200 shadow-sm">
+                  <Form.Item 
+                    name={[groupName, 'questions', qIdx, 'question_text']} 
+                    label={
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">Q{qIdx + 1}</span>
+                        <span className="font-semibold text-zinc-700">Question Text / Transcript</span>
+                      </div>
+                    }
+                    className="mb-3"
+                  >
+                    <BlurTextArea rows={3} placeholder="Transcript or question content..." className="bg-white hover:border-[#445A95] focus:border-[#445A95] rounded-xl p-3 transition-all" />
+                  </Form.Item>
+                  
+                  <div className="bg-white p-3 rounded-lg border border-zinc-100 flex flex-col md:flex-row items-center gap-4">
+                    <div className="flex items-center gap-2 min-w-[120px]">
+                      <Mic size={16} className="text-zinc-400" />
+                      <span className="text-sm font-semibold text-zinc-600">Audio File:</span>
+                    </div>
+                    <div className="flex-1 w-full">
+                      <Form.Item shouldUpdate noStyle>
                         {({ getFieldValue }) => {
                           const audioUrl = getFieldValue(['groups', groupName, 'questions', qIdx, 'audio_url']);
                           return (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            <div className="flex items-center gap-4 w-full">
                               <Upload 
                                 customRequest={(opt) => handleUploadFile(opt, ['groups', groupName, 'questions', qIdx, 'audio_url'], speakingAptisApi.uploadAudio)} 
                                 showUploadList={false}
                               >
-                                <Button block icon={<UploadOutlined />}>{audioUrl ? 'Replace Audio' : 'Upload MP3'}</Button>
+                                <button type="button" className="px-4 py-2 border border-zinc-200 hover:border-[#445A95] text-zinc-600 hover:text-[#445A95] bg-white rounded-lg font-medium transition-colors flex items-center gap-2 shadow-sm text-sm whitespace-nowrap">
+                                  <UploadIcon size={14} />
+                                  {audioUrl ? 'Replace Audio' : 'Upload MP3'}
+                                </button>
                               </Upload>
                               {audioUrl ? (
-                                <audio controls src={audioUrl} style={{ height: 32, width: '100%' }} />
+                                <audio controls src={audioUrl} className="h-9 flex-1" />
                               ) : (
-                                <Text type="secondary" style={{ fontSize: 12, textAlign: 'center' }}><SoundOutlined /> No audio</Text>
+                                <span className="text-xs text-zinc-400 italic flex items-center gap-1"><Volume2 size={14} /> No audio uploaded</span>
                               )}
                             </div>
                           );
@@ -235,35 +244,35 @@ const BankGroupEditPage = () => {
                       </Form.Item>
                       <Form.Item name={[groupName, 'questions', qIdx, 'audio_url']} hidden><Input /></Form.Item>
                       <Form.Item name={[groupName, 'questions', qIdx, 'order_number']} hidden><Input /></Form.Item>
-                      
                       <Form.Item name={[groupName, 'questions', qIdx, 'prep_time']} hidden><InputNumber /></Form.Item>
                       <Form.Item name={[groupName, 'questions', qIdx, 'response_time']} hidden><InputNumber /></Form.Item>
-                    </Col>
-                  </Row>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
           </Col>
 
           {hasImage && (
-            <Col span={9}>
-              <div style={{ backgroundColor: '#fff7ed', padding: 16, borderRadius: 8, border: '1px solid #fed7aa', height: '100%' }}>
-                <Text strong style={{ display: 'block', marginBottom: 16, color: '#c2410c' }}>
-                  <PictureOutlined /> Illustration Images
-                </Text>
+            <Col span={24} md={9}>
+              <div className="bg-orange-50/50 p-5 rounded-xl border border-orange-200 h-full mt-6 md:mt-0">
+                <span className="text-sm font-bold text-orange-700 block mb-4 flex items-center gap-2">
+                  <ImageIcon size={18} /> Illustration Images
+                </span>
                 
-                <div style={{ marginBottom: 24 }}>
+                <div className="mb-6">
                   <Upload customRequest={(opt) => handleUploadFile(opt, ['groups', groupName, 'image_url'], speakingAptisApi.uploadImage)} showUploadList={false}>
-                    <Button type="dashed" block icon={<UploadOutlined />} style={{ borderColor: '#f97316', color: '#f97316' }}>
+                    <button type="button" className="w-full py-3 border-2 border-dashed border-orange-300 hover:border-orange-500 text-orange-600 hover:text-orange-700 bg-white/50 hover:bg-white rounded-xl font-bold transition-colors flex justify-center items-center gap-2">
+                      <UploadIcon size={16} />
                       Upload Image {hasTwoImages ? '1' : ''}
-                    </Button>
+                    </button>
                   </Upload>
                   <Form.Item shouldUpdate noStyle>
                     {({ getFieldValue }) => {
                       const img1 = getFieldValue(['groups', groupName, 'image_url']);
                       return img1 ? (
-                        <div style={{ marginTop: 12, textAlign: 'center', backgroundColor: '#fff', padding: 8, borderRadius: 8, border: '1px solid #fdba74' }}>
-                          <Image src={img1} style={{ maxHeight: 180, borderRadius: 4, objectFit: 'contain' }} />
+                        <div className="mt-3 bg-white p-2 rounded-xl border border-orange-200 flex justify-center shadow-sm">
+                          <Image src={img1} className="max-h-[180px] rounded-lg object-contain" />
                         </div>
                       ) : null;
                     }}
@@ -274,16 +283,17 @@ const BankGroupEditPage = () => {
                 {hasTwoImages && (
                   <div>
                     <Upload customRequest={(opt) => handleUploadFile(opt, ['groups', groupName, 'image_url_2'], speakingAptisApi.uploadImage)} showUploadList={false}>
-                      <Button type="dashed" block icon={<UploadOutlined />} style={{ borderColor: '#f97316', color: '#f97316' }}>
+                      <button type="button" className="w-full py-3 border-2 border-dashed border-orange-300 hover:border-orange-500 text-orange-600 hover:text-orange-700 bg-white/50 hover:bg-white rounded-xl font-bold transition-colors flex justify-center items-center gap-2">
+                        <UploadIcon size={16} />
                         Upload Image 2
-                      </Button>
+                      </button>
                     </Upload>
                     <Form.Item shouldUpdate noStyle>
                       {({ getFieldValue }) => {
                         const img2 = getFieldValue(['groups', groupName, 'image_url_2']);
                         return img2 ? (
-                          <div style={{ marginTop: 12, textAlign: 'center', backgroundColor: '#fff', padding: 8, borderRadius: 8, border: '1px solid #fdba74' }}>
-                            <Image src={img2} style={{ maxHeight: 180, borderRadius: 4, objectFit: 'contain' }} />
+                          <div className="mt-3 bg-white p-2 rounded-xl border border-orange-200 flex justify-center shadow-sm">
+                            <Image src={img2} className="max-h-[180px] rounded-lg object-contain" />
                           </div>
                         ) : null;
                       }}
@@ -299,40 +309,62 @@ const BankGroupEditPage = () => {
     );
   };
 
+  if (loading) return (
+    <div className="flex justify-center items-center min-h-[400px]">
+      <Spin size="large" />
+    </div>
+  );
+
   return (
-    <div className="max-w-[1200px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-12">
-      <div className="flex items-center justify-between gap-6 mb-8 mt-4">
+    <div className="max-w-[1000px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20 pt-6">
+      {/* ================= STICKY HEADER ================= */}
+      <div className="bg-zinc-50/90 backdrop-blur-md pb-4 mb-6 pt-2 -mx-4 px-4 border-b border-zinc-200/50 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Button 
-            type="text" 
-            icon={<ArrowLeftOutlined />} 
+          <button 
+            type="button"
             onClick={() => navigate(basePath)}
-            className="text-zinc-500 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200"
-          />
+            className="p-2 bg-white border border-zinc-200 text-zinc-600 rounded-xl hover:bg-zinc-50 transition-colors shadow-sm focus:outline-none"
+          >
+            <ArrowLeft size={20} />
+          </button>
           <div>
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">
+            <h1 className="text-xl font-black text-zinc-900 tracking-tight m-0">
               {isCreateMode ? 'Create Question Group' : 'Edit Question Group'}
             </h1>
+            <p className="text-sm font-medium text-zinc-500 m-0">
+              Configure speaking tasks, audio prompts and images
+            </p>
           </div>
         </div>
-        <Button 
-          type="primary" 
-          icon={<SaveOutlined />} 
-          onClick={handleSave} 
-          loading={submitting}
-          className="bg-[#445A95] hover:bg-[#3A4D81] shadow-sm"
+        
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={submitting}
+          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-[#3A4D81] hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed"
         >
+          {submitting ? (
+            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          ) : (
+            <Save size={18} />
+          )}
           Save Changes
-        </Button>
+        </button>
       </div>
 
-      <Spin spinning={loading}>
-        <Form form={form} layout="vertical">
-          <Card size="small" type="inner" style={{ marginBottom: 24 }}>
-            <Row gutter={16}>
+      <Form form={form} layout="vertical" requiredMark={false} autoComplete="off">
+        {/* ================= GENERAL GROUP SETTINGS ================= */}
+        <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-sm overflow-hidden mb-8">
+          <div className="px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 flex items-center gap-2">
+            <Settings size={18} className="text-[#445A95]" />
+            <h2 className="text-base font-bold text-zinc-800 m-0">Group Information</h2>
+          </div>
+          
+          <div className="p-6 md:p-8">
+            <Row gutter={24}>
               <Col span={12}>
-                <Form.Item label="Part Type" name="part_type" rules={[{ required: true }]}>
-                  <Select onChange={handlePartTypeChange} disabled={!isCreateMode}>
+                <Form.Item label={<span className="text-sm font-bold text-zinc-700">Part Type</span>} name="part_type" rules={[{ required: true }]}>
+                  <Select size="large" onChange={handlePartTypeChange} disabled={!isCreateMode}>
                     <Option value="PART_1">Part 1 (Personal Info - 3 Qs)</Option>
                     <Option value="PART_2">Part 2 (Describe & Express - 1 Img, 3 Qs)</Option>
                     <Option value="PART_3">Part 3 (Describe & Compare - 2 Imgs, 3 Qs)</Option>
@@ -341,8 +373,8 @@ const BankGroupEditPage = () => {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label="Difficulty Level" name="difficulty_level" rules={[{ required: true }]}>
-                  <Select>
+                <Form.Item label={<span className="text-sm font-bold text-zinc-700">Difficulty Level</span>} name="difficulty_level" rules={[{ required: true }]}>
+                  <Select size="large">
                     <Option value="A1">A1</Option>
                     <Option value="A2">A2</Option>
                     <Option value="B1">B1</Option>
@@ -352,59 +384,65 @@ const BankGroupEditPage = () => {
                 </Form.Item>
               </Col>
             </Row>
-          </Card>
+          </div>
+        </div>
 
-          <Form.List name="groups">
-            {(fields, { add, remove }) => (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                {fields.map(({ key, name, ...restField }, index) => (
-                  <Card 
-                    key={key} 
-                    size="small" 
-                    title={
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontWeight: 600, color: '#4338ca' }}>Group {index + 1}</span>
-                        {isCreateMode && fields.length > 1 && (
-                          <Button danger type="text" icon={<DeleteOutlined />} onClick={() => remove(name)}>Remove</Button>
-                        )}
-                      </div>
-                    }
-                    style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}
-                  >
+        {/* ================= QUESTION GROUPS ================= */}
+        <Form.List name="groups">
+          {(fields, { add, remove }) => (
+            <div className="flex flex-col gap-6">
+              {fields.map(({ key, name, ...restField }, index) => (
+                <div key={key} className="bg-white border border-zinc-200/80 rounded-2xl shadow-sm overflow-hidden">
+                  <div className="px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <Layers size={18} className="text-[#3A4D81]" />
+                      <h2 className="text-base font-bold text-zinc-800 m-0">Group {index + 1} for {selectedPartType?.replace('_', ' ')}</h2>
+                    </div>
+                    {isCreateMode && fields.length > 1 && (
+                      <button 
+                        type="button" 
+                        onClick={() => remove(name)}
+                        className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors focus:outline-none"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="p-6 md:p-8 bg-zinc-50/30">
                     {renderContent(name)}
-                  </Card>
-                ))}
-                
-                {isCreateMode && (
-                  <Button 
-                    type="dashed" 
-                    onClick={() => {
-                      const config = PART_CONFIGS.find(p => p.type === selectedPartType) || PART_CONFIGS[0];
-                      add({
-                        instruction: '',
-                        image_url: '',
-                        image_url_2: '',
-                        questions: Array.from({ length: config.qCount }).map((_, idx) => ({
-                          order_number: idx + 1,
-                          question_text: '',
-                          audio_url: '',
-                          prep_time: config.prepTime,
-                          response_time: config.resTime
-                        }))
-                      });
-                    }}
-                    block 
-                    icon={<PlusOutlined />}
-                    style={{ height: 48, borderRadius: 8, borderColor: '#[#445A95]', color: '#4f46e5' }}
-                  >
-                    Add Another Group
-                  </Button>
-                )}
-              </div>
-            )}
-          </Form.List>
-        </Form>
-      </Spin>
+                  </div>
+                </div>
+              ))}
+              
+              {isCreateMode && (
+                <button 
+                  type="button"
+                  onClick={() => {
+                    const config = PART_CONFIGS.find(p => p.type === selectedPartType) || PART_CONFIGS[0];
+                    add({
+                      instruction: '',
+                      image_url: '',
+                      image_url_2: '',
+                      questions: Array.from({ length: config.qCount }).map((_, idx) => ({
+                        order_number: idx + 1,
+                        question_text: '',
+                        audio_url: '',
+                        prep_time: config.prepTime,
+                        response_time: config.resTime
+                      }))
+                    });
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-[#445A95]/20 text-[#445A95] bg-[#F8FAFC]/50 hover:bg-[#F8FAFC] hover:border-indigo-300 rounded-xl font-bold transition-all focus:outline-none mt-2"
+                >
+                  <Plus size={18} />
+                  ADD ANOTHER GROUP
+                </button>
+              )}
+            </div>
+          )}
+        </Form.List>
+      </Form>
     </div>
   );
 };

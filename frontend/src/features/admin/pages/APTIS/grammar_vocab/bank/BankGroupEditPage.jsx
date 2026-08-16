@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Form, Input, Button, Card, Space, Select, 
-  Spin, Typography, Popconfirm, Collapse, Row, Col, message
+  Form, Input, Select, Spin, Collapse, Row, Col, message, Popconfirm
 } from 'antd';
-import { SaveOutlined, PlusOutlined, DeleteOutlined, CopyOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { ArrowLeft, Save, Settings, Layers, Plus, Trash2, Copy } from 'lucide-react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 
 import MultipleChoiceAdmin from '../../../../components/APTIS/question-types/MultipleChoiceAdmin';
@@ -12,7 +11,6 @@ import { BlurInput, BlurTextArea } from '../../../../../../components/common/Blu
 
 import aptisGrammarVocabBankApi from '../../../../api/APTIS/grammar_vocab/aptisGrammarVocabBankApi';
 
-const { Title, Text } = Typography;
 const { Option } = Select;
 
 const VOCAB_TYPES = {
@@ -39,6 +37,10 @@ const BankGroupEditPage = () => {
   
   const currentCategory = Form.useWatch('category', form);
   const currentPartType = Form.useWatch('part_type', form);
+
+  // Use watch to disable Add Question button when limit is reached
+  const questionsWatch = Form.useWatch('questions', form) || [];
+  const isLimitReached = questionsWatch.length >= 25;
 
   useEffect(() => {
     if (!isCreateMode) {
@@ -115,7 +117,6 @@ const BankGroupEditPage = () => {
       message.error('Please check all required fields.');
       
       if (errorInfo.errorFields && errorInfo.errorFields.length > 0) {
-        // Find if any error is inside a question panel
         const questionErrors = errorInfo.errorFields.filter(f => f.name && f.name[0] === 'questions');
         if (questionErrors.length > 0) {
           const keysToExpand = questionErrors.map(f => f.name[1].toString());
@@ -125,7 +126,6 @@ const BankGroupEditPage = () => {
           });
         }
         
-        // Wait for state to update and panels to expand before scrolling
         setTimeout(() => {
           form.scrollToField(errorInfo.errorFields[0].name, {
             behavior: 'smooth',
@@ -138,47 +138,69 @@ const BankGroupEditPage = () => {
     }
   };
 
+  if (loading) return (
+    <div className="flex justify-center items-center min-h-[400px]">
+      <Spin size="large" />
+    </div>
+  );
+
   return (
-    <div className="max-w-[1200px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-12">
-      <div className="flex items-center justify-between gap-6 mb-8 mt-4">
+    <div className="max-w-[1000px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-20 pt-6">
+      {/* ================= STICKY HEADER ================= */}
+      <div className="bg-zinc-50/90 backdrop-blur-md pb-4 mb-6 pt-2 -mx-4 px-4 border-b border-zinc-200/50 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <Button 
-            type="text" 
-            icon={<ArrowLeftOutlined />} 
+          <button 
+            type="button"
             onClick={() => navigate(basePath)}
-            className="text-zinc-500 hover:text-zinc-900 bg-zinc-100 hover:bg-zinc-200"
-          />
+            className="p-2 bg-white border border-zinc-200 text-zinc-600 rounded-xl hover:bg-zinc-50 transition-colors shadow-sm focus:outline-none"
+          >
+            <ArrowLeft size={20} />
+          </button>
           <div>
-            <h1 className="text-2xl font-black text-zinc-900 tracking-tight m-0">
+            <h1 className="text-xl font-black text-zinc-900 tracking-tight m-0">
               {isCreateMode ? 'Create Question Group' : 'Edit Question Group'}
             </h1>
+            <p className="text-sm font-medium text-zinc-500 m-0">
+              Configure grammar or vocabulary questions
+            </p>
           </div>
         </div>
-        <Button 
-          type="primary" 
-          icon={<SaveOutlined />} 
-          onClick={handleSave} 
-          loading={submitting}
-          className="bg-[#445A95] hover:bg-[#3A4D81] shadow-sm"
+        
+        <button
+          type="button"
+          onClick={handleSave}
+          disabled={submitting}
+          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-[#3A4D81] hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed"
         >
+          {submitting ? (
+            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          ) : (
+            <Save size={18} />
+          )}
           Save Changes
-        </Button>
+        </button>
       </div>
 
-      <Spin spinning={loading}>
-        <Form form={form} layout="vertical">
-          <Card size="small" type="inner" style={{ marginBottom: 24 }}>
-            <Row gutter={16}>
-              <Col span={6}>
-                <Form.Item label="Category" name="category" rules={[{ required: true }]}>
+      <Form form={form} layout="vertical" requiredMark={false} autoComplete="off">
+        {/* ================= GENERAL GROUP SETTINGS ================= */}
+        <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-sm overflow-hidden mb-8">
+          <div className="px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 flex items-center gap-2">
+            <Settings size={18} className="text-[#445A95]" />
+            <h2 className="text-base font-bold text-zinc-800 m-0">Group Information</h2>
+          </div>
+          
+          <div className="p-6 md:p-8">
+            <Row gutter={24}>
+              <Col span={12} md={currentCategory === 'VOCAB' ? 8 : 12}>
+                <Form.Item label={<span className="text-sm font-bold text-zinc-700">Category</span>} name="category" rules={[{ required: true }]}>
                   <Select 
+                    size="large"
                     onChange={(val) => {
                       if (val === 'GRAMMAR') {
                         form.setFieldValue('part_type', 'GRAMMAR');
                       } else {
                         form.setFieldValue('part_type', 'VOCAB_WORD_DEFINITION');
                       }
-                      // Reset questions when category changes to clear incompatible data
                       form.setFieldValue('questions', [{ question_number: 1 }]);
                       setActiveQuestionKeys(['0']);
                     }}
@@ -190,9 +212,9 @@ const BankGroupEditPage = () => {
               </Col>
               
               {currentCategory === 'VOCAB' && (
-                <Col span={6}>
-                  <Form.Item label="Vocab Type" name="part_type" rules={[{ required: true }]}>
-                    <Select>
+                <Col span={12} md={8}>
+                  <Form.Item label={<span className="text-sm font-bold text-zinc-700">Vocab Type</span>} name="part_type" rules={[{ required: true }]}>
+                    <Select size="large">
                       {Object.entries(VOCAB_TYPES).map(([key, label]) => (
                         <Option key={key} value={key}>{label}</Option>
                       ))}
@@ -201,9 +223,9 @@ const BankGroupEditPage = () => {
                 </Col>
               )}
 
-              <Col span={6}>
-                <Form.Item name="difficulty_level" label="Difficulty Level">
-                  <Select>
+              <Col span={12} md={currentCategory === 'VOCAB' ? 8 : 12}>
+                <Form.Item name="difficulty_level" label={<span className="text-sm font-bold text-zinc-700">Difficulty Level</span>}>
+                  <Select size="large">
                     <Option value="A1">A1</Option>
                     <Option value="A2">A2</Option>
                     <Option value="B1">B1</Option>
@@ -216,104 +238,122 @@ const BankGroupEditPage = () => {
 
             <Form.Item 
               name="instruction" 
-              label="Group Instruction (Optional)"
+              label={<span className="text-sm font-bold text-zinc-700">Group Instruction (Optional)</span>}
+              className="mb-0 mt-4"
             >
-              <BlurTextArea rows={2} placeholder="E.g., Read the sentences and choose the correct answer." />
+              <BlurTextArea rows={2} placeholder="E.g., Read the sentences and choose the correct answer." className="bg-white border-zinc-200 hover:border-[#445A95] focus:border-[#445A95] rounded-xl p-4 text-sm transition-all" />
             </Form.Item>
-          </Card>
+          </div>
+        </div>
 
-          <Card title="Questions" size="small" type="inner">
+        {/* ================= QUESTIONS ================= */}
+        <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-sm overflow-hidden mb-8">
+          <div className="px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Layers size={18} className="text-[#3A4D81]" />
+              <h2 className="text-base font-bold text-zinc-800 m-0">Questions</h2>
+            </div>
+            <div className="text-xs font-bold bg-zinc-100 px-3 py-1 rounded-full text-zinc-600 border border-zinc-200">
+              {questionsWatch.length} / 25 Items
+            </div>
+          </div>
+
+          <div className="p-6 md:p-8 bg-zinc-50/30">
             <Form.List name="questions">
               {(fields, { add, remove }) => (
-                <Collapse 
-                  activeKey={activeQuestionKeys} 
-                  onChange={setActiveQuestionKeys}
-                  style={{ marginBottom: 16 }}
-                >
-                  {fields.map(({ key, name, ...restField }, index) => (
-                    <Collapse.Panel
-                      key={index.toString()}
-                      forceRender
-                      header={<Text strong>Question {index + 1}</Text>}
-                      extra={
-                        <Space onClick={(e) => e.stopPropagation()}>
-                          <Button 
-                            type="text" 
-                            size="small" 
-                            icon={<CopyOutlined />} 
-                            disabled={fields.length >= 25}
-                            onClick={() => {
-                              const qToCopy = form.getFieldValue(['questions', name]);
-                              const newQ = { ...qToCopy };
-                              // Reset specific fields when copying depending on type
-                              if (currentCategory === 'GRAMMAR') {
-                                newQ.question_text = '';
-                                newQ.correct_answer = '0';
-                              } else {
-                                newQ.question_text = '';
-                                newQ.correct_answer = undefined;
-                              }
-                              add(newQ, index + 1);
-                              setActiveQuestionKeys([...activeQuestionKeys, (index + 1).toString()]);
-                            }}
-                          />
-                          <Popconfirm title="Delete?" onConfirm={() => remove(name)}>
-                            <Button type="text" danger size="small" icon={<DeleteOutlined />} />
-                          </Popconfirm>
-                        </Space>
-                      }
-                    >
-                      {currentCategory === 'GRAMMAR' ? (
-                        <>
-                          <Form.Item label="Question Text" required>
-                            <div style={{ display: 'flex', gap: 8 }}>
-                              <Form.Item {...restField} name={[name, 'question_text']} rules={[{ required: true, message: 'Question text is required' }]} style={{ flex: 1, marginBottom: 0 }}>
-                                <BlurTextArea autoSize={{ minRows: 1, maxRows: 6 }} placeholder="He ___ to the store yesterday." />
-                              </Form.Item>
-                              <Button type="dashed" onClick={() => {
-                                const cur = form.getFieldValue(['questions', name, 'question_text']) || '';
-                                form.setFieldValue(['questions', name, 'question_text'], cur + ' ___ ');
-                              }}>Insert ___</Button>
-                            </div>
-                          </Form.Item>
-                          <MultipleChoiceAdmin relativePath={[name]} absolutePath={['questions', name]} restField={restField} form={form} />
-                        </>
-                      ) : (
-                        <>
-                          <Form.Item {...restField} name={[name, 'question_text']} label="Definition / Meaning" rules={[{ required: true, message: 'Definition is required' }]}>
-                            <BlurTextArea autoSize={{ minRows: 1, maxRows: 6 }} placeholder="A large fruit with a green shell..." />
-                          </Form.Item>
-                          <MatchingAdmin relativePath={[name]} absolutePath={['questions', name]} restField={restField} form={form} />
-                        </>
-                      )}
+                <div className="flex flex-col gap-4">
+                  <Collapse 
+                    activeKey={activeQuestionKeys} 
+                    onChange={setActiveQuestionKeys}
+                    className="bg-transparent border-0"
+                    ghost
+                  >
+                    {fields.map(({ key, name, ...restField }, index) => (
+                      <Collapse.Panel
+                        key={index.toString()}
+                        forceRender
+                        className="bg-white border border-zinc-200/80 rounded-xl overflow-hidden mb-4 shadow-sm"
+                        header={<span className="font-bold text-[#3A4D81]">Question {index + 1}</span>}
+                        extra={
+                          <div className="flex gap-2 items-center" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              className="p-1.5 text-zinc-400 hover:text-[#445A95] hover:bg-[#F8FAFC] rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              disabled={isLimitReached}
+                              onClick={() => {
+                                const qToCopy = form.getFieldValue(['questions', name]);
+                                const newQ = { ...qToCopy };
+                                if (currentCategory === 'GRAMMAR') {
+                                  newQ.question_text = '';
+                                  newQ.correct_answer = '0';
+                                } else {
+                                  newQ.question_text = '';
+                                  newQ.correct_answer = undefined;
+                                }
+                                add(newQ, index + 1);
+                                setActiveQuestionKeys([...activeQuestionKeys, (index + 1).toString()]);
+                              }}
+                            >
+                              <Copy size={16} />
+                            </button>
+                            <Popconfirm title="Delete this question?" onConfirm={() => remove(name)}>
+                              <button type="button" className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors focus:outline-none">
+                                <Trash2 size={16} />
+                              </button>
+                            </Popconfirm>
+                          </div>
+                        }
+                      >
+                        {currentCategory === 'GRAMMAR' ? (
+                          <>
+                            <Form.Item label={<span className="text-sm font-bold text-zinc-700">Question Text</span>} required>
+                              <div className="flex gap-2">
+                                <Form.Item {...restField} name={[name, 'question_text']} rules={[{ required: true, message: 'Question text is required' }]} className="flex-1 mb-0">
+                                  <BlurTextArea autoSize={{ minRows: 1, maxRows: 6 }} placeholder="He ___ to the store yesterday." className="bg-zinc-50 hover:bg-white focus:bg-white rounded-lg p-3 border-zinc-200 focus:border-[#445A95] transition-all" />
+                                </Form.Item>
+                                <button type="button" className="px-4 py-2 border border-dashed border-indigo-300 text-indigo-600 bg-indigo-50/50 hover:bg-indigo-50 rounded-lg font-medium transition-colors" onClick={() => {
+                                  const cur = form.getFieldValue(['questions', name, 'question_text']) || '';
+                                  form.setFieldValue(['questions', name, 'question_text'], cur + ' ___ ');
+                                }}>Insert ___</button>
+                              </div>
+                            </Form.Item>
+                            <MultipleChoiceAdmin relativePath={[name]} absolutePath={['questions', name]} restField={restField} form={form} />
+                          </>
+                        ) : (
+                          <>
+                            <Form.Item {...restField} name={[name, 'question_text']} label={<span className="text-sm font-bold text-zinc-700">Definition / Meaning</span>} rules={[{ required: true, message: 'Definition is required' }]}>
+                              <BlurTextArea autoSize={{ minRows: 1, maxRows: 6 }} placeholder="A large fruit with a green shell..." className="bg-zinc-50 hover:bg-white focus:bg-white rounded-lg p-3 border-zinc-200 focus:border-[#445A95] transition-all" />
+                            </Form.Item>
+                            <MatchingAdmin relativePath={[name]} absolutePath={['questions', name]} restField={restField} form={form} />
+                          </>
+                        )}
 
-                      <Form.Item {...restField} name={[name, 'explanation']} label="Explanation (Optional)" style={{ marginTop: 8 }}>
-                        <BlurTextArea rows={1} placeholder="Why is this answer correct?" />
-                      </Form.Item>
-                    </Collapse.Panel>
-                  ))}
+                        <Form.Item {...restField} name={[name, 'explanation']} label={<span className="text-sm font-bold text-zinc-700">Explanation (Optional)</span>} className="mt-4 mb-0">
+                          <BlurTextArea rows={1} placeholder="Why is this answer correct?" className="bg-zinc-50 hover:bg-white focus:bg-white rounded-lg p-3 border-zinc-200 focus:border-[#445A95] transition-all" />
+                        </Form.Item>
+                      </Collapse.Panel>
+                    ))}
+                  </Collapse>
                   
-                  <div style={{ marginTop: 16 }}>
-                    <Button 
-                      type="dashed" 
-                      disabled={fields.length >= 25}
-                      onClick={() => {
-                        const newIndex = fields.length;
-                        add({ question_number: newIndex + 1 });
-                        setActiveQuestionKeys([...activeQuestionKeys, newIndex.toString()]);
-                      }} 
-                      block 
-                      icon={<PlusOutlined />}
-                    >
-                      Add Question
-                    </Button>
-                  </div>
-                </Collapse>
+                  <button 
+                    type="button"
+                    disabled={isLimitReached}
+                    onClick={() => {
+                      const newIndex = fields.length;
+                      add({ question_number: newIndex + 1 });
+                      setActiveQuestionKeys([...activeQuestionKeys, newIndex.toString()]);
+                    }} 
+                    className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-[#445A95]/20 text-[#445A95] bg-[#F8FAFC]/50 hover:bg-[#F8FAFC] hover:border-indigo-300 rounded-xl font-bold transition-all focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:border-zinc-200"
+                  >
+                    <Plus size={18} />
+                    {isLimitReached ? 'LIMIT REACHED (25/25 ITEMS)' : 'ADD QUESTION TO THIS GROUP'}
+                  </button>
+                </div>
               )}
             </Form.List>
-          </Card>
-        </Form>
-      </Spin>
+          </div>
+        </div>
+      </Form>
     </div>
   );
 };
