@@ -11,7 +11,6 @@ const PARTS = [1, 2, 3, 4, 5];
 const RandomTestGeneratorPage = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [bankGroups, setBankGroups] = useState([]);
   const [bankStats, setBankStats] = useState([]);
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,8 +18,7 @@ const RandomTestGeneratorPage = () => {
   const basePath = isTeacher ? '/teacher/reading' : '/admin/aptis/reading';
 
   useEffect(() => {
-    aptisReadingBankApi.getBankGroups().then(setBankGroups).catch(console.error);
-    aptisReadingBankApi.getBankStats().then(setBankStats).catch(console.error);
+    aptisReadingBankApi.getBankStats().then(res => setBankStats(Array.isArray(res) ? res : [])).catch(console.error);
   }, []);
 
   const getOptionLabel = (part, level) => {
@@ -31,8 +29,10 @@ const RandomTestGeneratorPage = () => {
 
   const handleDifficultyChange = (part, value) => {
     if (!value) return;
-    const hasGroup = bankGroups.some(g => g.part_number === part && g.difficulty_level === value);
-    if (!hasGroup) message.warning(`No questions found for Part ${part} with difficulty ${value}.`);
+    const stat = bankStats.find(s => s.part === part && s.difficulty_level === value);
+    if (!stat || stat.count === 0) {
+      message.warning(`No questions found for Part ${part} with difficulty ${value}.`);
+    }
   };
 
   const handleGenerateTest = async (values) => {

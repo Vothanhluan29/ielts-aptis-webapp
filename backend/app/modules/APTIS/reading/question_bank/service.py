@@ -221,13 +221,29 @@ class BankService:
                     # If this question pushes us over 29, skip it
                     continue
 
+                # Normalize options and correct_answer for MULTIPLE_CHOICE:
+                # Bank stores options as list ['opt A', 'opt B', ...] with correct_answer as index string ('0').
+                # Test expects options as dict {'A': 'opt A', 'B': 'opt B', ...} with correct_answer as text.
+                q_options = bank_q.options
+                q_correct = bank_q.correct_answer or ""
+                if bank_q.question_type == 'MULTIPLE_CHOICE' and isinstance(q_options, list) and len(q_options) > 0:
+                    letters = [chr(65 + i) for i in range(len(q_options))]  # ['A','B','C',...]
+                    q_options = {letter: text for letter, text in zip(letters, q_options)}
+                    # Convert correct_answer from index to text
+                    try:
+                        correct_idx = int(q_correct)
+                        if 0 <= correct_idx < len(bank_q.options):
+                            q_correct = bank_q.options[correct_idx]
+                    except (ValueError, TypeError):
+                        pass  # leave as-is if not a valid index
+
                 new_q = AptisReadingQuestion(
                     group_id=new_group.id,
                     question_number=idx + 1,
                     question_text=bank_q.question_text,
                     question_type=bank_q.question_type,
-                    options=bank_q.options,
-                    correct_answer=bank_q.correct_answer,
+                    options=q_options,
+                    correct_answer=q_correct,
                     explanation=bank_q.explanation
                 )
                 db.add(new_q)
@@ -237,5 +253,5 @@ class BankService:
                 break
 
         db.commit()
-        db.refresh(new_test)
-        return new_test
+        from app.modules.APTIS.reading.services.test_service import AptisReadingTestService
+        return AptisReadingTestService.get_full_test_data(db, new_test.id)

@@ -10,6 +10,8 @@ class AptisReadingQuestionType(str, Enum):
     MATCHING_OPINIONS = "MATCHING_OPINIONS"    
     MATCHING_HEADINGS = "MATCHING_HEADINGS"       
     MULTIPLE_CHOICE = "MULTIPLE_CHOICE"
+    MATCHING = "MATCHING"
+    SHORT_ANSWER = "SHORT_ANSWER"
 
 
 # ==================== BASE MODELS ====================

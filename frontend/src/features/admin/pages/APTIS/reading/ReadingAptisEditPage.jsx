@@ -385,8 +385,8 @@ const ReadingAptisEditPage = () => {
                                               </Row>
 
                                               {qType === 'REORDER_SENTENCES' && <ReorderSentencesAdmin {...pathProps} />}
-                                              {(qType === 'MATCHING_OPINIONS' || qType === 'MATCHING_HEADINGS') && <MatchingAdmin {...pathProps} />}
-                                              {qType === 'FILL_IN_BLANKS' && <FillInBlankAdmin {...pathProps} />}
+                                              {(qType === 'MATCHING_OPINIONS' || qType === 'MATCHING_HEADINGS' || qType === 'MATCHING') && <MatchingAdmin {...pathProps} />}
+                                              {(qType === 'FILL_IN_BLANKS' || qType === 'SHORT_ANSWER') && <FillInBlankAdmin {...pathProps} />}
                                               {(!qType || qType === 'MULTIPLE_CHOICE') && <MultipleChoiceAdmin {...pathProps} />}
 
                                               <Form.Item {...restQField} name={[qName, 'explanation']} label="Explanation (Optional)" style={{ marginTop: 12 }}>

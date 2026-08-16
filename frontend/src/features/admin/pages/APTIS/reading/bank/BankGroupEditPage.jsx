@@ -52,10 +52,31 @@ const BankGroupEditPage = () => {
         instruction: response.instruction,
         content: response.content,
         difficulty_level: response.difficulty_level,
-        questions: response.questions?.map(q => ({
-          ...q,
-          question_type: q.question_type || 'MULTIPLE_CHOICE',
-        })) || []
+        questions: response.questions?.map(q => {
+            let opts = q.options;
+            let correctAnswer = q.correct_answer;
+
+            if (q.question_type === 'MULTIPLE_CHOICE') {
+              // Server may return options as dict {A: text, B: text, ...} or array ['text', ...]
+              if (opts && typeof opts === 'object' && !Array.isArray(opts)) {
+                const optArr = Object.values(opts); // ['text A', 'text B', ...]
+                // Convert correct_answer from text to index
+                const ansIdx = optArr.findIndex(
+                  v => v?.toLowerCase() === (correctAnswer || '').toLowerCase()
+                );
+                correctAnswer = ansIdx >= 0 ? String(ansIdx) : correctAnswer;
+                opts = optArr;
+              }
+              // If opts is already array, leave as-is (correct_answer should already be index)
+            }
+
+            return {
+              ...q,
+              question_type: q.question_type || 'MULTIPLE_CHOICE',
+              options: opts,
+              correct_answer: correctAnswer,
+            };
+          }) || []
       });
       // Expand all questions by default
       setActiveQuestionKeys((response.questions || []).map((_, idx) => idx.toString()));

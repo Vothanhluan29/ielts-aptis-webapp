@@ -89,6 +89,7 @@ const BankGroupEditPage = () => {
       
       const payload = {
         ...values,
+        part_type: values.category === 'GRAMMAR' ? 'GRAMMAR' : values.part_type,
         questions: values.questions?.map((q, idx) => ({
           ...q,
           question_number: idx + 1
@@ -103,9 +104,29 @@ const BankGroupEditPage = () => {
         message.success('Bank group updated successfully!');
       }
       navigate(basePath);
-    } catch (error) {
-      console.error(error);
+    } catch (errorInfo) {
+      console.error('Validation failed:', errorInfo);
       message.error('Please check all required fields.');
+      
+      if (errorInfo.errorFields && errorInfo.errorFields.length > 0) {
+        // Find if any error is inside a question panel
+        const questionErrors = errorInfo.errorFields.filter(f => f.name && f.name[0] === 'questions');
+        if (questionErrors.length > 0) {
+          const keysToExpand = questionErrors.map(f => f.name[1].toString());
+          setActiveQuestionKeys(prev => {
+            const newKeys = new Set([...prev, ...keysToExpand]);
+            return Array.from(newKeys);
+          });
+        }
+        
+        // Wait for state to update and panels to expand before scrolling
+        setTimeout(() => {
+          form.scrollToField(errorInfo.errorFields[0].name, {
+            behavior: 'smooth',
+            block: 'center',
+          });
+        }, 100);
+      }
     } finally {
       setSubmitting(false);
     }
@@ -240,7 +261,7 @@ const BankGroupEditPage = () => {
                           <Form.Item label="Question Text" required>
                             <div style={{ display: 'flex', gap: 8 }}>
                               <Form.Item {...restField} name={[name, 'question_text']} rules={[{ required: true, message: 'Question text is required' }]} style={{ flex: 1, marginBottom: 0 }}>
-                                <BlurInput placeholder="He ___ to the store yesterday." />
+                                <BlurTextArea autoSize={{ minRows: 1, maxRows: 6 }} placeholder="He ___ to the store yesterday." />
                               </Form.Item>
                               <Button type="dashed" onClick={() => {
                                 const cur = form.getFieldValue(['questions', name, 'question_text']) || '';
@@ -253,7 +274,7 @@ const BankGroupEditPage = () => {
                       ) : (
                         <>
                           <Form.Item {...restField} name={[name, 'question_text']} label="Definition / Meaning" rules={[{ required: true, message: 'Definition is required' }]}>
-                            <BlurInput placeholder="A large fruit with a green shell..." />
+                            <BlurTextArea autoSize={{ minRows: 1, maxRows: 6 }} placeholder="A large fruit with a green shell..." />
                           </Form.Item>
                           <MatchingAdmin relativePath={[name]} absolutePath={['questions', name]} restField={restField} form={form} />
                         </>

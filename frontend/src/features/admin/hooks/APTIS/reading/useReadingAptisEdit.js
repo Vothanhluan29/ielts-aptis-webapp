@@ -65,7 +65,7 @@ export const useReadingAptisEdit = () => {
               }
             } 
             //  Matching
-            else if (q.question_type === 'MATCHING_OPINIONS' || q.question_type === 'MATCHING_HEADINGS') {
+            else if (q.question_type === 'MATCHING_OPINIONS' || q.question_type === 'MATCHING_HEADINGS' || q.question_type === 'MATCHING') {
               optionsArray = Array.isArray(q.options) ? [...q.options] : [];
               const foundIdx = optionsArray.findIndex((opt) => opt === q.correct_answer);
               if (foundIdx !== -1) correctIndex = foundIdx.toString();
@@ -206,13 +206,13 @@ export const useReadingAptisEdit = () => {
                   .join('-'); 
               }
             } 
-            // Matching Opinions / Headings
-            else if (q.question_type === 'MATCHING_OPINIONS' || q.question_type === 'MATCHING_HEADINGS') {
+            // Matching Opinions / Headings / Matching
+            else if (q.question_type === 'MATCHING_OPINIONS' || q.question_type === 'MATCHING_HEADINGS' || q.question_type === 'MATCHING') {
               finalOptions = (q.options || []).filter((opt) => opt && opt.trim() !== '');
               exactCorrectText = q.options[Number(q.correct_answer)]?.trim() || '';
             } 
-            // Fill in the blanks
-            else if (q.question_type === 'FILL_IN_BLANKS') {
+            // Fill in the blanks / Short answer
+            else if (q.question_type === 'FILL_IN_BLANKS' || q.question_type === 'SHORT_ANSWER') {
               finalOptions = {};
               exactCorrectText = q.correct_answer?.trim() || '';
             } 
