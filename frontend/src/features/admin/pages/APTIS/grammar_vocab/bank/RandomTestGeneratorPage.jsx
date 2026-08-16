@@ -182,7 +182,6 @@ const RandomTestGeneratorPage = () => {
                 <div className="flex-1 hidden md:block" />
                 <Button
                   type="primary"
-                  icon={<ThunderboltOutlined />}
                   onClick={() => form.submit()}
                   loading={submitting}
                   style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', border: 'none', borderRadius: 8, fontWeight: 600 }}
