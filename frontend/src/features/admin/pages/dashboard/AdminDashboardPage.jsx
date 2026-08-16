@@ -72,7 +72,7 @@ const TEACHER_STAT_CARDS = [
     color: 'text-violet-600',
     bg: 'bg-violet-500/10',
     ring: 'ring-violet-500/20',
-    desc: 'Học sinh đang quản lý',
+    desc: 'Students under your management',
   },
   {
     title: 'Student Attempts',
@@ -81,7 +81,7 @@ const TEACHER_STAT_CARDS = [
     color: 'text-emerald-600',
     bg: 'bg-emerald-500/10',
     ring: 'ring-emerald-500/20',
-    desc: 'Tổng lượt làm bài',
+    desc: 'Total test submissions',
   },
   {
     title: 'Available Tests',
@@ -90,7 +90,7 @@ const TEACHER_STAT_CARDS = [
     color: 'text-orange-600',
     bg: 'bg-orange-500/10',
     ring: 'ring-orange-500/20',
-    desc: 'Đề thi sẵn sàng',
+    desc: 'Tests ready to assign',
   }
 ];
 
@@ -102,19 +102,14 @@ const IELTS_SKILLS = [
 ];
 
 const APTIS_SKILLS = [
-  { key: 'GrammarVocab', label: 'Grammar & Vocab', icon: GraduationCap, color: 'text-pink-500', bg: 'bg-pink-500/10', fill: '#ec4899', route: '/teacher/grammar_vocab/bank' },
-  { key: 'Reading', label: 'Reading', icon: BookOpen, color: 'text-blue-500', bg: 'bg-blue-500/10', fill: '#3b82f6', route: '/teacher/reading/bank' },
-  { key: 'Listening', label: 'Listening', icon: Headphones, color: 'text-teal-500', bg: 'bg-teal-500/10', fill: '#14b8a6', route: '/teacher/listening/bank' },
-  { key: 'Writing', label: 'Writing', icon: Edit3, color: 'text-amber-500', bg: 'bg-amber-500/10', fill: '#f59e0b', route: '/teacher/writing/bank' },
-  { key: 'Speaking', label: 'Speaking', icon: Mic, color: 'text-violet-500', bg: 'bg-violet-500/10', fill: '#8b5cf6', route: '/teacher/speaking/bank' }
+  { key: 'GrammarVocab', label: 'Grammar & Vocab', icon: GraduationCap, color: 'text-pink-500', bg: 'bg-pink-500/10', fill: '#ec4899', route: '/teacher/grammar_vocab' },
+  { key: 'Reading', label: 'Reading', icon: BookOpen, color: 'text-blue-500', bg: 'bg-blue-500/10', fill: '#3b82f6', route: '/teacher/reading' },
+  { key: 'Listening', label: 'Listening', icon: Headphones, color: 'text-teal-500', bg: 'bg-teal-500/10', fill: '#14b8a6', route: '/teacher/listening' },
+  { key: 'Writing', label: 'Writing', icon: Edit3, color: 'text-amber-500', bg: 'bg-amber-500/10', fill: '#f59e0b', route: '/teacher/writing' },
+  { key: 'Speaking', label: 'Speaking', icon: Mic, color: 'text-violet-500', bg: 'bg-violet-500/10', fill: '#8b5cf6', route: '/teacher/speaking' }
 ];
 
-const QUICK_ACTIONS = [
-  { label: 'Manage Students', desc: 'View & manage your students', icon: Users, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-200', route: '/teacher/students' },
-  { label: 'Review Submissions', desc: 'Grade & provide feedback', icon: ClipboardList, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', route: '/teacher/submissions/reading' },
-  { label: 'Question Bank', desc: 'Manage question groups', icon: Library, color: 'text-[#445A95]', bg: 'bg-blue-50', border: 'border-blue-200', route: '/teacher/reading/bank' },
-  { label: 'Generate Test', desc: 'Create a new random test', icon: PlusCircle, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200', route: '/teacher/reading/bank/generate' },
-];
+const QUICK_ACTIONS = [];
 
 /* ================= COMPONENTS ================= */
 
@@ -178,7 +173,7 @@ const WelcomeBanner = ({ userName }) => {
   );
 };
 
-/* ── APTIS SKILL BANK ROWS ── */
+/* ── APTIS SKILL TEST LIBRARY ROWS ── */
 const SkillBankRows = ({ skills, data, navigate }) => {
   const total = skills.reduce((acc, s) => acc + (data?.[s.key] || 0), 0);
 
@@ -186,7 +181,7 @@ const SkillBankRows = ({ skills, data, navigate }) => {
     <div className="bg-white rounded-[24px] p-6 shadow-sm ring-1 ring-zinc-200/60 h-full flex flex-col">
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h3 className="text-base font-black text-zinc-800 tracking-tight">APTIS Question Bank</h3>
+          <h3 className="text-base font-black text-zinc-800 tracking-tight">APTIS Test Library</h3>
           <p className="text-xs text-zinc-400 font-medium mt-0.5">{total} questions total</p>
         </div>
         <div className="p-2 rounded-xl bg-[#445A95]/10">
@@ -325,25 +320,22 @@ const AdminDashboardPage = () => {
           {/* APTIS Distribution Pie */}
           <div className="bg-white rounded-[24px] p-7 shadow-sm ring-1 ring-zinc-200/60">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="text-base font-black text-zinc-800 tracking-tight">APTIS Distribution</h3>
+              <h3 className="text-base font-black text-zinc-800 tracking-tight">APTIS Test Distribution</h3>
               <TrendingUp size={16} className="text-zinc-400" />
             </div>
-            <p className="text-xs text-zinc-400 font-medium mb-5">Phân bổ câu hỏi theo kỹ năng</p>
+            <p className="text-xs text-zinc-400 font-medium mb-5">Breakdown of questions by skill</p>
             <div className="h-[260px]">
               <SkillPieChart skills={stats?.aptis_skills} />
             </div>
           </div>
 
-          {/* APTIS Skill Bank Rows */}
+          {/* APTIS Skill Test Library Rows */}
           <SkillBankRows
             skills={APTIS_SKILLS}
             data={stats?.aptis_skills}
             navigate={navigate}
           />
         </div>
-
-        {/* Quick Actions */}
-        <QuickActions navigate={navigate} />
       </div>
     );
   }
