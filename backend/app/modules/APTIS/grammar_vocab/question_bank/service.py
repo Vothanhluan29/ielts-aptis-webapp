@@ -12,7 +12,7 @@ class AptisGrammarVocabBankService:
     @staticmethod
     def get_bank_groups(
         db: Session, 
-        part_number: int = None, 
+        part_type: AptisQuestionPart = None, 
         search: str = None, 
         difficulty_level: str = None, 
         skip: int = 0, 
@@ -20,8 +20,8 @@ class AptisGrammarVocabBankService:
     ):
         query = db.query(AptisGrammarVocabBankGroup)
         
-        if part_number is not None and hasattr(AptisGrammarVocabBankGroup, 'part_number'):
-            query = query.filter(AptisGrammarVocabBankGroup.part_number == part_number)
+        if part_type is not None:
+            query = query.filter(AptisGrammarVocabBankGroup.part_type == part_type)
             
         if search and hasattr(AptisGrammarVocabBankGroup, 'instruction'):
             query = query.filter(AptisGrammarVocabBankGroup.instruction.ilike(f"%{search}%"))
@@ -214,6 +214,28 @@ class AptisGrammarVocabBankService:
             
             selected_vocab_groups.append(random_vocab_group)
 
+        def transform_question_data(q):
+            options_dict = {}
+            correct_text = ""
+            if isinstance(q.options, list):
+                for idx_opt, opt in enumerate(q.options):
+                    letter = chr(65 + idx_opt)
+                    options_dict[letter] = opt
+                
+                try:
+                    correct_idx = int(q.correct_answer)
+                    if 0 <= correct_idx < len(q.options):
+                        correct_text = q.options[correct_idx]
+                except (ValueError, TypeError):
+                    correct_text = q.correct_answer
+            elif isinstance(q.options, dict):
+                options_dict = q.options
+                correct_text = q.correct_answer
+            else:
+                options_dict = q.options
+                correct_text = q.correct_answer
+            return options_dict, correct_text
+
         # Create the Test
         db_test = AptisGrammarVocabTest(
             title=config.title,
@@ -237,12 +259,13 @@ class AptisGrammarVocabBankService:
         
         # Add Grammar Questions
         for i, q in enumerate(selected_grammar_questions):
+            options_dict, correct_text = transform_question_data(q)
             db_q = AptisGrammarVocabQuestion(
                 group_id=grammar_test_group.id,
                 question_number=i + 1,
                 question_text=q.question_text,
-                options=q.options,
-                correct_answer=q.correct_answer,
+                options=options_dict,
+                correct_answer=correct_text,
                 explanation=q.explanation
             )
             db.add(db_q)
@@ -262,12 +285,13 @@ class AptisGrammarVocabBankService:
             
             # Add Vocab Questions for this group
             for q in selected_vocab_questions:
+                options_dict, correct_text = transform_question_data(q)
                 db_q = AptisGrammarVocabQuestion(
                     group_id=vocab_test_group.id,
                     question_number=current_question_number,
                     question_text=q.question_text,
-                    options=q.options,
-                    correct_answer=q.correct_answer,
+                    options=options_dict,
+                    correct_answer=correct_text,
                     explanation=q.explanation
                 )
                 db.add(db_q)
