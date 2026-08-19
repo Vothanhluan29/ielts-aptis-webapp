@@ -13,8 +13,9 @@ const RandomTestGeneratorPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isTeacher = location.pathname.includes('/teacher');
-  const basePath = isTeacher ? '/teacher/grammar_vocab' : '/admin/aptis/grammar_vocab';
-  const bankPath = `${basePath}/bank`;
+  const testBasePath = isTeacher ? '/teacher/grammar-vocab' : '/admin/aptis/grammar-vocab';
+  const bankBasePath = isTeacher ? '/teacher/grammar_vocab' : '/admin/aptis/grammar_vocab';
+  const bankPath = `${bankBasePath}/bank`;
 
   const [form] = Form.useForm();
   const [submitting, setSubmitting] = useState(false);
@@ -43,12 +44,16 @@ const RandomTestGeneratorPage = () => {
         difficulty_level: values.difficulty_level || null,
         part_difficulties: {
           GRAMMAR: values.difficulty_grammar || null,
-          VOCAB: values.difficulty_vocab || null,
+          VOCAB_WORD_PAIRS: values.difficulty_vocab_word_pairs || null,
+          VOCAB_WORD_DEFINITION: values.difficulty_vocab_word_definition || null,
+          VOCAB_WORD_MATCH: values.difficulty_vocab_word_match || null,
+          VOCAB_WORD_USAGE: values.difficulty_vocab_word_usage || null,
+          VOCAB_COLLOCATIONS: values.difficulty_vocab_collocations || null,
         }
       };
       const response = await aptisGrammarVocabBankApi.generateRandomTest(config);
       message.success('Random Test generated successfully!');
-      navigate(`${basePath}/edit/${response.id}`);
+      navigate(`${testBasePath}/edit/${response.id}`);
     } catch (error) {
       if (error.response?.data?.detail) {
         message.error(`Generation failed: ${error.response.data.detail}`);
@@ -134,7 +139,7 @@ const RandomTestGeneratorPage = () => {
                 </div>
                 <span className="text-base font-bold text-zinc-700">Difficulty per Part <span className="font-normal text-zinc-400 text-xs">(optional — leave blank to pick randomly)</span></span>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
                     <div className="w-5 h-5 rounded bg-amber-400 flex items-center justify-center"><Zap size={11} className="text-white" /></div>
@@ -149,11 +154,55 @@ const RandomTestGeneratorPage = () => {
                 <div>
                   <div className="flex items-center gap-2 mb-1.5">
                     <div className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center"><BookOpen size={11} className="text-white" /></div>
-                    <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wide">Vocabulary</span>
+                    <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wide">Word Pairs</span>
                   </div>
-                  <Form.Item name="difficulty_vocab" className="mb-0">
+                  <Form.Item name="difficulty_vocab_word_pairs" className="mb-0">
                     <Select allowClear placeholder="Any Level" size="large" style={{ width: '100%' }}>
-                      {LEVELS.map(l => <Option key={l} value={l}>{getOptionLabel('VOCAB', l)}</Option>)}
+                      {LEVELS.map(l => <Option key={l} value={l}>{getOptionLabel('VOCAB_WORD_PAIRS', l)}</Option>)}
+                    </Select>
+                  </Form.Item>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center"><BookOpen size={11} className="text-white" /></div>
+                    <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wide">Word Definition</span>
+                  </div>
+                  <Form.Item name="difficulty_vocab_word_definition" className="mb-0">
+                    <Select allowClear placeholder="Any Level" size="large" style={{ width: '100%' }}>
+                      {LEVELS.map(l => <Option key={l} value={l}>{getOptionLabel('VOCAB_WORD_DEFINITION', l)}</Option>)}
+                    </Select>
+                  </Form.Item>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center"><BookOpen size={11} className="text-white" /></div>
+                    <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wide">Word Match</span>
+                  </div>
+                  <Form.Item name="difficulty_vocab_word_match" className="mb-0">
+                    <Select allowClear placeholder="Any Level" size="large" style={{ width: '100%' }}>
+                      {LEVELS.map(l => <Option key={l} value={l}>{getOptionLabel('VOCAB_WORD_MATCH', l)}</Option>)}
+                    </Select>
+                  </Form.Item>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center"><BookOpen size={11} className="text-white" /></div>
+                    <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wide">Word Usage</span>
+                  </div>
+                  <Form.Item name="difficulty_vocab_word_usage" className="mb-0">
+                    <Select allowClear placeholder="Any Level" size="large" style={{ width: '100%' }}>
+                      {LEVELS.map(l => <Option key={l} value={l}>{getOptionLabel('VOCAB_WORD_USAGE', l)}</Option>)}
+                    </Select>
+                  </Form.Item>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <div className="w-5 h-5 rounded bg-emerald-500 flex items-center justify-center"><BookOpen size={11} className="text-white" /></div>
+                    <span className="text-xs font-semibold text-zinc-600 uppercase tracking-wide">Collocations</span>
+                  </div>
+                  <Form.Item name="difficulty_vocab_collocations" className="mb-0">
+                    <Select allowClear placeholder="Any Level" size="large" style={{ width: '100%' }}>
+                      {LEVELS.map(l => <Option key={l} value={l}>{getOptionLabel('VOCAB_COLLOCATIONS', l)}</Option>)}
                     </Select>
                   </Form.Item>
                 </div>

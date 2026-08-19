@@ -102,30 +102,14 @@ class AptisGrammarVocabBankService:
 
     @staticmethod
     def get_bank_stats(db: Session):
-        # Grammar: count questions
-        grammar_stats = db.query(
-            AptisGrammarVocabBankGroup.difficulty_level,
-            func.count(AptisGrammarVocabBankQuestion.id).label('count')
-        ).join(
-            AptisGrammarVocabBankGroup, AptisGrammarVocabBankQuestion.bank_group_id == AptisGrammarVocabBankGroup.id
-        ).filter(
-            AptisGrammarVocabBankGroup.part_type == AptisQuestionPart.GRAMMAR
-        ).group_by(AptisGrammarVocabBankGroup.difficulty_level).all()
-
-        # Vocab: count groups with >= 5 questions
-        vocab_types = [
-            AptisQuestionPart.VOCAB_WORD_DEFINITION,
-            AptisQuestionPart.VOCAB_WORD_PAIRS,
-            AptisQuestionPart.VOCAB_WORD_USAGE,
-            AptisQuestionPart.VOCAB_WORD_COMBINATIONS
-        ]
-        subq = db.query(
+        # Grammar: count groups with exactly 25 questions
+        grammar_subq = db.query(
             AptisGrammarVocabBankGroup.id,
             AptisGrammarVocabBankGroup.difficulty_level
         ).join(
             AptisGrammarVocabBankQuestion, AptisGrammarVocabBankQuestion.bank_group_id == AptisGrammarVocabBankGroup.id
         ).filter(
-            AptisGrammarVocabBankGroup.part_type.in_(vocab_types)
+            AptisGrammarVocabBankGroup.part_type == AptisQuestionPart.GRAMMAR
         ).group_by(
             AptisGrammarVocabBankGroup.id,
             AptisGrammarVocabBankGroup.difficulty_level
@@ -133,22 +117,57 @@ class AptisGrammarVocabBankService:
             func.count(AptisGrammarVocabBankQuestion.id) >= 25
         ).subquery()
         
-        vocab_stats = db.query(
-            subq.c.difficulty_level,
-            func.count(subq.c.id).label('count')
-        ).group_by(subq.c.difficulty_level).all()
+        grammar_stats = db.query(
+            grammar_subq.c.difficulty_level,
+            func.count(grammar_subq.c.id).label('count')
+        ).group_by(grammar_subq.c.difficulty_level).all()
 
+        # Vocab: count groups with exactly 5 questions per type
+        vocab_types = [
+            AptisQuestionPart.VOCAB_WORD_DEFINITION,
+            AptisQuestionPart.VOCAB_WORD_PAIRS,
+            AptisQuestionPart.VOCAB_WORD_USAGE,
+            AptisQuestionPart.VOCAB_WORD_MATCH,
+            AptisQuestionPart.VOCAB_COLLOCATIONS
+        ]
+        
+        vocab_subq = db.query(
+            AptisGrammarVocabBankGroup.id,
+            AptisGrammarVocabBankGroup.part_type,
+            AptisGrammarVocabBankGroup.difficulty_level
+        ).join(
+            AptisGrammarVocabBankQuestion, AptisGrammarVocabBankQuestion.bank_group_id == AptisGrammarVocabBankGroup.id
+        ).filter(
+            AptisGrammarVocabBankGroup.part_type.in_(vocab_types)
+        ).group_by(
+            AptisGrammarVocabBankGroup.id,
+            AptisGrammarVocabBankGroup.part_type,
+            AptisGrammarVocabBankGroup.difficulty_level
+        ).having(
+            func.count(AptisGrammarVocabBankQuestion.id) >= 5
+        ).subquery()
+        
+        vocab_type_counts = db.query(
+            vocab_subq.c.difficulty_level,
+            vocab_subq.c.part_type,
+            func.count(vocab_subq.c.id).label('count')
+        ).group_by(
+            vocab_subq.c.difficulty_level,
+            vocab_subq.c.part_type
+        ).all()
+        
         results = []
         for row in grammar_stats:
             results.append({"part": "GRAMMAR", "difficulty_level": row.difficulty_level, "count": row.count})
-        for row in vocab_stats:
-            results.append({"part": "VOCAB", "difficulty_level": row.difficulty_level, "count": row.count})
+            
+        for row in vocab_type_counts:
+            results.append({"part": row.part_type.value, "difficulty_level": row.difficulty_level, "count": row.count})
             
         return results
 
     @staticmethod
     def generate_test(db: Session, config: bank_schemas.GenerateTestConfig):
-        # We need 25 Grammar questions and 25 Vocab questions (Vocab usually consists of 5 groups of 5 questions each)
+        # We need 25 Grammar questions and 5 groups of Vocab questions (5 questions each)
         
         # Get Grammar questions (from exactly 1 Grammar bank group)
         grammar_query = db.query(AptisGrammarVocabBankGroup).filter(
@@ -167,29 +186,33 @@ class AptisGrammarVocabBankService:
         
         selected_grammar_questions = sorted(random_grammar_group.questions, key=lambda q: q.question_number)[:25]
 
-        # Get Vocab group (exactly 1 Vocab bank group)
+        # Get Vocab groups (5 groups, 1 for each type, each with exactly 5 questions)
         vocab_types = [
             AptisQuestionPart.VOCAB_WORD_DEFINITION,
             AptisQuestionPart.VOCAB_WORD_PAIRS,
             AptisQuestionPart.VOCAB_WORD_USAGE,
-            AptisQuestionPart.VOCAB_WORD_COMBINATIONS
+            AptisQuestionPart.VOCAB_WORD_MATCH,
+            AptisQuestionPart.VOCAB_COLLOCATIONS
         ]
         
-        vocab_query = db.query(AptisGrammarVocabBankGroup).filter(
-            AptisGrammarVocabBankGroup.part_type.in_(vocab_types)
-        )
-        vocab_diff = config.part_difficulties.get('VOCAB') if config.part_difficulties else None
-        vocab_diff_to_use = vocab_diff or config.difficulty_level
-        if vocab_diff_to_use:
-            vocab_query = vocab_query.filter(AptisGrammarVocabBankGroup.difficulty_level == vocab_diff_to_use)
+        selected_vocab_groups = []
+        for v_type in vocab_types:
+            specific_vocab_diff = config.part_difficulties.get(v_type.value) if config.part_difficulties else None
+            vocab_diff_to_use = specific_vocab_diff or config.difficulty_level
             
-        vocab_query = vocab_query.join(AptisGrammarVocabBankQuestion).group_by(AptisGrammarVocabBankGroup.id).having(func.count(AptisGrammarVocabBankQuestion.id) >= 25)
-        
-        random_vocab_group = vocab_query.order_by(func.random()).first()
-        if not random_vocab_group:
-            raise HTTPException(status_code=400, detail="Not enough valid vocab groups (with at least 25 questions) in the bank.")
+            vocab_query = db.query(AptisGrammarVocabBankGroup).filter(
+                AptisGrammarVocabBankGroup.part_type == v_type
+            )
+            if vocab_diff_to_use:
+                vocab_query = vocab_query.filter(AptisGrammarVocabBankGroup.difficulty_level == vocab_diff_to_use)
+                
+            vocab_query = vocab_query.join(AptisGrammarVocabBankQuestion).group_by(AptisGrammarVocabBankGroup.id).having(func.count(AptisGrammarVocabBankQuestion.id) >= 5)
             
-        selected_vocab_questions = sorted(random_vocab_group.questions, key=lambda q: q.question_number)[:25]
+            random_vocab_group = vocab_query.order_by(func.random()).first()
+            if not random_vocab_group:
+                raise HTTPException(status_code=400, detail=f"Not enough valid vocab groups for type {v_type.value} (with at least 5 questions) in the bank.")
+            
+            selected_vocab_groups.append(random_vocab_group)
 
         # Create the Test
         db_test = AptisGrammarVocabTest(
@@ -207,7 +230,7 @@ class AptisGrammarVocabBankService:
         grammar_test_group = AptisGrammarVocabGroup(
             test_id=db_test.id,
             part_type=AptisQuestionPart.GRAMMAR,
-            group_order=1
+            instruction=random_grammar_group.instruction or "Grammar"
         )
         db.add(grammar_test_group)
         db.flush()
@@ -224,27 +247,31 @@ class AptisGrammarVocabBankService:
             )
             db.add(db_q)
 
-        # Create Vocab Group in Test
-        vocab_test_group = AptisGrammarVocabGroup(
-            test_id=db_test.id,
-            part_type=random_vocab_group.part_type,
-            group_order=2,
-            instruction=random_vocab_group.instruction
-        )
-        db.add(vocab_test_group)
-        db.flush()
-        
-        # Add Vocab Questions
-        for j, q in enumerate(selected_vocab_questions):
-            db_q = AptisGrammarVocabQuestion(
-                group_id=vocab_test_group.id,
-                question_number=j + 1,
-                question_text=q.question_text,
-                options=q.options,
-                correct_answer=q.correct_answer,
-                explanation=q.explanation
+        # Create 5 Vocab Groups in Test
+        current_question_number = 1
+        for idx, random_vocab_group in enumerate(selected_vocab_groups):
+            vocab_test_group = AptisGrammarVocabGroup(
+                test_id=db_test.id,
+                part_type=random_vocab_group.part_type,
+                instruction=random_vocab_group.instruction or "Vocabulary"
             )
-            db.add(db_q)
+            db.add(vocab_test_group)
+            db.flush()
+            
+            selected_vocab_questions = sorted(random_vocab_group.questions, key=lambda q: q.question_number)[:5]
+            
+            # Add Vocab Questions for this group
+            for q in selected_vocab_questions:
+                db_q = AptisGrammarVocabQuestion(
+                    group_id=vocab_test_group.id,
+                    question_number=current_question_number,
+                    question_text=q.question_text,
+                    options=q.options,
+                    correct_answer=q.correct_answer,
+                    explanation=q.explanation
+                )
+                db.add(db_q)
+                current_question_number += 1
                 
         db.commit()
         db.refresh(db_test)

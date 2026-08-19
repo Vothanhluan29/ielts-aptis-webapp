@@ -9,7 +9,7 @@ from app.modules.APTIS.grammar_vocab.models import AptisQuestionPart, AptisGramm
 class QuestionBase(BaseModel):
     question_number: int
     question_text: str
-    options: Optional[Dict[str, str]] = None 
+    options: Optional[Any] = None 
 
 class QuestionCreate(QuestionBase):
     correct_answer: str
@@ -18,7 +18,7 @@ class QuestionCreate(QuestionBase):
 class QuestionUpdate(BaseModel):
     question_number: Optional[int] = None
     question_text: Optional[str] = None
-    options: Optional[Dict[str, str]] = None 
+    options: Optional[Any] = None 
     correct_answer: Optional[str] = None
     explanation: Optional[str] = None
 

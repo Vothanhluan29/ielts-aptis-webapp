@@ -88,7 +88,8 @@ const QuestionBankManagePage = () => {
     if (partType === 'VOCAB_WORD_DEFINITION') return 'Vocab: Word Definition';
     if (partType === 'VOCAB_WORD_PAIRS') return 'Vocab: Word Pairs';
     if (partType === 'VOCAB_WORD_USAGE') return 'Vocab: Word Usage';
-    if (partType === 'VOCAB_WORD_COMBINATIONS') return 'Vocab: Word Combinations';
+    if (partType === 'VOCAB_WORD_MATCH') return 'Vocab: Word Match';
+    if (partType === 'VOCAB_COLLOCATIONS') return 'Vocab: Collocations';
     return partType;
   };
 
@@ -157,7 +158,8 @@ const QuestionBankManagePage = () => {
             <Select.Option value="VOCAB_WORD_DEFINITION">Vocab: Word Definition</Select.Option>
             <Select.Option value="VOCAB_WORD_PAIRS">Vocab: Word Pairs</Select.Option>
             <Select.Option value="VOCAB_WORD_USAGE">Vocab: Word Usage</Select.Option>
-            <Select.Option value="VOCAB_WORD_COMBINATIONS">Vocab: Word Combinations</Select.Option>
+            <Select.Option value="VOCAB_WORD_MATCH">Vocab: Word Match</Select.Option>
+            <Select.Option value="VOCAB_COLLOCATIONS">Vocab: Collocations</Select.Option>
           </Select>
         </div>
         <div className="w-full md:w-40">

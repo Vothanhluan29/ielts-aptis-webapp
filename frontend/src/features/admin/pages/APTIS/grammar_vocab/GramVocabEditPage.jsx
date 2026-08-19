@@ -19,10 +19,11 @@ const { Title } = Typography;
 const { Option } = Select;
 
 const VOCAB_TYPES = {
-  VOCAB_WORD_DEFINITION:   'Word Definition',
   VOCAB_WORD_PAIRS:        'Word Pairs',
+  VOCAB_WORD_DEFINITION:   'Word Definition',
+  VOCAB_WORD_MATCH:        'Word Match',
   VOCAB_WORD_USAGE:        'Word Usage',
-  VOCAB_WORD_COMBINATIONS: 'Word Combinations',
+  VOCAB_COLLOCATIONS:      'Collocations',
 };
 
 // ─── Grammar collapse items ──────────────────────────────────────────────────

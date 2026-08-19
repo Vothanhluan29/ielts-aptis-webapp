@@ -14,10 +14,11 @@ import aptisGrammarVocabBankApi from '../../../../api/APTIS/grammar_vocab/aptisG
 const { Option } = Select;
 
 const VOCAB_TYPES = {
-  VOCAB_WORD_DEFINITION:   'Word Definition',
   VOCAB_WORD_PAIRS:        'Word Pairs',
+  VOCAB_WORD_DEFINITION:   'Word Definition',
+  VOCAB_WORD_MATCH:        'Word Match',
   VOCAB_WORD_USAGE:        'Word Usage',
-  VOCAB_WORD_COMBINATIONS: 'Word Combinations',
+  VOCAB_COLLOCATIONS:      'Collocations',
 };
 
 const BankGroupEditPage = () => {
@@ -40,7 +41,8 @@ const BankGroupEditPage = () => {
 
   // Use watch to disable Add Question button when limit is reached
   const questionsWatch = Form.useWatch('questions', form) || [];
-  const isLimitReached = questionsWatch.length >= 25;
+  const requiredCount = currentCategory === 'GRAMMAR' ? 25 : 5;
+  const isLimitReached = questionsWatch.length >= requiredCount;
 
   useEffect(() => {
     if (!isCreateMode) {
@@ -88,8 +90,15 @@ const BankGroupEditPage = () => {
     try {
       const values = await form.validateFields();
       
-      if (!values.questions || values.questions.length !== 25) {
-        message.error(`A Bank Group must contain exactly 25 questions. Currently it has ${values.questions?.length || 0}.`);
+      const isGrammar = values.category === 'GRAMMAR';
+      const requiredCount = isGrammar ? 25 : 5;
+      
+      if (!values.questions || values.questions.length !== requiredCount) {
+        if (isGrammar) {
+          message.error(`A Grammar Bank Group must contain exactly 25 questions. Currently it has ${values.questions?.length || 0}.`);
+        } else {
+          message.error(`Mỗi loại câu hỏi của Vocabulary được tạo tối đa 5 câu (Hiện đang có ${values.questions?.length || 0} câu). Vui lòng thêm đủ 5 câu để lưu.`);
+        }
         return;
       }
 
@@ -254,7 +263,7 @@ const BankGroupEditPage = () => {
               <h2 className="text-base font-bold text-zinc-800 m-0">Questions</h2>
             </div>
             <div className="text-xs font-bold bg-zinc-100 px-3 py-1 rounded-full text-zinc-600 border border-zinc-200">
-              {questionsWatch.length} / 25 Items
+              {questionsWatch.length} / {requiredCount} Items
             </div>
           </div>
 
