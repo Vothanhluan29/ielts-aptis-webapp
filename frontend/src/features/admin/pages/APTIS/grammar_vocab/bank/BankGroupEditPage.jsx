@@ -320,18 +320,26 @@ const BankGroupEditPage = () => {
                                 <Form.Item {...restField} name={[name, 'question_text']} rules={[{ required: true, message: 'Question text is required' }]} className="flex-1 mb-0">
                                   <BlurTextArea autoSize={{ minRows: 1, maxRows: 6 }} placeholder="He ___ to the store yesterday." className="bg-zinc-50 hover:bg-white focus:bg-white rounded-lg p-3 border-zinc-200 focus:border-[#445A95] transition-all" />
                                 </Form.Item>
-                                <button type="button" className="px-4 py-2 border border-dashed border-indigo-300 text-indigo-600 bg-indigo-50/50 hover:bg-indigo-50 rounded-lg font-medium transition-colors" onClick={() => {
+                                <button type="button" className="px-5 border border-dashed border-[#a5b4fc] text-[#4f46e5] bg-white hover:bg-[#e0e7ff]/30 hover:border-[#818cf8] rounded-xl font-semibold transition-all shadow-sm flex items-center justify-center" onClick={() => {
                                   const cur = form.getFieldValue(['questions', name, 'question_text']) || '';
                                   form.setFieldValue(['questions', name, 'question_text'], cur + ' ___ ');
-                                }}>Insert ___</button>
+                                }}>Insert "___"</button>
                               </div>
                             </Form.Item>
                             <MultipleChoiceAdmin relativePath={[name]} absolutePath={['questions', name]} restField={restField} form={form} />
                           </>
                         ) : (
                           <>
-                            <Form.Item {...restField} name={[name, 'question_text']} label={<span className="text-sm font-bold text-zinc-700">Definition / Meaning</span>} rules={[{ required: true, message: 'Definition is required' }]}>
-                              <BlurTextArea autoSize={{ minRows: 1, maxRows: 6 }} placeholder="A large fruit with a green shell..." className="bg-zinc-50 hover:bg-white focus:bg-white rounded-lg p-3 border-zinc-200 focus:border-[#445A95] transition-all" />
+                            <Form.Item label={<span className="text-sm font-bold text-zinc-700">Definition / Meaning / Sentence</span>} required>
+                              <div className="flex gap-2">
+                                <Form.Item {...restField} name={[name, 'question_text']} rules={[{ required: true, message: 'Definition is required' }]} className="flex-1 mb-0">
+                                  <BlurTextArea autoSize={{ minRows: 1, maxRows: 6 }} placeholder="A large fruit with a green shell..." className="bg-zinc-50 hover:bg-white focus:bg-white rounded-lg p-3 border-zinc-200 focus:border-[#445A95] transition-all" />
+                                </Form.Item>
+                                <button type="button" className="px-5 border border-dashed border-[#a5b4fc] text-[#4f46e5] bg-white hover:bg-[#e0e7ff]/30 hover:border-[#818cf8] rounded-xl font-semibold transition-all shadow-sm flex items-center justify-center" onClick={() => {
+                                  const cur = form.getFieldValue(['questions', name, 'question_text']) || '';
+                                  form.setFieldValue(['questions', name, 'question_text'], cur + ' ___ ');
+                                }}>Insert "___"</button>
+                              </div>
                             </Form.Item>
                             <MatchingAdmin relativePath={[name]} absolutePath={['questions', name]} restField={restField} form={form} />
                           </>
@@ -355,7 +363,7 @@ const BankGroupEditPage = () => {
                     className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-[#445A95]/20 text-[#445A95] bg-[#F8FAFC]/50 hover:bg-[#F8FAFC] hover:border-indigo-300 rounded-xl font-bold transition-all focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:border-zinc-200"
                   >
                     <Plus size={18} />
-                    {isLimitReached ? 'LIMIT REACHED (25/25 ITEMS)' : 'ADD QUESTION TO THIS GROUP'}
+                    {isLimitReached ? `LIMIT REACHED (${requiredCount}/${requiredCount} ITEMS)` : 'ADD QUESTION TO THIS GROUP'}
                   </button>
                 </div>
               )}

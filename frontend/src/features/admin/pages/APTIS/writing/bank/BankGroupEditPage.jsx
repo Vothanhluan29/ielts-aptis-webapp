@@ -100,7 +100,7 @@ const BankGroupEditPage = () => {
         });
 
         await Promise.all(promises);
-        message.success(`${values.groups.length} Bank group(s) created successfully!`);
+        message.success(`${values.groups.length} Bank group created successfully!`);
       } else {
         const group = values.groups[0];
         const payload = {
@@ -229,7 +229,7 @@ const BankGroupEditPage = () => {
           </button>
           <div>
             <h1 className="text-xl font-black text-zinc-900 tracking-tight m-0">
-              {isCreateMode ? 'Create Question Group(s)' : 'Edit Question Group'}
+              {isCreateMode ? 'Create Question Group' : 'Edit Question Group'}
             </h1>
             <p className="text-sm font-medium text-zinc-500 m-0">
               Configure writing tasks and associated prompts
@@ -248,7 +248,7 @@ const BankGroupEditPage = () => {
           ) : (
             <Save size={18} />
           )}
-          {isCreateMode ? 'Create Group(s)' : 'Save Changes'}
+          {isCreateMode ? 'Create Group' : 'Save Changes'}
         </button>
       </div>
 
@@ -265,10 +265,10 @@ const BankGroupEditPage = () => {
               <Col span={12}>
                 <Form.Item label={<span className="text-sm font-bold text-zinc-700">Part Type</span>} name="part_type" rules={[{ required: true }]}>
                   <Select size="large" onChange={handlePartTypeChange}>
-                    <Option value="PART_1">Part 1 (Word-level responses)</Option>
-                    <Option value="PART_2">Part 2 (Short text)</Option>
-                    <Option value="PART_3">Part 3 (Three written parts)</Option>
-                    <Option value="PART_4">Part 4 (Informal & Formal Email)</Option>
+                    <Option value="PART_1">Part 1</Option>
+                    <Option value="PART_2">Part 2</Option>
+                    <Option value="PART_3">Part 3</Option>
+                    <Option value="PART_4">Part 4</Option>
                   </Select>
                 </Form.Item>
               </Col>
@@ -325,16 +325,7 @@ const BankGroupEditPage = () => {
                 </div>
               ))}
               
-              {isCreateMode && (
-                <button 
-                  type="button"
-                  onClick={() => add({ instruction: '', questions: getDefaultQuestions(currentPartType) })} 
-                  className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-[#445A95]/20 text-[#445A95] bg-[#F8FAFC]/50 hover:bg-[#F8FAFC] hover:border-indigo-300 rounded-xl font-bold transition-all focus:outline-none mt-2"
-                >
-                  <Plus size={18} />
-                  ADD ANOTHER GROUP
-                </button>
-              )}
+
             </div>
           )}
         </Form.List>

@@ -46,7 +46,7 @@ const MatchingAdmin = ({ relativePath, absolutePath, form }) => {
           size="small" type="primary" ghost icon={<ThunderboltOutlined />}
           onClick={() => setIsPasteModalOpen(true)}
         >
-          Quick Paste List
+          Quick Paste Options
         </Button>
       </div>
 

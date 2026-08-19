@@ -149,7 +149,7 @@ const BankGroupEditPage = () => {
         });
 
         await Promise.all(promises);
-        message.success(`${values.groups.length} Bank group(s) created successfully!`);
+        message.success(`${values.groups.length} Bank group created successfully!`);
       } else {
         const group = values.groups[0];
         const payload = {
@@ -264,26 +264,44 @@ const BankGroupEditPage = () => {
 
           {hasImage && (
             <Col span={24} md={9}>
-              <div className="bg-orange-50/50 p-5 rounded-xl border border-orange-200 h-full mt-6 md:mt-0">
-                <span className="text-sm font-bold text-orange-700 block mb-4 flex items-center gap-2">
+              <div className="bg-gradient-to-b from-[#FFF9F2] to-white p-6 rounded-2xl border border-orange-200/60 shadow-sm h-fit mt-6 md:mt-0">
+                <span className="text-sm font-bold text-orange-600 mb-5 flex items-center gap-2">
                   <ImageIcon size={18} /> Illustration Images
                 </span>
                 
                 <div className="mb-6">
-                  <Upload customRequest={(opt) => handleUploadFile(opt, ['groups', groupName, 'image_url'], speakingAptisApi.uploadImage)} showUploadList={false}>
-                    <button type="button" className="w-full py-3 border-2 border-dashed border-orange-300 hover:border-orange-500 text-orange-600 hover:text-orange-700 bg-white/50 hover:bg-white rounded-xl font-bold transition-colors flex justify-center items-center gap-2">
-                      <UploadIcon size={16} />
-                      Upload Image {hasTwoImages ? '1' : ''}
-                    </button>
-                  </Upload>
                   <Form.Item shouldUpdate noStyle>
                     {({ getFieldValue }) => {
                       const img1 = getFieldValue(['groups', groupName, 'image_url']);
                       return img1 ? (
-                        <div className="mt-3 bg-white p-2 rounded-xl border border-orange-200 flex justify-center shadow-sm">
-                          <Image src={img1} className="max-h-[180px] rounded-lg object-contain" />
+                        <div className="relative group rounded-xl overflow-hidden border border-orange-200/80 shadow-sm bg-white p-1">
+                          <Image src={img1} className="w-full h-[180px] object-cover rounded-lg" preview={false} />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-sm rounded-xl">
+                            <Upload customRequest={(opt) => handleUploadFile(opt, ['groups', groupName, 'image_url'], speakingAptisApi.uploadImage)} showUploadList={false}>
+                              <button type="button" className="p-2.5 bg-white/20 hover:bg-white/40 text-white rounded-full transition-all focus:outline-none" title="Replace Image">
+                                <UploadIcon size={18} />
+                              </button>
+                            </Upload>
+                            <button 
+                              type="button" 
+                              onClick={() => form.setFieldValue(['groups', groupName, 'image_url'], null)}
+                              className="p-2.5 bg-rose-500/80 hover:bg-rose-500 text-white rounded-full transition-all focus:outline-none" 
+                              title="Delete Image"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
                         </div>
-                      ) : null;
+                      ) : (
+                        <Upload customRequest={(opt) => handleUploadFile(opt, ['groups', groupName, 'image_url'], speakingAptisApi.uploadImage)} showUploadList={false} className="block w-full">
+                          <button type="button" className="w-full h-[180px] border-2 border-dashed border-orange-300/80 hover:border-orange-500/80 hover:bg-orange-50/50 rounded-xl font-bold transition-all flex flex-col justify-center items-center gap-3 text-orange-600/80 hover:text-orange-600">
+                            <div className="p-3 bg-orange-100/50 rounded-full text-orange-500">
+                              <UploadIcon size={24} />
+                            </div>
+                            <span className="text-sm">Upload Image {hasTwoImages ? '1' : ''}</span>
+                          </button>
+                        </Upload>
+                      );
                     }}
                   </Form.Item>
                   <Form.Item name={[groupName, 'image_url']} hidden><Input /></Form.Item>
@@ -291,20 +309,38 @@ const BankGroupEditPage = () => {
 
                 {hasTwoImages && (
                   <div>
-                    <Upload customRequest={(opt) => handleUploadFile(opt, ['groups', groupName, 'image_url_2'], speakingAptisApi.uploadImage)} showUploadList={false}>
-                      <button type="button" className="w-full py-3 border-2 border-dashed border-orange-300 hover:border-orange-500 text-orange-600 hover:text-orange-700 bg-white/50 hover:bg-white rounded-xl font-bold transition-colors flex justify-center items-center gap-2">
-                        <UploadIcon size={16} />
-                        Upload Image 2
-                      </button>
-                    </Upload>
                     <Form.Item shouldUpdate noStyle>
                       {({ getFieldValue }) => {
                         const img2 = getFieldValue(['groups', groupName, 'image_url_2']);
                         return img2 ? (
-                          <div className="mt-3 bg-white p-2 rounded-xl border border-orange-200 flex justify-center shadow-sm">
-                            <Image src={img2} className="max-h-[180px] rounded-lg object-contain" />
+                          <div className="relative group rounded-xl overflow-hidden border border-orange-200/80 shadow-sm bg-white p-1">
+                            <Image src={img2} className="w-full h-[180px] object-cover rounded-lg" preview={false} />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-sm rounded-xl">
+                              <Upload customRequest={(opt) => handleUploadFile(opt, ['groups', groupName, 'image_url_2'], speakingAptisApi.uploadImage)} showUploadList={false}>
+                                <button type="button" className="p-2.5 bg-white/20 hover:bg-white/40 text-white rounded-full transition-all focus:outline-none" title="Replace Image">
+                                  <UploadIcon size={18} />
+                                </button>
+                              </Upload>
+                              <button 
+                                type="button" 
+                                onClick={() => form.setFieldValue(['groups', groupName, 'image_url_2'], null)}
+                                className="p-2.5 bg-rose-500/80 hover:bg-rose-500 text-white rounded-full transition-all focus:outline-none" 
+                                title="Delete Image"
+                              >
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
                           </div>
-                        ) : null;
+                        ) : (
+                          <Upload customRequest={(opt) => handleUploadFile(opt, ['groups', groupName, 'image_url_2'], speakingAptisApi.uploadImage)} showUploadList={false} className="block w-full">
+                            <button type="button" className="w-full h-[180px] border-2 border-dashed border-orange-300/80 hover:border-orange-500/80 hover:bg-orange-50/50 rounded-xl font-bold transition-all flex flex-col justify-center items-center gap-3 text-orange-600/80 hover:text-orange-600">
+                              <div className="p-3 bg-orange-100/50 rounded-full text-orange-500">
+                                <UploadIcon size={24} />
+                              </div>
+                              <span className="text-sm">Upload Image 2</span>
+                            </button>
+                          </Upload>
+                        );
                       }}
                     </Form.Item>
                     <Form.Item name={[groupName, 'image_url_2']} hidden><Input /></Form.Item>
@@ -374,10 +410,10 @@ const BankGroupEditPage = () => {
               <Col span={12}>
                 <Form.Item label={<span className="text-sm font-bold text-zinc-700">Part Type</span>} name="part_type" rules={[{ required: true }]}>
                   <Select size="large" onChange={handlePartTypeChange} disabled={!isCreateMode}>
-                    <Option value="PART_1">Part 1 (Personal Info - 3 Qs)</Option>
-                    <Option value="PART_2">Part 2 (Describe & Express - 1 Img, 3 Qs)</Option>
-                    <Option value="PART_3">Part 3 (Describe & Compare - 2 Imgs, 3 Qs)</Option>
-                    <Option value="PART_4">Part 4 (Experience & Opinion - 1 Img, 3 Qs)</Option>
+                    <Option value="PART_1">Part 1</Option>
+                    <Option value="PART_2">Part 2</Option>
+                    <Option value="PART_3">Part 3</Option>
+                    <Option value="PART_4">Part 4</Option>
                   </Select>
                 </Form.Item>
               </Col>
@@ -424,30 +460,7 @@ const BankGroupEditPage = () => {
                 </div>
               ))}
               
-              {isCreateMode && (
-                <button 
-                  type="button"
-                  onClick={() => {
-                    const config = PART_CONFIGS.find(p => p.type === selectedPartType) || PART_CONFIGS[0];
-                    add({
-                      instruction: '',
-                      image_url: '',
-                      image_url_2: '',
-                      questions: Array.from({ length: config.qCount }).map((_, idx) => ({
-                        order_number: idx + 1,
-                        question_text: '',
-                        audio_url: '',
-                        prep_time: config.prepTime,
-                        response_time: config.resTime
-                      }))
-                    });
-                  }}
-                  className="w-full flex items-center justify-center gap-2 py-4 border-2 border-dashed border-[#445A95]/20 text-[#445A95] bg-[#F8FAFC]/50 hover:bg-[#F8FAFC] hover:border-indigo-300 rounded-xl font-bold transition-all focus:outline-none mt-2"
-                >
-                  <Plus size={18} />
-                  ADD ANOTHER GROUP
-                </button>
-              )}
+
             </div>
           )}
         </Form.List>
