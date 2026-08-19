@@ -6,13 +6,12 @@ from app.core.database import get_db
 from app.core.dependencies import get_aptis_manager_user
 from app.modules.APTIS.speaking.question_bank import schemas as bank_schemas
 from app.modules.APTIS.speaking.question_bank.service import AptisSpeakingBankService
-from app.modules.APTIS.speaking.models import AptisSpeakingPartType
 
 router = APIRouter(prefix="/admin/aptis/speaking/bank", tags=["Aptis Speaking Bank"])
 
 @router.get("/", response_model=bank_schemas.PaginatedSpeakingBankGroupResponse)
 def get_bank_groups(
-    part_type: Optional[AptisSpeakingPartType] = None,
+    part_type: Optional[str] = None,
     search: Optional[str] = None,
     difficulty_level: Optional[str] = None,
     skip: int = 0,

@@ -5,13 +5,13 @@ import random
 from fastapi import HTTPException
 from app.modules.APTIS.speaking.question_bank.models import AptisSpeakingBankGroup, AptisSpeakingBankQuestion
 from app.modules.APTIS.speaking.question_bank import schemas as bank_schemas
-from app.modules.APTIS.speaking.models import AptisSpeakingTest, AptisSpeakingPart, AptisSpeakingQuestion, AptisSpeakingPartType
+from app.modules.APTIS.speaking.models import AptisSpeakingTest, AptisSpeakingPart, AptisSpeakingQuestion
 
 class AptisSpeakingBankService:
     @staticmethod
     def get_bank_groups(
         db: Session, 
-        part_type: AptisSpeakingPartType = None, 
+        part_type: str = None, 
         search: str = None, 
         difficulty_level: str = None, 
         skip: int = 0, 

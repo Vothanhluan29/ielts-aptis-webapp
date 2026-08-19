@@ -2,8 +2,8 @@ import axiosClient from "../../../../../services/axiosClient";
 
 const aptisSpeakingBankApi = {
   // Fetch all speaking bank groups
-  getAllBankGroups: () => {
-    return axiosClient.get("/admin/aptis/speaking/bank/");
+  getAllBankGroups: (params) => {
+    return axiosClient.get("/admin/aptis/speaking/bank/", { params });
   },
 
   getBankStats: () => {

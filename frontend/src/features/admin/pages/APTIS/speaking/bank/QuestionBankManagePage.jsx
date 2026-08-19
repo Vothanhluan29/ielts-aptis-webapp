@@ -90,7 +90,7 @@ const QuestionBankManagePage = () => {
 
   return (
     <div className="max-w-[1200px] mx-auto animate-in fade-in zoom-in-95 duration-500 pb-12">
-      {/* â”€â”€ HEADER SECTION â”€â”€ */}
+      {/* ── HEADER SECTION ── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 mt-4">
         <div>
           <div className="flex items-center gap-3 mb-2">
@@ -121,6 +121,36 @@ const QuestionBankManagePage = () => {
             New Group
           </button>
         </div>
+      </div>
+
+      {/* ── SEARCH & FILTER ── */}
+      <div className="mb-6 flex flex-col md:flex-row gap-4">
+        <div className="relative w-full md:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+          <input
+            type="text"
+            placeholder="Search by instruction..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#445A95]/20 focus:border-[#445A95] transition-all shadow-sm"
+            style={{ height: '42px' }}
+          />
+        </div>
+        <div className="w-full md:w-64">
+          <Select
+            allowClear
+            placeholder="Filter by Part"
+            value={partFilter || undefined}
+            onChange={(val) => setPartFilter(val)}
+            className="w-full"
+            size="large"
+          >
+            <Select.Option value="PART_1">Part 1</Select.Option>
+            <Select.Option value="PART_2">Part 2</Select.Option>
+            <Select.Option value="PART_3">Part 3</Select.Option>
+            <Select.Option value="PART_4">Part 4</Select.Option>
+          </Select>
+        </div>
         <div className="w-full md:w-40">
           <Select
             allowClear
@@ -139,7 +169,7 @@ const QuestionBankManagePage = () => {
         </div>
       </div>
 
-      {/* â”€â”€ LIST VIEW â”€â”€ */}
+      {/* ── LIST VIEW ── */}
       <div className="bg-white border border-zinc-200/80 rounded-2xl shadow-sm overflow-hidden">
         {/* Table Header (Desktop only) */}
         <div className="hidden md:grid grid-cols-11 gap-4 px-6 py-4 bg-zinc-50/50 border-b border-zinc-100 text-xs font-bold text-zinc-500 uppercase tracking-wider">
