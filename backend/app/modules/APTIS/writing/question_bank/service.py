@@ -12,7 +12,7 @@ class AptisWritingBankService:
     @staticmethod
     def get_bank_groups(
         db: Session, 
-        part_number: int = None, 
+        part_type: AptisWritingPartType = None, 
         search: str = None, 
         difficulty_level: str = None, 
         skip: int = 0, 
@@ -20,8 +20,8 @@ class AptisWritingBankService:
     ):
         query = db.query(AptisWritingBankGroup)
         
-        if part_number is not None and hasattr(AptisWritingBankGroup, 'part_number'):
-            query = query.filter(AptisWritingBankGroup.part_number == part_number)
+        if part_type is not None:
+            query = query.filter(AptisWritingBankGroup.part_type == part_type)
             
         if search and hasattr(AptisWritingBankGroup, 'instruction'):
             query = query.filter(AptisWritingBankGroup.instruction.ilike(f"%{search}%"))

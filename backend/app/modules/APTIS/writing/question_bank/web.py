@@ -6,6 +6,7 @@ from app.core.database import get_db
 from app.core.dependencies import get_aptis_manager_user
 
 from app.modules.APTIS.writing import schemas
+from app.modules.APTIS.writing.models import AptisWritingPartType
 from app.modules.APTIS.writing.question_bank import schemas as bank_schemas
 from app.modules.APTIS.writing.question_bank.service import AptisWritingBankService
 
@@ -13,7 +14,7 @@ router = APIRouter(prefix="/aptis/writing", tags=["Aptis Writing Question Bank"]
 
 @router.get("/admin/bank/groups", response_model=bank_schemas.PaginatedBankGroupResponse)
 def get_bank_groups(
-    part_number: Optional[int] = None,
+    part_type: Optional[AptisWritingPartType] = None,
     search: Optional[str] = None,
     difficulty_level: Optional[str] = None,
     skip: int = 0,
@@ -21,7 +22,7 @@ def get_bank_groups(
     db: Session = Depends(get_db),
     admin = Depends(get_aptis_manager_user)
 ):
-    return AptisWritingBankService.get_bank_groups(db, part_number, search, difficulty_level, skip, limit)
+    return AptisWritingBankService.get_bank_groups(db, part_type, search, difficulty_level, skip, limit)
 
 @router.get("/admin/bank/stats", response_model=List[bank_schemas.BankGroupStatItem])
 def get_bank_stats(db: Session = Depends(get_db), admin = Depends(get_aptis_manager_user)):

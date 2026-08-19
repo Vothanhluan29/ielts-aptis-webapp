@@ -53,7 +53,7 @@ const QuestionBankManagePage = () => {
         skip: (currentPage - 1) * pageSize,
         limit: pageSize,
         search: searchTerm || undefined,
-        part_number: partFilter || undefined,
+        part_type: partFilter || undefined,
         difficulty_level: difficultyFilter || undefined
       };
       const response = await aptisWritingBankApi.getBankGroups(params);
@@ -135,7 +135,7 @@ const QuestionBankManagePage = () => {
             style={{ height: '42px' }}
           />
         </div>
-        <div className="w-full md:w-40">
+        <div className="w-full md:w-64">
           <Select
             allowClear
             placeholder="Filter by Part"

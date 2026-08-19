@@ -5,13 +5,13 @@ import random
 from fastapi import HTTPException
 from app.modules.APTIS.speaking.question_bank.models import AptisSpeakingBankGroup, AptisSpeakingBankQuestion
 from app.modules.APTIS.speaking.question_bank import schemas as bank_schemas
-from app.modules.APTIS.speaking.models import AptisSpeakingTest, AptisSpeakingPart, AptisSpeakingQuestion
+from app.modules.APTIS.speaking.models import AptisSpeakingTest, AptisSpeakingPart, AptisSpeakingQuestion, AptisSpeakingPartType
 
 class AptisSpeakingBankService:
     @staticmethod
     def get_bank_groups(
         db: Session, 
-        part_number: int = None, 
+        part_type: AptisSpeakingPartType = None, 
         search: str = None, 
         difficulty_level: str = None, 
         skip: int = 0, 
@@ -19,8 +19,8 @@ class AptisSpeakingBankService:
     ):
         query = db.query(AptisSpeakingBankGroup)
         
-        if part_number is not None and hasattr(AptisSpeakingBankGroup, 'part_number'):
-            query = query.filter(AptisSpeakingBankGroup.part_number == part_number)
+        if part_type is not None:
+            query = query.filter(AptisSpeakingBankGroup.part_type == part_type)
             
         if search and hasattr(AptisSpeakingBankGroup, 'instruction'):
             query = query.filter(AptisSpeakingBankGroup.instruction.ilike(f"%{search}%"))

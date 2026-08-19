@@ -54,7 +54,7 @@ const QuestionBankManagePage = () => {
         skip: (currentPage - 1) * pageSize,
         limit: pageSize,
         search: searchTerm || undefined,
-        part_number: partFilter || undefined,
+        part_type: partFilter || undefined,
         difficulty_level: difficultyFilter || undefined
       };
       const response = await aptisSpeakingBankApi.getAllBankGroups(params);
@@ -120,36 +120,6 @@ const QuestionBankManagePage = () => {
             <Plus size={18} />
             New Group
           </button>
-        </div>
-      </div>
-
-      {/* â”€â”€ SEARCH & FILTER â”€â”€ */}
-      <div className="mb-6 flex flex-col md:flex-row gap-4">
-        <div className="relative w-full md:max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
-          <input
-            type="text"
-            placeholder="Search by instruction..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white border border-zinc-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#445A95]/20 focus:border-[#445A95] transition-all shadow-sm"
-            style={{ height: '42px' }}
-          />
-        </div>
-        <div className="w-full md:w-40">
-          <Select
-            allowClear
-            placeholder="Filter by Part"
-            value={partFilter || undefined}
-            onChange={(val) => setPartFilter(val)}
-            className="w-full"
-            size="large"
-          >
-            <Select.Option value="PART_1">Part 1</Select.Option>
-            <Select.Option value="PART_2">Part 2</Select.Option>
-            <Select.Option value="PART_3">Part 3</Select.Option>
-            <Select.Option value="PART_4">Part 4</Select.Option>
-          </Select>
         </div>
         <div className="w-full md:w-40">
           <Select
