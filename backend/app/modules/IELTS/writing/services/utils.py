@@ -1,5 +1,5 @@
 from fastapi import UploadFile
-from app.core.cloudinary import upload_smart_file
+from app.core.storage import upload_file
 
 class WritingUtils:
     @staticmethod
@@ -10,7 +10,7 @@ class WritingUtils:
     @staticmethod
     async def upload_image(file: UploadFile) -> str: 
 
-        image_url = await upload_smart_file(file, folder_name="ielts_writing_images")
+        image_url = await upload_file(file, folder_name="ielts_writing_images")
         
         if not image_url:
             print("Error saving Writing Task 1 image.")

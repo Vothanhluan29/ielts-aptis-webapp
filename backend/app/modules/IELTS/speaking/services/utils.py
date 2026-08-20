@@ -1,6 +1,6 @@
 from fastapi import UploadFile, HTTPException
 import os
-from app.core.cloudinary import upload_smart_file
+from app.core.storage import upload_file
 
 class SpeakingUtils:
     @staticmethod
@@ -16,7 +16,7 @@ class SpeakingUtils:
                 detail="Audio file is empty or corrupted. Please check your microphone."
             )
 
-        audio_url = await upload_smart_file(file, folder_name="ielts_speaking_audio")
+        audio_url = await upload_file(file, folder_name="ielts_speaking_audio")
         
         if not audio_url:
             raise HTTPException(

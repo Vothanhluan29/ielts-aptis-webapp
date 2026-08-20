@@ -3,7 +3,7 @@ from fastapi import HTTPException, status, UploadFile
 from app.modules.users.models import User, UserRole
 from app.modules.users import schemas
 from app.core.security import get_password_hash, verify_password
-from app.core.cloudinary import upload_smart_file
+from app.core.storage import upload_file
 
 class UserService:
     @staticmethod
@@ -34,7 +34,7 @@ class UserService:
         if not file.content_type.startswith("image/"):
             raise HTTPException(status_code=400, detail="File must be an image")
 
-        avatar_url = await upload_smart_file(file, folder_name="avatars")
+        avatar_url = await upload_file(file, folder_name="avatars")
         
         if not avatar_url:
             raise HTTPException(status_code=500, detail="Failed to upload avatar")

@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 # Local Application Core Imports
 from app.core.database import get_db
 from app.core.dependencies import get_aptis_manager_user
-from app.core.cloudinary import upload_smart_file
+from app.core.storage import upload_file
 from app.modules.users.models import User
 
 # Local Application Modules Imports
@@ -118,6 +118,6 @@ async def admin_upload_tip_image(
 ):
     """Admin/Teacher upload image for Tip article cover."""
     logger.info(f"AUDIT LOG: Admin User ID {admin.id} uploaded tip cover image '{file.filename}'")
-    url = await upload_smart_file(file, folder_name="tips")
+    url = await upload_file(file, folder_name="tips")
     return {"url": url}
 

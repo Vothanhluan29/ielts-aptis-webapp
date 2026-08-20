@@ -1,6 +1,6 @@
 from fastapi import UploadFile
 import os
-from app.core.cloudinary import upload_smart_file
+from app.core.storage import upload_file
 
 class ListeningUtils:
     @staticmethod
@@ -12,7 +12,7 @@ class ListeningUtils:
             if ext not in allowed_extensions:
                 raise ValueError(f"Invalid image format. Supported formats: {', '.join(allowed_extensions)}")
 
-            image_url = await upload_smart_file(file, folder_name="ielts_listening_images")
+            image_url = await upload_file(file, folder_name="ielts_listening_images")
             
             if not image_url:
                 raise ValueError("Could not save the image file.")
@@ -31,7 +31,7 @@ class ListeningUtils:
                 raise ValueError(f"Invalid format. Supported formats: {', '.join(allowed_extensions)}")
 
 
-            audio_url = await upload_smart_file(file, folder_name="ielts_listening_audio")
+            audio_url = await upload_file(file, folder_name="ielts_listening_audio")
             
             if not audio_url:
                 raise ValueError("Could not save the audio file.")

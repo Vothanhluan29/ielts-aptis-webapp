@@ -1,7 +1,7 @@
 from fastapi import UploadFile, HTTPException, status
 import os
 
-from app.core.cloudinary import upload_smart_file 
+from app.core.storage import upload_file 
 
 class AptisListeningUtils:
     @staticmethod
@@ -14,7 +14,7 @@ class AptisListeningUtils:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"File format is not allowed. Only accepts: {', '.join(allowed_extensions)}"
             )
-        audio_url = await upload_smart_file(file, folder_name="aptis_listening")
+        audio_url = await upload_file(file, folder_name="aptis_listening")
         
         if not audio_url:
             raise HTTPException(

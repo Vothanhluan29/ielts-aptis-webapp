@@ -22,7 +22,4 @@ google-generativeai
 apscheduler
 
 # Validation
-email-validator
-
-cloudinary 
-python-multipart
+email-validator
