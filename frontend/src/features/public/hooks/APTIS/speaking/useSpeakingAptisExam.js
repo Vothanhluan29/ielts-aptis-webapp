@@ -187,7 +187,8 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
       setStep(EXAM_STEPS.RECORDING);
       setTimer(RECORD_TIME);
     } catch (err) {
-      message.error("Unable to access Microphone. Please check your permissions!", err);
+      console.error("Microphone access error:", err);
+      message.error("Unable to access Microphone. Please check your permissions!");
       setStep(EXAM_STEPS.INTRO);
     }
   };
@@ -223,7 +224,8 @@ export const useSpeakingAptisExam = ({ isFullTest, testIdFromProps, onSkillFinis
       if (!submissionId) setSubmissionId(newSubId);
       moveToNext();
     } catch (error) {
-      message.error("File upload failed. Please try this question again!", error);
+      console.error("Upload error:", error);
+      message.error("File upload failed. Please try this question again!");
       setStep(EXAM_STEPS.INTRO); 
     }
   };

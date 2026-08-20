@@ -230,7 +230,7 @@ const ListeningAptisExamPage = ({
     </div>
   );
 
-  const totalQ = activePart?.groups?.reduce((s, g) => s + (g.questions?.length || 0), 0) || 0;
+  const totalQ = parts.reduce((total, p) => total + (p.groups?.reduce((s, g) => s + (g.questions?.length || 0), 0) || 0), 0);
   const answeredQ = Object.keys(answers).length;
 
   return (
@@ -329,6 +329,8 @@ const ListeningAptisExamPage = ({
             />
             <span>{answeredQ}/{totalQ} answered</span>
           </div>
+
+
         </div>
       </div>
 

@@ -13,7 +13,7 @@ export const useExamAptisManager = () => {
     try {
       const res = await examAptisAdminApi.getAllFullTests();
       // Accept both array format or paginated format { items: [...] }
-      const data = res.data?.items || res.data || res || [];
+      const data = res?.items || res?.data?.items || res?.data || (Array.isArray(res) ? res : []);
       setTests(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Fetch Error:", error);

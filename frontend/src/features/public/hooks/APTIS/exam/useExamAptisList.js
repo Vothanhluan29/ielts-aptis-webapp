@@ -37,7 +37,7 @@ export const useExamAptisList = () => {
   const filteredTests = useMemo(() => {
     if (filterStatus === 'ALL') return tests;
     if (filterStatus === 'COMPLETED') {
-      return tests.filter(test => ['GRADED', 'COMPLETED', 'FINISHED'].includes(test.user_status));
+      return tests.filter(test => ['GRADED', 'COMPLETED', 'FINISHED', 'PENDING'].includes(test.user_status));
     }
     return tests.filter(test => test.user_status === filterStatus);
   }, [tests, filterStatus]);

@@ -127,7 +127,7 @@ const QuestionBankManagePage = () => {
             className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 py-2.5 bg-[#445A95] text-white font-bold rounded-xl hover:bg-blue-700 hover:-translate-y-0.5 transition-all shadow-sm shadow-[#445A95]/20 focus:outline-none"
           >
             <Plus size={18} />
-            New Group
+            New Part
           </button>
         </div>
       </div>

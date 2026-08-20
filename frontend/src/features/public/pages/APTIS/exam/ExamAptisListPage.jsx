@@ -39,6 +39,28 @@ const getStatusConfig = (test, handlers) => {
       mainBtnIcon: <FileText size={15} />,
       showRetry: true,
     };
+  } else if (status === 'PENDING') {
+    return {
+      dot: '#F59E0B',
+      badge: (
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: 5,
+          background: '#FFFBEB', color: '#B45309',
+          padding: '3px 10px', borderRadius: 99, fontSize: 12, fontWeight: 700,
+          border: '1px solid #FDE68A',
+        }}>
+          <History size={11} /> Awaiting Review
+        </span>
+      ),
+      mainBtnText: 'View Result',
+      mainBtnAction: () => handleNavigateResult(subId),
+      mainBtnStyle: {
+        background: '#fff', color: '#B45309',
+        border: '1.5px solid #FDE68A', fontWeight: 700,
+      },
+      mainBtnIcon: <FileText size={15} />,
+      showRetry: true,
+    };
   } else if (status === 'IN_PROGRESS') {
     return {
       dot: '#F59E0B',

@@ -281,7 +281,7 @@ const ReadingAptisExamPage = ({
             <div style={{ display: 'flex', gap: 18, alignItems: 'flex-start' }}>
 
               {/* LEFT: Passage */}
-              <div style={{ flex: 1.35, position: 'sticky', top: 20 }}>
+              <div style={{ flex: 1.35 }}>
                 <div style={{
                   background: T.surface, borderRadius: 10,
                   border: `1px solid ${T.border}`,
@@ -302,7 +302,7 @@ const ReadingAptisExamPage = ({
                   </div>
 
                   {/* Passage body */}
-                  <div style={{ maxHeight: '65vh', overflowY: 'auto', padding: '20px 22px' }} className="exam-scrollbar">
+                  <div style={{ padding: '20px 22px' }}>
                     {/* Instructions first */}
                     {activePart?.groups?.map((group) => {
                       if (!group.instruction) return null;

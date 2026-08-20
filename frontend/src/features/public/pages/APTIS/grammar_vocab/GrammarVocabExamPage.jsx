@@ -2,7 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import {
   Clock, BookMarked, ChevronLeft, ChevronRight, Send,
-  CheckCircle2, AlertCircle, Info
+  CheckCircle2, AlertCircle, Info, BookOpen
 } from 'lucide-react';
 
 import MultipleChoiceQuestion from '../../../components/APTIS/ExamForms/MultipleChoiceQuestion';
@@ -44,6 +44,18 @@ const GrammarVocabExamPage = ({
     isTimeRunningOut, handleAnswerChange,
     confirmSubmit, formatTime
   } = useGrammarVocabExam({ isFullTest, testIdFromProps, onSkillFinish });
+
+  const formatPartType = (partType) => {
+    if (!partType) return '';
+    const map = {
+      'VOCAB_WORD_PAIRS': 'Word Pairs',
+      'VOCAB_WORD_DEFINITION': 'Word Definition',
+      'VOCAB_WORD_MATCH': 'Word Match',
+      'VOCAB_WORD_USAGE': 'Word Usage',
+      'VOCAB_COLLOCATIONS': 'Collocations'
+    };
+    return map[partType] || partType;
+  };
 
   usePreventNavigation(!isFullTest && !submitting, '/aptis/grammar-vocab');
 
@@ -217,21 +229,49 @@ const GrammarVocabExamPage = ({
                 currentGroups.map((group, gIdx) => (
                   <div
                     key={group.id}
-                    style={{
-                      paddingBottom: gIdx < currentGroups.length - 1 ? 8 : 0,
-                      borderBottom: gIdx < currentGroups.length - 1 ? `1px solid ${T.border}` : 'none',
-                    }}
+                    style={
+                      currentTab === 'VOCABULARY' ? {
+                        background: '#FAFAFA',
+                        borderRadius: 12,
+                        border: `1px solid ${T.border}`,
+                        padding: '20px',
+                        marginBottom: 24,
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                      } : {
+                        paddingBottom: gIdx < currentGroups.length - 1 ? 16 : 0,
+                        marginBottom: gIdx < currentGroups.length - 1 ? 16 : 0,
+                        borderBottom: gIdx < currentGroups.length - 1 ? `1px solid ${T.border}` : 'none',
+                      }
+                    }
                   >
+                    {/* Header for Vocabulary */}
+                    {currentTab === 'VOCABULARY' && (
+                      <div style={{
+                        display: 'flex', alignItems: 'center', gap: 10,
+                        marginBottom: 16,
+                        paddingBottom: 12,
+                        borderBottom: `1px dashed ${T.borderMid}`
+                      }}>
+                        <div style={{ padding: '8px', background: '#E0E7FF', borderRadius: '10px', color: '#4338CA' }}>
+                          <BookOpen size={18} />
+                        </div>
+                        <span style={{ fontSize: 16, fontWeight: 700, color: '#4338CA' }}>
+                          {formatPartType(group.part_type)}
+                        </span>
+                      </div>
+                    )}
+
                     {/* Group instruction */}
                     {group.instruction && (
                       <div style={{
                         display: 'flex', alignItems: 'flex-start', gap: 9,
-                        background: T.navyLight, borderRadius: 8, padding: '10px 14px',
-                        margin: '16px 0 4px',
-                        borderLeft: `3px solid ${T.navy}`,
+                        background: T.navyLight, borderRadius: 8, padding: '12px 16px',
+                        marginBottom: 20,
+                        marginTop: currentTab === 'GRAMMAR' ? 16 : 0,
+                        borderLeft: `4px solid ${T.navy}`,
                       }}>
-                        <Info size={14} color={T.navy} style={{ marginTop: 2, flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, color: T.navy, fontWeight: 500 }}>
+                        <Info size={16} color={T.navy} style={{ marginTop: 2, flexShrink: 0 }} />
+                        <span style={{ fontSize: 14, color: T.navy, fontWeight: 500, lineHeight: 1.5 }}>
                           {group.instruction}
                         </span>
                       </div>

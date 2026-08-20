@@ -409,7 +409,7 @@ const BankGroupEditPage = () => {
             <Row gutter={24}>
               <Col span={12}>
                 <Form.Item label={<span className="text-sm font-bold text-zinc-700">Part Type</span>} name="part_type" rules={[{ required: true }]}>
-                  <Select size="large" onChange={handlePartTypeChange} disabled={!isCreateMode}>
+                  <Select size="large" onChange={handlePartTypeChange}>
                     <Option value="PART_1">Part 1</Option>
                     <Option value="PART_2">Part 2</Option>
                     <Option value="PART_3">Part 3</Option>
