@@ -18,8 +18,8 @@ const { Title, Text } = Typography;
 // Mảng giao diện chứa Icon cho component Steps
 const APTIS_UI_STEPS = [
   { id: 'GRAMMAR_VOCAB', title: 'Grammar & Vocab', icon: <ClipboardList size={18} /> },
-  { id: 'LISTENING', title: 'Listening', icon: <Headphones size={18} /> },
   { id: 'READING', title: 'Reading', icon: <BookOpen size={18} /> },
+  { id: 'LISTENING', title: 'Listening', icon: <Headphones size={18} /> },
   { id: 'WRITING', title: 'Writing', icon: <PenTool size={18} /> },
   { id: 'SPEAKING', title: 'Speaking', icon: <Mic size={18} /> },
 ];

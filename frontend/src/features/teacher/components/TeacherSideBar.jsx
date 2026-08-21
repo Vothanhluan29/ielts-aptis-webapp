@@ -242,9 +242,9 @@ const TeacherSideBar = ({ layoutProps }) => {
           onToggle={() => setOpenBank(v => !v)}
           isCollapsed={isCollapsed}
         >
-          <SubLink to={`${basePath}/listening/bank`}    label="Listening"       isActive={p.includes(`${basePath}/listening/bank`)} />
-          <SubLink to={`${basePath}/reading/bank`}      label="Reading"         isActive={p.includes(`${basePath}/reading/bank`)} />
           <SubLink to={`${basePath}/grammar_vocab/bank`} label="Grammar & Vocab" isActive={p.includes(`${basePath}/grammar_vocab/bank`)} />
+          <SubLink to={`${basePath}/reading/bank`}      label="Reading"         isActive={p.includes(`${basePath}/reading/bank`)} />
+          <SubLink to={`${basePath}/listening/bank`}    label="Listening"       isActive={p.includes(`${basePath}/listening/bank`)} />
           <SubLink to={`${basePath}/writing/bank`}      label="Writing"         isActive={p.includes(`${basePath}/writing/bank`)} />
           <SubLink to={`${basePath}/speaking/bank`}     label="Speaking"        isActive={p.includes(`${basePath}/speaking/bank`)} />
         </DropdownMenu>

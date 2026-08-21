@@ -166,9 +166,9 @@ const AptisSideBar = ({ layoutProps }) => {
               <div className="overflow-hidden">
                 <div className="ml-5 border-l border-zinc-800/80 pl-3 py-1 space-y-1">
                   <SubSidebarLink 
-                    to={`${basePath}/listening/bank`} 
-                    label="Listening Bank" 
-                    isActive={location.pathname.includes(`${basePath}/listening/bank`)} 
+                    to={`${basePath}/grammar_vocab/bank`} 
+                    label="Grammar & Vocab Bank" 
+                    isActive={location.pathname.includes(`${basePath}/grammar_vocab/bank`)} 
                     accentColor={isTeacher ? "teal" : "emerald"} 
                   />
                   <SubSidebarLink 
@@ -178,9 +178,9 @@ const AptisSideBar = ({ layoutProps }) => {
                     accentColor={isTeacher ? "teal" : "emerald"} 
                   />
                   <SubSidebarLink 
-                    to={`${basePath}/grammar_vocab/bank`} 
-                    label="Grammar & Vocab Bank" 
-                    isActive={location.pathname.includes(`${basePath}/grammar_vocab/bank`)} 
+                    to={`${basePath}/listening/bank`} 
+                    label="Listening Bank" 
+                    isActive={location.pathname.includes(`${basePath}/listening/bank`)} 
                     accentColor={isTeacher ? "teal" : "emerald"} 
                   />
                   <SubSidebarLink 

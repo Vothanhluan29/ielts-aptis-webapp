@@ -45,14 +45,14 @@ class AptisExamSubmissionService:
 
         if current_step == AptisExamStep.GRAMMAR_VOCAB.value:
             sub.grammar_vocab_submission_id = skill_submission_id
-            sub.current_step = AptisExamStep.LISTENING.value
-            
-        elif current_step == AptisExamStep.LISTENING.value:
-            sub.listening_submission_id = skill_submission_id
             sub.current_step = AptisExamStep.READING.value
             
         elif current_step == AptisExamStep.READING.value:
             sub.reading_submission_id = skill_submission_id
+            sub.current_step = AptisExamStep.LISTENING.value
+            
+        elif current_step == AptisExamStep.LISTENING.value:
+            sub.listening_submission_id = skill_submission_id
             sub.current_step = AptisExamStep.WRITING.value
             
         elif current_step == AptisExamStep.WRITING.value:

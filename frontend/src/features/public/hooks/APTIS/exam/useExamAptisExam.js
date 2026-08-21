@@ -4,8 +4,8 @@ import { message } from 'antd';
 import examAptisStudentApi from '../../../api/APTIS/exam/examAptisStudentApi';
 
 
-const STEP_IDS = ['GRAMMAR_VOCAB', 'LISTENING', 'READING', 'WRITING', 'SPEAKING'];
-const STEP_TITLES = ['Grammar & Vocab', 'Listening', 'Reading', 'Writing', 'Speaking'];
+const STEP_IDS = ['GRAMMAR_VOCAB', 'READING', 'LISTENING', 'WRITING', 'SPEAKING'];
+const STEP_TITLES = ['Grammar & Vocab', 'Reading', 'Listening', 'Writing', 'Speaking'];
 
 export const useAptisExam = (id) => {
   const navigate = useNavigate();
