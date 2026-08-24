@@ -243,7 +243,7 @@ const BankGroupEditPage = () => {
           ) : (
             <Save size={18} />
           )}
-          {isCreateMode ? 'Create Group' : 'Save Changes'}
+          Save Changes
         </button>
       </div>
 
@@ -530,3 +530,4 @@ const BankGroupEditPage = () => {
 };
 
 export default BankGroupEditPage;
+

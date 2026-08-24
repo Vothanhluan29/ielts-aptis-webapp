@@ -47,3 +47,7 @@ backend/fix_reading_db.py
 
 # Uploads
 backend/static/
+# Documentation files
+project/APTIS_Product_Guide.html
+project/APTIS_Product_Guide.pdf
+project/images/
