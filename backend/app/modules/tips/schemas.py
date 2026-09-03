@@ -3,7 +3,8 @@ from datetime import datetime
 from typing import Optional, List
 
 # Third-Party Imports
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
+from app.core.url_helpers import rewrite_static_url
 
 
 class TipBase(BaseModel):
@@ -35,6 +36,11 @@ class AuthorSimple(BaseModel):
     full_name: Optional[str] = None
     avatar_url: Optional[str] = None
 
+    @field_validator('avatar_url', mode='after')
+    @classmethod
+    def fix_avatar_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config:
         from_attributes = True
 
@@ -46,6 +52,11 @@ class TipResponse(TipBase):
     views_count: int = 0
     created_at: datetime
     updated_at: datetime
+
+    @field_validator('thumbnail_url', mode='after')
+    @classmethod
+    def fix_thumbnail_url(cls, v):
+        return rewrite_static_url(v)
 
     class Config:
         from_attributes = True

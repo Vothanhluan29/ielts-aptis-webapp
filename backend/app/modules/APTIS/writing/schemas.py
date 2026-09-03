@@ -3,6 +3,8 @@ from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
 import json
+from pydantic import field_validator
+from app.core.url_helpers import rewrite_static_url
 
 # --- ENUMS ---
 class AptisWritingPartType(str, Enum):
@@ -47,6 +49,11 @@ class PartResponse(PartBase):
     id: int
     test_id: int
     questions: List[QuestionResponse]
+
+    @field_validator('image_url', mode='after')
+    @classmethod
+    def fix_image_url(cls, v):
+        return rewrite_static_url(v)
 
     class Config:
         from_attributes = True

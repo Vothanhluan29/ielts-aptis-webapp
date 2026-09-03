@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Any, Union, Dict
 from datetime import datetime
 import json
-
+from app.core.url_helpers import rewrite_static_url
 from .models import AptisSpeakingStatus
 
 # ==================== 1. QUESTIONS ====================
@@ -23,7 +23,12 @@ class AptisSpeakingQuestionUpdate(AptisSpeakingQuestionBase):
 class AptisSpeakingQuestionResponse(AptisSpeakingQuestionBase):
     id: int
     part_id: int
-    
+
+    @field_validator('audio_url', mode='after')
+    @classmethod
+    def fix_audio_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config:
         from_attributes = True
 
@@ -52,7 +57,12 @@ class AptisSpeakingPartResponse(AptisSpeakingPartBase):
     id: int
     test_id: int
     questions: List[AptisSpeakingQuestionResponse]
-    
+
+    @field_validator('image_url', 'image_url_2', mode='after')
+    @classmethod
+    def fix_image_urls(cls, v):
+        return rewrite_static_url(v)
+
     class Config:
         from_attributes = True
 
@@ -144,17 +154,16 @@ class AptisSpeakingPartAnswerResponse(BaseModel):
         return v
 
     def model_post_init(self, __context: Any) -> None:
-        """Sau khi khởi tạo, tự parse audio_url thành audio_urls."""
+        """Sau khi khởi tạo, tự parse audio_url thành audio_urls và rewrite domain."""
         if not self.audio_urls and self.audio_url:
             try:
                 parsed = json.loads(self.audio_url)
                 if isinstance(parsed, list):
-                    self.audio_urls = [url for url in parsed if url]
+                    self.audio_urls = [rewrite_static_url(url) for url in parsed if url]
                 else:
-                    self.audio_urls = [self.audio_url]
+                    self.audio_urls = [rewrite_static_url(self.audio_url)]
             except (json.JSONDecodeError, ValueError):
-                # Không phải JSON → coi là URL đơn (backward compatible)
-                self.audio_urls = [self.audio_url]
+                self.audio_urls = [rewrite_static_url(self.audio_url)]
 
     class Config:
         from_attributes = True

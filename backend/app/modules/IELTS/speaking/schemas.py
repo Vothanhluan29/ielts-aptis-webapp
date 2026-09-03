@@ -3,6 +3,7 @@ from typing import List, Optional, Any, Union, Dict
 from datetime import datetime
 from enum import Enum
 import json
+from app.core.url_helpers import rewrite_static_url
 
 # --- ENUM ---
 class SpeakingStatus(str, Enum):
@@ -35,7 +36,12 @@ class SpeakingQuestionUpdate(BaseModel):
 class SpeakingQuestionResponse(SpeakingQuestionBase):
     id: int
     part_id: int
-    
+
+    @field_validator('audio_question_url', mode='after')
+    @classmethod
+    def fix_audio_question_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config:
         from_attributes = True
 
@@ -138,6 +144,11 @@ class SpeakingQuestionAnswerResponse(BaseModel):
 
 
     question: Optional[SpeakingQuestionResponse] = None
+
+    @field_validator('audio_url', mode='after')
+    @classmethod
+    def fix_audio_url(cls, v):
+        return rewrite_static_url(v)
 
     @field_validator('correction', mode='before')
     @classmethod 

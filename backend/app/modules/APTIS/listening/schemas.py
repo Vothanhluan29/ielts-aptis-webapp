@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
 import json
+from app.core.url_helpers import rewrite_static_url
 
 class AptisListeningQuestionType(str, Enum):
     MULTIPLE_CHOICE = "MULTIPLE_CHOICE"   
@@ -123,6 +124,12 @@ class ListeningTestUpdate(BaseModel):
 
 class QuestionStudent(QuestionBase):
     id: int
+
+    @field_validator('audio_url', mode='after')
+    @classmethod
+    def fix_audio_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config: from_attributes = True
 
 class GroupStudent(BaseModel): 
@@ -132,6 +139,11 @@ class GroupStudent(BaseModel):
     audio_url: Optional[str] = None 
     order: int
     questions: List[QuestionStudent]
+
+    @field_validator('image_url', 'audio_url', mode='after')
+    @classmethod
+    def fix_urls(cls, v):
+        return rewrite_static_url(v)
 
     class Config: from_attributes = True
 
@@ -227,11 +239,23 @@ class SubmissionDetail(BaseModel):
 class QuestionResponseFull(QuestionCreate):
     id: int
     group_id: int 
+
+    @field_validator('audio_url', mode='after')
+    @classmethod
+    def fix_audio_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config: from_attributes = True
 
 class GroupResponse(GroupCreate):
     id: int
     questions: List[QuestionResponseFull]
+
+    @field_validator('image_url', 'audio_url', mode='after')
+    @classmethod
+    def fix_urls(cls, v):
+        return rewrite_static_url(v)
+
     class Config: from_attributes = True
 
 class PartResponse(PartBase):

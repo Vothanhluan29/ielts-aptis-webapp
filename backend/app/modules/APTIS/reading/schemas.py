@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field, field_validator
 from typing import List, Optional, Union, Dict, Any
 from datetime import datetime
 from enum import Enum
+from app.core.url_helpers import rewrite_static_url
 
 # = ENUMS  ==
 class AptisReadingQuestionType(str, Enum):
@@ -80,6 +81,12 @@ class QuestionGroupAdmin(QuestionGroupBase):
     id: int
     part_id: int
     questions: List[QuestionAdmin]
+
+    @field_validator('image_url', mode='after')
+    @classmethod
+    def fix_image_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config: from_attributes = True
 
 class PartAdmin(PartBase):
@@ -110,6 +117,12 @@ class QuestionPublic(QuestionBase):
 class QuestionGroupPublic(QuestionGroupBase):
     id: int
     questions: List[QuestionPublic]
+
+    @field_validator('image_url', mode='after')
+    @classmethod
+    def fix_image_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config: from_attributes = True
 
 class PartPublic(PartBase):

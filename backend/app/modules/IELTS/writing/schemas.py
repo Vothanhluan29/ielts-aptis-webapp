@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
 import json
+from app.core.url_helpers import rewrite_static_url
 
 # --- ENUMS ---
 class WritingTaskType(str, Enum):
@@ -28,6 +29,12 @@ class TaskCreate(TaskBase):
 class TaskResponse(TaskBase):
     id: int
     test_id: int
+
+    @field_validator('image_url', mode='after')
+    @classmethod
+    def fix_image_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config: 
         from_attributes = True
 

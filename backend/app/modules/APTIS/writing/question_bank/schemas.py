@@ -1,6 +1,7 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Optional, Any
 from datetime import datetime
+from app.core.url_helpers import rewrite_static_url
 from app.modules.APTIS.writing.models import AptisWritingPartType
 
 # ==========================
@@ -45,6 +46,11 @@ class BankGroupResponse(BankGroupBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
     questions: List[BankQuestionResponse] = []
+
+    @field_validator('image_url', mode='after')
+    @classmethod
+    def fix_image_url(cls, v):
+        return rewrite_static_url(v)
 
     class Config:
         from_attributes = True

@@ -3,6 +3,7 @@ from typing import List, Optional, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
 import json
+from app.core.url_helpers import rewrite_static_url
 
 class ListeningQuestionType(str, Enum):
     MULTIPLE_CHOICE = "MULTIPLE_CHOICE"
@@ -90,11 +91,23 @@ class QuestionStudent(QuestionBase):
 class GroupStudent(GroupBase):
     id: int
     questions: List[QuestionStudent]
+
+    @field_validator('image_url', mode='after')
+    @classmethod
+    def fix_image_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config: from_attributes = True
 
 class PartStudent(PartBase):
     id: int
     groups: List[GroupStudent]
+
+    @field_validator('audio_url', mode='after')
+    @classmethod
+    def fix_audio_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config: from_attributes = True
 
 class ListeningTestStudent(TestBase):
@@ -180,12 +193,24 @@ class GroupResponse(GroupCreate):
     id: int
     part_id: int
     questions: List[QuestionResponseFull]
+
+    @field_validator('image_url', mode='after')
+    @classmethod
+    def fix_image_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config: from_attributes = True
 
 class PartResponse(PartBase):
     id: int
     test_id: int
-    groups: List[GroupResponse] 
+    groups: List[GroupResponse]
+
+    @field_validator('audio_url', mode='after')
+    @classmethod
+    def fix_audio_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config: from_attributes = True
 
 class ListeningTestResponse(TestBase):

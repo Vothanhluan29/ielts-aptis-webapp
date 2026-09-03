@@ -1,5 +1,6 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional, List
+from app.core.url_helpers import rewrite_static_url
 
 # --- Base ---
 class UserBase(BaseModel):
@@ -45,7 +46,12 @@ class UserResponse(BaseModel):
     student_id: Optional[str] = None
     class_code: Optional[str] = None
     managed_classes: Optional[List[str]] = None
-    
+
+    @field_validator('avatar_url', mode='after')
+    @classmethod
+    def fix_avatar_url(cls, v):
+        return rewrite_static_url(v)
+
     class Config:
         from_attributes = True
 

@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Optional, Any, Dict
+from app.core.url_helpers import rewrite_static_url
 
 class SpeakingBankQuestionCreate(BaseModel):
     order_number: int
@@ -16,6 +17,11 @@ class SpeakingBankQuestionResponse(BaseModel):
     audio_url: Optional[str] = None
     prep_time: Optional[int] = 0
     response_time: Optional[int] = 0
+
+    @field_validator('audio_url', mode='after')
+    @classmethod
+    def fix_audio_url(cls, v):
+        return rewrite_static_url(v)
 
     class Config:
         from_attributes = True
@@ -41,6 +47,11 @@ class SpeakingBankGroupResponse(BaseModel):
     difficulty_level: Optional[str] = None
     tags: Optional[Dict[str, Any]] = None
     questions: List[SpeakingBankQuestionResponse] = []
+
+    @field_validator('image_url', 'image_url_2', mode='after')
+    @classmethod
+    def fix_image_urls(cls, v):
+        return rewrite_static_url(v)
 
     class Config:
         from_attributes = True

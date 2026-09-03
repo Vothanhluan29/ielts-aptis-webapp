@@ -1,5 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List, Optional, Any
+from app.core.url_helpers import rewrite_static_url
 
 # ==========================
 # Bank Question Schemas
@@ -47,6 +48,11 @@ class BankGroupUpdate(BankGroupBase):
 class BankGroupResponse(BankGroupBase):
     id: int
     questions: List[BankQuestionResponse] = []
+
+    @field_validator('image_url', mode='after')
+    @classmethod
+    def fix_image_url(cls, v):
+        return rewrite_static_url(v)
 
     class Config:
         from_attributes = True
