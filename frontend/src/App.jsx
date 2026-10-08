@@ -117,6 +117,8 @@ import AdminRoute from './routes/AdminRoute';
 import AdminProfilePage from './features/admin/pages/profile/AdminProfilePage';
 import AdminDashboardPage from './features/admin/pages/dashboard/AdminDashboardPage';
 import UserManagement from './features/admin/pages/users/UserManagement';
+import TeacherDashboardPage from './features/teacher/pages/dashboard';
+import TeacherStudentsPage from './features/teacher/pages/students';
 import AdminSubmissions from './features/admin/pages/IELTS/submissions/AdminSubmissionsPage';
 
 // Exam Management
@@ -399,8 +401,8 @@ function App() {
         <Route element={<AdminRoute />}>
           <Route path="/teacher" element={<TeacherLayout />}>
             <Route index element={<Navigate to="/teacher/dashboard" replace />} />
-            <Route path="dashboard" element={<AdminDashboardPage />} />
-            <Route path="users" element={<UserManagement/>}/>
+            <Route path="dashboard" element={<TeacherDashboardPage />} />
+            <Route path="users" element={<TeacherStudentsPage />} />
             <Route path="feedback" element={<FeedbackPage />} />
             <Route path="tips" element={<TipsAdminListPage />} />
             <Route path="tips/create" element={<TipEditPage />} />

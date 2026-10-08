@@ -1,0 +1,10 @@
+:root {
+  --ui-color-text: #18181b;
+  --ui-color-muted: #71717a;
+  --ui-color-border: #e4e4e7;
+  --ui-color-surface: #ffffff;
+  --ui-color-canvas: #fafafa;
+  --ui-color-primary: #445a95;
+  --ui-radius-card: 1rem;
+  --ui-shadow-card: 0 1px 2px rgb(24 24 27 / 5%);
+}

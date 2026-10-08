@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { message } from 'antd';
 import adminUserApi from '../../api/users/adminUserApi';
 
-export const useAdminUsers = (isTeacher = false) => {
+export const useAdminUsers = () => {
   const [users, setUsers] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -12,9 +12,7 @@ export const useAdminUsers = (isTeacher = false) => {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const response = isTeacher 
-        ? await adminUserApi.getTeacherStudents(0, 100)
-        : await adminUserApi.getAllUsers(0, 100);
+      const response = await adminUserApi.getAllUsers(0, 100);
 
       setUsers(response.items || []);
       setTotalUsers(response.total || 0);

@@ -4,6 +4,7 @@ import TeacherSideBar from '../components/TeacherSideBar';
 import TeacherHeader from '../components/TeacherHeader';
 import { useTeacherLayout } from '../hooks/useTeacherLayout';
 import authApi from '../../auth/api/authApi';
+import { WorkspaceShell } from '../../../common-ui';
 
 const TeacherLayout = () => {
   const layoutProps = useTeacherLayout();
@@ -26,24 +27,12 @@ const TeacherLayout = () => {
   }, [navigate]);
 
   return (
-    <div className="flex h-screen bg-zinc-50 font-sans text-zinc-900 overflow-hidden">
-
-      {/* Teacher uses ONLY Aptis SideBar */}
-      <TeacherSideBar layoutProps={layoutProps} />
-
-      {/* MAIN VIEWPORT */}
-      <div className="flex-1 flex flex-col overflow-hidden relative w-full">
-        {/* HEADER Component */}
-        <TeacherHeader />
-
-        {/* CONTENT AREA */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10 relative z-0 custom-scrollbar">
-          <div className="w-full mx-auto max-w-[1600px]">
-            <Outlet />
-          </div>
-        </main>
-      </div>
-    </div>
+    <WorkspaceShell
+      sidebar={<TeacherSideBar layoutProps={layoutProps} />}
+      header={<TeacherHeader />}
+    >
+      <div className="mx-auto w-full max-w-[1600px]"><Outlet /></div>
+    </WorkspaceShell>
   );
 };
 
