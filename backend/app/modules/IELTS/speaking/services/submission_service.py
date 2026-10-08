@@ -6,6 +6,7 @@ from typing import Optional
 from app.modules.IELTS.speaking.models import SpeakingTest, SpeakingPart, SpeakingQuestion, SpeakingSubmission, SpeakingQuestionAnswer, SpeakingStatus
 from app.modules.IELTS.speaking import schemas
 from app.modules.subscriptions.service import SubscriptionService
+from app.core.teacher_scope import apply_teacher_submission_scope
 
 class SpeakingSubmissionService:
     @staticmethod
@@ -105,12 +106,15 @@ class SpeakingSubmissionService:
         db: Session,
         skip: int = 0,
         limit: int = 50,
-        status_filter: Optional[SpeakingStatus] = None
+        status_filter: Optional[SpeakingStatus] = None,
+        actor=None,
     ):
         query = db.query(SpeakingSubmission).options(
             joinedload(SpeakingSubmission.user),
             joinedload(SpeakingSubmission.test)
         )
+        if actor is not None:
+            query = apply_teacher_submission_scope(query, SpeakingSubmission, actor)
         
         if status_filter:
             val = status_filter.value if hasattr(status_filter, 'value') else status_filter

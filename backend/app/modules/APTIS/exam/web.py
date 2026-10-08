@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 
 # Local Application Core Imports
 from app.core.database import get_db
+from app.core.teacher_scope import ensure_teacher_can_access_student
 from app.core.dependencies import get_aptis_manager_user, get_current_user
 from app.modules.users.models import User
 
@@ -96,7 +97,7 @@ def admin_get_all_submissions(
     db: Session = Depends(get_db),
     admin: User = Depends(get_aptis_manager_user),
 ):
-    return AptisExamSubmissionService.get_all_submissions_for_admin(db, skip, limit, status)
+    return AptisExamSubmissionService.get_all_submissions_for_admin(db, skip, limit, status, actor=admin)
 
 
 @router.patch(
@@ -112,6 +113,10 @@ def admin_update_cefr_level(
 ):
     """Admin đặt thủ công CEFR level cho một submission. Không bị auto-reset sau khi đã set."""
     logger.info(f"AUDIT LOG: Admin User ID {admin.id} overridden CEFR level for submission ID {submission_id} to '{data.cefr_level}'")
+    sub = AptisExamSubmissionService.get_submission_detail(db, submission_id)
+    if not sub:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    ensure_teacher_can_access_student(db, admin, sub.user_id)
     return AptisExamSubmissionService.update_cefr_level(db, submission_id, data.cefr_level)
 
 
@@ -233,8 +238,12 @@ def get_exam_result(
     if not sub:
         raise HTTPException(status_code=404, detail="Result not found")
 
-    is_admin = str(getattr(current_user, "role", "")).upper() in ["ADMIN", "TEACHER"]
-    if not is_admin and sub.user_id != current_user.id:
+    user_role = str(getattr(current_user, "role", "")).upper()
+    is_admin = user_role == "ADMIN"
+    is_teacher = user_role == "TEACHER"
+    if is_teacher:
+        ensure_teacher_can_access_student(db, current_user, sub.user_id)
+    elif not is_admin and sub.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     return sub

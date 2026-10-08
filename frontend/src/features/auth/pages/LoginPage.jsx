@@ -11,6 +11,7 @@ export default function LoginPage() {
   const location = useLocation();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -27,6 +28,7 @@ export default function LoginPage() {
         }
       } catch (err) {
         // Not authenticated, stay on login page
+        setCheckingAuth(false);
       }
     };
     checkAuth();
@@ -93,6 +95,20 @@ export default function LoginPage() {
       toast.error('Authentication failed.', { id: tid });
     }
   };
+
+  if (checkingAuth) {
+    return (
+      <div className="relative min-h-screen flex flex-col items-center justify-center font-sans overflow-hidden bg-slate-900">
+        <AuthBackground />
+        <div className="z-10 flex flex-col items-center">
+          <div className="w-12 h-12 border-4 border-blue-400 border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-blue-200 text-sm font-medium animate-pulse tracking-widest uppercase">
+            Checking session...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen flex items-center justify-center font-sans overflow-hidden p-4 sm:p-6">
@@ -304,7 +320,6 @@ export default function LoginPage() {
                 <GoogleLogin
                   onSuccess={handleGoogleSuccess}
                   onError={() => toast.error('Google login failed')}
-                  useOneTap
                   shape="rectangular"
                   theme="filled_black"
                   size="large"

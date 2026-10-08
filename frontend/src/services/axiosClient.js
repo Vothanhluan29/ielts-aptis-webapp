@@ -10,16 +10,7 @@ const axiosClient = axios.create({
   },
 });
 
-let isRefreshing = false;
-let refreshSubscribers = [];
-
-const subscribeTokenRefresh = (cb) => {
-  refreshSubscribers.push(cb);
-};
-
-const onRefreshed = () => {
-  refreshSubscribers.map((cb) => cb());
-};
+let refreshPromise = null;
 
 axiosClient.interceptors.request.use(
   (config) => {
@@ -34,39 +25,39 @@ axiosClient.interceptors.response.use(
     const { response, config } = error;
     const originalRequest = config;
 
-    if (response && response.status === 401) {
-      if (originalRequest.url.includes('/auth/login') || originalRequest.url.includes('/auth/refresh') || originalRequest.url.includes('/auth/google')) {
+    if (response?.status === 401 && originalRequest) {
+      const requestUrl = originalRequest.url || '';
+      if (
+        requestUrl.includes('/auth/login') ||
+        requestUrl.includes('/auth/refresh') ||
+        requestUrl.includes('/auth/google')
+      ) {
         return Promise.reject(error);
       }
 
-      if (!isRefreshing) {
-        isRefreshing = true;
+      if (!originalRequest._retry) {
+        originalRequest._retry = true;
         try {
-          const res = await axios.post(
-            `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
-            {},
-            { withCredentials: true }
-          );
-          
-          isRefreshing = false;
-          onRefreshed();
-          refreshSubscribers = [];
+          if (!refreshPromise) {
+            refreshPromise = axios.post(
+              `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
+              {},
+              { withCredentials: true }
+            )
+              .catch((refreshError) => {
+                useAuthStore.getState().handleSessionExpired();
+                throw refreshError;
+              })
+              .finally(() => {
+                refreshPromise = null;
+              });
+          }
 
+          await refreshPromise;
           return axiosClient(originalRequest);
         } catch (refreshError) {
-          isRefreshing = false;
-          refreshSubscribers = [];
-
-          // Trigger session expiration handling from the Zustand store
-          useAuthStore.getState().handleSessionExpired();
           return Promise.reject(refreshError);
         }
-      } else {
-        return new Promise((resolve) => {
-          subscribeTokenRefresh(() => {
-            resolve(axiosClient(originalRequest));
-          });
-        });
       }
     }
 

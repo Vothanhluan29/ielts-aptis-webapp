@@ -4,6 +4,7 @@ from datetime import datetime
 
 from app.modules.APTIS.grammar_vocab import schemas, models
 from .utils import GrammarVocabUtils
+from app.core.teacher_scope import apply_teacher_submission_scope
 
 class GrammarVocabSubmissionService:
     @staticmethod
@@ -128,6 +129,7 @@ class GrammarVocabSubmissionService:
         skip: int = 0,
         limit: int = 50,
         is_full_test_only: bool = False,
+        actor=None,
     ):
         """[ADMIN] Lay tat ca bai lam Grammar&Vocab (loc theo standalone hoac full-test)."""
         from sqlalchemy import desc
@@ -142,6 +144,8 @@ class GrammarVocabSubmissionService:
             .filter(models.AptisGrammarVocabSubmission.is_full_test_only == is_full_test_only)
             .order_by(desc(models.AptisGrammarVocabSubmission.submitted_at))
         )
+        if actor is not None:
+            query = apply_teacher_submission_scope(query, models.AptisGrammarVocabSubmission, actor)
         total = query.count()
         items = query.offset(skip).limit(limit).all()
-        return {"items": items, "total": total}
+        return {"items": items, "total": total}

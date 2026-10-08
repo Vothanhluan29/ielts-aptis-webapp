@@ -72,6 +72,11 @@ export default function TeacherHeader() {
               {getPageTitle(location.pathname)}
             </span>
           </div>
+          {location.pathname.includes('/submissions') && (
+            <span className="hidden lg:inline-block max-w-[340px] truncate text-xs text-zinc-500" title="Submissions are limited to assigned classes">
+              My classes: <strong className="text-[#445A95]">{admin?.managed_classes?.length ? admin.managed_classes.join(', ') : 'None assigned'}</strong>
+            </span>
+          )}
         </div>
 
         {/* RIGHT: User Profile */}

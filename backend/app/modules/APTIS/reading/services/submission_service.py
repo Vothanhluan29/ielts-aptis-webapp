@@ -5,6 +5,7 @@ from typing import Optional
 from app.modules.APTIS.reading import models, schemas
 from .utils import AptisReadingUtils
 from .test_service import AptisReadingTestService
+from app.core.teacher_scope import apply_teacher_submission_scope
 
 class AptisReadingSubmissionService:
     @staticmethod
@@ -322,11 +323,13 @@ class AptisReadingSubmissionService:
         )
     
     @staticmethod
-    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, status_filter: Optional[str] = None):
+    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, status_filter: Optional[str] = None, actor=None):
         query = db.query(models.AptisReadingSubmission).options(
             joinedload(models.AptisReadingSubmission.user),
             joinedload(models.AptisReadingSubmission.test)
         )
+        if actor is not None:
+            query = apply_teacher_submission_scope(query, models.AptisReadingSubmission, actor)
         if status_filter:
             query = query.filter(models.AptisReadingSubmission.status == status_filter)
             

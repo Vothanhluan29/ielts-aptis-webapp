@@ -32,24 +32,13 @@ const useAuthStore = create((set, get) => ({
   isSessionExpiredAlertShown: false,
 
   handleSessionExpired: () => {
-    const { isSessionExpiredAlertShown } = get();
+    const publicPaths = ['/', '/login', '/register', '/choose-mode'];
 
-    // Prevent stacking
-    if (isSessionExpiredAlertShown || window.location.pathname === '/login') return;
+    // Prevent redirect loop or redirecting from public pages
+    if (publicPaths.includes(window.location.pathname)) return;
 
-    set({ isSessionExpiredAlertShown: true });
-
-    Modal.warning({
-      title: 'Session Expired',
-      content: 'Your session has expired. Please log in again to continue.',
-      okText: 'Go to Login',
-      centered: true,
-      zIndex: 9999,
-      onOk: () => {
-        set({ isSessionExpiredAlertShown: false, user: null });
-        window.location.href = '/login';
-      },
-    });
+    set({ user: null });
+    window.location.href = '/login';
   }
 }));
 

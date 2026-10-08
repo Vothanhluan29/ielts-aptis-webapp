@@ -6,6 +6,7 @@ from app.modules.IELTS.writing.models import WritingSubmission, WritingTest, Wri
 from app.modules.IELTS.writing import schemas
 from app.modules.subscriptions.service import SubscriptionService
 from .utils import WritingUtils
+from app.core.teacher_scope import apply_teacher_submission_scope
 
 class WritingSubmissionService:
     @staticmethod
@@ -48,12 +49,14 @@ class WritingSubmissionService:
     # --- ADMIN: SUBMISSION MANAGEMENT ---
     
     @staticmethod
-    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 10, status_filter: Optional[str] = None):
+    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 10, status_filter: Optional[str] = None, actor=None):
         query = db.query(WritingSubmission).options(
             joinedload(WritingSubmission.user),
             joinedload(WritingSubmission.test)
         ).filter(WritingSubmission.is_full_test_only == False)
         
+        if actor is not None:
+            query = apply_teacher_submission_scope(query, WritingSubmission, actor)
         if status_filter:
             query = query.filter(WritingSubmission.status == status_filter)
             

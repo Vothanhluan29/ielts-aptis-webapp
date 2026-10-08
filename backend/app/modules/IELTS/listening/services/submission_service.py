@@ -6,6 +6,7 @@ from sqlalchemy import func
 from app.modules.IELTS.listening import models, schemas
 from .utils import ListeningUtils
 from .test_service import ListeningTestService
+from app.core.teacher_scope import apply_teacher_submission_scope
 
 class ListeningSubmissionService:
 
@@ -167,12 +168,14 @@ class ListeningSubmissionService:
 
     # --- ADMIN: SUBMISSION MANAGEMENT ---
     @staticmethod
-    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, status_filter: Optional[str] = None):
+    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, status_filter: Optional[str] = None, actor=None):
         query = db.query(models.ListeningSubmission).options(
             joinedload(models.ListeningSubmission.user),
             joinedload(models.ListeningSubmission.test)
         )
         
+        if actor is not None:
+            query = apply_teacher_submission_scope(query, models.ListeningSubmission, actor)
         if status_filter:
             query = query.filter(models.ListeningSubmission.status == status_filter)
             

@@ -58,6 +58,8 @@ class UserService:
     @staticmethod
     def get_user_with_stats(db: Session, user: User):
         db.refresh(user)
+        if str(getattr(user.role, "value", user.role)).lower() == UserRole.TEACHER.value:
+            user.managed_classes = [assignment.class_code for assignment in user.teacher_classes]
         return user
 
     # --- UPDATE USER ---

@@ -7,6 +7,7 @@ from typing import Optional, List
 from app.modules.IELTS.exam.models import FullTest, ExamSubmission, ExamStatus, ExamStep
 from app.modules.IELTS.exam import schemas
 from app.modules.subscriptions.service import SubscriptionService
+from app.core.teacher_scope import apply_teacher_submission_scope
 
 class ExamService:
 
@@ -274,7 +275,7 @@ class ExamService:
     # ADMIN - SUBMISSION MANAGEMENT
     # =======================================================
     @staticmethod
-    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, status_filter: Optional[str] = None):
+    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, status_filter: Optional[str] = None, actor=None):
         query = db.query(ExamSubmission).options(
             joinedload(ExamSubmission.user),
             joinedload(ExamSubmission.full_test),
@@ -283,6 +284,8 @@ class ExamService:
             joinedload(ExamSubmission.writing_submission),
             joinedload(ExamSubmission.speaking_submission)
         )
+        if actor is not None:
+            query = apply_teacher_submission_scope(query, ExamSubmission, actor)
 
         if status_filter:
             query = query.filter(ExamSubmission.status == status_filter)

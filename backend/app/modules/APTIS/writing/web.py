@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 # Local Application Core Imports
 from app.core.AI.writing_aptis_suggestion import suggestion_service
 from app.core.database import get_db
+from app.core.teacher_scope import ensure_teacher_can_access_student
 from app.core.dependencies import get_aptis_manager_user, get_current_user
 
 # Local Application Modules Imports
@@ -170,7 +171,9 @@ def get_submission_detail(
         raise HTTPException(status_code=404, detail="Submission not found")
 
     is_admin = str(getattr(user, "role", "")).upper() in ["ADMIN", "TEACHER"]
-    if not is_admin and sub.user_id != user.id:
+    if is_admin:
+        ensure_teacher_can_access_student(db, user, sub.user_id)
+    elif sub.user_id != user.id:
         raise HTTPException(status_code=404, detail="Submission not found")
 
     return sub
@@ -189,7 +192,7 @@ def admin_get_all_submissions(
     db: Session = Depends(get_db),
     admin=Depends(get_aptis_manager_user),
 ):
-    return AptisWritingSubmissionService.get_all_submissions_for_admin(db, skip, limit, is_full_test_only, status)
+    return AptisWritingSubmissionService.get_all_submissions_for_admin(db, skip, limit, is_full_test_only, status, actor=admin)
 
 
 @router.get("/admin/users/{user_id}/submissions", response_model=List[schemas.AdminWritingSubmissionResponse])
@@ -198,6 +201,7 @@ def admin_get_user_submissions(
     db: Session = Depends(get_db),
     admin=Depends(get_aptis_manager_user),
 ):
+    ensure_teacher_can_access_student(db, admin, user_id)
     return AptisWritingSubmissionService.get_user_history_for_admin(db, user_id)
 
 
@@ -208,6 +212,10 @@ def admin_grade_submission(
     db: Session = Depends(get_db),
     admin=Depends(get_aptis_manager_user),
 ):
+    sub = AptisWritingSubmissionService.get_submission_detail(db, submission_id)
+    if not sub:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    ensure_teacher_can_access_student(db, admin, sub.user_id)
     sub = AptisWritingSubmissionService.grade_submission(db, submission_id, admin.id, req)
     if not sub:
         raise HTTPException(status_code=404, detail="Submission not found")

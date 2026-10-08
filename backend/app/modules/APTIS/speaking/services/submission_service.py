@@ -10,6 +10,7 @@ from app.modules.APTIS.speaking.models import (
 from app.modules.APTIS.speaking import schemas
 from app.modules.notifications import models as notif_models
 from app.core.websockets import manager
+from app.core.teacher_scope import apply_teacher_submission_scope
 
 class AptisSpeakingSubmissionService:
     @staticmethod
@@ -114,13 +115,15 @@ class AptisSpeakingSubmissionService:
         ).filter(AptisSpeakingSubmission.id == submission_id).first()
     
     @staticmethod
-    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, is_full_test_only: Optional[bool] = False, status_filter: Optional[str] = None):
+    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, is_full_test_only: Optional[bool] = False, status_filter: Optional[str] = None, actor=None):
         query = db.query(AptisSpeakingSubmission).options(
             joinedload(AptisSpeakingSubmission.user),
             joinedload(AptisSpeakingSubmission.test),
             joinedload(AptisSpeakingSubmission.grader)
         )
         
+        if actor is not None:
+            query = apply_teacher_submission_scope(query, AptisSpeakingSubmission, actor)
         if status_filter:
             query = query.filter(AptisSpeakingSubmission.status == status_filter)
         if is_full_test_only is not None:

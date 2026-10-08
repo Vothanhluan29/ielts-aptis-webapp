@@ -22,7 +22,6 @@ const listeningAptisAdminApi = {
     const formData = new FormData();
     formData.append('file', file);
     return axiosClient.post('/aptis/listening/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
       onUploadProgress: (progressEvent) => {
         if (onProgress && progressEvent.total) {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);

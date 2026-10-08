@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 
 from app.core.database import get_db
+from app.core.teacher_scope import ensure_teacher_can_access_student
 from app.core.dependencies import get_current_user, get_aptis_manager_user 
 
 from app.modules.APTIS.grammar_vocab import schemas
@@ -145,8 +146,11 @@ def get_submission_detail(
         raise HTTPException(status_code=404, detail="Submission not found")
     
     user_role = str(getattr(user, "role", "")).upper()
-    is_admin = user_role in ["ADMIN", "TEACHER"]
-    if not is_admin and sub.user_id != user.id: 
+    is_admin = user_role == "ADMIN"
+    is_teacher = user_role == "TEACHER"
+    if is_teacher:
+        ensure_teacher_can_access_student(db, user, sub.user_id)
+    elif not is_admin and sub.user_id != user.id:
         raise HTTPException(status_code=403, detail="Not authorized to view this submission")
         
     return sub
@@ -169,7 +173,7 @@ def admin_get_all_submissions(
 ):
     """[ADMIN] Lay danh sach tat ca bai lam Grammar&Vocab thi le (is_full_test_only=False)."""
     return GrammarVocabSubmissionService.get_all_submissions_for_admin(
-        db, skip=skip, limit=limit, is_full_test_only=False
+        db, skip=skip, limit=limit, is_full_test_only=False, actor=admin
     )
 
 
@@ -187,4 +191,5 @@ def admin_get_submission_detail(
     sub = GrammarVocabSubmissionService.get_submission_detail(db, submission_id)
     if not sub:
         raise HTTPException(status_code=404, detail="Submission not found")
+    ensure_teacher_can_access_student(db, admin, sub.user_id)
     return sub

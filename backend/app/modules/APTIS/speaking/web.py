@@ -4,6 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from typing import List, Optional
 
 from app.core.database import get_db
+from app.core.teacher_scope import ensure_teacher_can_access_student
 from app.core.dependencies import get_current_user, get_aptis_manager_user
 
 from app.modules.APTIS.speaking import  schemas
@@ -203,7 +204,9 @@ def get_aptis_submission_detail(
     user_role = str(getattr(user, "role", "")).upper()
     is_admin = user_role in ["ADMIN", "TEACHER"]
 
-    if not is_admin and sub.user_id != user.id:
+    if is_admin:
+        ensure_teacher_can_access_student(db, user, sub.user_id)
+    elif sub.user_id != user.id:
         raise HTTPException(status_code=404, detail="Submission not found")
 
     return sub
@@ -223,7 +226,7 @@ def admin_get_all_aptis_submissions(
     admin = Depends(get_aptis_manager_user)
 ):
     """[ADMIN] Retrieve submission list for table display (with pagination)"""
-    return AptisSpeakingSubmissionService.get_all_submissions_for_admin(db, skip, limit, is_full_test_only, status)
+    return AptisSpeakingSubmissionService.get_all_submissions_for_admin(db, skip, limit, is_full_test_only, status, actor=admin)
 
 
 @router.get("/admin/users/{target_user_id}/submissions", response_model=List[schemas.AdminAptisSpeakingSubmissionListResponse])
@@ -232,6 +235,7 @@ def admin_get_user_aptis_history(
     db: Session = Depends(get_db),
     admin = Depends(get_aptis_manager_user)
 ):
+    ensure_teacher_can_access_student(db, admin, target_user_id)
     return AptisSpeakingSubmissionService.get_user_history_for_admin(db, target_user_id)
 
 
@@ -243,6 +247,10 @@ def admin_grade_submission(
     admin = Depends(get_aptis_manager_user)
 ):
     """[ADMIN] Teacher listens to audio and manually grades each part"""
+    sub = AptisSpeakingSubmissionService.get_submission_detail(db, submission_id)
+    if not sub:
+        raise HTTPException(status_code=404, detail="Submission not found")
+    ensure_teacher_can_access_student(db, admin, sub.user_id)
     sub = AptisSpeakingSubmissionService.grade_submission(db, submission_id, admin.id, req)
     if not sub:
         raise HTTPException(status_code=404, detail="Submission not found")

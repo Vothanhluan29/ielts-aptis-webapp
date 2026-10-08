@@ -12,6 +12,7 @@ from app.modules.APTIS.listening.models import (
 )
 from app.modules.APTIS.listening import schemas
 from .utils import AptisListeningUtils
+from app.core.teacher_scope import apply_teacher_submission_scope
 
 class AptisListeningSubmissionService:
     @staticmethod
@@ -226,11 +227,13 @@ class AptisListeningSubmissionService:
         )
 
     @staticmethod
-    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, status_filter: Optional[str] = None):
+    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, status_filter: Optional[str] = None, actor=None):
         query = db.query(AptisListeningSubmission).options(
             joinedload(AptisListeningSubmission.user),
             joinedload(AptisListeningSubmission.test)
         )
+        if actor is not None:
+            query = apply_teacher_submission_scope(query, AptisListeningSubmission, actor)
         if status_filter:
             query = query.filter(AptisListeningSubmission.status == status_filter)
             

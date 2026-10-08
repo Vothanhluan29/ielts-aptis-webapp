@@ -4,7 +4,8 @@ from sqlalchemy.exc import IntegrityError
 from typing import List, Optional, Dict, Any
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user, get_admin_user
+from app.core.dependencies import get_current_user, get_admin_user, get_aptis_manager_user
+from app.core.teacher_scope import ensure_teacher_can_access_student
 from app.modules.IELTS.writing import schemas
 
 from app.modules.IELTS.writing.services.utils import WritingUtils
@@ -155,8 +156,11 @@ def get_submission_detail(
 
     user_role = str(getattr(user, "role", "")).upper()
     is_admin = user_role == "ADMIN"
+    is_teacher = user_role == "TEACHER"
 
-    if not is_admin and sub.user_id != user.id:
+    if is_teacher:
+        ensure_teacher_can_access_student(db, user, sub.user_id)
+    elif not is_admin and sub.user_id != user.id:
         raise HTTPException(status_code=403, detail="Not authorized to view this submission")
 
     return sub
@@ -168,15 +172,16 @@ def admin_get_all_submissions(
     limit: int = Query(50, ge=1, le=100),
     status: Optional[str] = Query(None, description="Filter by submission status"),
     db: Session = Depends(get_db),
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
-    return WritingSubmissionService.get_all_submissions_for_admin(db, skip, limit, status)
+    return WritingSubmissionService.get_all_submissions_for_admin(db, skip, limit, status, actor=admin)
 
 
 @router.get("/admin/users/{target_user_id}/submissions", response_model=List[schemas.AdminWritingSubmissionResponse])
 def admin_get_user_history(
     target_user_id: int,
     db: Session = Depends(get_db),
-    admin = Depends(get_admin_user)
+    admin = Depends(get_aptis_manager_user)
 ):
+    ensure_teacher_can_access_student(db, admin, target_user_id)
     return WritingSubmissionService.get_user_history_for_admin(db, target_user_id)

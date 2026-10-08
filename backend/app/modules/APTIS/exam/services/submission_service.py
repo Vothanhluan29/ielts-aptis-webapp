@@ -6,6 +6,7 @@ from typing import Optional
 
 from app.modules.APTIS.exam.models import AptisFullTest, AptisExamSubmission, AptisExamStatus, AptisExamStep
 from .utils import AptisExamUtils
+from app.core.teacher_scope import apply_teacher_submission_scope
 
 class AptisExamSubmissionService:
     @staticmethod
@@ -117,7 +118,7 @@ class AptisExamSubmissionService:
         return subs
 
     @staticmethod
-    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, status_filter: Optional[str] = None):
+    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, status_filter: Optional[str] = None, actor=None):
         query = db.query(AptisExamSubmission).options(
             joinedload(AptisExamSubmission.user),
             joinedload(AptisExamSubmission.full_test),
@@ -128,6 +129,8 @@ class AptisExamSubmissionService:
             joinedload(AptisExamSubmission.speaking_submission)
         )
 
+        if actor is not None:
+            query = apply_teacher_submission_scope(query, AptisExamSubmission, actor)
         if status_filter:
             query = query.filter(AptisExamSubmission.status == status_filter)
 
@@ -177,4 +180,4 @@ class AptisExamSubmissionService:
 
         # Populate dynamic attributes để schema serialize đúng
         AptisExamUtils.recalculate_overall_score(db, sub, auto_commit=False)
-        return sub
+        return sub

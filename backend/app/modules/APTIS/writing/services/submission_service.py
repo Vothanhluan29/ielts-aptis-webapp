@@ -10,6 +10,7 @@ from app.modules.APTIS.writing.models import (
 from app.modules.APTIS.writing import schemas
 from app.modules.notifications import models as notif_models
 from app.core.websockets import manager
+from app.core.teacher_scope import apply_teacher_submission_scope
 
 class AptisWritingSubmissionService:
     @staticmethod
@@ -57,12 +58,14 @@ class AptisWritingSubmissionService:
 
     # --- ADMIN: SUBMISSION MANAGEMENT & MANUAL GRADING ---
     @staticmethod
-    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, is_full_test_only: Optional[bool] = False, status_filter: Optional[str] = None):
+    def get_all_submissions_for_admin(db: Session, skip: int = 0, limit: int = 50, is_full_test_only: Optional[bool] = False, status_filter: Optional[str] = None, actor=None):
         query = db.query(AptisWritingSubmission).options(
             joinedload(AptisWritingSubmission.user),
             joinedload(AptisWritingSubmission.test),
             joinedload(AptisWritingSubmission.grader)
         )
+        if actor is not None:
+            query = apply_teacher_submission_scope(query, AptisWritingSubmission, actor)
         if is_full_test_only is not None:
             query = query.filter(AptisWritingSubmission.is_full_test_only == is_full_test_only)
         if status_filter:
