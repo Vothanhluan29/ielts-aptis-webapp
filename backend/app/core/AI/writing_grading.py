@@ -9,7 +9,8 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-genai.configure(api_key=settings.GEMINI_API_KEY)
+if settings.GEMINI_API_KEY:
+    genai.configure(api_key=settings.GEMINI_API_KEY)
 
 class IELTS_Writing_Grader:
     def __init__(self):
@@ -21,15 +22,17 @@ class IELTS_Writing_Grader:
             "response_mime_type": "application/json",
         }
         
-        self.model = genai.GenerativeModel(
-            model_name="models/gemini-2.5-flash-lite", 
-            generation_config=generation_config,
-            system_instruction="""You are an extremely strict, senior IELTS Examiner. 
+        self.model = None
+        if settings.GEMINI_API_KEY:
+            self.model = genai.GenerativeModel(
+                model_name="models/gemini-2.5-flash-lite",
+                generation_config=generation_config,
+                system_instruction="""You are an extremely strict, senior IELTS Examiner.
             Your job is to grade Writing tasks accurately based on the official Band Descriptors.
             You are known for being harsh but highly accurate. DO NOT inflate scores. 
             Your primary goal is to meticulously identify ALL grammatical, lexical, punctuation, and structural errors in the candidate's essay and provide exact corrections.
             For Task 1, you MUST cross-reference the essay with the provided chart/diagram image to ensure data accuracy. Penalize severely for reporting inaccurate data or missing the main overview."""
-        )
+            )
 
         # --- TASK 1 RUBRIC ---
         self.TASK_1_RUBRIC = """
@@ -90,6 +93,13 @@ class IELTS_Writing_Grader:
             return None
 
     def grade_writing(self, task1_question, task1_answer, task2_question, task2_answer, task1_image_url=None):
+
+        if self.model is None:
+            return {
+                "task1": {"ta": 0, "cc": 0, "lr": 0, "gra": 0, "feedback": "AI grading is unavailable because Gemini is not configured.", "correction": []},
+                "task2": {"tr": 0, "cc": 0, "lr": 0, "gra": 0, "feedback": "AI grading is unavailable because Gemini is not configured.", "correction": []},
+                "general_feedback": "AI grading is unavailable because Gemini is not configured on this server."
+            }
         
         has_t1 = task1_answer and len(task1_answer.strip()) > 10
         has_t2 = task2_answer and len(task2_answer.strip()) > 10

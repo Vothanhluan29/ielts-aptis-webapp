@@ -282,8 +282,10 @@ export const useListeningAptisEdit = () => {
       onSuccess('Ok');
       message.success(`${file.name} uploaded successfully!`);
     } catch (err) {
-      onError({ err });
-      message.error(`${file.name} upload failed.`);
+      onError(err);
+      message.error(err?.response?.status === 413
+        ? 'Listening audio exceeds the 200 MB limit.'
+        : err?.response?.data?.detail || err?.message || `${file.name} upload failed.`);
     } finally {
       setUploadProgress(prev => {
         const next = { ...prev };

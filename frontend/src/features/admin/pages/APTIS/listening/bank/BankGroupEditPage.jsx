@@ -146,7 +146,9 @@ const BankGroupEditPage = () => {
       }
       onSuccess('ok');
     } catch (error) {
-      message.error('Upload failed');
+      message.error(error?.response?.status === 413
+        ? 'Listening audio exceeds the 200 MB limit.'
+        : error?.response?.data?.detail || error?.message || 'Upload failed');
       onError(error);
     } finally {
       setUploadProgress(prev => {

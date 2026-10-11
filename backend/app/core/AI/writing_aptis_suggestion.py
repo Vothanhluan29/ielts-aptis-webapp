@@ -7,7 +7,8 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-genai.configure(api_key=settings.GEMINI_API_KEY)
+if settings.GEMINI_API_KEY:
+    genai.configure(api_key=settings.GEMINI_API_KEY)
 
 class WritingAptisSuggestion:
     def __init__(self):
@@ -19,14 +20,16 @@ class WritingAptisSuggestion:
             "response_mime_type": "application/json",
         }
         
-        self.model = genai.GenerativeModel(
-            model_name="models/gemini-2.5-flash-lite", 
-            generation_config=generation_config,
-            system_instruction="""You are an expert native English teacher (C2 level). 
+        self.model = None
+        if settings.GEMINI_API_KEY:
+            self.model = genai.GenerativeModel(
+                model_name="models/gemini-2.5-flash-lite",
+                generation_config=generation_config,
+                system_instruction="""You are an expert native English teacher (C2 level).
             Your job is to provide specific, highly accurate suggestions to improve sentences written by ESL students.
             You should correct grammar and vocabulary, and offer both a natural version and an advanced version of the sentence.
             You must reply in valid JSON format."""
-        )
+            )
 
     def _clean_json_string(self, json_str: str) -> str:
         if not json_str: return "{}"
@@ -37,6 +40,17 @@ class WritingAptisSuggestion:
     def get_suggestion(self, text: str, part_context: str = None):
         if not text or len(text.strip()) < 2:
             return {"suggestions": []}
+
+        if self.model is None:
+            return {
+                "suggestions": [
+                    {
+                        "type": "Error",
+                        "rewritten_text": text,
+                        "explanation": "AI suggestions are unavailable because Gemini is not configured on this server."
+                    }
+                ]
+            }
 
         context_instruction = ""
         if part_context:

@@ -31,8 +31,10 @@ async def upload_file(file: UploadFile, folder_name: str) -> str:
             detail=f"File extension '{file_ext}' is not allowed. Permitted: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
         )
 
-    # File size limits
-    MAX_AUDIO_SIZE = 50 * 1024 * 1024  # 50MB
+    # Listening recordings can be longer than speaking recordings.
+    safe_folder = os.path.basename(folder_name)
+    max_audio_size_mb = 200 if safe_folder in {"aptis_listening", "ielts_listening_audio"} else 50
+    max_audio_size = max_audio_size_mb * 1024 * 1024
     MAX_IMAGE_SIZE = 10 * 1024 * 1024  # 10MB
 
     file.file.seek(0, os.SEEK_END)
@@ -42,12 +44,10 @@ async def upload_file(file: UploadFile, folder_name: str) -> str:
     if file_ext in {".jpg", ".jpeg", ".png", ".gif", ".webp"} and file_size > MAX_IMAGE_SIZE:
         raise HTTPException(status_code=413, detail="Image file size exceeds limit (Max 10MB)")
 
-    if file_ext in {".mp3", ".wav", ".webm", ".m4a", ".ogg", ".aac", ".flac"} and file_size > MAX_AUDIO_SIZE:
-        raise HTTPException(status_code=413, detail="Audio file size exceeds limit (Max 50MB)")
+    if file_ext in {".mp3", ".wav", ".webm", ".m4a", ".ogg", ".aac", ".flac"} and file_size > max_audio_size:
+        raise HTTPException(status_code=413, detail=f"Audio file size exceeds limit (Max {max_audio_size_mb}MB)")
 
     # Sanitize folder name to prevent directory traversal
-    safe_folder = os.path.basename(folder_name)
-
     upload_dir = os.path.join("static", safe_folder)
     os.makedirs(upload_dir, exist_ok=True)
 

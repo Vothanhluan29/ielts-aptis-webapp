@@ -39,6 +39,9 @@ export const listeningAdminApi = {
 
   // Upload Audio (MP3/WAV)
   uploadAudio: (file) => {
+    if (file.size > 200 * 1024 * 1024) {
+      return Promise.reject(new Error('Listening audio exceeds the 200 MB limit.'));
+    }
     const formData = new FormData();
     formData.append('file', file);
     return axiosClient.post(`${BASE_URL}/upload`, formData, {

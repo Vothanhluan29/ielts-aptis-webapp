@@ -1,4 +1,4 @@
-from fastapi import UploadFile
+from fastapi import HTTPException, UploadFile
 import os
 from app.core.storage import upload_file
 
@@ -37,6 +37,8 @@ class ListeningUtils:
                 raise ValueError("Could not save the audio file.")
 
             return audio_url
+        except HTTPException:
+            raise
         except Exception as e:
             raise ValueError(f"Error saving file: {str(e)}")
 

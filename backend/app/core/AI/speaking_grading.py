@@ -8,20 +8,23 @@ import logging
 from app.core.config import settings
 logger = logging.getLogger(__name__)
 
-genai.configure(api_key=settings.GEMINI_API_KEY)
+if settings.GEMINI_API_KEY:
+    genai.configure(api_key=settings.GEMINI_API_KEY)
 
 class IELTS_Speaking_Grader:
     def __init__(self):
-        self.model = genai.GenerativeModel(
-            model_name="models/gemini-2.5-flash", 
-            generation_config={
-                "temperature": 0.1, 
-                "response_mime_type": "application/json"
-            },
-            system_instruction="""You are a strict, highly experienced, and certified IELTS Speaking Examiner. 
+        self.model = None
+        if settings.GEMINI_API_KEY:
+            self.model = genai.GenerativeModel(
+                model_name="models/gemini-2.5-flash",
+                generation_config={
+                    "temperature": 0.1,
+                    "response_mime_type": "application/json"
+                },
+                system_instruction="""You are a strict, highly experienced, and certified IELTS Speaking Examiner.
             Your job is to listen to student audio responses, transcribe them accurately, and grade them strictly based on the official IELTS Speaking Band Descriptors. 
             Do not inflate scores. Pay close attention to pronunciation (L1 interference) and fluency."""
-        )
+            )
 
         self.SPEAKING_RUBRIC = """
         OFFICIAL IELTS SPEAKING BAND DESCRIPTORS (Apply strictly):
@@ -69,6 +72,8 @@ class IELTS_Speaking_Grader:
 
     def grade_single_part(self, audio_path: str, question_text: str, part_number: int):
         logger.info(f"Processing Audio Question for Part {part_number}: {audio_path}")
+        if self.model is None:
+            return self._return_error_result("AI grading is unavailable because Gemini is not configured on this server.")
         gemini_file = None
         
         try:

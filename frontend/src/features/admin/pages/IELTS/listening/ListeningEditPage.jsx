@@ -283,7 +283,9 @@ const ListeningEditPage = () => {
                                   } catch (error) {
                                     hideLoading();
                                     console.error("Upload error:", error);
-                                    message.error('Failed to upload audio. Please check your server.');
+                                    message.error(error?.response?.status === 413
+                                      ? 'Listening audio exceeds the 200 MB limit.'
+                                      : error?.response?.data?.detail || error?.message || 'Failed to upload audio.');
                                     onError(error);
                                   }
                                 }}
