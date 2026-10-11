@@ -1,4 +1,4 @@
-import axiosClient from '../services/axiosClient';
+import axiosClient from './axiosClient';
 
 const usersApi = {
   getUsers(params) {
