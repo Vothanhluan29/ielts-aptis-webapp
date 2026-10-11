@@ -2,8 +2,12 @@ import axios from 'axios';
 import { message } from 'antd';
 import useAuthStore from '../store/authStore';
 
+// In production, send API traffic through the same-origin Nginx proxy. This
+// avoids browser CORS failures when the UI and API use different hostnames.
+const API_BASE_URL = import.meta.env.PROD ? '/api' : import.meta.env.VITE_API_BASE_URL;
+
 const axiosClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL, 
+  baseURL: API_BASE_URL,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -40,7 +44,7 @@ axiosClient.interceptors.response.use(
         try {
           if (!refreshPromise) {
             refreshPromise = axios.post(
-              `${import.meta.env.VITE_API_BASE_URL}/auth/refresh`,
+              `${API_BASE_URL}/auth/refresh`,
               {},
               { withCredentials: true }
             )

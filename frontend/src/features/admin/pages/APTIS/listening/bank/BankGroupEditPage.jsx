@@ -146,7 +146,7 @@ const BankGroupEditPage = () => {
       }
       onSuccess('ok');
     } catch (error) {
-      message.error('Upload failed');
+      message.error(error.response?.data?.detail || error.message || 'Upload failed');
       onError(error);
     } finally {
       setUploadProgress(prev => {
