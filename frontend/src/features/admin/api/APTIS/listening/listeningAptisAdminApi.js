@@ -1,7 +1,6 @@
 import axiosClient from '../../../../../services/axiosClient';
 
 const ADMIN_BASE_URL = '/aptis/listening/admin';
-const MAX_AUDIO_SIZE_BYTES = 200 * 1024 * 1024;
 
 const listeningAptisAdminApi = {
   getTests: (params) =>
@@ -20,9 +19,6 @@ const listeningAptisAdminApi = {
     axiosClient.delete(`${ADMIN_BASE_URL}/tests/${testId}`),
 
   uploadAudio: (file, onProgress) => {
-    if (file.size > MAX_AUDIO_SIZE_BYTES) {
-      return Promise.reject(new Error('Audio file exceeds the 200 MB limit.'));
-    }
     const formData = new FormData();
     formData.append('file', file);
     return axiosClient.post('/aptis/listening/upload', formData, {

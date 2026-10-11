@@ -283,7 +283,7 @@ export const useListeningAptisEdit = () => {
       message.success(`${file.name} uploaded successfully!`);
     } catch (err) {
       onError({ err });
-      message.error(err.response?.data?.detail || err.message || `${file.name} upload failed.`);
+      message.error(`${file.name} upload failed.`);
     } finally {
       setUploadProgress(prev => {
         const next = { ...prev };
