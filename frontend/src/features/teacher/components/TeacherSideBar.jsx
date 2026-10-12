@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { createPortal } from "react-dom";
 import {
   ChevronRight,
   ChevronLeft,
@@ -57,51 +58,124 @@ const NavItem = ({ to, icon: Icon, label, isActive, isCollapsed, badge }) => (
 );
 
 /* ── DropdownMenu (collapsible group) ── */
-const DropdownMenu = ({ icon: Icon, label, isOpen, onToggle, isCollapsed, children }) => (
-  <div className="pt-0.5">
-    <button
-      onClick={onToggle}
-      title={isCollapsed ? label : ""}
-      className={`w-full flex items-center justify-between transition-all duration-200 group rounded-l-full rounded-r-none ${
-        isOpen
-          ? "bg-white/10 !text-white font-bold"
-          : "!text-white/80 hover:bg-white/10 hover:!text-white font-medium"
-      } ${isCollapsed ? "justify-center h-12 w-12 mx-auto rounded-full" : "pl-4 pr-3 py-3"}`}
-    >
-      <div className="flex items-center gap-3">
-        <Icon
-          size={18}
-          className={`transition-colors duration-200 ${
-            isOpen ? "!text-white" : "!text-white/70 group-hover:!text-white"
-          }`}
-        />
-        {!isCollapsed && <span className="text-[14px]">{label}</span>}
-      </div>
-      {!isCollapsed && (
-        <ChevronRight
-          size={14}
-          className={`transition-transform duration-300 ${
-            isOpen ? `rotate-90 !text-white` : "!text-white/70 group-hover:!text-white"
-          }`}
-        />
-      )}
-    </button>
+const DropdownMenu = ({ icon: Icon, label, isOpen, onToggle, isCollapsed, children }) => {
+  const [popoverPosition, setPopoverPosition] = useState(null);
+  const buttonRef = useRef(null);
+  const popoverRef = useRef(null);
 
-    {!isCollapsed && (
-      <div
-        className={`grid transition-all duration-300 ease-in-out ${
-          isOpen ? "grid-rows-[1fr] opacity-100 mt-1.5" : "grid-rows-[0fr] opacity-0"
-        }`}
+  useEffect(() => {
+    if (!popoverPosition) return undefined;
+
+    const closeOnOutsideClick = event => {
+      if (buttonRef.current?.contains(event.target) || popoverRef.current?.contains(event.target)) return;
+      setPopoverPosition(null);
+    };
+    const closeOnEscape = event => {
+      if (event.key === "Escape") setPopoverPosition(null);
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [popoverPosition]);
+
+  useEffect(() => {
+    if (!isCollapsed) setPopoverPosition(null);
+  }, [isCollapsed]);
+
+  const handleToggle = () => {
+    if (!isCollapsed) {
+      onToggle();
+      return;
+    }
+
+    if (popoverPosition) {
+      setPopoverPosition(null);
+      return;
+    }
+
+    const rect = buttonRef.current?.getBoundingClientRect();
+    if (rect) {
+      setPopoverPosition({
+        top: Math.min(rect.top, Math.max(12, window.innerHeight - 300)),
+        left: rect.right + 8,
+      });
+    }
+  };
+
+  const popover = popoverPosition && createPortal(
+    <div
+      ref={popoverRef}
+      role="menu"
+      aria-label={`${label} menu`}
+      style={{ position: "fixed", top: popoverPosition.top, left: popoverPosition.left }}
+      className="z-[100] w-60 rounded-2xl border border-white/15 bg-[#445A95] p-3 text-white shadow-2xl shadow-slate-950/30"
+      onClick={event => {
+        if (event.target.closest("a")) setPopoverPosition(null);
+      }}
+    >
+      <div className="mb-2 flex items-center gap-2 border-b border-white/15 px-2 pb-2 text-xs font-bold uppercase tracking-wider text-white/70">
+        <Icon size={15} />
+        {label}
+      </div>
+      <div className="space-y-1">{children}</div>
+    </div>,
+    document.body
+  );
+
+  return (
+    <div className="pt-0.5">
+      <button
+        ref={buttonRef}
+        onClick={handleToggle}
+        title={isCollapsed ? label : ""}
+        aria-haspopup={isCollapsed ? "menu" : undefined}
+        aria-expanded={isCollapsed ? Boolean(popoverPosition) : isOpen}
+        className={`w-full flex items-center justify-between transition-all duration-200 group rounded-l-full rounded-r-none ${
+          isOpen || popoverPosition
+            ? "bg-white/10 !text-white font-bold"
+            : "!text-white/80 hover:bg-white/10 hover:!text-white font-medium"
+        } ${isCollapsed ? "justify-center h-12 w-12 mx-auto rounded-full" : "pl-4 pr-3 py-3"}`}
       >
-        <div className="overflow-hidden">
-          <div className="ml-5 border-l-2 border-white/10 pl-2 py-1 space-y-1">
-            {children}
+        <div className="flex items-center gap-3">
+          <Icon
+            size={18}
+            className={`transition-colors duration-200 ${
+              isOpen || popoverPosition ? "!text-white" : "!text-white/70 group-hover:!text-white"
+            }`}
+          />
+          {!isCollapsed && <span className="text-[14px]">{label}</span>}
+        </div>
+        {!isCollapsed && (
+          <ChevronRight
+            size={14}
+            className={`transition-transform duration-300 ${
+              isOpen ? `rotate-90 !text-white` : "!text-white/70 group-hover:!text-white"
+            }`}
+          />
+        )}
+      </button>
+
+      {!isCollapsed && (
+        <div
+          className={`grid transition-all duration-300 ease-in-out ${
+            isOpen ? "grid-rows-[1fr] opacity-100 mt-1.5" : "grid-rows-[0fr] opacity-0"
+          }`}
+        >
+          <div className="overflow-hidden">
+            <div className="ml-5 border-l-2 border-white/10 pl-2 py-1 space-y-1">
+              {children}
+            </div>
           </div>
         </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+      {popover}
+    </div>
+  );
+};
 
 /* ── SubLink ── */
 const SubLink = ({ to, label, isActive }) => (
