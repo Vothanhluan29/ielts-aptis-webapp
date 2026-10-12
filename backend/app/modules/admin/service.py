@@ -1,15 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from datetime import datetime, date
+from datetime import date
 
 from app.modules.users.models import User
-from app.modules.IELTS.exam.models import FullTest, ExamSubmission 
-
-# Import models IELTS
-from app.modules.IELTS.reading.models import ReadingTest
-from app.modules.IELTS.listening.models import ListeningTest
-from app.modules.IELTS.writing.models import WritingTest
-from app.modules.IELTS.speaking.models import SpeakingTest
 from app.modules.APTIS.exam.models import  AptisFullTest, AptisExamSubmission
 
 from app.modules.APTIS.grammar_vocab.models import AptisGrammarVocabTest 
@@ -27,20 +20,10 @@ class AdminService:
             "total_users": db.query(func.count(User.id)).scalar() or 0,
             "new_users_today": db.query(func.count(User.id)).filter(func.date(User.created_at) == today).scalar() or 0,
             
-            "total_submissions": db.query(func.count(ExamSubmission.id)).scalar() or 0,
-            "total_full_tests": db.query(func.count(FullTest.id)).scalar() or 0,
             "total_aptis_full_tests": db.query(func.count(AptisFullTest.id)).scalar() or 0,
             "total_aptis_submissions": db.query(func.count(AptisExamSubmission.id)).scalar() or 0,
-
-            # 2.  IELTS Skills Distribution
-            "ielts_skills": {
-                "Reading": db.query(func.count(ReadingTest.id)).scalar() or 0,
-                "Listening": db.query(func.count(ListeningTest.id)).scalar() or 0,
-                "Writing": db.query(func.count(WritingTest.id)).scalar() or 0,
-                "Speaking": db.query(func.count(SpeakingTest.id)).scalar() or 0,
-            },
             
-            # 3. APTIS Skill Distribution
+            # APTIS Skill Distribution
             "aptis_skills": {
                 "GrammarVocab": db.query(func.count(AptisGrammarVocabTest.id)).scalar() or 0,
                 "Reading": db.query(func.count(AptisReadingTest.id)).scalar() or 0,

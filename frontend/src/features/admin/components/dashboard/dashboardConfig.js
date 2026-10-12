@@ -23,13 +23,6 @@ export const TEACHER_STAT_CARDS = [
   { title: 'Available Tests', key: 'total_aptis_full_tests', icon: Trophy, color: 'text-orange-600', bg: 'bg-orange-500/10', ring: 'ring-orange-500/20', desc: 'Tests ready to assign' },
 ];
 
-export const IELTS_SKILLS = [
-  { key: 'Reading', icon: BookOpen, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-  { key: 'Listening', icon: Headphones, color: 'text-teal-500', bg: 'bg-teal-500/10' },
-  { key: 'Writing', icon: Edit3, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-  { key: 'Speaking', icon: Mic, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-];
-
 export const APTIS_SKILLS = [
   { key: 'GrammarVocab', label: 'Grammar & Vocab', icon: GraduationCap, color: 'text-pink-500', bg: 'bg-pink-500/10', fill: '#ec4899', route: '/teacher/grammar-vocab' },
   { key: 'Reading', label: 'Reading', icon: BookOpen, color: 'text-blue-500', bg: 'bg-blue-500/10', fill: '#3b82f6', route: '/teacher/reading' },
