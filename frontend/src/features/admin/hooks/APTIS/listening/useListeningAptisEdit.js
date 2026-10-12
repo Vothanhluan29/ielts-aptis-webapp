@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Form, message } from 'antd';
 
 import listeningAptisAdminApi from '../../../api/APTIS/listening/listeningAptisAdminApi';
+import { apiErrorMessage } from '../../../../../services/apiErrorMessage';
 import { useAutoSaveDraft } from '../../../../../hooks/useAutoSaveDraft';
 
 export const useListeningAptisEdit = () => {
@@ -285,7 +286,7 @@ export const useListeningAptisEdit = () => {
       onError(err);
       message.error(err?.response?.status === 413
         ? 'Listening audio exceeds the 200 MB limit.'
-        : err?.response?.data?.detail || err?.message || `${file.name} upload failed.`);
+        : apiErrorMessage(err, `${file.name} upload failed.`));
     } finally {
       setUploadProgress(prev => {
         const next = { ...prev };

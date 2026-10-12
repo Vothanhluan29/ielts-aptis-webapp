@@ -13,6 +13,7 @@ import { BlurInput, BlurTextArea } from '../../../../../../components/common/Blu
 
 import aptisListeningBankApi from '../../../../api/APTIS/listening/aptisListeningBankApi';
 import listeningAptisAdminApi from '../../../../api/APTIS/listening/listeningAptisAdminApi';
+import { apiErrorMessage } from '../../../../../../services/apiErrorMessage';
 
 const { Option } = Select;
 
@@ -148,7 +149,7 @@ const BankGroupEditPage = () => {
     } catch (error) {
       message.error(error?.response?.status === 413
         ? 'Listening audio exceeds the 200 MB limit.'
-        : error?.response?.data?.detail || error?.message || 'Upload failed');
+        : apiErrorMessage(error, 'Upload failed'));
       onError(error);
     } finally {
       setUploadProgress(prev => {

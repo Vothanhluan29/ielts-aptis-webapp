@@ -31,8 +31,6 @@ const authApi = {
 
   updateProfile: (data) => axiosClient.patch('/users/me', data),
 
-  changePassword: (data) => axiosClient.post('/users/me/password', data),
-
   // Upload Avatar
   uploadAvatar: (file) => {
     const formData = new FormData();

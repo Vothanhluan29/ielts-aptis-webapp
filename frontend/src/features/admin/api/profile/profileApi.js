@@ -13,10 +13,7 @@ const profileApi = {
     return axiosClient.patch('/users/me/avatar', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-  },
-
-  changePassword: (passwordData) =>
-    axiosClient.post('/users/me/password', passwordData),
+  }
 };
 
 export default profileApi;

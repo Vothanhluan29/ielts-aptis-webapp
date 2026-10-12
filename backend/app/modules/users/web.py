@@ -46,17 +46,6 @@ def update_user_me(
 
     return UserService.update_user(db, current_user, user_update)
 
-@router.post("/me/password")
-def change_password(
-    password_data: schemas.ChangePassword,
-    db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
-):
-
-    return UserService.change_password(db, current_user, password_data)
-
-
-
 @router.get("/", response_model=schemas.UserPaginationResponse)
 def get_all_users_by_admin(
     skip: int = Query(0, ge=0), 

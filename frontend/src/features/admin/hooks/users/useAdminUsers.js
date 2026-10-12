@@ -69,10 +69,10 @@ export const useAdminUsers = () => {
   const handleImportStudents = async (data) => {
     const hide = message.loading('Importing students...', 0);
     try {
-      await adminUserApi.importStudents(data);
+      const response = await adminUserApi.importStudents(data);
       hide();
-      message.success('Students imported successfully!');
       fetchUsers();
+      return response;
     } catch (error) {
       hide();
       console.error('Import students error:', error);

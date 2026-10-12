@@ -8,6 +8,7 @@ import {
 import { useListeningEdit } from '../../../hooks/IELTS/listening/useListeningEdit';
 import QuestionCard from '../../../components/IELTS/QuestionForms/QuestionCard';
 import { listeningAdminApi } from '../../../api/IELTS/listening/listeningAdminApi'; 
+import { apiErrorMessage } from '../../../../../services/apiErrorMessage';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -285,7 +286,7 @@ const ListeningEditPage = () => {
                                     console.error("Upload error:", error);
                                     message.error(error?.response?.status === 413
                                       ? 'Listening audio exceeds the 200 MB limit.'
-                                      : error?.response?.data?.detail || error?.message || 'Failed to upload audio.');
+                                      : apiErrorMessage(error, 'Failed to upload audio.'));
                                     onError(error);
                                   }
                                 }}

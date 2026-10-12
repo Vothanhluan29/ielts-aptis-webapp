@@ -31,10 +31,6 @@ class StudentImport(BaseModel):
 class TeacherClassAssign(BaseModel):
     class_codes: List[str]
 
-class ChangePassword(BaseModel):
-    current_password: str
-    new_password: str
-
 # --- Output ---
 class UserResponse(BaseModel):
     id: int
