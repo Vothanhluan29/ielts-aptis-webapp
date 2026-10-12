@@ -7,6 +7,7 @@ import ImportStudentModal from '../../components/users_management/ImportStudentM
 import AssignClassesModal from '../../components/users_management/AssignClassesModal';
 
 const { Option } = Select;
+const stripEmailDomain = value => value?.replace(/@[^\s]+$/, '') || value;
 
 export default function AdminUsersPage({ users = [], onUpdateUser, onDeleteUser, onImportStudents, onAssignClasses }) {
   const [importOpen, setImportOpen] = useState(false);
@@ -41,8 +42,8 @@ export default function AdminUsersPage({ users = [], onUpdateUser, onDeleteUser,
     },
     {
       title: 'Class', key: 'class_code', width: 160, render: (_, user) => {
-        if (user.role === 'student') return <Select mode="tags" allowClear placeholder="Assign class" value={user.class_code ? [user.class_code] : []} onChange={values => onUpdateUser(user.id, { class_code: values.length ? values[values.length - 1] : null })} className="w-full min-w-[110px]" size="small" options={classes.map(value => ({ label: value, value }))} />;
-        if (user.role === 'teacher' && user.managed_classes?.length) return <div className="flex flex-wrap gap-1">{user.managed_classes.map(classCode => <Tag key={classCode} color="orange" className="text-xs">{classCode}</Tag>)}</div>;
+        if (user.role === 'student') return <Select mode="tags" allowClear placeholder="Assign class" value={user.class_code ? [user.class_code] : []} onChange={values => onUpdateUser(user.id, { class_code: values.length ? values[values.length - 1] : null })} className="w-full min-w-[110px]" size="small" options={classes.map(value => ({ label: stripEmailDomain(value), value }))} />;
+        if (user.role === 'teacher' && user.managed_classes?.length) return <div className="flex flex-wrap gap-1">{user.managed_classes.map(classCode => <Tag key={classCode} color="orange" className="text-xs">{stripEmailDomain(classCode)}</Tag>)}</div>;
         return <span className="text-xs text-zinc-300">—</span>;
       },
     },

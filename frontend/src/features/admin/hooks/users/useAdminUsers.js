@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { message } from 'antd';
 import adminUserApi from '../../api/users/adminUserApi';
 
@@ -7,6 +7,7 @@ export const useAdminUsers = () => {
   const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+  const pendingUserUpdates = useRef(new Map());
 
 
   const fetchUsers = useCallback(async () => {
@@ -29,22 +30,36 @@ export const useAdminUsers = () => {
   }, [fetchUsers]);
 
   const handleUpdateUser = async (userId, updateData) => {
-    const hide = message.loading('Processing...', 0);
-    try {
-      await adminUserApi.updateUserByAdmin(userId, updateData);
-      hide();
-      message.success('User information updated successfully!');
+    const requestKey = `${userId}:${JSON.stringify(updateData)}`;
+    const pendingRequest = pendingUserUpdates.current.get(requestKey);
+    if (pendingRequest) return pendingRequest;
 
-      setUsers(prev =>
-        prev.map(u =>
-          u.id === userId ? { ...u, ...updateData } : u
-        )
-      );
-    } catch (error) {
-      hide();
-      console.error('Update user error:', error);
-      message.error(error.response?.data?.detail || 'Failed to update user information. Please try again!');
-    }
+    const updatePromise = (async () => {
+      const messageKey = `update-user-${userId}`;
+      message.loading({ content: 'Processing...', duration: 0, key: messageKey });
+      try {
+        await adminUserApi.updateUserByAdmin(userId, updateData);
+        message.success({ content: 'User information updated successfully!', key: messageKey });
+
+        setUsers(prev =>
+          prev.map(u =>
+            u.id === userId ? { ...u, ...updateData } : u
+          )
+        );
+      } catch (error) {
+        message.destroy(messageKey);
+        console.error('Update user error:', error);
+        message.error({
+          content: error.response?.data?.detail || 'Failed to update user information. Please try again!',
+          key: `${messageKey}-error`,
+        });
+      } finally {
+        pendingUserUpdates.current.delete(requestKey);
+      }
+    })();
+
+    pendingUserUpdates.current.set(requestKey, updatePromise);
+    return updatePromise;
   };
 
   const handleDeleteUser = async (userId) => {
